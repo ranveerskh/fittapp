@@ -12,20 +12,13 @@ const CORS_HEADERS = {
 function jsonResponse(statusCode, body) {
   return {
     statusCode,
-    headers: {
-      ...CORS_HEADERS,
-      "Content-Type": "application/json"
-    },
+    headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
     body: JSON.stringify(body)
   };
 }
 
 function getBearerToken(event) {
-  const header =
-    event.headers.authorization ||
-    event.headers.Authorization ||
-    "";
-
+  const header = event.headers.authorization || event.headers.Authorization || "";
   if (!header.startsWith("Bearer ")) return "";
   return header.replace("Bearer ", "").trim();
 }
@@ -79,6 +72,7 @@ async function readUserData(db, userId) {
     waterLogsRes,
     workoutSessionsRes,
     exerciseLogsRes,
+    setLogsRes,
     painLogsRes,
     exercisesRes
   ] = await Promise.all([
@@ -92,7 +86,7 @@ async function readUserData(db, userId) {
       .select("*")
       .eq("user_id", userId)
       .order("entry_date", { ascending: false })
-      .limit(6),
+      .limit(8),
 
     db.from("daily_logs")
       .select("*")
@@ -116,7 +110,13 @@ async function readUserData(db, userId) {
       .select("*")
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
-      .limit(60),
+      .limit(80),
+
+    db.from("exercise_set_logs")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(120),
 
     db.from("pain_logs")
       .select("*")
@@ -125,7 +125,7 @@ async function readUserData(db, userId) {
       .limit(30),
 
     db.from("exercises")
-      .select("id,name,slug,category,section,target_muscle,equipment,difficulty,image_url,short_cue,common_mistake,safe_alternative,back_safe,knee_safe,shoulder_safe")
+      .select("id,name,slug,category,section,target_muscle,equipment,difficulty,image_url,video_url,short_cue,common_mistake,safe_alternative,back_safe,knee_safe,shoulder_safe")
       .order("category", { ascending: true })
   ]);
 
@@ -140,13 +140,12 @@ async function readUserData(db, userId) {
     waterLogsRes.error,
     workoutSessionsRes.error,
     exerciseLogsRes.error,
+    setLogsRes.error,
     painLogsRes.error,
     exercisesRes.error
   ].filter(Boolean);
 
-  if (errors.length) {
-    throw new Error(errors[0].message || "Could not read user data.");
-  }
+  if (errors.length) throw new Error(errors[0].message || "Could not read user data.");
 
   return {
     profile: profileRes.data,
@@ -159,6 +158,7 @@ async function readUserData(db, userId) {
     water_logs: waterLogsRes.data || [],
     workout_sessions: workoutSessionsRes.data || [],
     exercise_logs: exerciseLogsRes.data || [],
+    exercise_set_logs: setLogsRes.data || [],
     pain_logs: painLogsRes.data || [],
     approved_exercise_library: exercisesRes.data || []
   };
@@ -168,26 +168,27 @@ function buildPrompt(userData) {
   return `
 You are FitApp AI, a practical fitness planning engine.
 
-Create a safe, simple, personalized 7-day fitness plan.
+Create a safe, simple, personalized 7-day food + workout + water plan.
 
 CRITICAL RULES:
 - Return ONLY valid JSON.
 - No markdown.
 - No comments.
 - No trailing commas.
-- Do not diagnose medical conditions.
 - This is general fitness/nutrition guidance, not medical advice.
-- Allergies and avoid_foods are hard blocks. Never include those foods.
-- Use the user's food style when possible.
-- Use the user's work breaks and workout time.
-- Use the user's workout days and max_minutes.
+- Do not diagnose medical conditions.
+- Allergies and avoid_foods are HARD BLOCKS. Never include them.
+- Use the user's selected food_styles, usual_foods, diet_type, work breaks, workout days, workout time, pain history, and max_minutes.
+- Give exact foods, not vague advice.
+- Every food item needs 1-2 replacement options.
+- Keep meals realistic and short for phone display.
 - Use only exercises from approved_exercise_library.
 - Every workout must include warmup, main, and stretch sections.
-- Every exercise must include: name, section, sets, target_weight, target_reps, weight_step, rest_seconds, cue.
-- If pain history exists for an exercise/body area, reduce intensity or choose safer alternatives.
-- Keep the dashboard compact. Meals should be short and realistic.
-- Water target should be realistic and trackable by bottles.
-- Prefer practical meals over perfect bodybuilding meals.
+- Every exercise must include planned_sets, target_weight, target_reps, weight_step, rest_seconds, cue.
+- If user has pain history, reduce intensity or choose safer alternatives.
+- For beginner users, prefer machines, dumbbells, cables, controlled movements.
+- Do not add running/cardio unless user asked or it fits recovery. Active workers may not need extra cardio.
+- Water target should be realistic and bottle-based.
 
 RETURN THIS EXACT JSON SHAPE:
 
@@ -224,19 +225,23 @@ RETURN THIS EXACT JSON SHAPE:
   }
 }
 
-DAILY SCHEDULE ITEM FORMAT:
+FOOD ITEM FORMAT:
 {
   "time": "08:00",
   "title": "Breakfast",
-  "text": "short meal text",
-  "type": "food"
+  "text": "2 roti + paneer bhurji + cucumber salad",
+  "type": "food",
+  "replacement_options": [
+    "Oats with whey/Greek yogurt if allowed + banana",
+    "Tofu wrap + fruit"
+  ]
 }
 
 GYM ITEM FORMAT:
 {
   "time": "19:00",
   "title": "Gym: Push Day",
-  "text": "Start workout mode.",
+  "text": "Warm-up, chest/shoulders/triceps, stretches.",
   "type": "gym",
   "workout": "push"
 }
@@ -245,6 +250,7 @@ WORKOUT EXERCISE FORMAT:
 {
   "name": "Machine Chest Press",
   "section": "main",
+  "planned_sets": 3,
   "sets": "3 x 10",
   "target_weight": 0,
   "target_reps": 10,
@@ -261,71 +267,38 @@ ${JSON.stringify(userData, null, 2)}
 
 export async function handler(event) {
   if (event.httpMethod === "OPTIONS") {
-    return {
-      statusCode: 200,
-      headers: CORS_HEADERS,
-      body: ""
-    };
+    return { statusCode: 200, headers: CORS_HEADERS, body: "" };
   }
 
   if (event.httpMethod !== "POST") {
-    return jsonResponse(405, {
-      ok: false,
-      error: "Use POST from logged-in app."
-    });
+    return jsonResponse(405, { ok: false, error: "Use POST from logged-in app." });
   }
 
   try {
     const openaiKey = process.env.OPENAI_API_KEY;
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    if (!openaiKey) {
-      return jsonResponse(500, {
-        ok: false,
-        error: "OPENAI_API_KEY missing in Netlify."
-      });
-    }
-
-    if (!serviceRoleKey) {
-      return jsonResponse(500, {
-        ok: false,
-        error: "SUPABASE_SERVICE_ROLE_KEY missing in Netlify."
-      });
-    }
+    if (!openaiKey) return jsonResponse(500, { ok: false, error: "OPENAI_API_KEY missing in Netlify." });
+    if (!serviceRoleKey) return jsonResponse(500, { ok: false, error: "SUPABASE_SERVICE_ROLE_KEY missing in Netlify." });
 
     const token = getBearerToken(event);
-
-    if (!token) {
-      return jsonResponse(401, {
-        ok: false,
-        error: "Missing Authorization Bearer token."
-      });
-    }
+    if (!token) return jsonResponse(401, { ok: false, error: "Missing Authorization Bearer token." });
 
     const db = createClient(SUPABASE_URL, serviceRoleKey, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false
-      }
+      auth: { persistSession: false, autoRefreshToken: false }
     });
 
     const { data: authData, error: authError } = await db.auth.getUser(token);
 
     if (authError || !authData.user) {
-      return jsonResponse(401, {
-        ok: false,
-        error: "Invalid or expired user token."
-      });
+      return jsonResponse(401, { ok: false, error: "Invalid or expired user token." });
     }
 
     const userId = authData.user.id;
     const userData = await readUserData(db, userId);
 
     if (!userData.profile || !userData.profile.onboarding_completed) {
-      return jsonResponse(400, {
-        ok: false,
-        error: "Onboarding is not completed."
-      });
+      return jsonResponse(400, { ok: false, error: "Onboarding is not completed." });
     }
 
     const aiRequestInsert = await db
@@ -342,8 +315,6 @@ export async function handler(event) {
 
     const aiRequestId = aiRequestInsert.data?.id || null;
 
-    const prompt = buildPrompt(userData);
-
     const openaiResponse = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
@@ -352,8 +323,8 @@ export async function handler(event) {
       },
       body: JSON.stringify({
         model: MODEL,
-        input: prompt,
-        max_output_tokens: 7000
+        input: buildPrompt(userData),
+        max_output_tokens: 9000
       })
     });
 
@@ -367,10 +338,7 @@ export async function handler(event) {
         }).eq("id", aiRequestId);
       }
 
-      return jsonResponse(openaiResponse.status, {
-        ok: false,
-        error: openaiData
-      });
+      return jsonResponse(openaiResponse.status, { ok: false, error: openaiData });
     }
 
     const outputText = getOutputText(openaiData);
@@ -384,8 +352,7 @@ export async function handler(event) {
     const weekStart = plan.start_date || dateISO(0);
     const weekEnd = plan.end_date || dateISO(6);
 
-    await db
-      .from("weekly_plans")
+    await db.from("weekly_plans")
       .update({ status: "archived" })
       .eq("user_id", userId)
       .eq("status", "active");
@@ -406,9 +373,7 @@ export async function handler(event) {
       .select()
       .single();
 
-    if (savedPlanRes.error) {
-      throw savedPlanRes.error;
-    }
+    if (savedPlanRes.error) throw savedPlanRes.error;
 
     if (aiRequestId) {
       await db.from("ai_requests").update({
@@ -428,10 +393,6 @@ export async function handler(event) {
 
   } catch (error) {
     console.error(error);
-
-    return jsonResponse(500, {
-      ok: false,
-      error: error.message || "Plan generation failed."
-    });
+    return jsonResponse(500, { ok: false, error: error.message || "Plan generation failed." });
   }
 }
