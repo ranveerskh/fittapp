@@ -1,0 +1,10 @@
+{
+  "name": "fitapp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4",
+    "openai": "^4.67.3"
+  }
+}
