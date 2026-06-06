@@ -11,8 +11,6 @@
     :root{
       --bg:#070A0F;
       --bg2:#0B1220;
-      --card:rgba(255,255,255,.075);
-      --card2:rgba(255,255,255,.105);
       --line:rgba(255,255,255,.13);
       --text:#F8FAFC;
       --muted:#94A3B8;
@@ -120,7 +118,6 @@
     .input::placeholder,.textarea::placeholder{color:#64748B}
 
     .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 
     .chips{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
     .chips.three{grid-template-columns:repeat(3,1fr)}
@@ -153,6 +150,17 @@
       border-radius:18px;
       padding:10px;
       margin-top:9px;
+      position:relative;
+    }
+
+    .remove-break{
+      border:1px solid rgba(239,68,68,.22);
+      background:rgba(239,68,68,.10);
+      color:#FECACA;
+      border-radius:999px;
+      padding:7px 9px;
+      font-size:11px;
+      font-weight:900;
     }
 
     .btnbar{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;position:sticky;bottom:10px;z-index:10}
@@ -163,6 +171,8 @@
     .btn:active{transform:scale(.985)}
     .btn.primary{background:linear-gradient(135deg,var(--green),#86EFAC);color:#03100A;box-shadow:0 18px 40px rgba(34,197,94,.24)}
     .btn.secondary{background:rgba(255,255,255,.08);border:1px solid var(--line);color:var(--text);backdrop-filter:blur(18px)}
+    .btn.blue{background:rgba(56,189,248,.13);border:1px solid rgba(56,189,248,.25);color:#BAE6FD}
+    .btn.red{background:rgba(239,68,68,.13);border:1px solid rgba(239,68,68,.25);color:#FECACA}
     .btn.full{grid-column:1 / -1}
     .btn:disabled{opacity:.48;cursor:not-allowed;transform:none;box-shadow:none}
 
@@ -220,7 +230,7 @@
             <div class="logo">FA</div>
             <div>
               <h1>FitApp Setup</h1>
-              <span id="topSub">Building your plan profile</span>
+              <span id="topSub">Fitness that fits your day</span>
             </div>
           </a>
           <button class="logout" id="logoutBtn" type="button">Logout</button>
@@ -238,8 +248,8 @@
       <section class="screen active" data-step="0">
         <div class="hero">
           <div class="kicker"><span class="pulse"></span><span>Basic profile</span></div>
-          <h2>Tell FitApp who you are.</h2>
-          <p>Keep it simple. These basics help create a realistic food and workout plan.</p>
+          <h2>Start with your basics.</h2>
+          <p>Date of birth lets FitApp calculate your age automatically every year.</p>
         </div>
 
         <div class="card">
@@ -251,8 +261,8 @@
 
             <div class="grid2">
               <div class="field">
-                <label>Age</label>
-                <input class="input" id="age" type="number" min="13" max="100" placeholder="30" />
+                <label>Date of birth</label>
+                <input class="input" id="dateOfBirth" type="date" />
               </div>
               <div class="field">
                 <label>Gender</label>
@@ -290,8 +300,8 @@
       <section class="screen" data-step="1">
         <div class="hero">
           <div class="kicker"><span class="pulse"></span><span>Measurements</span></div>
-          <h2>Baseline body measurements.</h2>
-          <p>These help track real progress. Weight alone can lie; waist and strength tell more.</p>
+          <h2>Set your baseline.</h2>
+          <p>Weight, waist, and body measurements help FitApp check real improvement later.</p>
         </div>
 
         <div class="card">
@@ -313,28 +323,31 @@
               <div class="field"><label>Neck optional</label><input class="input" id="neck" type="number" step="0.1" placeholder="15" /></div>
             </div>
 
-            <div class="small-note">Later the app will ask weekly weight and biweekly measurements to check improvements.</div>
+            <div class="small-note">Later: weekly weight check, full measurements every 2 weeks.</div>
           </div>
         </div>
       </section>
 
       <section class="screen" data-step="2">
         <div class="hero">
-          <div class="kicker"><span class="pulse"></span><span>Goal</span></div>
-          <h2>What do you want?</h2>
-          <p>Choose the main goal. AI will use this to balance food, workouts, and progress speed.</p>
+          <div class="kicker"><span class="pulse"></span><span>Goals</span></div>
+          <h2>Choose your goals.</h2>
+          <p>You can select more than one. FitApp will prioritize them in your plan.</p>
         </div>
 
         <div class="card">
           <div class="card-inner">
-            <div class="section-title"><h3>Main goal</h3><span>Pick one</span></div>
-            <div class="chips" data-single="mainGoal">
+            <div class="section-title"><h3>Main goals</h3><span>Pick any</span></div>
+            <div class="chips" data-multi="mainGoals">
               <button class="chipbtn" data-value="lose_belly">Lose belly</button>
               <button class="chipbtn" data-value="build_muscle">Build muscle</button>
               <button class="chipbtn" data-value="look_fit">Look fit</button>
               <button class="chipbtn" data-value="gain_weight">Gain weight</button>
-              <button class="chipbtn" data-value="strength">Improve strength</button>
-              <button class="chipbtn" data-value="shape_posture">Shape/posture</button>
+              <button class="chipbtn" data-value="improve_strength">Improve strength</button>
+              <button class="chipbtn" data-value="improve_posture">Improve posture</button>
+              <button class="chipbtn" data-value="improve_stamina">Improve stamina</button>
+              <button class="chipbtn" data-value="glutes_legs_shape">Glutes/legs shape</button>
+              <button class="chipbtn" data-value="reduce_bloating">Reduce bloating</button>
             </div>
 
             <div class="section-title"><h3>Body type</h3><span>Pick one</span></div>
@@ -343,6 +356,14 @@
               <button class="chipbtn" data-value="skinny_fat">Skinny fat</button>
               <button class="chipbtn" data-value="average">Average</button>
               <button class="chipbtn" data-value="overweight">Overweight</button>
+              <button class="chipbtn" data-value="muscular_belly">Muscular but belly</button>
+              <button class="chipbtn" data-value="posture_issue">Posture issue</button>
+              <button class="chipbtn" data-value="custom">Other</button>
+            </div>
+
+            <div class="field" id="bodyCustomWrap" style="display:none">
+              <label>Describe body type</label>
+              <input class="input" id="bodyTypeCustom" placeholder="Example: skinny arms but belly, weak posture..." />
             </div>
           </div>
         </div>
@@ -350,22 +371,189 @@
 
       <section class="screen" data-step="3">
         <div class="hero">
-          <div class="kicker"><span class="pulse"></span><span>Food safety</span></div>
-          <h2>Food style and allergies.</h2>
+          <div class="kicker"><span class="pulse"></span><span>Workout time</span></div>
+          <h2>When can you train?</h2>
+          <p>Workout days come before work schedule because some users train on work days too.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-inner">
+            <div class="section-title"><h3>Workout place</h3><span>Pick one</span></div>
+            <div class="chips" data-single="workoutPlace">
+              <button class="chipbtn" data-value="gym">Gym</button>
+              <button class="chipbtn" data-value="home">Home</button>
+              <button class="chipbtn" data-value="both">Both</button>
+            </div>
+
+            <div class="section-title"><h3>Workout days</h3><span>Pick any</span></div>
+            <div class="chips three" data-multi="workoutDays">
+              <button class="chipbtn" data-value="Sunday">Sun</button>
+              <button class="chipbtn" data-value="Monday">Mon</button>
+              <button class="chipbtn" data-value="Tuesday">Tue</button>
+              <button class="chipbtn" data-value="Wednesday">Wed</button>
+              <button class="chipbtn" data-value="Thursday">Thu</button>
+              <button class="chipbtn" data-value="Friday">Fri</button>
+              <button class="chipbtn" data-value="Saturday">Sat</button>
+            </div>
+
+            <div class="section-title"><h3>Workout on work days?</h3><span>Pick one</span></div>
+            <div class="chips" data-single="workoutOnWorkDays">
+              <button class="chipbtn" data-value="true">Yes</button>
+              <button class="chipbtn" data-value="false">No</button>
+            </div>
+
+            <div class="grid2">
+              <div class="field"><label>Preferred time</label><input class="input" id="preferredTime" type="time" /></div>
+              <div class="field">
+                <label>Time available</label>
+                <select class="select" id="maxMinutes">
+                  <option value="">Select</option>
+                  <option value="20">20 min</option>
+                  <option value="30">30 min</option>
+                  <option value="45">45 min</option>
+                  <option value="60">60 min</option>
+                  <option value="75">75 min</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Workout timing style</label>
+              <select class="select" id="preferredWorkoutContext">
+                <option value="">Select</option>
+                <option value="before_work">Before work</option>
+                <option value="after_work">After work</option>
+                <option value="evening">Evening</option>
+                <option value="night">Night</option>
+                <option value="flexible">Flexible</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Experience level</label>
+              <select class="select" id="experienceLevel">
+                <option value="">Select</option>
+                <option value="beginner">Beginner</option>
+                <option value="some_experience">Some experience</option>
+                <option value="intermediate">Intermediate</option>
+              </select>
+            </div>
+
+            <div class="section-title"><h3>Equipment</h3><span>Pick any</span></div>
+            <div class="chips three" data-multi="equipment">
+              <button class="chipbtn" data-value="machines">Machines</button>
+              <button class="chipbtn" data-value="dumbbells">Dumbbells</button>
+              <button class="chipbtn" data-value="cables">Cables</button>
+              <button class="chipbtn" data-value="barbell">Barbell</button>
+              <button class="chipbtn" data-value="bodyweight">Bodyweight</button>
+              <button class="chipbtn" data-value="resistance_bands">Bands</button>
+            </div>
+
+            <div class="field">
+              <label>Other equipment</label>
+              <input class="input" id="customEquipment" placeholder="Example: Smith machine, treadmill, leg press..." />
+            </div>
+
+            <div class="section-title"><h3>Pain / injury areas</h3><span>Pick any</span></div>
+            <div class="chips three" data-multi="painAreas">
+              <button class="chipbtn" data-value="none">None</button>
+              <button class="chipbtn" data-value="lower_back">Lower back</button>
+              <button class="chipbtn" data-value="knee">Knee</button>
+              <button class="chipbtn" data-value="shoulder">Shoulder</button>
+              <button class="chipbtn" data-value="wrist">Wrist</button>
+              <button class="chipbtn" data-value="neck">Neck</button>
+            </div>
+
+            <div class="field">
+              <label>Injury notes</label>
+              <textarea class="textarea" id="injuryNotes" placeholder="Example: lower back pain when bending or heavy leg press."></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" data-step="4">
+        <div class="hero">
+          <div class="kicker"><span class="pulse"></span><span>Work schedule</span></div>
+          <h2>Your real eating windows.</h2>
+          <p>Add only the times when you can actually eat, drink coffee, or take a snack.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-inner">
+            <div class="section-title"><h3>Work days</h3><span>Pick any</span></div>
+            <div class="chips three" data-multi="workDays">
+              <button class="chipbtn" data-value="Sunday">Sun</button>
+              <button class="chipbtn" data-value="Monday">Mon</button>
+              <button class="chipbtn" data-value="Tuesday">Tue</button>
+              <button class="chipbtn" data-value="Wednesday">Wed</button>
+              <button class="chipbtn" data-value="Thursday">Thu</button>
+              <button class="chipbtn" data-value="Friday">Fri</button>
+              <button class="chipbtn" data-value="Saturday">Sat</button>
+            </div>
+
+            <div class="grid2">
+              <div class="field"><label>Work start</label><input class="input" id="workStart" type="time" /></div>
+              <div class="field"><label>Work end</label><input class="input" id="workEnd" type="time" /></div>
+            </div>
+
+            <div class="field">
+              <label>Job activity</label>
+              <select class="select" id="jobActivity">
+                <option value="">Select</option>
+                <option value="sitting">Mostly sitting</option>
+                <option value="walking">Walking</option>
+                <option value="lifting">Lifting</option>
+                <option value="heavy_active">Heavy active job</option>
+                <option value="mixed">Mixed</option>
+              </select>
+            </div>
+
+            <div class="section-title">
+              <h3>Breaks / snack times</h3>
+              <button class="remove-break" id="addBreakBtn" type="button">+ Add break</button>
+            </div>
+
+            <div id="breakList"></div>
+
+            <div class="field">
+              <label>Work notes</label>
+              <textarea class="textarea" id="workNotes" placeholder="Example: I can eat full meal only at lunch, small snacks during short breaks."></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" data-step="5">
+        <div class="hero">
+          <div class="kicker"><span class="pulse"></span><span>Food style</span></div>
+          <h2>Foods you actually eat.</h2>
           <p>Allergies are hard blocks. FitApp should never suggest foods you cannot eat.</p>
         </div>
 
         <div class="card">
           <div class="card-inner">
-            <div class="section-title"><h3>Food style</h3><span>Pick one</span></div>
-            <div class="chips" data-single="foodStyle">
+            <div class="section-title"><h3>Food styles</h3><span>Pick any</span></div>
+            <div class="chips" data-multi="foodStyles">
               <button class="chipbtn" data-value="punjabi">Punjabi</button>
               <button class="chipbtn" data-value="indian">Indian</button>
               <button class="chipbtn" data-value="gujarati">Gujarati</button>
+              <button class="chipbtn" data-value="south_indian">South Indian</button>
+              <button class="chipbtn" data-value="pakistani">Pakistani</button>
               <button class="chipbtn" data-value="chinese">Chinese</button>
+              <button class="chipbtn" data-value="mexican">Mexican</button>
               <button class="chipbtn" data-value="spanish">Spanish</button>
-              <button class="chipbtn" data-value="gym_food">Regular gym food</button>
+              <button class="chipbtn" data-value="mediterranean">Mediterranean</button>
+              <button class="chipbtn" data-value="middle_eastern">Middle Eastern</button>
+              <button class="chipbtn" data-value="western_gym_food">Western gym food</button>
+              <button class="chipbtn" data-value="simple_home_food">Simple home food</button>
               <button class="chipbtn" data-value="mixed">Mixed</button>
+              <button class="chipbtn" data-value="custom">Other</button>
+            </div>
+
+            <div class="field" id="foodCustomWrap" style="display:none">
+              <label>Custom food style</label>
+              <input class="input" id="foodStyleCustom" placeholder="Example: Punjabi + Canadian simple meals" />
             </div>
 
             <div class="section-title"><h3>Diet type</h3><span>Pick one</span></div>
@@ -374,6 +562,11 @@
               <button class="chipbtn" data-value="eggs_ok">Eggs ok</button>
               <button class="chipbtn" data-value="chicken_ok">Chicken ok</button>
               <button class="chipbtn" data-value="no_restriction">No restriction</button>
+            </div>
+
+            <div class="field">
+              <label>Usual foods</label>
+              <textarea class="textarea" id="usualFoods" placeholder="Example: roti, dal, sabji, curd, oats, eggs, paneer, tofu, chicken..."></textarea>
             </div>
 
             <div class="section-title"><h3>Allergies</h3><span>Pick any</span></div>
@@ -414,174 +607,10 @@
                 </select>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="screen" data-step="4">
-        <div class="hero">
-          <div class="kicker"><span class="pulse"></span><span>Work breaks</span></div>
-          <h2>Your real-life eating times.</h2>
-          <p>Add work days, breaks, and small snack times so meals fit your schedule.</p>
-        </div>
-
-        <div class="card">
-          <div class="card-inner">
-            <div class="section-title"><h3>Work days</h3><span>Pick any</span></div>
-            <div class="chips three" data-multi="workDays">
-              <button class="chipbtn" data-value="Sunday">Sun</button>
-              <button class="chipbtn" data-value="Monday">Mon</button>
-              <button class="chipbtn" data-value="Tuesday">Tue</button>
-              <button class="chipbtn" data-value="Wednesday">Wed</button>
-              <button class="chipbtn" data-value="Thursday">Thu</button>
-              <button class="chipbtn" data-value="Friday">Fri</button>
-              <button class="chipbtn" data-value="Saturday">Sat</button>
-            </div>
-
-            <div class="grid2">
-              <div class="field"><label>Work start</label><input class="input" id="workStart" type="time" /></div>
-              <div class="field"><label>Work end</label><input class="input" id="workEnd" type="time" /></div>
-            </div>
 
             <div class="field">
-              <label>Job activity</label>
-              <select class="select" id="jobActivity">
-                <option value="">Select</option>
-                <option value="sitting">Mostly sitting</option>
-                <option value="walking">Walking</option>
-                <option value="lifting">Lifting</option>
-                <option value="heavy_active">Heavy active job</option>
-                <option value="mixed">Mixed</option>
-              </select>
-            </div>
-
-            <div class="section-title"><h3>Breaks / snack times</h3><span>Optional</span></div>
-
-            <div class="break-row">
-              <div class="grid2">
-                <div class="field"><label>Small snack time</label><input class="input" id="break1Time" type="time" /></div>
-                <div class="field">
-                  <label>Duration</label>
-                  <select class="select" id="break1Duration">
-                    <option value="5">5 min</option>
-                    <option value="10">10 min</option>
-                    <option value="15">15 min</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <div class="break-row">
-              <div class="grid2">
-                <div class="field"><label>Meal break 1</label><input class="input" id="break2Time" type="time" /></div>
-                <div class="field">
-                  <label>Duration</label>
-                  <select class="select" id="break2Duration">
-                    <option value="15">15 min</option>
-                    <option value="30" selected>30 min</option>
-                    <option value="45">45 min</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <div class="break-row">
-              <div class="grid2">
-                <div class="field"><label>Meal break 2</label><input class="input" id="break3Time" type="time" /></div>
-                <div class="field">
-                  <label>Duration</label>
-                  <select class="select" id="break3Duration">
-                    <option value="15">15 min</option>
-                    <option value="30" selected>30 min</option>
-                    <option value="45">45 min</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <div class="field">
-              <label>Work notes</label>
-              <textarea class="textarea" id="workNotes" placeholder="Example: I can only eat small snacks while working."></textarea>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="screen" data-step="5">
-        <div class="hero">
-          <div class="kicker"><span class="pulse"></span><span>Workout availability</span></div>
-          <h2>When can you train?</h2>
-          <p>FitApp should not give a 75-minute plan if you only have 35 minutes.</p>
-        </div>
-
-        <div class="card">
-          <div class="card-inner">
-            <div class="section-title"><h3>Workout place</h3><span>Pick one</span></div>
-            <div class="chips" data-single="workoutPlace">
-              <button class="chipbtn" data-value="gym">Gym</button>
-              <button class="chipbtn" data-value="home">Home</button>
-              <button class="chipbtn" data-value="both">Both</button>
-            </div>
-
-            <div class="section-title"><h3>Workout days</h3><span>Pick any</span></div>
-            <div class="chips three" data-multi="workoutDays">
-              <button class="chipbtn" data-value="Sunday">Sun</button>
-              <button class="chipbtn" data-value="Monday">Mon</button>
-              <button class="chipbtn" data-value="Tuesday">Tue</button>
-              <button class="chipbtn" data-value="Wednesday">Wed</button>
-              <button class="chipbtn" data-value="Thursday">Thu</button>
-              <button class="chipbtn" data-value="Friday">Fri</button>
-              <button class="chipbtn" data-value="Saturday">Sat</button>
-            </div>
-
-            <div class="grid2">
-              <div class="field"><label>Workout time</label><input class="input" id="preferredTime" type="time" /></div>
-              <div class="field">
-                <label>Gym time</label>
-                <select class="select" id="maxMinutes">
-                  <option value="">Select</option>
-                  <option value="20">20 min</option>
-                  <option value="30">30 min</option>
-                  <option value="45">45 min</option>
-                  <option value="60">60 min</option>
-                  <option value="75">75 min</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="field">
-              <label>Experience level</label>
-              <select class="select" id="experienceLevel">
-                <option value="">Select</option>
-                <option value="beginner">Beginner</option>
-                <option value="some_experience">Some experience</option>
-                <option value="intermediate">Intermediate</option>
-              </select>
-            </div>
-
-            <div class="section-title"><h3>Equipment</h3><span>Pick any</span></div>
-            <div class="chips three" data-multi="equipment">
-              <button class="chipbtn" data-value="machines">Machines</button>
-              <button class="chipbtn" data-value="dumbbells">Dumbbells</button>
-              <button class="chipbtn" data-value="cables">Cables</button>
-              <button class="chipbtn" data-value="barbell">Barbell</button>
-              <button class="chipbtn" data-value="bodyweight">Bodyweight</button>
-              <button class="chipbtn" data-value="resistance_bands">Bands</button>
-            </div>
-
-            <div class="section-title"><h3>Pain / injury areas</h3><span>Pick any</span></div>
-            <div class="chips three" data-multi="painAreas">
-              <button class="chipbtn" data-value="none">None</button>
-              <button class="chipbtn" data-value="lower_back">Lower back</button>
-              <button class="chipbtn" data-value="knee">Knee</button>
-              <button class="chipbtn" data-value="shoulder">Shoulder</button>
-              <button class="chipbtn" data-value="wrist">Wrist</button>
-              <button class="chipbtn" data-value="neck">Neck</button>
-            </div>
-
-            <div class="field">
-              <label>Injury notes</label>
-              <textarea class="textarea" id="injuryNotes" placeholder="Example: lower back pain when bending or heavy leg press."></textarea>
+              <label>Meal notes</label>
+              <textarea class="textarea" id="mealNotes" placeholder="Example: I prefer 3 roti meals, no heavy food before gym, quick snacks at work."></textarea>
             </div>
           </div>
         </div>
@@ -590,7 +619,7 @@
       <section class="screen" data-step="6">
         <div class="hero">
           <div class="kicker"><span class="pulse"></span><span>Water and review</span></div>
-          <h2>Final setup check.</h2>
+          <h2>Review your setup.</h2>
           <p>Set water tracking by bottle. Then save and open your dashboard.</p>
         </div>
 
@@ -674,6 +703,17 @@
   const totalSteps = 7;
   let currentUser = null;
   let saving = false;
+  let breaksData = [];
+
+  function calculateAge(dob){
+    if(!dob) return null;
+    const birth = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if(m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+    return age;
+  }
 
   function showStatus(message, type){
     const box = $("#statusBox");
@@ -705,12 +745,14 @@
   }
 
   function setSingle(name, value){
-    $$(`[data-single="${name}"] .chipbtn`).forEach(b => b.classList.toggle("active", b.dataset.value === value));
+    $$(`[data-single="${name}"] .chipbtn`).forEach(b => b.classList.toggle("active", b.dataset.value === String(value)));
+    handleCustomVisibility();
   }
 
   function setMulti(name, values){
     const set = new Set(values || []);
     $$(`[data-multi="${name}"] .chipbtn`).forEach(b => b.classList.toggle("active", set.has(b.dataset.value)));
+    handleCustomVisibility();
   }
 
   function textListToArray(value){
@@ -720,47 +762,120 @@
       .filter(Boolean);
   }
 
+  function handleCustomVisibility(){
+    $("#bodyCustomWrap").style.display = selectedSingle("bodyType") === "custom" ? "block" : "none";
+    $("#foodCustomWrap").style.display = selectedMulti("foodStyles").includes("custom") ? "block" : "none";
+  }
+
+  function renderBreaks(){
+    const list = $("#breakList");
+    if(!breaksData.length){
+      list.innerHTML = `<div class="small-note">No breaks added yet. Tap "+ Add break" for snack, meal, coffee, or custom eating time.</div>`;
+      return;
+    }
+
+    list.innerHTML = breaksData.map((b, i) => `
+      <div class="break-row" data-break-index="${i}">
+        <div class="section-title" style="margin-top:0">
+          <h3>Break ${i + 1}</h3>
+          <button class="remove-break" type="button" data-remove-break="${i}">Remove</button>
+        </div>
+
+        <div class="grid2">
+          <div class="field">
+            <label>Time</label>
+            <input class="input break-time" type="time" value="${b.time || ""}">
+          </div>
+          <div class="field">
+            <label>Duration</label>
+            <select class="select break-duration">
+              <option value="5" ${b.duration == 5 ? "selected" : ""}>5 min</option>
+              <option value="10" ${b.duration == 10 ? "selected" : ""}>10 min</option>
+              <option value="15" ${b.duration == 15 ? "selected" : ""}>15 min</option>
+              <option value="30" ${b.duration == 30 ? "selected" : ""}>30 min</option>
+              <option value="45" ${b.duration == 45 ? "selected" : ""}>45 min</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="field">
+            <label>Type</label>
+            <select class="select break-type">
+              <option value="small_snack" ${b.type === "small_snack" ? "selected" : ""}>Small snack</option>
+              <option value="meal" ${b.type === "meal" ? "selected" : ""}>Meal</option>
+              <option value="coffee" ${b.type === "coffee" ? "selected" : ""}>Coffee</option>
+              <option value="lunch" ${b.type === "lunch" ? "selected" : ""}>Lunch</option>
+              <option value="dinner" ${b.type === "dinner" ? "selected" : ""}>Dinner</option>
+              <option value="custom" ${b.type === "custom" ? "selected" : ""}>Custom</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Full meal possible?</label>
+            <select class="select break-full-meal">
+              <option value="false" ${!b.full_meal ? "selected" : ""}>No</option>
+              <option value="true" ${b.full_meal ? "selected" : ""}>Yes</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Break note</label>
+          <input class="input break-note" value="${b.note || ""}" placeholder="Example: only 3 minutes, can eat banana only">
+        </div>
+      </div>
+    `).join("");
+
+    $$("[data-remove-break]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        syncBreakInputs();
+        breaksData.splice(Number(btn.dataset.removeBreak), 1);
+        renderBreaks();
+      });
+    });
+
+    $$(".break-row input, .break-row select").forEach(el => {
+      el.addEventListener("input", syncBreakInputs);
+      el.addEventListener("change", syncBreakInputs);
+    });
+  }
+
+  function syncBreakInputs(){
+    $$(".break-row").forEach(row => {
+      const i = Number(row.dataset.breakIndex);
+      breaksData[i] = {
+        time: row.querySelector(".break-time").value || "",
+        duration: Number(row.querySelector(".break-duration").value || 10),
+        type: row.querySelector(".break-type").value || "small_snack",
+        full_meal: row.querySelector(".break-full-meal").value === "true",
+        note: row.querySelector(".break-note").value.trim()
+      };
+    });
+  }
+
   function getBreaks(){
-    const breaks = [];
-
-    if($("#break1Time").value){
-      breaks.push({
-        time: $("#break1Time").value,
-        type: "small_snack",
-        duration: Number($("#break1Duration").value || 5)
-      });
-    }
-
-    if($("#break2Time").value){
-      breaks.push({
-        time: $("#break2Time").value,
-        type: "meal",
-        duration: Number($("#break2Duration").value || 30)
-      });
-    }
-
-    if($("#break3Time").value){
-      breaks.push({
-        time: $("#break3Time").value,
-        type: "meal",
-        duration: Number($("#break3Duration").value || 30)
-      });
-    }
-
-    return breaks;
+    syncBreakInputs();
+    return breaksData.filter(b => b.time);
   }
 
   function userData(){
+    const dob = $("#dateOfBirth").value || null;
+    const mainGoals = selectedMulti("mainGoals");
+    const foodStyles = selectedMulti("foodStyles");
+
     return {
       profile: {
         full_name: $("#fullName").value.trim(),
-        age: $("#age").value ? Number($("#age").value) : null,
+        date_of_birth: dob,
+        age: calculateAge(dob),
         gender: $("#gender").value,
         height_cm: $("#heightCm").value ? Number($("#heightCm").value) : null,
         starting_weight: $("#startingWeight").value ? Number($("#startingWeight").value) : null,
         weight_unit: $("#weightUnit").value,
-        main_goal: selectedSingle("mainGoal"),
-        body_type: selectedSingle("bodyType")
+        main_goals: mainGoals,
+        main_goal: mainGoals[0] || "",
+        body_type: selectedSingle("bodyType"),
+        body_type_custom: $("#bodyTypeCustom").value.trim()
       },
       measurement: {
         entry_date: new Date().toISOString().slice(0,10),
@@ -775,12 +890,16 @@
         notes: "Onboarding baseline"
       },
       food: {
-        food_style: selectedSingle("foodStyle"),
+        food_styles: foodStyles,
+        food_style: foodStyles[0] || "",
+        food_style_custom: $("#foodStyleCustom").value.trim(),
         diet_type: selectedSingle("dietType"),
         allergies: selectedMulti("allergies"),
         avoid_foods: textListToArray($("#avoidFoods").value),
         spice_level: $("#spiceLevel").value,
-        lactose_tolerance: $("#lactoseTolerance").value
+        lactose_tolerance: $("#lactoseTolerance").value,
+        usual_foods: $("#usualFoods").value.trim(),
+        meal_notes: $("#mealNotes").value.trim()
       },
       work: {
         work_days: selectedMulti("workDays"),
@@ -788,16 +907,19 @@
         work_end: $("#workEnd").value || null,
         job_activity: $("#jobActivity").value,
         breaks: getBreaks(),
-        small_snack_available: !!$("#break1Time").value,
+        small_snack_available: getBreaks().some(b => b.type === "small_snack"),
         notes: $("#workNotes").value.trim()
       },
       workout: {
         workout_place: selectedSingle("workoutPlace"),
         workout_days: selectedMulti("workoutDays"),
+        workout_on_work_days: selectedSingle("workoutOnWorkDays") === "true",
         preferred_time: $("#preferredTime").value || null,
         max_minutes: $("#maxMinutes").value ? Number($("#maxMinutes").value) : null,
+        preferred_workout_context: $("#preferredWorkoutContext").value,
         experience_level: $("#experienceLevel").value,
         equipment: selectedMulti("equipment"),
+        custom_equipment: $("#customEquipment").value.trim(),
         pain_areas: selectedMulti("painAreas"),
         injury_notes: $("#injuryNotes").value.trim()
       },
@@ -816,24 +938,28 @@
 
     if(currentStep === 0){
       if(!d.profile.full_name) return "Enter your name.";
-      if(!d.profile.age) return "Enter your age.";
+      if(!d.profile.date_of_birth) return "Enter your date of birth.";
       if(!d.profile.height_cm) return "Enter your height.";
       if(!d.profile.starting_weight) return "Enter your current weight.";
     }
 
     if(currentStep === 2){
-      if(!d.profile.main_goal) return "Select your main goal.";
+      if(!d.profile.main_goals.length) return "Select at least one goal.";
       if(!d.profile.body_type) return "Select your body type.";
+      if(d.profile.body_type === "custom" && !d.profile.body_type_custom) return "Describe your body type.";
     }
 
     if(currentStep === 3){
-      if(!d.food.food_style) return "Select your food style.";
-      if(!d.food.diet_type) return "Select your diet type.";
+      if(!d.workout.workout_place) return "Select workout place.";
+      if(!d.workout.workout_days.length) return "Select at least one workout day.";
+      if(!selectedSingle("workoutOnWorkDays")) return "Select if you workout on work days.";
+      if(!d.workout.max_minutes) return "Select workout time available.";
     }
 
     if(currentStep === 5){
-      if(!d.workout.workout_place) return "Select workout place.";
-      if(!d.workout.max_minutes) return "Select gym/workout time available.";
+      if(!d.food.food_styles.length) return "Select at least one food style.";
+      if(d.food.food_styles.includes("custom") && !d.food.food_style_custom) return "Enter custom food style.";
+      if(!d.food.diet_type) return "Select your diet type.";
     }
 
     return "";
@@ -866,12 +992,13 @@
       : "-";
 
     $("#summaryBox").innerHTML = `
-      <div class="summary-line"><span>Goal</span><strong>${nice(d.profile.main_goal)}</strong></div>
-      <div class="summary-line"><span>Food</span><strong>${nice(d.food.food_style)} / ${nice(d.food.diet_type)}</strong></div>
-      <div class="summary-line"><span>Allergies</span><strong>${d.food.allergies.length ? d.food.allergies.map(nice).join(", ") : "none selected"}</strong></div>
-      <div class="summary-line"><span>Work breaks</span><strong>${d.work.breaks.length ? d.work.breaks.map(b => b.time).join(", ") : "none added"}</strong></div>
+      <div class="summary-line"><span>Goals</span><strong>${d.profile.main_goals.length ? d.profile.main_goals.map(nice).join(", ") : "-"}</strong></div>
+      <div class="summary-line"><span>Body</span><strong>${d.profile.body_type === "custom" ? d.profile.body_type_custom : nice(d.profile.body_type)}</strong></div>
       <div class="summary-line"><span>Workout</span><strong>${nice(d.workout.workout_place)} / ${d.workout.max_minutes || "-"} min</strong></div>
-      <div class="summary-line"><span>Pain areas</span><strong>${d.workout.pain_areas.length ? d.workout.pain_areas.map(nice).join(", ") : "none selected"}</strong></div>
+      <div class="summary-line"><span>Workout days</span><strong>${d.workout.workout_days.length ? d.workout.workout_days.join(", ") : "-"}</strong></div>
+      <div class="summary-line"><span>Work breaks</span><strong>${d.work.breaks.length ? d.work.breaks.map(b => b.time).join(", ") : "none added"}</strong></div>
+      <div class="summary-line"><span>Food</span><strong>${d.food.food_styles.length ? d.food.food_styles.map(nice).join(", ") : "-"}</strong></div>
+      <div class="summary-line"><span>Allergies</span><strong>${d.food.allergies.length ? d.food.allergies.map(nice).join(", ") : "none selected"}</strong></div>
       <div class="summary-line"><span>Water</span><strong>${d.water.daily_target_liters} L / about ${bottles} bottles</strong></div>
     `;
   }
@@ -947,13 +1074,14 @@
     const { data: p } = await supabaseClient.from("profiles").select("*").eq("id", userId).maybeSingle();
     if(p){
       $("#fullName").value = p.full_name || "";
-      $("#age").value = p.age || "";
+      $("#dateOfBirth").value = p.date_of_birth || "";
       $("#gender").value = p.gender || "";
       $("#heightCm").value = p.height_cm || "";
       $("#startingWeight").value = p.starting_weight || "";
       $("#weightUnit").value = p.weight_unit || "kg";
-      setSingle("mainGoal", p.main_goal || "");
+      setMulti("mainGoals", p.main_goals || (p.main_goal ? [p.main_goal] : []));
       setSingle("bodyType", p.body_type || "");
+      $("#bodyTypeCustom").value = p.body_type_custom || "";
     }
 
     const { data: m } = await supabaseClient
@@ -974,14 +1102,19 @@
       $("#neck").value = m.neck || "";
     }
 
-    const { data: f } = await supabaseClient.from("food_preferences").select("*").eq("user_id", userId).maybeSingle();
-    if(f){
-      setSingle("foodStyle", f.food_style || "");
-      setSingle("dietType", f.diet_type || "");
-      setMulti("allergies", f.allergies || []);
-      $("#avoidFoods").value = (f.avoid_foods || []).join(", ");
-      $("#spiceLevel").value = f.spice_level || "";
-      $("#lactoseTolerance").value = f.lactose_tolerance || "";
+    const { data: wa } = await supabaseClient.from("workout_availability").select("*").eq("user_id", userId).maybeSingle();
+    if(wa){
+      setSingle("workoutPlace", wa.workout_place || "");
+      setMulti("workoutDays", wa.workout_days || []);
+      setSingle("workoutOnWorkDays", String(!!wa.workout_on_work_days));
+      $("#preferredTime").value = wa.preferred_time || "";
+      $("#maxMinutes").value = wa.max_minutes || "";
+      $("#preferredWorkoutContext").value = wa.preferred_workout_context || "";
+      $("#experienceLevel").value = wa.experience_level || "";
+      setMulti("equipment", wa.equipment || []);
+      $("#customEquipment").value = wa.custom_equipment || "";
+      setMulti("painAreas", wa.pain_areas || []);
+      $("#injuryNotes").value = wa.injury_notes || "";
     }
 
     const { data: w } = await supabaseClient.from("work_schedules").select("*").eq("user_id", userId).maybeSingle();
@@ -991,32 +1124,21 @@
       $("#workEnd").value = w.work_end || "";
       $("#jobActivity").value = w.job_activity || "";
       $("#workNotes").value = w.notes || "";
-
-      const breaks = Array.isArray(w.breaks) ? w.breaks : [];
-      if(breaks[0]){
-        $("#break1Time").value = breaks[0].time || "";
-        $("#break1Duration").value = breaks[0].duration || 5;
-      }
-      if(breaks[1]){
-        $("#break2Time").value = breaks[1].time || "";
-        $("#break2Duration").value = breaks[1].duration || 30;
-      }
-      if(breaks[2]){
-        $("#break3Time").value = breaks[2].time || "";
-        $("#break3Duration").value = breaks[2].duration || 30;
-      }
+      breaksData = Array.isArray(w.breaks) ? w.breaks : [];
+      renderBreaks();
     }
 
-    const { data: wa } = await supabaseClient.from("workout_availability").select("*").eq("user_id", userId).maybeSingle();
-    if(wa){
-      setSingle("workoutPlace", wa.workout_place || "");
-      setMulti("workoutDays", wa.workout_days || []);
-      $("#preferredTime").value = wa.preferred_time || "";
-      $("#maxMinutes").value = wa.max_minutes || "";
-      $("#experienceLevel").value = wa.experience_level || "";
-      setMulti("equipment", wa.equipment || []);
-      setMulti("painAreas", wa.pain_areas || []);
-      $("#injuryNotes").value = wa.injury_notes || "";
+    const { data: f } = await supabaseClient.from("food_preferences").select("*").eq("user_id", userId).maybeSingle();
+    if(f){
+      setMulti("foodStyles", f.food_styles || (f.food_style ? [f.food_style] : []));
+      $("#foodStyleCustom").value = f.food_style_custom || "";
+      setSingle("dietType", f.diet_type || "");
+      $("#usualFoods").value = f.usual_foods || "";
+      setMulti("allergies", f.allergies || []);
+      $("#avoidFoods").value = (f.avoid_foods || []).join(", ");
+      $("#spiceLevel").value = f.spice_level || "";
+      $("#lactoseTolerance").value = f.lactose_tolerance || "";
+      $("#mealNotes").value = f.meal_notes || "";
     }
 
     const { data: ws } = await supabaseClient.from("water_settings").select("*").eq("user_id", userId).maybeSingle();
@@ -1026,6 +1148,8 @@
       $("#workSweating").value = ws.work_sweating || "";
       $("#gymSweating").value = ws.gym_sweating || "";
     }
+
+    handleCustomVisibility();
   }
 
   function initChips(){
@@ -1034,6 +1158,7 @@
         const wrap = btn.closest("[data-single]");
         $$(`[data-single="${wrap.dataset.single}"] .chipbtn`).forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
+        handleCustomVisibility();
       });
     });
 
@@ -1045,17 +1170,25 @@
         if(btn.dataset.value === "none"){
           $$(`[data-multi="${group}"] .chipbtn`).forEach(b => b.classList.remove("active"));
           btn.classList.add("active");
+          handleCustomVisibility();
           return;
         }
 
         const noneBtn = $(`[data-multi="${group}"] .chipbtn[data-value="none"]`);
         if(noneBtn) noneBtn.classList.remove("active");
         btn.classList.toggle("active");
+        handleCustomVisibility();
       });
     });
   }
 
   function initNav(){
+    $("#addBreakBtn").addEventListener("click", () => {
+      syncBreakInputs();
+      breaksData.push({ time:"", duration:10, type:"small_snack", full_meal:false, note:"" });
+      renderBreaks();
+    });
+
     $("#backBtn").addEventListener("click", () => {
       if(saving) return;
       if(currentStep === 0){
@@ -1072,7 +1205,7 @@
       const error = validateStep();
       if(error){
         showStatus(error, "bad");
-        if(currentStep !== totalSteps - 1) alert(error);
+        alert(error);
         return;
       }
 
@@ -1110,7 +1243,10 @@
     }
 
     currentUser = data.session.user;
-    $("#topSub").textContent = currentUser.email || "Building your plan profile";
+    $("#topSub").textContent = currentUser.email || "Fitness that fits your day";
+
+    breaksData = [];
+    renderBreaks();
 
     initChips();
     initNav();
