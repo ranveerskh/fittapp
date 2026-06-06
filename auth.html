@@ -11,68 +11,45 @@
     :root{
       --bg:#070A0F;
       --bg2:#0B1220;
-      --card:rgba(255,255,255,.075);
-      --card2:rgba(255,255,255,.105);
+      --card:rgba(255,255,255,.08);
+      --card2:rgba(255,255,255,.045);
       --line:rgba(255,255,255,.13);
       --text:#F8FAFC;
       --muted:#94A3B8;
-      --muted2:#64748B;
       --green:#22C55E;
-      --green2:#16A34A;
       --blue:#38BDF8;
       --amber:#F59E0B;
       --red:#EF4444;
       --shadow:0 24px 70px rgba(0,0,0,.38);
       --radius:26px;
-      --radius2:18px;
       --max:480px;
     }
 
-    *{
-      box-sizing:border-box;
-      -webkit-tap-highlight-color:transparent;
-    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 
     body{
       margin:0;
       min-height:100vh;
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;
       background:
-        radial-gradient(circle at top left, rgba(34,197,94,.24), transparent 34%),
-        radial-gradient(circle at top right, rgba(56,189,248,.18), transparent 32%),
+        radial-gradient(circle at top left, rgba(34,197,94,.26), transparent 35%),
+        radial-gradient(circle at top right, rgba(56,189,248,.18), transparent 34%),
         linear-gradient(180deg,var(--bg),var(--bg2));
       color:var(--text);
-      overflow-x:hidden;
-    }
-
-    a{
-      color:inherit;
-      text-decoration:none;
-    }
-
-    button,input{
-      font:inherit;
-    }
-
-    button{
-      cursor:pointer;
-    }
-
-    .page{
-      width:100%;
-      min-height:100vh;
       display:flex;
       justify-content:center;
     }
 
-    .app-shell{
+    button,input{font:inherit}
+    button{cursor:pointer}
+    a{color:inherit;text-decoration:none}
+
+    .page{
       width:100%;
       max-width:var(--max);
       min-height:100vh;
+      padding:18px 14px 34px;
       position:relative;
-      padding:18px 16px 34px;
-      display:flex;
-      flex-direction:column;
     }
 
     .glow{
@@ -80,70 +57,52 @@
       width:260px;
       height:260px;
       border-radius:999px;
-      filter:blur(50px);
-      opacity:.35;
+      filter:blur(55px);
+      opacity:.25;
       pointer-events:none;
       z-index:0;
     }
+    .glow.one{background:var(--green);top:-90px;left:-80px}
+    .glow.two{background:var(--blue);bottom:80px;right:-100px;opacity:.18}
 
-    .glow.one{
-      background:var(--green);
-      top:-80px;
-      left:50%;
-      transform:translateX(-80%);
-    }
-
-    .glow.two{
-      background:var(--blue);
-      bottom:80px;
-      right:50%;
-      transform:translateX(80%);
-      opacity:.22;
-    }
-
-    .topbar{
+    .top{
       position:relative;
-      z-index:2;
+      z-index:1;
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:12px;
-      margin-bottom:22px;
+      margin-bottom:20px;
     }
 
     .brand{
       display:flex;
       align-items:center;
-      gap:11px;
+      gap:10px;
       min-width:0;
     }
 
     .logo{
-      width:46px;
-      height:46px;
+      width:44px;
+      height:44px;
       border-radius:17px;
       display:grid;
       place-items:center;
-      background:
-        linear-gradient(145deg,rgba(34,197,94,.95),rgba(56,189,248,.72));
-      box-shadow:0 16px 42px rgba(34,197,94,.24);
+      background:linear-gradient(145deg,rgba(34,197,94,.95),rgba(56,189,248,.74));
       color:#03100A;
       font-weight:1000;
-      letter-spacing:-.6px;
+      box-shadow:0 14px 35px rgba(34,197,94,.24);
+      flex:0 0 auto;
     }
 
-    .brand-title{
-      line-height:1.05;
-      min-width:0;
-    }
-
-    .brand-title h1{
+    .brand h1{
       margin:0;
       font-size:18px;
+      line-height:1.05;
       letter-spacing:-.45px;
     }
 
-    .brand-title span{
+    .brand span{
       display:block;
       margin-top:3px;
       font-size:12px;
@@ -151,39 +110,38 @@
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
-      max-width:245px;
+      max-width:260px;
     }
 
-    .back-link{
+    .home{
       border:1px solid var(--line);
       background:rgba(255,255,255,.07);
       color:var(--text);
-      padding:9px 12px;
       border-radius:999px;
-      font-size:13px;
-      font-weight:850;
-      backdrop-filter:blur(18px);
+      padding:9px 12px;
+      font-size:12px;
+      font-weight:900;
       white-space:nowrap;
     }
 
     .hero{
       position:relative;
-      z-index:2;
-      margin-top:8px;
+      z-index:1;
+      padding:8px 2px 14px;
     }
 
     .kicker{
       display:inline-flex;
       align-items:center;
       gap:8px;
-      padding:8px 11px;
+      padding:7px 10px;
       border-radius:999px;
       border:1px solid rgba(34,197,94,.28);
       background:rgba(34,197,94,.10);
       color:#BBF7D0;
       font-size:12px;
-      font-weight:850;
-      margin-bottom:14px;
+      font-weight:900;
+      margin-bottom:12px;
     }
 
     .pulse{
@@ -198,39 +156,37 @@
       margin:0;
       font-size:34px;
       line-height:1.02;
-      letter-spacing:-1.5px;
+      letter-spacing:-1.25px;
     }
 
     .hero p{
-      margin:11px 0 0;
+      margin:10px 0 0;
       color:#CBD5E1;
       font-size:14px;
       line-height:1.48;
-      max-width:380px;
     }
 
-    .auth-card{
+    .card{
       position:relative;
-      z-index:2;
-      margin-top:22px;
+      z-index:1;
       border:1px solid var(--line);
-      background:linear-gradient(180deg,rgba(255,255,255,.105),rgba(255,255,255,.055));
-      box-shadow:var(--shadow);
+      background:linear-gradient(180deg,var(--card),var(--card2));
       border-radius:var(--radius);
-      padding:14px;
+      box-shadow:var(--shadow);
       backdrop-filter:blur(22px);
+      padding:14px;
       overflow:hidden;
     }
 
-    .auth-card:before{
+    .card:before{
       content:"";
       position:absolute;
       inset:0;
-      background:radial-gradient(circle at top right,rgba(255,255,255,.12),transparent 38%);
+      background:radial-gradient(circle at top right,rgba(255,255,255,.10),transparent 40%);
       pointer-events:none;
     }
 
-    .auth-inner{
+    .inner{
       position:relative;
       z-index:1;
     }
@@ -239,43 +195,22 @@
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:8px;
-      padding:5px;
-      border-radius:18px;
-      background:rgba(0,0,0,.20);
-      border:1px solid rgba(255,255,255,.08);
-      margin-bottom:14px;
+      margin-bottom:12px;
     }
 
-    .mode-tab{
-      border:0;
-      border-radius:14px;
-      min-height:43px;
+    .mode-btn{
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.06);
+      color:#CBD5E1;
+      border-radius:17px;
+      min-height:48px;
       font-weight:950;
-      color:var(--muted);
-      background:transparent;
     }
 
-    .mode-tab.active{
-      background:linear-gradient(135deg,var(--green),#86EFAC);
-      color:#03100A;
-      box-shadow:0 12px 24px rgba(34,197,94,.20);
-    }
-
-    .form-title{
-      margin:8px 2px 13px;
-    }
-
-    .form-title h3{
-      margin:0;
-      font-size:20px;
-      letter-spacing:-.45px;
-    }
-
-    .form-title p{
-      margin:5px 0 0;
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.38;
+    .mode-btn.active{
+      background:rgba(34,197,94,.14);
+      border-color:rgba(34,197,94,.40);
+      color:#BBF7D0;
     }
 
     .field{
@@ -286,7 +221,7 @@
       display:block;
       font-size:12px;
       color:#CBD5E1;
-      font-weight:850;
+      font-weight:900;
       margin:0 0 6px 3px;
     }
 
@@ -298,9 +233,8 @@
       outline:none;
       border-radius:17px;
       min-height:52px;
-      padding:13px 14px;
+      padding:12px 13px;
       font-size:15px;
-      transition:border .16s ease, background .16s ease;
     }
 
     .input:focus{
@@ -312,149 +246,103 @@
       color:#64748B;
     }
 
-    .password-row{
-      position:relative;
-    }
-
-    .show-pass{
-      position:absolute;
-      right:8px;
-      top:8px;
-      height:36px;
-      padding:0 10px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.06);
-      color:#CBD5E1;
-      border-radius:12px;
-      font-size:12px;
-      font-weight:850;
-    }
-
-    .password-row .input{
-      padding-right:72px;
-    }
-
-    .consent-box{
-      display:none;
-      margin-top:13px;
-      border:1px solid rgba(245,158,11,.20);
-      background:rgba(245,158,11,.075);
-      border-radius:18px;
-      padding:12px;
-    }
-
-    .consent-box.show{
-      display:block;
-    }
-
-    .check-row{
-      display:grid;
-      grid-template-columns:24px 1fr;
-      gap:9px;
+    .checkbox{
+      display:flex;
       align-items:flex-start;
+      gap:10px;
+      margin-top:13px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.15);
+      border-radius:17px;
+      padding:11px;
     }
 
-    .check-row input{
+    .checkbox input{
       width:20px;
       height:20px;
-      margin-top:2px;
+      margin-top:1px;
       accent-color:var(--green);
+      flex:0 0 auto;
     }
 
-    .check-row label{
+    .checkbox label{
       font-size:12.5px;
-      line-height:1.42;
-      color:#E2E8F0;
-    }
-
-    .check-row a{
-      color:#BBF7D0;
-      font-weight:850;
-      text-decoration:underline;
-      text-underline-offset:3px;
-    }
-
-    .disclaimer{
-      margin:10px 0 0 33px;
-      color:#FDE68A;
-      font-size:11.8px;
-      line-height:1.42;
+      color:#CBD5E1;
+      line-height:1.35;
     }
 
     .btn{
-      width:100%;
       border:0;
       border-radius:18px;
       min-height:54px;
+      width:100%;
       display:flex;
       align-items:center;
       justify-content:center;
-      gap:9px;
-      padding:14px 16px;
-      font-weight:950;
-      transition:transform .16s ease, opacity .16s ease, background .16s ease;
-      user-select:none;
+      gap:8px;
+      padding:13px 14px;
+      font-weight:1000;
+      margin-top:13px;
+      transition:transform .16s ease,opacity .16s ease;
     }
 
-    .btn:active{
-      transform:scale(.985);
-    }
+    .btn:active{transform:scale(.985)}
 
     .btn.primary{
-      margin-top:14px;
       background:linear-gradient(135deg,var(--green),#86EFAC);
       color:#03100A;
-      box-shadow:0 18px 40px rgba(34,197,94,.25);
+      box-shadow:0 18px 40px rgba(34,197,94,.24);
     }
 
-    .btn.primary:disabled{
-      opacity:.48;
+    .btn.secondary{
+      background:rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      color:var(--text);
+    }
+
+    .btn.red{
+      background:rgba(239,68,68,.14);
+      border:1px solid rgba(239,68,68,.25);
+      color:#FECACA;
+    }
+
+    .btn:disabled{
+      opacity:.55;
       cursor:not-allowed;
       transform:none;
       box-shadow:none;
     }
 
-    .btn.secondary{
-      margin-top:10px;
-      background:rgba(255,255,255,.08);
-      border:1px solid var(--line);
-      color:var(--text);
-      backdrop-filter:blur(18px);
+    .loader{
+      width:16px;
+      height:16px;
+      border-radius:50%;
+      border:2px solid rgba(3,16,10,.28);
+      border-top-color:#03100A;
+      display:none;
+      animation:spin .75s linear infinite;
     }
 
-    .link-row{
-      margin-top:13px;
-      text-align:center;
-      font-size:13px;
-      color:var(--muted);
-    }
+    .btn.loading .loader{display:inline-block}
 
-    .link-row button{
-      border:0;
-      background:transparent;
-      color:#BBF7D0;
-      font-weight:900;
-      padding:0;
-    }
+    @keyframes spin{to{transform:rotate(360deg)}}
 
     .status{
       display:none;
       margin-top:12px;
-      border-radius:16px;
-      padding:11px;
-      font-size:12.5px;
-      line-height:1.4;
+      border-radius:17px;
+      padding:12px;
+      font-size:13px;
+      line-height:1.42;
       border:1px solid rgba(255,255,255,.12);
       background:rgba(255,255,255,.06);
       color:#E2E8F0;
     }
 
-    .status.show{
-      display:block;
-    }
+    .status.show{display:block}
 
     .status.good{
-      border-color:rgba(34,197,94,.24);
+      border-color:rgba(34,197,94,.25);
       background:rgba(34,197,94,.09);
       color:#BBF7D0;
     }
@@ -465,63 +353,98 @@
       color:#FECACA;
     }
 
-    .safe-note{
-      position:relative;
-      z-index:2;
-      margin-top:16px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(255,255,255,.055);
-      color:var(--muted);
-      border-radius:18px;
-      padding:12px;
-      font-size:12px;
-      line-height:1.4;
+    .status.info{
+      border-color:rgba(56,189,248,.24);
+      background:rgba(56,189,248,.08);
+      color:#BAE6FD;
     }
 
-    .footer{
-      position:relative;
-      z-index:2;
-      margin-top:auto;
-      padding-top:22px;
+    .email-check{
+      display:none;
       text-align:center;
-      color:var(--muted2);
-      font-size:11.5px;
+      padding:8px 2px 4px;
+    }
+
+    .email-check.show{
+      display:block;
+    }
+
+    .email-icon{
+      width:74px;
+      height:74px;
+      border-radius:26px;
+      margin:0 auto 14px;
+      display:grid;
+      place-items:center;
+      color:#BBF7D0;
+      background:rgba(34,197,94,.12);
+      border:1px solid rgba(34,197,94,.26);
+    }
+
+    .email-icon svg{
+      width:38px;
+      height:38px;
+      stroke:currentColor;
+    }
+
+    .email-check h3{
+      margin:0;
+      font-size:23px;
+      line-height:1.08;
+      letter-spacing:-.6px;
+    }
+
+    .email-check p{
+      margin:10px 0 0;
+      color:#CBD5E1;
+      font-size:14px;
       line-height:1.45;
     }
 
-    .footer a{
-      color:#CBD5E1;
-      font-weight:800;
+    .small{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.45;
+      margin-top:11px;
+      text-align:center;
     }
 
-    .loader{
-      width:16px;
-      height:16px;
-      border-radius:50%;
-      border:2px solid rgba(3,16,10,.30);
-      border-top-color:#03100A;
+    .already{
       display:none;
-      animation:spin .75s linear infinite;
+      margin-top:12px;
+      border:1px solid rgba(56,189,248,.24);
+      background:rgba(56,189,248,.08);
+      color:#BAE6FD;
+      border-radius:18px;
+      padding:12px;
     }
 
-    .btn.loading .loader{
-      display:inline-block;
+    .already.show{display:block}
+
+    .already h3{
+      margin:0 0 5px;
+      font-size:15px;
     }
 
-    .btn.loading .btn-text{
-      opacity:.75;
+    .already p{
+      margin:0;
+      font-size:12.5px;
+      line-height:1.4;
+      color:#BAE6FD;
     }
 
-    @keyframes spin{
-      to{transform:rotate(360deg)}
+    .already .two{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin-top:10px;
     }
 
     @media(min-width:760px){
-      .app-shell{
-        padding-top:26px;
+      .page{
+        padding-top:28px;
       }
-
-      .app-shell:before{
+      .page:before{
         content:"";
         position:absolute;
         inset:12px 0 18px;
@@ -532,14 +455,12 @@
       }
     }
 
-    @media(max-width:380px){
-      .app-shell{
-        padding-left:13px;
-        padding-right:13px;
-      }
-
+    @media(max-width:390px){
       .hero h2{
-        font-size:31px;
+        font-size:30px;
+      }
+      .brand span{
+        max-width:210px;
       }
     }
   </style>
@@ -549,347 +470,365 @@
   <div class="glow one"></div>
   <div class="glow two"></div>
 
-  <div class="page">
-    <main class="app-shell">
+  <main class="page">
+    <header class="top">
+      <a href="index.html" class="brand">
+        <div class="logo">FA</div>
+        <div>
+          <h1>FitApp</h1>
+          <span>Fitness that fits your day</span>
+        </div>
+      </a>
+      <a class="home" href="index.html">Home</a>
+    </header>
 
-      <header class="topbar">
-        <a href="index.html" class="brand" aria-label="FitApp home">
-          <div class="logo">FA</div>
-          <div class="brand-title">
-            <h1>FitApp</h1>
-            <span>Premium AI fitness coach</span>
+    <section class="hero">
+      <div class="kicker"><span class="pulse"></span><span>Personal coach setup</span></div>
+      <h2 id="heroTitle">Welcome back.</h2>
+      <p id="heroText">Login to open your dashboard, meals, workouts, progress, and AI coach plan.</p>
+    </section>
+
+    <section class="card">
+      <div class="inner">
+
+        <div id="alreadyBox" class="already">
+          <h3>You are already logged in.</h3>
+          <p>No automatic redirect. Choose what you want to do.</p>
+          <div class="two">
+            <button class="btn secondary" id="openAppBtn" type="button" style="margin-top:0">Open app</button>
+            <button class="btn red" id="signOutBtn" type="button" style="margin-top:0">Sign out</button>
           </div>
-        </a>
-
-        <a class="back-link" href="index.html">Home</a>
-      </header>
-
-      <section class="hero">
-        <div class="kicker">
-          <span class="pulse"></span>
-          <span id="heroKicker">Account access</span>
         </div>
 
-        <h2 id="heroTitle">Start your fitness plan.</h2>
-        <p id="heroText">
-          Create your account, accept the fitness disclaimer, then FitApp will build your setup around your body, food, work breaks, water, and gym time.
-        </p>
-      </section>
-
-      <section class="auth-card">
-        <div class="auth-inner">
-          <div class="mode-tabs" role="tablist" aria-label="Authentication mode">
-            <button class="mode-tab active" id="signupTab" type="button">Sign up</button>
-            <button class="mode-tab" id="loginTab" type="button">Login</button>
+        <div id="formWrap">
+          <div class="mode-tabs">
+            <button class="mode-btn active" id="loginTab" type="button">Login</button>
+            <button class="mode-btn" id="signupTab" type="button">Create account</button>
           </div>
 
-          <div class="form-title">
-            <h3 id="formHeading">Create account</h3>
-            <p id="formSubtext">Start with email and password. Onboarding comes next.</p>
+          <div class="field">
+            <label>Email</label>
+            <input class="input" id="email" type="email" autocomplete="email" placeholder="you@example.com" />
           </div>
 
-          <form id="authForm">
-            <div class="field">
-              <label for="email">Email</label>
-              <input class="input" id="email" type="email" autocomplete="email" placeholder="you@example.com" required />
-            </div>
-
-            <div class="field">
-              <label for="password">Password</label>
-              <div class="password-row">
-                <input class="input" id="password" type="password" autocomplete="current-password" placeholder="Minimum 6 characters" required minlength="6" />
-                <button class="show-pass" id="togglePassword" type="button">Show</button>
-              </div>
-            </div>
-
-            <div class="consent-box show" id="consentBox">
-              <div class="check-row">
-                <input id="agree" type="checkbox" />
-                <label for="agree">
-                  I agree to the
-                  <a href="terms.html" target="_blank">Terms & Conditions</a>,
-                  <a href="privacy.html" target="_blank">Privacy Policy</a>, and
-                  <a href="disclaimer.html" target="_blank">Fitness Disclaimer</a>.
-                </label>
-              </div>
-
-              <div class="disclaimer">
-                FitApp provides general fitness and nutrition guidance only. It is not medical advice.
-                Stop any exercise that causes strong pain and speak with a professional if needed.
-              </div>
-            </div>
-
-            <button class="btn primary" id="submitBtn" type="submit" disabled>
-              <span class="loader"></span>
-              <span class="btn-text" id="submitText">Create Account</span>
-            </button>
-          </form>
-
-          <button class="btn secondary" id="continueBtn" type="button">Continue later</button>
-
-          <div class="link-row">
-            <span id="switchText">Already have an account?</span>
-            <button id="switchMode" type="button">Login</button>
+          <div class="field">
+            <label>Password</label>
+            <input class="input" id="password" type="password" autocomplete="current-password" placeholder="Minimum 6 characters" />
           </div>
+
+          <div class="field" id="confirmWrap" style="display:none">
+            <label>Confirm password</label>
+            <input class="input" id="confirmPassword" type="password" autocomplete="new-password" placeholder="Repeat password" />
+          </div>
+
+          <div class="checkbox" id="termsWrap" style="display:none">
+            <input id="termsCheck" type="checkbox" />
+            <label for="termsCheck">
+              I understand FitApp gives general fitness and nutrition guidance only. It is not medical advice. I agree to the Terms, Privacy Policy, and Fitness Disclaimer when added.
+            </label>
+          </div>
+
+          <button class="btn primary" id="submitBtn" type="button">
+            <span class="loader"></span>
+            <span id="submitText">Login</span>
+          </button>
+
+          <button class="btn secondary" id="forgotBtn" type="button">Forgot password?</button>
 
           <div class="status" id="statusBox"></div>
         </div>
-      </section>
 
-      <div class="safe-note">
-        Safety basics like allergy settings, injury notes, delete data, and fitness disclaimer should stay available to all users.
+        <div id="emailCheck" class="email-check">
+          <div class="email-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+              <path d="M4 6h16v12H4V6Z"/>
+              <path d="m4 7 8 6 8-6"/>
+            </svg>
+          </div>
+          <h3>Check your email.</h3>
+          <p>
+            We sent a confirmation link. Open your email, confirm your account, then come back and login.
+          </p>
+          <button class="btn primary" id="goLoginBtn" type="button">Go to login</button>
+          <p class="small">
+            If you do not see it, check spam/junk folder or try signing up again after a few minutes.
+          </p>
+        </div>
+
       </div>
-
-      <footer class="footer">
-        Temporary project name: FitApp.
-        <br>
-        <a href="terms.html">Terms</a> ·
-        <a href="privacy.html">Privacy</a> ·
-        <a href="disclaimer.html">Disclaimer</a>
-      </footer>
-
-    </main>
-  </div>
+    </section>
+  </main>
 
 <script>
   const SUPABASE_URL = "https://qusmbveovroldkhbjudq.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_6zVS1VCVok16WmVWNPvTrw_vTiQvgX4";
 
-  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+      detectSessionInUrl: false,
+      persistSession: true,
+      autoRefreshToken: true
+    }
+  });
 
-  const $ = (q) => document.querySelector(q);
+  const $ = q => document.querySelector(q);
 
-  let mode = new URLSearchParams(location.search).get("mode") || "signup";
-  if(mode !== "login" && mode !== "signup") mode = "signup";
+  let mode = "login";
+  let currentSession = null;
 
-  const signupTab = $("#signupTab");
-  const loginTab = $("#loginTab");
-  const formHeading = $("#formHeading");
-  const formSubtext = $("#formSubtext");
-  const heroKicker = $("#heroKicker");
-  const heroTitle = $("#heroTitle");
-  const heroText = $("#heroText");
-  const consentBox = $("#consentBox");
-  const agree = $("#agree");
-  const submitBtn = $("#submitBtn");
-  const submitText = $("#submitText");
-  const switchText = $("#switchText");
-  const switchMode = $("#switchMode");
-  const statusBox = $("#statusBox");
-  const authForm = $("#authForm");
-  const emailInput = $("#email");
-  const passwordInput = $("#password");
-  const togglePassword = $("#togglePassword");
-  const continueBtn = $("#continueBtn");
+  function getParam(name){
+    return new URLSearchParams(window.location.search).get(name);
+  }
 
-  function setStatus(message, type){
-    statusBox.textContent = message || "";
-    statusBox.className = "status";
+  function setMode(nextMode){
+    mode = nextMode === "signup" ? "signup" : "login";
+
+    $("#loginTab").classList.toggle("active", mode === "login");
+    $("#signupTab").classList.toggle("active", mode === "signup");
+
+    $("#confirmWrap").style.display = mode === "signup" ? "block" : "none";
+    $("#termsWrap").style.display = mode === "signup" ? "flex" : "none";
+    $("#forgotBtn").style.display = mode === "login" ? "flex" : "none";
+
+    $("#submitText").textContent = mode === "signup" ? "Create account" : "Login";
+
+    $("#heroTitle").textContent = mode === "signup" ? "Create your FitApp." : "Welcome back.";
+    $("#heroText").textContent = mode === "signup"
+      ? "Create your account, confirm your email, then build your personal fitness setup."
+      : "Login to open your dashboard, meals, workouts, progress, and AI coach plan.";
+
+    showStatus("", "");
+  }
+
+  function showStatus(message, type){
+    const box = $("#statusBox");
+    box.textContent = message || "";
+    box.className = "status";
     if(message){
-      statusBox.classList.add("show");
-      if(type) statusBox.classList.add(type);
+      box.classList.add("show");
+      if(type) box.classList.add(type);
     }
   }
 
   function setLoading(isLoading){
-    submitBtn.disabled = isLoading || (mode === "signup" && !agree.checked);
-    submitBtn.classList.toggle("loading", isLoading);
-    emailInput.disabled = isLoading;
-    passwordInput.disabled = isLoading;
-    agree.disabled = isLoading;
-    signupTab.disabled = isLoading;
-    loginTab.disabled = isLoading;
-    continueBtn.disabled = isLoading;
+    $("#submitBtn").disabled = isLoading;
+    $("#submitBtn").classList.toggle("loading", isLoading);
+    $("#loginTab").disabled = isLoading;
+    $("#signupTab").disabled = isLoading;
   }
 
-  function updateSubmitState(){
-    if(mode === "signup"){
-      submitBtn.disabled = !agree.checked;
-    }else{
-      submitBtn.disabled = false;
+  function showEmailCheck(){
+    $("#formWrap").style.display = "none";
+    $("#emailCheck").classList.add("show");
+    $("#alreadyBox").classList.remove("show");
+    $("#heroTitle").textContent = "Almost done.";
+    $("#heroText").textContent = "Confirm your email before logging in.";
+  }
+
+  function normalizeEmail(value){
+    return String(value || "").trim().toLowerCase();
+  }
+
+  function validateAuth(){
+    const email = normalizeEmail($("#email").value);
+    const password = $("#password").value;
+
+    if(!email || !email.includes("@")){
+      return "Enter a valid email.";
     }
+
+    if(!password || password.length < 6){
+      return "Password must be at least 6 characters.";
+    }
+
+    if(mode === "signup"){
+      const confirm = $("#confirmPassword").value;
+      if(password !== confirm){
+        return "Passwords do not match.";
+      }
+
+      if(!$("#termsCheck").checked){
+        return "Please tick the fitness disclaimer/terms checkbox before creating account.";
+      }
+    }
+
+    return "";
   }
 
-  function updateMode(nextMode){
-    mode = nextMode;
-    const isSignup = mode === "signup";
-
-    signupTab.classList.toggle("active", isSignup);
-    loginTab.classList.toggle("active", !isSignup);
-
-    consentBox.classList.toggle("show", isSignup);
-
-    formHeading.textContent = isSignup ? "Create account" : "Welcome back";
-    formSubtext.textContent = isSignup
-      ? "Start with email and password. Onboarding comes next."
-      : "Login to continue your food, workout, water, and progress plan.";
-
-    heroKicker.textContent = isSignup ? "Free setup" : "Account access";
-    heroTitle.textContent = isSignup ? "Start your fitness plan." : "Continue your progress.";
-    heroText.textContent = isSignup
-      ? "Create your account, accept the fitness disclaimer, then FitApp will build your setup around your body, food, work breaks, water, and gym time."
-      : "Open your dashboard, follow today’s plan, and keep your weekly AI coach updates moving.";
-
-    submitText.textContent = isSignup ? "Create Account" : "Login";
-    switchText.textContent = isSignup ? "Already have an account?" : "New to FitApp?";
-    switchMode.textContent = isSignup ? "Login" : "Create account";
-
-    const url = new URL(location.href);
-    url.searchParams.set("mode", mode);
-    history.replaceState({}, "", url.toString());
-
-    setStatus("");
-    updateSubmitState();
-  }
-
-  async function ensureProfile(user){
-    const email = user.email || emailInput.value.trim();
-
-    const { error } = await supabaseClient
+  async function findProfileAndRedirect(){
+    const { data: profile, error } = await supabaseClient
       .from("profiles")
-      .upsert({
-        id: user.id,
-        email: email
-      }, { onConflict: "id" });
+      .select("id,onboarding_completed")
+      .eq("id", currentSession.user.id)
+      .maybeSingle();
 
-    if(error) throw error;
-  }
+    if(error){
+      console.warn(error);
+    }
 
-  async function saveConsent(user){
-    const { error } = await supabaseClient
-      .from("user_consents")
-      .insert({
-        user_id: user.id,
-        terms_accepted: true,
-        privacy_accepted: true,
-        disclaimer_accepted: true,
-        consent_version: "v1",
-        accepted_at: new Date().toISOString()
-      });
-
-    if(error) throw error;
-  }
-
-  async function getOnboardingStatus(userId){
-    const { data, error } = await supabaseClient
-      .from("profiles")
-      .select("onboarding_completed")
-      .eq("id", userId)
-      .single();
-
-    if(error) throw error;
-    return !!(data && data.onboarding_completed);
-  }
-
-  async function redirectAfterAuth(user){
-    await ensureProfile(user);
-
-    const done = await getOnboardingStatus(user.id);
-
-    if(done){
+    if(profile && profile.onboarding_completed){
       location.href = "app.html";
     }else{
       location.href = "onboarding.html";
     }
   }
 
-  authForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
+  async function handleLogin(){
+    const email = normalizeEmail($("#email").value);
+    const password = $("#password").value;
 
-    const email = emailInput.value.trim();
-    const password = passwordInput.value;
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password
+    });
 
-    if(!email || !password){
-      setStatus("Enter email and password.", "bad");
+    if(error){
+      throw error;
+    }
+
+    if(!data || !data.session){
+      throw new Error("Login failed. Please try again.");
+    }
+
+    currentSession = data.session;
+    showStatus("Login successful. Opening your setup...", "good");
+    await findProfileAndRedirect();
+  }
+
+  async function handleSignup(){
+    const email = normalizeEmail($("#email").value);
+    const password = $("#password").value;
+
+    const redirectTo = `${window.location.origin}/auth.html?mode=login&confirmed=1`;
+
+    const { data, error } = await supabaseClient.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: redirectTo
+      }
+    });
+
+    if(error){
+      throw error;
+    }
+
+    if(data && data.session){
+      currentSession = data.session;
+      showStatus("Account created. Opening setup...", "good");
+      setTimeout(() => {
+        location.href = "onboarding.html";
+      }, 700);
       return;
     }
 
-    if(password.length < 6){
-      setStatus("Password must be at least 6 characters.", "bad");
-      return;
-    }
+    showEmailCheck();
+  }
 
-    if(mode === "signup" && !agree.checked){
-      setStatus("Please accept Terms, Privacy Policy, and Fitness Disclaimer before creating account.", "bad");
+  async function submit(){
+    const validation = validateAuth();
+    if(validation){
+      showStatus(validation, "bad");
       return;
     }
 
     try{
       setLoading(true);
-      setStatus(mode === "signup" ? "Creating account..." : "Logging in...");
+      showStatus(mode === "signup" ? "Creating account..." : "Logging in...", "info");
 
       if(mode === "signup"){
-        const { data, error } = await supabaseClient.auth.signUp({
-          email,
-          password
-        });
-
-        if(error) throw error;
-
-        if(!data.session && data.user){
-          setStatus("Account created. Check your email to confirm login. For testing, turn Confirm email OFF in Supabase Auth settings.", "good");
-          setLoading(false);
-          return;
-        }
-
-        const user = data.user || (data.session && data.session.user);
-        if(!user) throw new Error("Signup worked, but user session was not returned.");
-
-        await ensureProfile(user);
-        await saveConsent(user);
-
-        setStatus("Account created. Opening onboarding...", "good");
-        location.href = "onboarding.html";
+        await handleSignup();
       }else{
-        const { data, error } = await supabaseClient.auth.signInWithPassword({
-          email,
-          password
-        });
-
-        if(error) throw error;
-
-        if(!data.user) throw new Error("Login failed. Please try again.");
-
-        setStatus("Login successful. Opening your app...", "good");
-        await redirectAfterAuth(data.user);
+        await handleLogin();
       }
     }catch(err){
       console.error(err);
-      setStatus(err.message || "Something went wrong. Please try again.", "bad");
+      showStatus(err.message || "Something went wrong. Please try again.", "bad");
+    }finally{
       setLoading(false);
-    }
-  });
-
-  signupTab.addEventListener("click", () => updateMode("signup"));
-  loginTab.addEventListener("click", () => updateMode("login"));
-
-  switchMode.addEventListener("click", () => {
-    updateMode(mode === "signup" ? "login" : "signup");
-  });
-
-  agree.addEventListener("change", updateSubmitState);
-
-  togglePassword.addEventListener("click", () => {
-    const isPassword = passwordInput.type === "password";
-    passwordInput.type = isPassword ? "text" : "password";
-    togglePassword.textContent = isPassword ? "Hide" : "Show";
-  });
-
-  continueBtn.addEventListener("click", () => {
-    location.href = "index.html";
-  });
-
-  async function boot(){
-    updateMode(mode);
-
-    const { data } = await supabaseClient.auth.getSession();
-    if(data && data.session && data.session.user){
-      setStatus("You are already logged in. Redirecting...", "good");
-      setTimeout(() => redirectAfterAuth(data.session.user), 500);
     }
   }
 
-  boot();
+  async function forgotPassword(){
+    const email = normalizeEmail($("#email").value);
+
+    if(!email || !email.includes("@")){
+      showStatus("Enter your email first, then tap forgot password.", "bad");
+      return;
+    }
+
+    try{
+      showStatus("Sending reset email...", "info");
+
+      const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth.html?mode=login&reset=1`
+      });
+
+      if(error) throw error;
+
+      showStatus("Password reset email sent. Check your email.", "good");
+    }catch(err){
+      showStatus(err.message || "Could not send reset email.", "bad");
+    }
+  }
+
+  async function checkExistingSession(){
+    const { data } = await supabaseClient.auth.getSession();
+
+    if(data && data.session && data.session.user){
+      currentSession = data.session;
+      $("#alreadyBox").classList.add("show");
+    }
+  }
+
+  async function signOut(){
+    await supabaseClient.auth.signOut();
+    currentSession = null;
+    $("#alreadyBox").classList.remove("show");
+    showStatus("Signed out. You can login with another account.", "good");
+  }
+
+  function init(){
+    const urlMode = getParam("mode");
+    const confirmed = getParam("confirmed");
+    const reset = getParam("reset");
+
+    setMode(urlMode === "signup" ? "signup" : "login");
+
+    if(confirmed){
+      showStatus("Email confirmed. Please login now.", "good");
+    }
+
+    if(reset){
+      showStatus("Password reset link opened. Login after changing password.", "info");
+    }
+
+    $("#loginTab").addEventListener("click", () => setMode("login"));
+    $("#signupTab").addEventListener("click", () => setMode("signup"));
+    $("#submitBtn").addEventListener("click", submit);
+    $("#forgotBtn").addEventListener("click", forgotPassword);
+    $("#goLoginBtn").addEventListener("click", () => {
+      $("#emailCheck").classList.remove("show");
+      $("#formWrap").style.display = "block";
+      setMode("login");
+      showStatus("After confirming email, login here.", "good");
+    });
+
+    $("#openAppBtn").addEventListener("click", findProfileAndRedirect);
+    $("#signOutBtn").addEventListener("click", signOut);
+
+    $("#password").addEventListener("keydown", e => {
+      if(e.key === "Enter") submit();
+    });
+
+    $("#confirmPassword").addEventListener("keydown", e => {
+      if(e.key === "Enter") submit();
+    });
+
+    checkExistingSession();
+  }
+
+  init();
 </script>
 </body>
 </html>
