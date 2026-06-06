@@ -14,7 +14,6 @@
       --line:rgba(255,255,255,.13);
       --text:#F8FAFC;
       --muted:#94A3B8;
-      --muted2:#64748B;
       --green:#22C55E;
       --blue:#38BDF8;
       --amber:#F59E0B;
@@ -47,10 +46,6 @@
     .page{width:100%;min-height:100vh;display:flex;justify-content:center}
     .app-shell{width:100%;max-width:var(--max);min-height:100vh;position:relative;padding:14px 14px 30px}
 
-    .glow{position:fixed;width:250px;height:250px;border-radius:999px;filter:blur(52px);opacity:.28;pointer-events:none;z-index:0}
-    .glow.one{background:var(--green);top:-90px;left:50%;transform:translateX(-90%)}
-    .glow.two{background:var(--blue);bottom:100px;right:50%;transform:translateX(80%);opacity:.18}
-
     .topbar{
       position:sticky;
       top:0;
@@ -70,6 +65,7 @@
     }
     .brand h1{margin:0;font-size:17px;letter-spacing:-.4px;line-height:1.05}
     .brand span{display:block;margin-top:3px;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:275px}
+
     .top-pill{
       border:1px solid rgba(34,197,94,.24);
       background:rgba(34,197,94,.10);
@@ -127,7 +123,6 @@
       overflow:hidden;
       position:relative;
     }
-    .card:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at top right,rgba(255,255,255,.10),transparent 40%);pointer-events:none}
     .card-inner{position:relative;z-index:1}
 
     .card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}
@@ -175,6 +170,16 @@
     }
     .meal b{display:block;font-size:13.5px;margin-bottom:3px}
     .meal span{display:block;color:var(--muted);font-size:12px;line-height:1.35}
+    .replacements{margin-top:7px;display:grid;gap:5px}
+    .replacement{
+      font-size:11.5px;
+      line-height:1.3;
+      color:#BAE6FD;
+      border:1px solid rgba(56,189,248,.16);
+      background:rgba(56,189,248,.075);
+      border-radius:12px;
+      padding:7px;
+    }
 
     .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
     .btn-row.three{grid-template-columns:repeat(3,1fr)}
@@ -210,7 +215,6 @@
     .water-big strong{font-size:26px;letter-spacing:-1px}
     .water-big span{font-size:12px;color:#BAE6FD}
 
-    .workout-preview{display:grid;gap:8px}
     .exercise-row{
       border:1px solid rgba(255,255,255,.10);
       background:rgba(0,0,0,.16);
@@ -220,22 +224,14 @@
       grid-template-columns:54px 1fr;
       gap:10px;
       align-items:center;
+      margin-bottom:8px;
     }
-
     .exercise-art{
-      width:54px;
-      height:54px;
-      border-radius:16px;
-      background:
-        radial-gradient(circle at 30% 20%,rgba(34,197,94,.25),transparent 45%),
-        rgba(255,255,255,.07);
+      width:54px;height:54px;border-radius:16px;
+      background:radial-gradient(circle at 30% 20%,rgba(34,197,94,.25),transparent 45%),rgba(255,255,255,.07);
       border:1px solid rgba(255,255,255,.10);
-      display:grid;
-      place-items:center;
-      color:#BBF7D0;
-      overflow:hidden;
+      display:grid;place-items:center;color:#BBF7D0;overflow:hidden
     }
-
     .exercise-art svg{width:31px;height:31px;stroke:currentColor}
     .exercise-art img{width:100%;height:100%;object-fit:cover}
     .exercise-row b{display:block;font-size:13.5px;margin-bottom:3px}
@@ -247,40 +243,18 @@
       border-radius:24px;
       padding:12px;
     }
-
     .player-visual{
-      width:100%;
-      height:158px;
-      border-radius:22px;
-      border:1px solid rgba(255,255,255,.10);
-      background:
-        radial-gradient(circle at 30% 10%,rgba(34,197,94,.22),transparent 42%),
-        radial-gradient(circle at 70% 80%,rgba(56,189,248,.16),transparent 38%),
-        rgba(255,255,255,.055);
-      display:grid;
-      place-items:center;
-      overflow:hidden;
-      margin-bottom:12px;
-      color:#BBF7D0;
+      width:100%;height:150px;border-radius:22px;border:1px solid rgba(255,255,255,.10);
+      background:radial-gradient(circle at 30% 10%,rgba(34,197,94,.22),transparent 42%),radial-gradient(circle at 70% 80%,rgba(56,189,248,.16),transparent 38%),rgba(255,255,255,.055);
+      display:grid;place-items:center;overflow:hidden;margin-bottom:12px;color:#BBF7D0;
     }
     .player-visual img{width:100%;height:100%;object-fit:cover}
-    .player-visual svg{width:72px;height:72px;stroke:currentColor;opacity:.95}
-
+    .player-visual svg{width:70px;height:70px;stroke:currentColor;opacity:.95}
     .player-title{font-size:22px;font-weight:1000;letter-spacing:-.6px;line-height:1.05;margin-bottom:4px}
     .player-sub{font-size:12.5px;color:var(--muted);line-height:1.35}
 
-    .set-strip{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:9px;
-      margin-top:11px;
-    }
-    .set-box{
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(255,255,255,.055);
-      border-radius:18px;
-      padding:11px;
-    }
+    .set-strip{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:11px}
+    .set-box{border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.055);border-radius:18px;padding:11px}
     .set-box span{display:block;color:var(--muted);font-size:11px;font-weight:900;margin-bottom:5px}
     .set-box strong{display:block;font-size:18px;letter-spacing:-.4px}
 
@@ -315,126 +289,51 @@
       color:var(--text);outline:none;border-radius:16px;min-height:48px;padding:11px 12px;font-size:14px
     }
     .textarea{min-height:78px;resize:vertical;line-height:1.4}
-    .input:focus,.select:focus,.textarea:focus{border-color:rgba(34,197,94,.55);background:rgba(0,0,0,.28)}
-    .input::placeholder,.textarea::placeholder{color:#64748B}
     .grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 
     .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-    .stat{
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(0,0,0,.16);
-      border-radius:19px;
-      padding:12px;
-      min-height:86px;
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-      gap:10px;
-    }
+    .stat{border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.16);border-radius:19px;padding:12px;min-height:86px;display:flex;flex-direction:column;justify-content:space-between;gap:10px}
     .stat span{font-size:12px;color:var(--muted)}
     .stat strong{font-size:20px;letter-spacing:-.5px}
 
     .summary-list{display:grid;gap:8px}
-    .summary-line{
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      border-bottom:1px solid rgba(255,255,255,.08);
-      padding-bottom:8px;
-      font-size:12.5px;
-    }
+    .summary-line{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid rgba(255,255,255,.08);padding-bottom:8px;font-size:12.5px}
     .summary-line:last-child{border-bottom:0;padding-bottom:0}
     .summary-line span{color:var(--muted)}
     .summary-line strong{text-align:right;color:#E2E8F0}
 
     .bottom-tabs{
-      position:fixed;
-      left:50%;
-      bottom:0;
-      transform:translateX(-50%);
-      width:100%;
-      max-width:var(--max);
-      z-index:40;
-      display:grid;
-      grid-template-columns:repeat(5,1fr);
-      gap:5px;
+      position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:var(--max);z-index:40;
+      display:grid;grid-template-columns:repeat(5,1fr);gap:5px;
       padding:8px 8px calc(8px + env(safe-area-inset-bottom));
-      background:rgba(7,10,15,.88);
-      border-top:1px solid rgba(255,255,255,.10);
-      backdrop-filter:blur(20px);
+      background:rgba(7,10,15,.88);border-top:1px solid rgba(255,255,255,.10);backdrop-filter:blur(20px);
     }
-    .tab{
-      border:0;background:transparent;color:var(--muted);
-      border-radius:15px;
-      padding:8px 4px;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:4px;
-      font-size:10.5px;
-      font-weight:900;
-    }
+    .tab{border:0;background:transparent;color:var(--muted);border-radius:15px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10.5px;font-weight:900}
     .tab svg{width:19px;height:19px;stroke:currentColor}
     .tab.active{background:rgba(34,197,94,.12);color:#BBF7D0}
 
     .toast{
-      position:fixed;
-      left:50%;
-      bottom:82px;
-      transform:translateX(-50%) translateY(10px);
-      width:calc(100% - 28px);
-      max-width:452px;
-      z-index:60;
-      background:#111827;
-      color:#fff;
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:18px;
-      padding:12px;
-      box-shadow:var(--shadow);
-      opacity:0;
-      pointer-events:none;
-      transition:.2s;
-      font-size:13px;
-      line-height:1.35;
+      position:fixed;left:50%;bottom:82px;transform:translateX(-50%) translateY(10px);
+      width:calc(100% - 28px);max-width:452px;z-index:60;background:#111827;color:#fff;
+      border:1px solid rgba(255,255,255,.10);border-radius:18px;padding:12px;box-shadow:var(--shadow);
+      opacity:0;pointer-events:none;transition:.2s;font-size:13px;line-height:1.35;
     }
     .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-    .loader-screen{
-      min-height:70vh;
-      display:grid;
-      place-items:center;
-      text-align:center;
-      color:var(--muted);
-      position:relative;
-      z-index:2;
-    }
-    .spin{
-      width:32px;height:32px;border-radius:50%;
-      border:3px solid rgba(255,255,255,.12);
-      border-top-color:var(--green);
-      margin:0 auto 12px;
-      animation:spin .75s linear infinite;
-    }
+    .loader-screen{min-height:70vh;display:grid;place-items:center;text-align:center;color:var(--muted);position:relative;z-index:2}
+    .spin{width:32px;height:32px;border-radius:50%;border:3px solid rgba(255,255,255,.12);border-top-color:var(--green);margin:0 auto 12px;animation:spin .75s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
 
-    @media(min-width:760px){
-      body{padding-bottom:0}
-      .app-shell{padding-top:24px}
-      .app-shell:before{content:"";position:absolute;inset:12px 0 18px;border-radius:34px;border:1px solid rgba(255,255,255,.08);box-shadow:0 30px 90px rgba(0,0,0,.45);pointer-events:none}
-    }
     @media(max-width:390px){
       .btn-row.four{grid-template-columns:repeat(2,1fr)}
       .select-chips.four{grid-template-columns:repeat(2,1fr)}
       .hero h2{font-size:25px}
-      .player-visual{height:138px}
+      .player-visual{height:135px}
     }
   </style>
 </head>
 
 <body>
-  <div class="glow one"></div>
-  <div class="glow two"></div>
-
   <div class="page">
     <main class="app-shell">
       <header class="topbar">
@@ -451,26 +350,20 @@
       </header>
 
       <div id="loader" class="loader-screen">
-        <div>
-          <div class="spin"></div>
-          <div>Loading FitApp...</div>
-        </div>
+        <div><div class="spin"></div><div>Loading FitApp...</div></div>
       </div>
 
       <section class="screen active" id="todayScreen">
         <div class="hero">
           <h2 id="todayTitle">Today</h2>
-          <p id="todaySubtitle">Your meals, workout, water, and progress for today.</p>
+          <p id="todaySubtitle">Your exact meals, workout, water, and progress for today.</p>
           <div class="chips-row" id="todayTags"></div>
         </div>
 
         <div class="card">
           <div class="card-inner">
             <div class="card-head">
-              <div>
-                <h3>Today meals</h3>
-                <p>Tap what happened. FitApp remembers your day.</p>
-              </div>
+              <div><h3>Today meals</h3><p>Exact foods with replacements.</p></div>
               <span class="status-pill" id="mealStatusPill">Pending</span>
             </div>
             <div class="timeline" id="todayMeals"></div>
@@ -485,13 +378,10 @@
         <div class="card">
           <div class="card-inner">
             <div class="card-head">
-              <div>
-                <h3>Today workout</h3>
-                <p id="workoutPreviewSub">Workout preview</p>
-              </div>
+              <div><h3>Today workout</h3><p id="workoutPreviewSub">Workout preview</p></div>
               <span class="status-pill blue" id="workoutStatusPill">Ready</span>
             </div>
-            <div class="workout-preview" id="workoutPreview"></div>
+            <div id="workoutPreview"></div>
             <div class="btn-row">
               <button class="btn primary" id="startWorkoutToday">Start workout</button>
               <button class="btn secondary" id="tooBusyBtn">Short workout</button>
@@ -502,23 +392,13 @@
         <div class="card">
           <div class="card-inner">
             <div class="card-head">
-              <div>
-                <h3>Water</h3>
-                <p>Track by bottle. Simple and fast.</p>
-              </div>
+              <div><h3>Water</h3><p>Track by bottle.</p></div>
               <span class="status-pill blue" id="waterStatusPill">Pending</span>
             </div>
-
             <div class="water-grid">
-              <div class="water-big">
-                <span>Today</span>
-                <strong id="waterMain">0 / 2</strong>
-                <span id="waterSub">bottles</span>
-              </div>
+              <div class="water-big"><span>Today</span><strong id="waterMain">0 / 2</strong><span id="waterSub">bottles</span></div>
               <div>
-                <div style="margin-bottom:9px">
-                  <div class="progress-mini"><div id="waterBar"></div></div>
-                </div>
+                <div style="margin-bottom:9px"><div class="progress-mini"><div id="waterBar"></div></div></div>
                 <button class="btn blue" id="addBottleBtn" style="width:100%;margin-bottom:8px">+ Bottle</button>
                 <button class="btn primary" id="waterDoneBtn" style="width:100%">Goal done</button>
               </div>
@@ -530,7 +410,7 @@
       <section class="screen" id="workoutScreen">
         <div class="hero">
           <h2 id="workoutTitle">Workout</h2>
-          <p id="workoutSub">Warm-up, workout, stretches, sets, rest timer, comfort and pain tracking.</p>
+          <p id="workoutSub">Set-by-set workout tracking.</p>
           <div class="chips-row">
             <span class="tag green" id="sectionTag">Warm-up</span>
             <span class="tag blue" id="exerciseCountTag">1 / 1</span>
@@ -538,32 +418,20 @@
           </div>
         </div>
 
-        <div class="card">
-          <div class="card-inner">
-            <div class="btn-row" id="sectionActions"></div>
-          </div>
-        </div>
+        <div class="card"><div class="card-inner"><div class="btn-row" id="sectionActions"></div></div></div>
 
         <div class="card">
           <div class="card-inner">
             <div class="workout-player">
               <div class="player-visual" id="playerVisual"></div>
               <div class="player-title" id="exerciseName">Loading...</div>
-              <div class="player-sub" id="exerciseInfo">Target muscle and cue</div>
+              <div class="player-sub" id="exerciseInfo"></div>
 
-              <div style="margin-top:11px">
-                <div class="progress-mini"><div id="workoutProgressBar"></div></div>
-              </div>
+              <div style="margin-top:11px"><div class="progress-mini"><div id="workoutProgressBar"></div></div></div>
 
               <div class="set-strip">
-                <div class="set-box">
-                  <span>Current set</span>
-                  <strong id="setNumberText">1 of 3</strong>
-                </div>
-                <div class="set-box">
-                  <span>Rest after set</span>
-                  <strong id="restTextMini">90 sec</strong>
-                </div>
+                <div class="set-box"><span>Current set</span><strong id="setNumberText">1 of 3</strong></div>
+                <div class="set-box"><span>Rest after set</span><strong id="restTextMini">90 sec</strong></div>
               </div>
 
               <div class="counter-grid" id="counterGrid">
@@ -613,7 +481,7 @@
 
                 <div class="field">
                   <label>Optional notes</label>
-                  <textarea class="textarea" id="exerciseNotes" placeholder="Form issue, pain detail, machine busy, change next time..."></textarea>
+                  <textarea class="textarea" id="exerciseNotes" placeholder="Form issue, pain detail, machine busy..."></textarea>
                 </div>
 
                 <button class="btn primary" id="saveExerciseFeedbackBtn" style="width:100%;margin-top:10px">Save and next exercise</button>
@@ -644,56 +512,22 @@
       <section class="screen" id="mealsScreen">
         <div class="hero">
           <h2>Meals</h2>
-          <p>Food style, allergies, swaps, and simple meals around your real schedule.</p>
+          <p>Exact food plan and replacements.</p>
           <div class="chips-row" id="mealTags"></div>
         </div>
-
-        <div class="card">
-          <div class="card-inner">
-            <div class="card-head">
-              <div>
-                <h3>Today meal plan</h3>
-                <p>Starter plan until AI plan display is connected.</p>
-              </div>
-              <span class="status-pill">Food</span>
-            </div>
-            <div class="timeline" id="mealPageList"></div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-inner">
-            <div class="card-head">
-              <div>
-                <h3>Quick swaps</h3>
-                <p>Use these when you do not have the planned food.</p>
-              </div>
-              <span class="status-pill amber">Swaps</span>
-            </div>
-            <div class="timeline" id="swapList"></div>
-          </div>
-        </div>
+        <div class="card"><div class="card-inner"><div class="card-head"><div><h3>Today meal plan</h3><p>From active AI plan when available.</p></div><span class="status-pill">Food</span></div><div class="timeline" id="mealPageList"></div></div></div>
       </section>
 
       <section class="screen" id="progressScreen">
         <div class="hero">
           <h2>Progress</h2>
-          <p>Weekly weight, body measurements, water, workouts, and plan update.</p>
-          <div class="chips-row">
-            <span class="tag green">Weight weekly</span>
-            <span class="tag blue">Measurements biweekly</span>
-          </div>
+          <p>Check-ins and AI plan updates.</p>
+          <div class="chips-row"><span class="tag green">Weight weekly</span><span class="tag blue">Measurements biweekly</span></div>
         </div>
 
         <div class="card">
           <div class="card-inner">
-            <div class="card-head">
-              <div>
-                <h3>This week</h3>
-                <p>Simple summary. No stress.</p>
-              </div>
-              <span class="status-pill purple">MVP</span>
-            </div>
+            <div class="card-head"><div><h3>This week</h3><p>Simple summary.</p></div><span class="status-pill purple">AI</span></div>
             <div class="stats-grid">
               <div class="stat"><span>Meals</span><strong id="statMeals">-</strong></div>
               <div class="stat"><span>Water</span><strong id="statWater">-</strong></div>
@@ -709,72 +543,30 @@
 
         <div class="card" id="measureCard">
           <div class="card-inner">
-            <div class="card-head">
-              <div>
-                <h3>Progress check-in</h3>
-                <p>Enter weight weekly and full measurements every 2 weeks.</p>
-              </div>
-              <span class="status-pill blue">Check-in</span>
-            </div>
-
+            <div class="card-head"><div><h3>Progress check-in</h3><p>Enter weight weekly and full measurements every 2 weeks.</p></div><span class="status-pill blue">Check</span></div>
             <div class="grid2">
-              <div class="field"><label>Weight</label><input class="input" id="mWeight" type="number" step="0.1" placeholder="70"></div>
+              <div class="field"><label>Weight</label><input class="input" id="mWeight" type="number" step="0.1"></div>
               <div class="field"><label>Unit</label><select class="select" id="mUnit"><option value="inch">inch</option><option value="cm">cm</option></select></div>
               <div class="field"><label>Waist</label><input class="input" id="mWaist" type="number" step="0.1"></div>
               <div class="field"><label>Chest</label><input class="input" id="mChest" type="number" step="0.1"></div>
               <div class="field"><label>Hips</label><input class="input" id="mHips" type="number" step="0.1"></div>
               <div class="field"><label>Thigh</label><input class="input" id="mThigh" type="number" step="0.1"></div>
-              <div class="field"><label>Biceps</label><input class="input" id="mBiceps" type="number" step="0.1"></div>
-              <div class="field"><label>Neck</label><input class="input" id="mNeck" type="number" step="0.1"></div>
             </div>
-
-            <div class="grid2">
-              <div class="field"><label>Energy</label><select class="select" id="mEnergy"><option value="">Select</option><option value="good">Good</option><option value="okay">Okay</option><option value="low">Low</option></select></div>
-              <div class="field"><label>Digestion</label><select class="select" id="mDigestion"><option value="">Select</option><option value="good">Good</option><option value="bloated">Bloated</option><option value="bad">Bad</option></select></div>
-            </div>
-
-            <div class="field"><label>Notes</label><textarea class="textarea" id="mNotes" placeholder="Sleep, hunger, pain, photos taken, clothes fitting..."></textarea></div>
+            <div class="field"><label>Notes</label><textarea class="textarea" id="mNotes"></textarea></div>
             <button class="btn primary" id="saveMeasureBtn" style="width:100%;margin-top:10px">Save check-in</button>
           </div>
         </div>
       </section>
 
       <section class="screen" id="profileScreen">
-        <div class="hero">
-          <h2>Profile</h2>
-          <p>Your setup, safety, subscription, and account settings.</p>
-        </div>
-
+        <div class="hero"><h2>Profile</h2><p>Your setup and account settings.</p></div>
         <div class="card">
           <div class="card-inner">
-            <div class="card-head">
-              <div>
-                <h3>Your plan profile</h3>
-                <p>Change anytime if schedule or goal changes.</p>
-              </div>
-              <span class="status-pill green" id="premiumPill">Free</span>
-            </div>
+            <div class="card-head"><div><h3>Your plan profile</h3><p>Edit if your schedule changes.</p></div><span class="status-pill green" id="premiumPill">Free</span></div>
             <div class="summary-list" id="profileSummary"></div>
             <div class="btn-row">
               <button class="btn primary" id="editOnboardingBtn">Edit setup</button>
               <button class="btn secondary" id="logoutBtn">Logout</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-inner">
-            <div class="card-head">
-              <div>
-                <h3>Safety and policies</h3>
-                <p>We will add final policy pages later.</p>
-              </div>
-              <span class="status-pill amber">Required</span>
-            </div>
-            <div class="summary-list">
-              <div class="summary-line"><span>Terms</span><strong>Coming soon</strong></div>
-              <div class="summary-line"><span>Privacy</span><strong>Coming soon</strong></div>
-              <div class="summary-line"><span>Fitness disclaimer</span><strong>Coming soon</strong></div>
             </div>
           </div>
         </div>
@@ -783,1044 +575,597 @@
   </div>
 
   <nav class="bottom-tabs">
-    <button class="tab active" data-tab="todayScreen" aria-label="Today">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-9.5Z"/></svg>
-      <span>Today</span>
-    </button>
-    <button class="tab" data-tab="workoutScreen" aria-label="Workout">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg>
-      <span>Workout</span>
-    </button>
-    <button class="tab" data-tab="mealsScreen" aria-label="Meals">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M7 3v8M4 3v8M10 3v8M4 11h6M7 11v10M16 3v18M16 3c3 2 4 5 4 8 0 2-1 4-4 4"/></svg>
-      <span>Meals</span>
-    </button>
-    <button class="tab" data-tab="progressScreen" aria-label="Progress">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 19V5M4 19h16M8 16v-5M12 16V8M16 16v-9"/></svg>
-      <span>Progress</span>
-    </button>
-    <button class="tab" data-tab="profileScreen" aria-label="Profile">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21c1.5-4 14.5-4 16 0"/></svg>
-      <span>Profile</span>
-    </button>
+    <button class="tab active" data-tab="todayScreen"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-9.5Z"/></svg><span>Today</span></button>
+    <button class="tab" data-tab="workoutScreen"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg><span>Workout</span></button>
+    <button class="tab" data-tab="mealsScreen"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M7 3v8M4 3v8M10 3v8M4 11h6M7 11v10M16 3v18M16 3c3 2 4 5 4 8 0 2-1 4-4 4"/></svg><span>Meals</span></button>
+    <button class="tab" data-tab="progressScreen"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 19V5M4 19h16M8 16v-5M12 16V8M16 16v-9"/></svg><span>Progress</span></button>
+    <button class="tab" data-tab="profileScreen"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21c1.5-4 14.5-4 16 0"/></svg><span>Profile</span></button>
   </nav>
 
   <div class="toast" id="toast">Saved</div>
 
 <script>
-  const SUPABASE_URL = "https://qusmbveovroldkhbjudq.supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_6zVS1VCVok16WmVWNPvTrw_vTiQvgX4";
+const SUPABASE_URL = "https://qusmbveovroldkhbjudq.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_6zVS1VCVok16WmVWNPvTrw_vTiQvgX4";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  const $ = q => document.querySelector(q);
-  const $$ = q => Array.from(document.querySelectorAll(q));
+const $ = q => document.querySelector(q);
+const $$ = q => Array.from(document.querySelectorAll(q));
 
-  let user = null;
-  let data = {
-    profile:null,
-    food:null,
-    work:null,
-    workout:null,
-    water:null,
-    latestMeasurement:null,
-    exercises:[],
-    dailyLog:null,
-    waterLog:null,
-    workoutSession:null
+let user = null;
+let data = {};
+let activePlan = null;
+let todayMeals = [];
+let workoutPlan = [];
+let workoutIndex = 0;
+let currentSet = 1;
+let setRecords = {};
+let restTimer = null;
+let restSeconds = 90;
+let shortWorkoutMode = false;
+
+const iconSvg = `<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg>`;
+
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function dayName(){ return ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][new Date().getDay()]; }
+function nice(v){ return v ? String(v).replaceAll("_"," ") : "-"; }
+function niceList(arr){ return arr && arr.length ? arr.map(nice).join(", ") : "-"; }
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),1600); }
+function formatTime(t){ if(!t) return ""; const p=String(t).split(":"); let h=Number(p[0]||0); const m=p[1]||"00"; const a=h>=12?"PM":"AM"; h=h%12||12; return `${h}:${m} ${a}`; }
+function displayTime(t){ return formatTime(t)||t||"-"; }
+function calculateAge(dob){ if(!dob) return null; const b=new Date(dob), n=new Date(); let a=n.getFullYear()-b.getFullYear(); const m=n.getMonth()-b.getMonth(); if(m<0||(m===0&&n.getDate()<b.getDate()))a--; return a; }
+
+function switchTab(id){
+  $$(".screen").forEach(s=>s.classList.toggle("active",s.id===id));
+  $$(".tab").forEach(t=>t.classList.toggle("active",t.dataset.tab===id));
+  $("#topPill").textContent = id.replace("Screen","").replace("today","Today");
+  window.scrollTo({top:0,behavior:"smooth"});
+  if(id==="workoutScreen") renderWorkoutPlayer();
+  if(id==="progressScreen") renderProgress();
+}
+
+async function getSingle(table){
+  const { data: row } = await supabaseClient.from(table).select("*").eq("user_id", user.id).maybeSingle();
+  return row || null;
+}
+
+async function loadAll(){
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  if(!sessionData?.session?.user){ location.href="auth.html?mode=login"; return; }
+  user = sessionData.session.user;
+
+  const { data: profile } = await supabaseClient.from("profiles").select("*").eq("id",user.id).maybeSingle();
+  if(!profile?.onboarding_completed){ location.href="onboarding.html"; return; }
+
+  data.profile = profile;
+  data.food = await getSingle("food_preferences");
+  data.work = await getSingle("work_schedules");
+  data.workout = await getSingle("workout_availability");
+  data.water = await getSingle("water_settings");
+
+  const { data: measurements } = await supabaseClient.from("measurements").select("*").eq("user_id",user.id).order("entry_date",{ascending:false}).limit(1);
+  data.latestMeasurement = measurements?.[0] || null;
+
+  const { data: exercises } = await supabaseClient.from("exercises").select("*").order("category",{ascending:true});
+  data.exercises = exercises || [];
+
+  const { data: plans } = await supabaseClient.from("weekly_plans").select("*").eq("user_id",user.id).eq("status","active").order("created_at",{ascending:false}).limit(1);
+  activePlan = plans?.[0]?.plan_json || null;
+
+  await ensureDailyLog();
+  await ensureWaterLog();
+
+  buildTodayMeals();
+  buildWorkoutPlan();
+
+  $("#loader").style.display="none";
+  renderAll();
+}
+
+async function ensureDailyLog(){
+  const { data: log, error } = await supabaseClient.from("daily_logs")
+    .upsert({user_id:user.id,log_date:todayISO()},{onConflict:"user_id,log_date"}).select().single();
+  if(error) throw error;
+  data.dailyLog = log;
+}
+
+async function ensureWaterLog(){
+  const target = activePlan?.water_goal?.target_liters || data.water?.daily_target_liters || 2;
+  const bottle = activePlan?.water_goal?.bottle_size_ml || data.water?.bottle_size_ml || 1000;
+  const { data: log, error } = await supabaseClient.from("water_logs")
+    .upsert({user_id:user.id,daily_log_id:data.dailyLog?.id||null,log_date:todayISO(),target_liters:target,bottle_size_ml:bottle},{onConflict:"user_id,log_date"}).select().single();
+  if(error) throw error;
+  data.waterLog = log;
+}
+
+function isWorkoutDay(){ return (data.workout?.workout_days || []).includes(dayName()); }
+
+function todayWorkoutType(){
+  const gymItem = (activePlan?.daily_schedule?.[dayName()] || []).find(x=>x.type==="gym" && x.workout);
+  if(gymItem) return gymItem.workout;
+  const days = data.workout?.workout_days || [];
+  const idx = Math.max(0, days.indexOf(dayName()));
+  const cycle = ["push","legs","pull"];
+  if(!isWorkoutDay()) return "mobility";
+  return cycle[idx % cycle.length];
+}
+
+function fallbackMeals(){
+  const breaks = Array.isArray(data.work?.breaks) ? data.work.breaks : [];
+  const meals = [
+    {time:"08:00",title:"Breakfast",text:"Oats or roti meal with protein + fruit",type:"food",replacement_options:["Smoothie with protein + banana","Tofu/paneer wrap + fruit"]}
+  ];
+  breaks.forEach(b=>{
+    meals.push({
+      time:b.time,
+      title:b.full_meal ? "Work meal" : "Quick snack",
+      text:b.full_meal ? "Roti/rice + protein + vegetables" : "Banana + protein snack",
+      type:"food",
+      replacement_options:["Yogurt/dairy-free bowl + fruit","Protein shake + banana"]
+    });
+  });
+  meals.push({time:"20:30",title:"Dinner",text:"Protein + vegetables + moderate carbs",type:"food",replacement_options:["Dal/chana + roti + salad","Tofu/paneer/chicken bowl + vegetables"]});
+  return meals;
+}
+
+function buildTodayMeals(){
+  const items = activePlan?.daily_schedule?.[dayName()] || [];
+  todayMeals = items.filter(x=>x.type==="food");
+  if(!todayMeals.length) todayMeals = fallbackMeals();
+  todayMeals.sort((a,b)=>String(a.time).localeCompare(String(b.time)));
+}
+
+function exBy(cat, sec){ return data.exercises.filter(e=>e.category===cat && e.section===sec); }
+
+function normalizeExercise(ex, section){
+  const plannedSets = Number(ex.planned_sets || parseSets(ex.sets) || (section==="main"?3:1));
+  return {
+    id: ex.id || null,
+    name: ex.name,
+    plan_section: ex.section || section,
+    planned_sets: plannedSets,
+    sets: ex.sets || `${plannedSets} x ${ex.target_reps || 10}`,
+    target_weight: Number(ex.target_weight || 0),
+    target_reps: Number(ex.target_reps || 10),
+    weight_step: Number(ex.weight_step || (data.profile?.weight_unit==="lb"?5:2.5)),
+    rest_seconds: Number(ex.rest_seconds || (section==="main"?90:30)),
+    cue: ex.cue || ex.short_cue || "Controlled reps.",
+    target_muscle: ex.target_muscle || "",
+    image_url: ex.image_url || ""
   };
+}
 
-  let todayMeals = [];
-  let workoutPlan = [];
-  let workoutIndex = 0;
-  let currentSet = 1;
-  let exerciseSetRecords = {};
-  let restSeconds = 90;
-  let restTimer = null;
-  let feedbackOpen = false;
-  let shortWorkoutMode = false;
+function parseSets(s){
+  const m = String(s||"").match(/(\d+)\s*x/i);
+  return m ? Number(m[1]) : null;
+}
 
-  const iconSvg = `
-    <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
-      <path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/>
-    </svg>
+function buildWorkoutPlan(){
+  const type = todayWorkoutType();
+  const planWorkout = activePlan?.workouts?.[type];
+
+  if(Array.isArray(planWorkout) && planWorkout.length){
+    workoutPlan = planWorkout.map(x => normalizeExercise(x, x.section || "main"));
+  } else {
+    const warm = data.exercises.filter(e=>e.section==="warmup").slice(0,4).map(e=>normalizeExercise(e,"warmup"));
+    const mainCount = shortWorkoutMode ? 3 : 5;
+    const main = (type==="mobility" ? [] : exBy(type,"main").slice(0,mainCount)).map(e=>normalizeExercise(e,"main"));
+    const stretch = data.exercises.filter(e=>e.section==="stretch").slice(0,3).map(e=>normalizeExercise(e,"stretch"));
+    workoutPlan = [...warm,...main,...stretch];
+  }
+
+  workoutIndex = 0;
+  currentSet = 1;
+  setRecords = {};
+}
+
+function renderAll(){
+  const name = data.profile?.full_name || "User";
+  const goals = data.profile?.main_goals || [];
+  const foodStyles = data.food?.food_styles || [];
+
+  $("#topSub").textContent = `${name} • ${niceList(goals)}`;
+  $("#todayTitle").textContent = `Today, ${name.split(" ")[0] || "friend"}`;
+  $("#todaySubtitle").textContent = activePlan ? (activePlan.summary || "Your AI plan is active.") : "Starter plan. Tap Update next plan for AI plan.";
+  $("#todayTags").innerHTML = `
+    <span class="tag green">${activePlan ? "AI plan active" : "Starter plan"}</span>
+    <span class="tag blue">${niceList(foodStyles)}</span>
+    <span class="tag amber">${data.workout?.max_minutes || "-"} min</span>
   `;
 
-  function todayISO(){
-    return new Date().toISOString().slice(0,10);
-  }
+  renderMeals();
+  renderWorkoutPreview();
+  renderWater();
+  renderProgress();
+  renderProfile();
+}
 
-  function dayName(){
-    return ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][new Date().getDay()];
-  }
-
-  function nice(v){
-    if(!v) return "-";
-    return String(v).replaceAll("_"," ");
-  }
-
-  function niceList(arr){
-    if(!arr || !arr.length) return "-";
-    return arr.map(nice).join(", ");
-  }
-
-  function toast(msg){
-    const t = $("#toast");
-    t.textContent = msg;
-    t.classList.add("show");
-    setTimeout(() => t.classList.remove("show"), 1600);
-  }
-
-  function formatTime(t){
-    if(!t) return "";
-    const parts = String(t).split(":");
-    let h = Number(parts[0] || 0);
-    const m = parts[1] || "00";
-    const ampm = h >= 12 ? "PM" : "AM";
-    h = h % 12 || 12;
-    return `${h}:${m} ${ampm}`;
-  }
-
-  function displayTime(t){
-    return formatTime(t) || t || "-";
-  }
-
-  function calculateAge(dob){
-    if(!dob) return null;
-    const birth = new Date(dob);
-    const today = new Date();
-    let age = today.getFullYear() - birth.getFullYear();
-    const m = today.getMonth() - birth.getMonth();
-    if(m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-    return age;
-  }
-
-  function switchTab(id){
-    $$(".screen").forEach(s => s.classList.toggle("active", s.id === id));
-    $$(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === id));
-    $("#topPill").textContent = id.replace("Screen","").replace("today","Today");
-    window.scrollTo({top:0,behavior:"smooth"});
-    if(id === "workoutScreen") renderWorkoutPlayer();
-    if(id === "progressScreen") renderProgress();
-  }
-
-  function showApp(){
-    $("#loader").style.display = "none";
-    $$(".screen").forEach(s => s.style.display = "");
-    renderAll();
-  }
-
-  async function getSingle(table){
-    const { data: row, error } = await supabaseClient.from(table).select("*").eq("user_id", user.id).maybeSingle();
-    if(error) console.warn(table, error);
-    return row || null;
-  }
-
-  async function loadAll(){
-    const { data: sessionData } = await supabaseClient.auth.getSession();
-    if(!sessionData || !sessionData.session || !sessionData.session.user){
-      location.href = "auth.html?mode=login";
-      return;
-    }
-
-    user = sessionData.session.user;
-
-    const { data: profile } = await supabaseClient.from("profiles").select("*").eq("id", user.id).maybeSingle();
-
-    if(!profile || !profile.onboarding_completed){
-      location.href = "onboarding.html";
-      return;
-    }
-
-    data.profile = profile;
-    data.food = await getSingle("food_preferences");
-    data.work = await getSingle("work_schedules");
-    data.workout = await getSingle("workout_availability");
-    data.water = await getSingle("water_settings");
-
-    const { data: measurements } = await supabaseClient
-      .from("measurements")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("entry_date", { ascending:false })
-      .limit(1);
-
-    data.latestMeasurement = measurements && measurements[0] ? measurements[0] : null;
-
-    const { data: exercises } = await supabaseClient
-      .from("exercises")
-      .select("*")
-      .order("category", { ascending:true });
-
-    data.exercises = exercises || [];
-
-    await ensureDailyLog();
-    await ensureWaterLog();
-
-    buildTodayMeals();
-    buildWorkoutPlan();
-
-    showApp();
-  }
-
-  async function ensureDailyLog(){
-    const payload = { user_id:user.id, log_date:todayISO() };
-
-    const { data: log, error } = await supabaseClient
-      .from("daily_logs")
-      .upsert(payload, { onConflict:"user_id,log_date" })
-      .select()
-      .single();
-
-    if(error) throw error;
-    data.dailyLog = log;
-  }
-
-  async function ensureWaterLog(){
-    const target = Number(data.water?.daily_target_liters || 2);
-    const bottle = Number(data.water?.bottle_size_ml || 1000);
-
-    const payload = {
-      user_id:user.id,
-      daily_log_id:data.dailyLog?.id || null,
-      log_date:todayISO(),
-      target_liters:target,
-      bottle_size_ml:bottle
-    };
-
-    const { data: log, error } = await supabaseClient
-      .from("water_logs")
-      .upsert(payload, { onConflict:"user_id,log_date" })
-      .select()
-      .single();
-
-    if(error) throw error;
-    data.waterLog = log;
-  }
-
-  function isWorkDay(){
-    const days = data.work?.work_days || [];
-    return days.includes(dayName());
-  }
-
-  function isWorkoutDay(){
-    const days = data.workout?.workout_days || [];
-    return days.includes(dayName());
-  }
-
-  function todayWorkoutType(){
-    const days = data.workout?.workout_days || [];
-    const idx = Math.max(0, days.indexOf(dayName()));
-    const cycle = ["push","legs","pull"];
-    if(!isWorkoutDay()) return "mobility";
-    return cycle[idx % cycle.length];
-  }
-
-  function mealBase(title){
-    const styles = data.food?.food_styles || (data.food?.food_style ? [data.food.food_style] : ["mixed"]);
-    const style = styles[0] || "mixed";
-    const custom = data.food?.food_style_custom || "";
-    const diet = data.food?.diet_type || "no_restriction";
-    const avoid = [...(data.food?.allergies || []), ...(data.food?.avoid_foods || [])].join(", ").toLowerCase();
-    const usual = data.food?.usual_foods || "";
-
-    let protein = "paneer/tofu/eggs";
-    if(diet === "vegetarian") protein = "paneer/tofu/dal/chana";
-    if(diet === "chicken_ok" || diet === "no_restriction") protein = "paneer/tofu/eggs/chicken";
-
-    let food = `${protein} + carbs + vegetables`;
-    if(style === "punjabi") food = `${protein} with roti, simple sabji, salad`;
-    if(style === "indian") food = `${protein} with roti/rice, dal, vegetables`;
-    if(style === "gujarati") food = `${protein} with roti/khichdi, dal, yogurt if allowed`;
-    if(style === "south_indian") food = `${protein} with idli/dosa/rice, sambar, vegetables`;
-    if(style === "chinese") food = `${protein} rice/noodles bowl with vegetables`;
-    if(style === "mexican") food = `${protein} wrap/rice bowl with beans and salad`;
-    if(style === "spanish") food = `${protein} rice/potato bowl with salad`;
-    if(style === "mediterranean") food = `${protein} bowl with rice/pita, salad, hummus if allowed`;
-    if(style === "western_gym_food") food = `${protein}, oats/rice/potato, fruit, vegetables`;
-    if(style === "simple_home_food") food = `${protein} with simple home carbs and vegetables`;
-    if(style === "custom" && custom) food = `${custom} style: ${protein} + balanced carbs + vegetables`;
-    if(usual) food += `. Usual foods: ${usual}`;
-
-    if(avoid.includes("dairy")) food = food.replaceAll("yogurt", "dairy-free option").replaceAll("paneer/", "").replaceAll("curd", "dairy-free option");
-    if(avoid.includes("eggs")) food = food.replaceAll("/eggs", "").replaceAll("eggs/", "").replaceAll("eggs", "tofu");
-    if(avoid.includes("peanuts")) food = food.replaceAll("peanut", "seed");
-
-    return { title, food };
-  }
-
-  function buildTodayMeals(){
-    const meals = [];
-    const breaks = Array.isArray(data.work?.breaks) ? data.work.breaks : [];
-    const workoutTime = data.workout?.preferred_time;
-
-    meals.push({ time:"08:00", title:"Breakfast", text: mealBase("Breakfast").food });
-
-    if(isWorkDay() && breaks.length){
-      breaks.forEach((b, i) => {
-        const full = b.full_meal || b.type === "meal" || b.type === "lunch" || b.type === "dinner";
-        meals.push({
-          time:b.time,
-          title: full ? `${nice(b.type)} break` : `${nice(b.type)} time`,
-          text: full ? mealBase("Work meal").food : "Quick option: fruit + protein snack, light wrap, yogurt/dairy-free option, or shake."
-        });
-      });
-    }else{
-      meals.push({time:"11:00",title:"Meal 1",text:mealBase("Meal 1").food});
-      meals.push({time:"14:30",title:"Meal 2",text:"Quick protein snack + fruit or simple meal."});
-    }
-
-    if(workoutTime && isWorkoutDay()){
-      meals.push({ time:workoutTime, title:"Pre-workout", text:"Light carb + optional coffee if suitable. Keep it easy to digest." });
-    }
-
-    meals.push({ time:"20:30", title:"Dinner", text:"Protein + vegetables + moderate carbs. Keep it lighter if workout was late." });
-
-    todayMeals = meals.sort((a,b) => String(a.time).localeCompare(String(b.time)));
-  }
-
-  function exBy(category, section){
-    return data.exercises.filter(e => e.category === category && e.section === section);
-  }
-
-  function buildWorkoutPlan(){
-    const type = todayWorkoutType();
-    const warmup = data.exercises.filter(e => e.section === "warmup").slice(0,4);
-    const stretch = data.exercises.filter(e => e.section === "stretch").slice(0,4);
-
-    let main = [];
-    if(type === "mobility"){
-      main = warmup.slice(0,2);
-    }else{
-      const count = shortWorkoutMode ? 3 : Math.min(6, Math.max(3, Math.round((Number(data.workout?.max_minutes || 45) / 10))));
-      main = exBy(type, "main").slice(0, count);
-    }
-
-    workoutPlan = [
-      ...warmup.map(e => ({...e, plan_section:"warmup", planned_sets:1, target_reps:10, target_weight:0, weight_step:0, rest_seconds:30})),
-      ...main.map((e, i) => ({
-        ...e,
-        plan_section:"main",
-        planned_sets: shortWorkoutMode ? 2 : 3,
-        target_reps: i < 2 ? 10 : 12,
-        target_weight:0,
-        weight_step: data.profile?.weight_unit === "lb" ? 5 : 2.5,
-        rest_seconds:90
-      })),
-      ...stretch.map(e => ({...e, plan_section:"stretch", planned_sets:1, target_reps:30, target_weight:0, weight_step:0, rest_seconds:20}))
-    ];
-
-    workoutIndex = 0;
-    currentSet = 1;
-    exerciseSetRecords = {};
-  }
-
-  function renderAll(){
-    const name = data.profile?.full_name || "User";
-    const goals = data.profile?.main_goals || (data.profile?.main_goal ? [data.profile.main_goal] : []);
-    const foodStyles = data.food?.food_styles || (data.food?.food_style ? [data.food.food_style] : []);
-
-    $("#topTitle").textContent = "FitApp";
-    $("#topSub").textContent = `${name} • ${niceList(goals)}`;
-
-    $("#todayTitle").textContent = `Today, ${name.split(" ")[0] || "friend"}`;
-    $("#todaySubtitle").textContent = isWorkoutDay()
-      ? `${nice(todayWorkoutType())} day • ${data.workout?.max_minutes || 45} min • ${niceList(foodStyles)} meals`
-      : `Recovery / workday plan • ${niceList(foodStyles)} meals`;
-
-    $("#todayTags").innerHTML = `
-      <span class="tag green">${niceList(goals)}</span>
-      <span class="tag blue">${niceList(foodStyles)}</span>
-      <span class="tag amber">${data.workout?.max_minutes || "-"} min gym</span>
-    `;
-
-    renderMeals();
-    renderWorkoutPreview();
-    renderWater();
-    renderMealScreen();
-    renderProgress();
-    renderProfile();
-  }
-
-  function renderMeals(){
-    const html = todayMeals.map(m => `
-      <div class="meal">
-        <div class="meal-time">${displayTime(m.time)}</div>
-        <div>
-          <b>${m.title}</b>
-          <span>${m.text}</span>
-        </div>
+function mealHTML(m){
+  const reps = Array.isArray(m.replacement_options) ? m.replacement_options.slice(0,2) : [];
+  return `
+    <div class="meal">
+      <div class="meal-time">${displayTime(m.time)}</div>
+      <div>
+        <b>${m.title || "Meal"}</b>
+        <span>${m.text || ""}</span>
+        ${reps.length ? `<div class="replacements">${reps.map(r=>`<div class="replacement">Swap: ${r}</div>`).join("")}</div>` : ""}
       </div>
-    `).join("");
+    </div>
+  `;
+}
 
-    $("#todayMeals").innerHTML = html;
-    $("#mealPageList").innerHTML = html;
-    $("#mealStatusPill").textContent = nice(data.dailyLog?.meals_status || "pending");
+function renderMeals(){
+  const html = todayMeals.map(mealHTML).join("");
+  $("#todayMeals").innerHTML = html;
+  $("#mealPageList").innerHTML = html;
+  $("#mealStatusPill").textContent = nice(data.dailyLog?.meals_status || "pending");
+  $("#mealTags").innerHTML = `<span class="tag green">${activePlan ? "AI meals" : "Starter meals"}</span>`;
+}
+
+function exerciseIconHTML(ex){
+  if(ex.image_url) return `<img src="${ex.image_url}" alt="">`;
+  return iconSvg;
+}
+
+function renderWorkoutPreview(){
+  const type = todayWorkoutType();
+  const main = workoutPlan.filter(e=>e.plan_section==="main");
+  $("#workoutPreviewSub").textContent = `${nice(type)} • ${workoutPlan.length} exercises`;
+  $("#workoutStatusPill").textContent = activePlan ? "AI Plan" : "Ready";
+  $("#workoutPreview").innerHTML = (main.length ? main : workoutPlan).slice(0,4).map(ex=>`
+    <div class="exercise-row">
+      <div class="exercise-art">${exerciseIconHTML(ex)}</div>
+      <div><b>${ex.name}</b><span>${ex.sets} • ${ex.cue}</span></div>
+    </div>
+  `).join("");
+  $("#workoutTitle").textContent = `${nice(type)} workout`;
+}
+
+function renderWater(){
+  const wl = data.waterLog || {};
+  const target = Number(wl.target_liters || 2);
+  const bottle = Number(wl.bottle_size_ml || 1000);
+  const need = Math.max(1, Math.round((target*1000/bottle)*10)/10);
+  const done = Number(wl.bottles_done || 0);
+  const pct = Math.min(100, Math.round(done/need*100));
+  $("#waterMain").textContent = `${done} / ${need}`;
+  $("#waterSub").textContent = `${target} L goal • ${bottle} ml bottle`;
+  $("#waterBar").style.width = pct + "%";
+  $("#waterStatusPill").textContent = wl.status==="done" ? "Done" : `${pct}%`;
+}
+
+function currentExercise(){ return workoutPlan[workoutIndex] || null; }
+function firstIndex(section){ return workoutPlan.findIndex(e=>e.plan_section===section); }
+function moveToSection(section){ const i=firstIndex(section); if(i>=0){ stopRest(); workoutIndex=i; currentSet=1; renderWorkoutPlayer(); } }
+
+function renderSectionActions(section){
+  const box = $("#sectionActions");
+  if(section==="warmup"){
+    box.innerHTML = `<button class="btn primary" id="doneWarmup">All warm-up done</button><button class="btn secondary" id="skipWorkout">Skip to workout</button>`;
+    $("#doneWarmup").onclick=()=>moveToSection("main");
+    $("#skipWorkout").onclick=()=>moveToSection("main");
+  } else if(section==="main"){
+    box.innerHTML = `<button class="btn primary" id="doneMain">All workout done</button><button class="btn secondary" id="skipStretch">Skip to stretches</button>`;
+    $("#doneMain").onclick=()=>moveToSection("stretch");
+    $("#skipStretch").onclick=()=>moveToSection("stretch");
+  } else {
+    box.innerHTML = `<button class="btn primary" id="doneStretch">Finish workout</button><button class="btn secondary" id="finishWorkout">All stretches done</button>`;
+    $("#doneStretch").onclick=completeWorkoutSession;
+    $("#finishWorkout").onclick=completeWorkoutSession;
+  }
+}
+
+function renderWorkoutPlayer(){
+  const ex = currentExercise();
+  if(!ex){ $("#exerciseName").textContent="No workout"; return; }
+  const section = ex.plan_section || "main";
+  const sets = Number(ex.planned_sets || 1);
+
+  $("#sectionTag").textContent = section==="main" ? "Workout" : section==="warmup" ? "Warm-up" : "Stretches";
+  $("#exerciseCountTag").textContent = `${workoutIndex+1} / ${workoutPlan.length}`;
+  $("#setTag").textContent = `Set ${currentSet} / ${sets}`;
+  $("#setNumberText").textContent = `${currentSet} of ${sets}`;
+  $("#restTextMini").textContent = `${ex.rest_seconds} sec`;
+  $("#exerciseName").textContent = ex.name;
+  $("#exerciseInfo").textContent = `${ex.target_muscle || "Body"} • ${ex.cue || ""}`;
+  $("#weightInput").value = ex.target_weight || 0;
+  $("#repsInput").value = ex.target_reps || 10;
+  $("#counterGrid").style.display = section==="main" ? "grid" : "none";
+  $("#playerVisual").innerHTML = exerciseIconHTML(ex);
+  $("#workoutProgressBar").style.width = Math.round(workoutIndex/Math.max(1,workoutPlan.length)*100)+"%";
+  $("#feedbackBox").classList.remove("show");
+  $("#exerciseNotes").value = "";
+  renderSectionActions(section);
+}
+
+function selectValue(group){
+  const active = $(`[data-select="${group}"] .select-chip.active`);
+  return active ? active.dataset.value : "";
+}
+
+async function ensureWorkoutSession(){
+  if(data.workoutSession) return data.workoutSession;
+  const { data: session, error } = await supabaseClient.from("workout_sessions").insert({
+    user_id:user.id, workout_date:todayISO(), workout_type:todayWorkoutType(), status:"started"
+  }).select().single();
+  if(error) throw error;
+  data.workoutSession = session;
+  return session;
+}
+
+async function saveSetLog(skipped=false){
+  const ex = currentExercise();
+  if(!ex) return;
+  const session = await ensureWorkoutSession();
+  const { data: row, error } = await supabaseClient.from("exercise_set_logs").insert({
+    user_id:user.id,
+    workout_session_id:session.id,
+    exercise_name:ex.name,
+    set_number:currentSet,
+    target_weight:Number(ex.target_weight||0),
+    actual_weight:Number($("#weightInput").value||0),
+    weight_unit:data.profile?.weight_unit || "kg",
+    target_reps:Number(ex.target_reps||10),
+    actual_reps:Number($("#repsInput").value||0),
+    rest_seconds:Number(ex.rest_seconds||90),
+    skipped
+  }).select().single();
+  if(error) throw error;
+  setRecords[workoutIndex] = setRecords[workoutIndex] || [];
+  setRecords[workoutIndex].push(row);
+}
+
+async function saveExerciseLog(skipped=false){
+  const ex = currentExercise();
+  const session = await ensureWorkoutSession();
+  const records = setRecords[workoutIndex] || [];
+  const pain = Number(selectValue("pain")||0);
+  const painArea = selectValue("painArea") || "";
+  const effort = selectValue("effort") || "good";
+
+  const avgWeight = records.length ? Math.round(records.reduce((s,r)=>s+Number(r.actual_weight||0),0)/records.length*10)/10 : Number($("#weightInput").value||0);
+  const avgReps = records.length ? Math.round(records.reduce((s,r)=>s+Number(r.actual_reps||0),0)/records.length) : Number($("#repsInput").value||0);
+
+  const { data: log, error } = await supabaseClient.from("exercise_logs").insert({
+    user_id:user.id,
+    workout_session_id:session.id,
+    exercise_name:ex.name,
+    section:ex.plan_section,
+    exercise_order:workoutIndex+1,
+    planned_sets:Number(ex.planned_sets||1),
+    sets_done:skipped ? 0 : records.length,
+    target_weight:Number(ex.target_weight||0),
+    actual_weight:avgWeight,
+    weight_unit:data.profile?.weight_unit || "kg",
+    target_reps:Number(ex.target_reps||10),
+    actual_reps:avgReps,
+    rest_seconds:Number(ex.rest_seconds||90),
+    effort,
+    comfort_level:effort,
+    pain_level:pain,
+    pain_area:painArea,
+    skipped,
+    notes:$("#exerciseNotes").value.trim()
+  }).select().single();
+  if(error) throw error;
+
+  if(records.length){
+    await supabaseClient.from("exercise_set_logs").update({exercise_log_id:log.id, effort}).in("id",records.map(r=>r.id));
   }
 
-  function renderMealScreen(){
-    const foodStyles = data.food?.food_styles || (data.food?.food_style ? [data.food.food_style] : []);
-    $("#mealTags").innerHTML = `
-      <span class="tag green">${niceList(foodStyles)}</span>
-      <span class="tag blue">${nice(data.food?.diet_type)}</span>
-      <span class="tag amber">Allergy aware</span>
-    `;
-
-    const diet = data.food?.diet_type || "";
-    const swaps = [
-      {time:"Protein",title:"Protein swaps",text:diet === "vegetarian" ? "Paneer, tofu, dal, chana, Greek yogurt if allowed." : "Paneer, tofu, eggs, chicken, dal, chana, yogurt if allowed."},
-      {time:"Carbs",title:"Carb swaps",text:"Roti, rice, oats, potato, wrap, bread, quinoa."},
-      {time:"Quick",title:"No time option",text:"Protein shake + banana, yogurt/curd or dairy-free option + fruit, roti roll, egg/tofu sandwich."},
-      {time:"Hungry",title:"Still hungry",text:"Add salad, vegetables, curd/dairy-free option, or extra protein before adding fried snacks."}
-    ];
-
-    $("#swapList").innerHTML = swaps.map(m => `
-      <div class="meal">
-        <div class="meal-time">${m.time}</div>
-        <div><b>${m.title}</b><span>${m.text}</span></div>
-      </div>
-    `).join("");
-  }
-
-  function renderWorkoutPreview(){
-    const type = todayWorkoutType();
-    const main = workoutPlan.filter(e => e.plan_section === "main");
-    $("#workoutPreviewSub").textContent = type === "mobility"
-      ? "No main gym day today. Do light mobility or rest."
-      : `${nice(type)} day • ${data.workout?.max_minutes || 45} min`;
-
-    $("#workoutStatusPill").textContent = type === "mobility" ? "Recovery" : "Ready";
-
-    $("#workoutPreview").innerHTML = main.slice(0,4).map(ex => exerciseRowHTML(ex)).join("") || `
-      <div class="meal">
-        <div class="meal-time">Rest</div>
-        <div><b>Recovery day</b><span>Walk, stretch, and follow meals/water.</span></div>
-      </div>
-    `;
-
-    $("#workoutTitle").textContent = type === "mobility" ? "Recovery workout" : `${nice(type)} workout`;
-  }
-
-  function exerciseIconHTML(ex){
-    if(ex.image_url) return `<img src="${ex.image_url}" alt="">`;
-    return iconSvg;
-  }
-
-  function exerciseRowHTML(ex){
-    return `
-      <div class="exercise-row">
-        <div class="exercise-art">${exerciseIconHTML(ex)}</div>
-        <div>
-          <b>${ex.name}</b>
-          <span>${ex.target_muscle || "Body"} • ${ex.short_cue || "Controlled reps."}</span>
-        </div>
-      </div>
-    `;
-  }
-
-  function renderWater(){
-    const wl = data.waterLog || {};
-    const target = Number(wl.target_liters || data.water?.daily_target_liters || 2);
-    const bottle = Number(wl.bottle_size_ml || data.water?.bottle_size_ml || 1000);
-    const need = Math.max(1, Math.round((target * 1000 / bottle) * 10) / 10);
-    const done = Number(wl.bottles_done || 0);
-    const pct = Math.min(100, Math.round((done / need) * 100));
-
-    $("#waterMain").textContent = `${done} / ${need}`;
-    $("#waterSub").textContent = `${target} L goal • ${bottle} ml bottle`;
-    $("#waterBar").style.width = pct + "%";
-    $("#waterStatusPill").textContent = wl.status === "done" ? "Done" : `${pct}%`;
-  }
-
-  function sectionNice(s){
-    if(s === "warmup") return "Warm-up";
-    if(s === "main") return "Workout";
-    if(s === "stretch") return "Stretches";
-    return nice(s);
-  }
-
-  function currentExercise(){
-    return workoutPlan[workoutIndex] || null;
-  }
-
-  function firstIndexOfSection(section){
-    return workoutPlan.findIndex(e => e.plan_section === section);
-  }
-
-  function moveToSection(section){
-    const idx = firstIndexOfSection(section);
-    if(idx >= 0){
-      stopRest();
-      workoutIndex = idx;
-      currentSet = 1;
-      renderWorkoutPlayer();
-    }
-  }
-
-  function renderSectionActions(section){
-    const box = $("#sectionActions");
-
-    if(section === "warmup"){
-      box.innerHTML = `
-        <button class="btn primary" id="allWarmupDoneBtn">All warm-up done</button>
-        <button class="btn secondary" id="skipToWorkoutBtn">Skip to workout</button>
-      `;
-      $("#allWarmupDoneBtn").addEventListener("click", () => moveToSection("main"));
-      $("#skipToWorkoutBtn").addEventListener("click", () => moveToSection("main"));
-      return;
-    }
-
-    if(section === "main"){
-      box.innerHTML = `
-        <button class="btn primary" id="allWorkoutDoneBtn">All workout done</button>
-        <button class="btn secondary" id="skipToStretchBtn">Skip to stretches</button>
-      `;
-      $("#allWorkoutDoneBtn").addEventListener("click", () => moveToSection("stretch"));
-      $("#skipToStretchBtn").addEventListener("click", () => moveToSection("stretch"));
-      return;
-    }
-
-    box.innerHTML = `
-      <button class="btn primary" id="allStretchDoneBtn">All stretches done</button>
-      <button class="btn secondary" id="finishWorkoutBtn">Finish workout</button>
-    `;
-    $("#allStretchDoneBtn").addEventListener("click", completeWorkoutSession);
-    $("#finishWorkoutBtn").addEventListener("click", completeWorkoutSession);
-  }
-
-  function renderWorkoutPlayer(){
-    const ex = currentExercise();
-    if(!ex){
-      $("#exerciseName").textContent = "No workout";
-      $("#exerciseInfo").textContent = "Add workout availability first.";
-      return;
-    }
-
-    const section = ex.plan_section || ex.section || "main";
-    const plannedSets = Number(ex.planned_sets || (section === "main" ? 3 : 1));
-    const rest = Number(ex.rest_seconds || 90);
-
-    $("#sectionTag").textContent = sectionNice(section);
-    $("#exerciseCountTag").textContent = `${workoutIndex + 1} / ${workoutPlan.length}`;
-    $("#setTag").textContent = `Set ${currentSet} / ${plannedSets}`;
-    $("#setNumberText").textContent = `${currentSet} of ${plannedSets}`;
-    $("#restTextMini").textContent = `${rest} sec`;
-
-    $("#exerciseName").textContent = ex.name;
-    $("#exerciseInfo").textContent = `${ex.target_muscle || "Body"} • ${ex.short_cue || "Controlled reps."}`;
-    $("#weightInput").value = ex.target_weight || 0;
-    $("#repsInput").value = ex.target_reps || (section === "stretch" ? 30 : 10);
-    $("#counterGrid").style.display = section === "main" ? "grid" : "none";
-    $("#playerVisual").innerHTML = exerciseIconHTML(ex);
-
-    const pct = Math.round(((workoutIndex) / Math.max(1, workoutPlan.length)) * 100);
-    $("#workoutProgressBar").style.width = pct + "%";
-
-    $("#feedbackBox").classList.remove("show");
-    feedbackOpen = false;
-    $("#exerciseNotes").value = "";
-
-    renderSectionActions(section);
-  }
-
-  function selectValue(group){
-    const active = $(`[data-select="${group}"] .select-chip.active`);
-    return active ? active.dataset.value : "";
-  }
-
-  function initSelectChips(){
-    $$("[data-select] .select-chip").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const group = btn.closest("[data-select]").dataset.select;
-        $$(`[data-select="${group}"] .select-chip`).forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-      });
+  if(pain>0 || painArea){
+    await supabaseClient.from("pain_logs").insert({
+      user_id:user.id, workout_session_id:session.id, exercise_log_id:log.id,
+      exercise_name:ex.name, pain_area:painArea, pain_level:pain, notes:$("#exerciseNotes").value.trim()
     });
   }
+}
 
-  async function ensureWorkoutSession(){
-    if(data.workoutSession) return data.workoutSession;
-
-    const { data: session, error } = await supabaseClient
-      .from("workout_sessions")
-      .insert({
-        user_id:user.id,
-        workout_date:todayISO(),
-        workout_type:todayWorkoutType(),
-        status:"started"
-      })
-      .select()
-      .single();
-
-    if(error) throw error;
-    data.workoutSession = session;
-    return session;
-  }
-
-  async function saveSetLog(skipped=false){
-    const ex = currentExercise();
-    if(!ex) return;
-
-    const session = await ensureWorkoutSession();
-    const section = ex.plan_section || ex.section || "main";
-
-    const payload = {
-      user_id:user.id,
-      workout_session_id:session.id,
-      exercise_id:ex.id || null,
-      exercise_name:ex.name,
-      set_number:currentSet,
-      target_weight:Number(ex.target_weight || 0),
-      actual_weight:Number($("#weightInput").value || 0),
-      weight_unit:data.profile?.weight_unit || "kg",
-      target_reps:Number(ex.target_reps || 10),
-      actual_reps:Number($("#repsInput").value || 0),
-      rest_seconds:Number(ex.rest_seconds || 90),
-      effort:null,
-      skipped
-    };
-
-    const { data: setRow, error } = await supabaseClient
-      .from("exercise_set_logs")
-      .insert(payload)
-      .select()
-      .single();
-
-    if(error) throw error;
-
-    const key = `${workoutIndex}`;
-    exerciseSetRecords[key] = exerciseSetRecords[key] || [];
-    exerciseSetRecords[key].push(setRow);
-  }
-
-  async function saveExerciseLog(skipped=false){
-    const ex = currentExercise();
-    if(!ex) return;
-
-    const session = await ensureWorkoutSession();
-    const section = ex.plan_section || ex.section || "main";
-    const plannedSets = Number(ex.planned_sets || (section === "main" ? 3 : 1));
-
-    const pain = Number(selectValue("pain") || 0);
-    const painArea = selectValue("painArea") || "";
-    const effort = selectValue("effort") || "good";
-    const records = exerciseSetRecords[`${workoutIndex}`] || [];
-
-    const avgWeight = records.length
-      ? Math.round(records.reduce((sum,r)=>sum+Number(r.actual_weight || 0),0) / records.length * 10) / 10
-      : Number($("#weightInput").value || 0);
-
-    const avgReps = records.length
-      ? Math.round(records.reduce((sum,r)=>sum+Number(r.actual_reps || 0),0) / records.length)
-      : Number($("#repsInput").value || 0);
-
-    const payload = {
-      user_id:user.id,
-      workout_session_id:session.id,
-      exercise_id:ex.id || null,
-      exercise_name:ex.name,
-      section,
-      exercise_order:workoutIndex + 1,
-      planned_sets:plannedSets,
-      sets_done:skipped ? 0 : records.length || plannedSets,
-      target_weight:Number(ex.target_weight || 0),
-      actual_weight:avgWeight,
-      weight_unit:data.profile?.weight_unit || "kg",
-      target_reps:Number(ex.target_reps || 10),
-      actual_reps:avgReps,
-      rest_seconds:Number(ex.rest_seconds || 90),
-      effort,
-      comfort_level:effort,
-      pain_level:pain,
-      pain_area:painArea,
-      skipped,
-      notes:$("#exerciseNotes").value.trim()
-    };
-
-    const { data: log, error } = await supabaseClient
-      .from("exercise_logs")
-      .insert(payload)
-      .select()
-      .single();
-
-    if(error) throw error;
-
-    if(records.length){
-      await supabaseClient
-        .from("exercise_set_logs")
-        .update({ exercise_log_id:log.id, effort })
-        .in("id", records.map(r => r.id));
-    }
-
-    if(pain > 0 || painArea){
-      await supabaseClient.from("pain_logs").insert({
-        user_id:user.id,
-        workout_session_id:session.id,
-        exercise_log_id:log.id,
-        exercise_id:ex.id || null,
-        exercise_name:ex.name,
-        pain_area:painArea,
-        pain_level:pain,
-        notes:payload.notes
-      });
-    }
-  }
-
-  function startRest(seconds){
-    stopRest();
-    restSeconds = seconds || 90;
-    $("#restBox").style.display = "block";
+function startRest(seconds){
+  stopRest();
+  restSeconds = seconds || 90;
+  $("#restBox").style.display="block";
+  renderRest();
+  restTimer=setInterval(()=>{
+    restSeconds--;
     renderRest();
+    if(restSeconds<=0){ stopRest(); $("#restBox").style.display="none"; toast("Rest done"); }
+  },1000);
+}
+function renderRest(){ const m=String(Math.floor(restSeconds/60)).padStart(2,"0"); const s=String(restSeconds%60).padStart(2,"0"); $("#restTime").textContent=`${m}:${s}`; }
+function stopRest(){ if(restTimer) clearInterval(restTimer); restTimer=null; }
 
-    restTimer = setInterval(() => {
-      restSeconds--;
-      renderRest();
-      if(restSeconds <= 0){
-        stopRest();
-        $("#restBox").style.display = "none";
-        toast("Rest done");
-      }
-    }, 1000);
-  }
-
-  function renderRest(){
-    const m = String(Math.floor(restSeconds / 60)).padStart(2,"0");
-    const s = String(restSeconds % 60).padStart(2,"0");
-    $("#restTime").textContent = `${m}:${s}`;
-  }
-
-  function stopRest(){
-    if(restTimer) clearInterval(restTimer);
-    restTimer = null;
-  }
-
-  async function doneSet(){
-    const ex = currentExercise();
-    if(!ex) return;
-
-    const section = ex.plan_section || ex.section || "main";
-    const plannedSets = Number(ex.planned_sets || (section === "main" ? 3 : 1));
-
-    try{
-      await saveSetLog(false);
-
-      if(currentSet < plannedSets){
-        const rest = Number(ex.rest_seconds || 90);
-        currentSet++;
-        renderWorkoutPlayer();
-        startRest(rest);
-        toast(`Set saved. Set ${currentSet} ready.`);
-      }else{
-        $("#feedbackBox").classList.add("show");
-        feedbackOpen = true;
-        toast("Exercise sets done. Save comfort and pain.");
-      }
-    }catch(err){
-      console.error(err);
-      toast(err.message || "Could not save set");
+async function doneSet(){
+  const ex = currentExercise();
+  const sets = Number(ex.planned_sets || 1);
+  try{
+    await saveSetLog(false);
+    if(currentSet < sets){
+      currentSet++;
+      renderWorkoutPlayer();
+      startRest(ex.rest_seconds || 90);
+      toast(`Set saved. Set ${currentSet} ready.`);
+    }else{
+      $("#feedbackBox").classList.add("show");
+      toast("Exercise done. Save comfort and pain.");
     }
-  }
+  }catch(err){ toast(err.message || "Could not save set"); }
+}
 
-  async function completeExercise(skipped=false){
-    try{
-      if(skipped){
-        await saveExerciseLog(true);
-      }else{
-        await saveExerciseLog(false);
-      }
-
-      if(workoutIndex < workoutPlan.length - 1){
-        workoutIndex++;
-        currentSet = 1;
-        stopRest();
-        renderWorkoutPlayer();
-        toast(skipped ? "Exercise skipped" : "Exercise saved");
-      }else{
-        await completeWorkoutSession();
-      }
-    }catch(err){
-      console.error(err);
-      toast(err.message || "Could not save exercise");
+async function completeExercise(skipped=false){
+  try{
+    if(skipped && !(setRecords[workoutIndex] || []).length) await saveSetLog(true);
+    await saveExerciseLog(skipped);
+    if(workoutIndex < workoutPlan.length-1){
+      workoutIndex++;
+      currentSet=1;
+      stopRest();
+      renderWorkoutPlayer();
+      toast(skipped ? "Exercise skipped" : "Exercise saved");
+    }else{
+      await completeWorkoutSession();
     }
-  }
+  }catch(err){ toast(err.message || "Could not save exercise"); }
+}
 
-  async function completeWorkoutSession(){
-    try{
-      const session = await ensureWorkoutSession();
+async function completeWorkoutSession(){
+  try{
+    const session = await ensureWorkoutSession();
+    await supabaseClient.from("workout_sessions").update({status:"completed",completed_at:new Date().toISOString()}).eq("id",session.id);
+    await updateDaily("workout_status","done");
+    toast("Workout complete");
+    switchTab("todayScreen");
+  }catch(err){ toast(err.message || "Could not finish workout"); }
+}
 
-      const { error } = await supabaseClient
-        .from("workout_sessions")
-        .update({
-          status:"completed",
-          completed_at:new Date().toISOString()
-        })
-        .eq("id",session.id);
+async function updateDaily(field,value){
+  const update = {}; update[field]=value;
+  const { data: log, error } = await supabaseClient.from("daily_logs").update(update).eq("id",data.dailyLog.id).select().single();
+  if(error) throw error;
+  data.dailyLog = log;
+  renderAll();
+}
 
-      if(error) throw error;
+async function updateWater(changes){
+  const { data: log, error } = await supabaseClient.from("water_logs").update(changes).eq("id",data.waterLog.id).select().single();
+  if(error) throw error;
+  data.waterLog = log;
+  renderWater();
+  const target=Number(log.target_liters||2), bottle=Number(log.bottle_size_ml||1000);
+  const need=Math.max(1,Math.round((target*1000/bottle)*10)/10);
+  if(Number(log.bottles_done||0)>=need) await updateDaily("water_status","done");
+}
 
-      await updateDaily("workout_status", "done");
-      toast("Workout complete");
-      switchTab("todayScreen");
-    }catch(err){
-      console.error(err);
-      toast(err.message || "Could not finish workout");
-    }
-  }
+function renderProgress(){
+  $("#statMeals").textContent = nice(data.dailyLog?.meals_status || "pending");
+  $("#statWater").textContent = nice(data.waterLog?.status || "pending");
+  $("#statWorkout").textContent = nice(data.dailyLog?.workout_status || "pending");
+  $("#statWeight").textContent = data.latestMeasurement?.weight ? `${data.latestMeasurement.weight} ${data.profile?.weight_unit||""}` : "-";
+}
 
-  async function updateDaily(field, value){
-    const update = {};
-    update[field] = value;
+async function saveMeasurement(){
+  const payload = {
+    user_id:user.id, entry_date:todayISO(),
+    weight: $("#mWeight").value ? Number($("#mWeight").value) : null,
+    waist: $("#mWaist").value ? Number($("#mWaist").value) : null,
+    chest: $("#mChest").value ? Number($("#mChest").value) : null,
+    hips: $("#mHips").value ? Number($("#mHips").value) : null,
+    thigh: $("#mThigh").value ? Number($("#mThigh").value) : null,
+    unit: $("#mUnit").value,
+    notes: $("#mNotes").value.trim()
+  };
+  const { data: row, error } = await supabaseClient.from("measurements").insert(payload).select().single();
+  if(error) throw error;
+  data.latestMeasurement = row;
+  ["mWeight","mWaist","mChest","mHips","mThigh","mNotes"].forEach(id=>$("#"+id).value="");
+  renderProgress();
+  toast("Check-in saved");
+}
 
-    const { data: log, error } = await supabaseClient
-      .from("daily_logs")
-      .update(update)
-      .eq("id", data.dailyLog.id)
-      .select()
-      .single();
+function renderProfile(){
+  $("#premiumPill").textContent = data.profile?.is_premium ? "Premium" : "Free";
+  const goals = data.profile?.main_goals || [];
+  const foodStyles = data.food?.food_styles || [];
+  const allergies = data.food?.allergies?.length ? data.food.allergies.map(nice).join(", ") : "None selected";
+  $("#profileSummary").innerHTML = `
+    <div class="summary-line"><span>Name</span><strong>${data.profile?.full_name || "-"}</strong></div>
+    <div class="summary-line"><span>Age</span><strong>${calculateAge(data.profile?.date_of_birth) || "-"}</strong></div>
+    <div class="summary-line"><span>Goals</span><strong>${niceList(goals)}</strong></div>
+    <div class="summary-line"><span>Food</span><strong>${niceList(foodStyles)} / ${nice(data.food?.diet_type)}</strong></div>
+    <div class="summary-line"><span>Allergies</span><strong>${allergies}</strong></div>
+    <div class="summary-line"><span>Workout</span><strong>${nice(data.workout?.workout_place)} / ${data.workout?.max_minutes || "-"} min</strong></div>
+    <div class="summary-line"><span>Active plan</span><strong>${activePlan ? "AI plan" : "Starter plan"}</strong></div>
+  `;
+}
 
-    if(error) throw error;
-    data.dailyLog = log;
-    renderAll();
-  }
+function initEvents(){
+  $$(".tab").forEach(btn=>btn.addEventListener("click",()=>switchTab(btn.dataset.tab)));
+  $("#editOnboardingBtn").onclick=()=>location.href="onboarding.html";
+  $("#logoutBtn").onclick=logout;
+  $("#startWorkoutToday").onclick=()=>switchTab("workoutScreen");
+  $("#tooBusyBtn").onclick=()=>{ shortWorkoutMode=true; buildWorkoutPlan(); renderAll(); toast("Short workout ready"); switchTab("workoutScreen"); };
 
-  async function updateWater(changes){
-    const { data: log, error } = await supabaseClient
-      .from("water_logs")
-      .update(changes)
-      .eq("id", data.waterLog.id)
-      .select()
-      .single();
+  $$("[data-meal-status]").forEach(btn=>btn.onclick=async()=>{ try{ await updateDaily("meals_status",btn.dataset.mealStatus); toast("Meals updated"); }catch(e){ toast(e.message||"Could not save"); } });
 
-    if(error) throw error;
-    data.waterLog = log;
-    renderWater();
+  $("#addBottleBtn").onclick=async()=>{ try{ await updateWater({bottles_done:Number(data.waterLog?.bottles_done||0)+1,status:"almost"}); toast("Bottle added"); }catch(e){ toast(e.message||"Could not save water"); } };
+  $("#waterDoneBtn").onclick=async()=>{ try{ const target=Number(data.waterLog?.target_liters||2), bottle=Number(data.waterLog?.bottle_size_ml||1000); const need=Math.max(1,Math.round((target*1000/bottle)*10)/10); await updateWater({bottles_done:need,status:"done"}); await updateDaily("water_status","done"); toast("Water goal done"); }catch(e){ toast(e.message||"Could not save water"); } };
 
-    const target = Number(log.target_liters || 2);
-    const bottle = Number(log.bottle_size_ml || 1000);
-    const need = Math.max(1, Math.round((target * 1000 / bottle) * 10) / 10);
-    const done = Number(log.bottles_done || 0);
+  $("#prevExerciseBtn").onclick=()=>{ stopRest(); workoutIndex=Math.max(0,workoutIndex-1); currentSet=1; renderWorkoutPlayer(); };
+  $("#nextExerciseBtn").onclick=()=>{ stopRest(); workoutIndex=Math.min(workoutPlan.length-1,workoutIndex+1); currentSet=1; renderWorkoutPlayer(); };
+  $("#doneSetBtn").onclick=doneSet;
+  $("#saveExerciseFeedbackBtn").onclick=()=>completeExercise(false);
+  $("#skipExerciseBtn").onclick=()=>completeExercise(true);
 
-    if(done >= need){
-      await updateDaily("water_status", "done");
-    }
-  }
+  $$("[data-step-weight]").forEach(btn=>btn.onclick=()=>{ const ex=currentExercise(); const step=Number(ex?.weight_step||5); $("#weightInput").value=Math.max(0,Number($("#weightInput").value||0)+Number(btn.dataset.stepWeight)*step); });
+  $$("[data-step-reps]").forEach(btn=>btn.onclick=()=>{ $("#repsInput").value=Math.max(0,Number($("#repsInput").value||0)+Number(btn.dataset.stepReps)); });
 
-  function renderProgress(){
-    $("#statMeals").textContent = nice(data.dailyLog?.meals_status || "pending");
-    $("#statWater").textContent = nice(data.waterLog?.status || "pending");
-    $("#statWorkout").textContent = nice(data.dailyLog?.workout_status || "pending");
-    $("#statWeight").textContent = data.latestMeasurement?.weight ? `${data.latestMeasurement.weight} ${data.profile?.weight_unit || ""}` : "-";
-  }
+  $("#skipRestBtn").onclick=()=>{ stopRest(); $("#restBox").style.display="none"; toast("Rest skipped"); };
+  $("#addRestBtn").onclick=()=>{ restSeconds+=30; renderRest(); };
+  $("#openMeasureBtn").onclick=()=>$("#measureCard").scrollIntoView({behavior:"smooth"});
+  $("#saveMeasureBtn").onclick=async()=>{ try{ await saveMeasurement(); }catch(e){ toast(e.message||"Could not save check-in"); } };
 
-  async function saveMeasurement(){
-    const payload = {
-      user_id:user.id,
-      entry_date:todayISO(),
-      weight: $("#mWeight").value ? Number($("#mWeight").value) : null,
-      waist: $("#mWaist").value ? Number($("#mWaist").value) : null,
-      chest: $("#mChest").value ? Number($("#mChest").value) : null,
-      hips: $("#mHips").value ? Number($("#mHips").value) : null,
-      thigh: $("#mThigh").value ? Number($("#mThigh").value) : null,
-      biceps: $("#mBiceps").value ? Number($("#mBiceps").value) : null,
-      neck: $("#mNeck").value ? Number($("#mNeck").value) : null,
-      unit: $("#mUnit").value,
-      energy: $("#mEnergy").value,
-      digestion: $("#mDigestion").value,
-      notes: $("#mNotes").value.trim()
+  $("#updatePlanBtn").onclick=generatePlan;
+}
+
+function initSelectChips(){
+  $$("[data-select] .select-chip").forEach(btn=>{
+    btn.onclick=()=>{
+      const group=btn.closest("[data-select]").dataset.select;
+      $$(`[data-select="${group}"] .select-chip`).forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
     };
+  });
+}
 
-    const { data: row, error } = await supabaseClient
-      .from("measurements")
-      .insert(payload)
-      .select()
-      .single();
-
-    if(error) throw error;
-    data.latestMeasurement = row;
-
-    ["mWeight","mWaist","mChest","mHips","mThigh","mBiceps","mNeck","mNotes"].forEach(id => $("#"+id).value = "");
-
-    renderProgress();
-    toast("Check-in saved");
-  }
-
-  function renderProfile(){
-    $("#premiumPill").textContent = data.profile?.is_premium ? "Premium" : "Free";
-
-    const goals = data.profile?.main_goals || (data.profile?.main_goal ? [data.profile.main_goal] : []);
-    const foodStyles = data.food?.food_styles || (data.food?.food_style ? [data.food.food_style] : []);
-    const allergies = data.food?.allergies?.length ? data.food.allergies.map(nice).join(", ") : "None selected";
-    const age = calculateAge(data.profile?.date_of_birth);
-
-    $("#profileSummary").innerHTML = `
-      <div class="summary-line"><span>Name</span><strong>${data.profile?.full_name || "-"}</strong></div>
-      <div class="summary-line"><span>Age</span><strong>${age || "-"}</strong></div>
-      <div class="summary-line"><span>Goals</span><strong>${niceList(goals)}</strong></div>
-      <div class="summary-line"><span>Body type</span><strong>${data.profile?.body_type === "custom" ? (data.profile?.body_type_custom || "Custom") : nice(data.profile?.body_type)}</strong></div>
-      <div class="summary-line"><span>Food</span><strong>${niceList(foodStyles)} / ${nice(data.food?.diet_type)}</strong></div>
-      <div class="summary-line"><span>Allergies</span><strong>${allergies}</strong></div>
-      <div class="summary-line"><span>Workout</span><strong>${nice(data.workout?.workout_place)} / ${data.workout?.max_minutes || "-"} min</strong></div>
-      <div class="summary-line"><span>Water</span><strong>${data.water?.daily_target_liters || 2} L daily</strong></div>
-    `;
-  }
-
-  function initEvents(){
-    $$(".tab").forEach(btn => btn.addEventListener("click", () => switchTab(btn.dataset.tab)));
-
-    $("#editOnboardingBtn").addEventListener("click", () => location.href = "onboarding.html");
-    $("#logoutBtn").addEventListener("click", logout);
-    $("#startWorkoutToday").addEventListener("click", () => switchTab("workoutScreen"));
-
-    $("#tooBusyBtn").addEventListener("click", () => {
-      shortWorkoutMode = true;
-      buildWorkoutPlan();
-      toast("Short workout ready");
-      switchTab("workoutScreen");
-    });
-
-    $$("[data-meal-status]").forEach(btn => {
-      btn.addEventListener("click", async () => {
-        try{
-          await updateDaily("meals_status", btn.dataset.mealStatus);
-          toast("Meals updated");
-        }catch(err){ toast(err.message || "Could not save"); }
-      });
-    });
-
-    $("#addBottleBtn").addEventListener("click", async () => {
-      try{
-        const done = Number(data.waterLog?.bottles_done || 0) + 1;
-        await updateWater({ bottles_done:done, status:"almost" });
-        toast("Bottle added");
-      }catch(err){ toast(err.message || "Could not save water"); }
-    });
-
-    $("#waterDoneBtn").addEventListener("click", async () => {
-      try{
-        const target = Number(data.waterLog?.target_liters || 2);
-        const bottle = Number(data.waterLog?.bottle_size_ml || 1000);
-        const need = Math.max(1, Math.round((target * 1000 / bottle) * 10) / 10);
-        await updateWater({ bottles_done:need, status:"done" });
-        await updateDaily("water_status", "done");
-        toast("Water goal done");
-      }catch(err){ toast(err.message || "Could not save water"); }
-    });
-
-    $("#prevExerciseBtn").addEventListener("click", () => {
-      stopRest();
-      workoutIndex = Math.max(0, workoutIndex - 1);
-      currentSet = 1;
-      renderWorkoutPlayer();
-    });
-
-    $("#nextExerciseBtn").addEventListener("click", () => {
-      stopRest();
-      workoutIndex = Math.min(workoutPlan.length - 1, workoutIndex + 1);
-      currentSet = 1;
-      renderWorkoutPlayer();
-    });
-
-    $("#doneSetBtn").addEventListener("click", doneSet);
-    $("#saveExerciseFeedbackBtn").addEventListener("click", () => completeExercise(false));
-    $("#skipExerciseBtn").addEventListener("click", () => completeExercise(true));
-
-    $$("[data-step-weight]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const n = Number($("#weightInput").value || 0) + Number(btn.dataset.stepWeight) * 5;
-        $("#weightInput").value = Math.max(0, n);
-      });
-    });
-
-    $$("[data-step-reps]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const n = Number($("#repsInput").value || 0) + Number(btn.dataset.stepReps);
-        $("#repsInput").value = Math.max(0, n);
-      });
-    });
-
-    $("#skipRestBtn").addEventListener("click", () => {
-      stopRest();
-      $("#restBox").style.display = "none";
-      toast("Rest skipped");
-    });
-
-    $("#addRestBtn").addEventListener("click", () => {
-      restSeconds += 30;
-      renderRest();
-    });
-
-    $("#openMeasureBtn").addEventListener("click", () => {
-      $("#measureCard").scrollIntoView({behavior:"smooth",block:"start"});
-    });
-
-    $("#saveMeasureBtn").addEventListener("click", async () => {
-      try{ await saveMeasurement(); }
-      catch(err){ toast(err.message || "Could not save check-in"); }
-    });
-
-    $("#updatePlanBtn").addEventListener("click", async () => {
-  const btn = $("#updatePlanBtn");
-  const oldText = btn.textContent;
-
-  try {
-    btn.disabled = true;
-    btn.textContent = "Creating plan...";
-    toast("FitApp AI is creating your plan...");
-
+async function generatePlan(){
+  const btn=$("#updatePlanBtn");
+  const old=btn.textContent;
+  try{
+    btn.disabled=true;
+    btn.textContent="Creating...";
+    toast("AI is creating your exact plan...");
     const { data: sessionData } = await supabaseClient.auth.getSession();
-
-    if (!sessionData || !sessionData.session) {
-      toast("Please login again.");
-      location.href = "auth.html?mode=login";
-      return;
-    }
+    if(!sessionData?.session){ location.href="auth.html?mode=login"; return; }
 
     const res = await fetch("/.netlify/functions/generate-plan", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${sessionData.session.access_token}`
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":`Bearer ${sessionData.session.access_token}`
       },
-      body: JSON.stringify({
-        request_type: "weekly_plan"
-      })
+      body:JSON.stringify({request_type:"weekly_plan"})
     });
 
     const result = await res.json();
-
-    if (!res.ok || !result.ok) {
-      console.error(result);
-      const msg =
-        result.error?.error?.message ||
-        result.error?.message ||
-        result.error ||
-        "AI plan failed.";
+    if(!res.ok || !result.ok){
+      const msg = result.error?.error?.message || result.error?.message || result.error || "AI plan failed.";
       throw new Error(msg);
     }
 
-    toast("AI plan generated and saved.");
-
-    alert(
-      "Plan generated successfully!\n\n" +
-      (result.plan?.summary || "Your new FitApp plan is saved.")
-    );
-
-  } catch (err) {
-    console.error(err);
-    toast(err.message || "Could not generate AI plan.");
-  } finally {
-    btn.disabled = false;
-    btn.textContent = oldText;
+    activePlan = result.plan;
+    await ensureWaterLog();
+    buildTodayMeals();
+    buildWorkoutPlan();
+    renderAll();
+    toast("AI plan saved and loaded.");
+    alert("Plan generated successfully.\n\n" + (result.plan?.summary || "Your new FitApp plan is ready."));
+  }catch(e){
+    console.error(e);
+    toast(e.message || "Could not generate plan.");
+  }finally{
+    btn.disabled=false;
+    btn.textContent=old;
   }
-});
+}
 
-  async function logout(){
-    await supabaseClient.auth.signOut();
-    location.href = "auth.html?mode=login";
-  }
+async function logout(){
+  await supabaseClient.auth.signOut();
+  location.href="auth.html?mode=login";
+}
 
-  initSelectChips();
-  initEvents();
-  loadAll();
+initSelectChips();
+initEvents();
+loadAll();
 </script>
 </body>
 </html>
