@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>FitApp - Login</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root{
+      --bg:#070A0F;
+      --bg2:#0B1220;
+      --card:rgba(255,255,255,.075);
+      --card2:rgba(255,255,255,.105);
+      --line:rgba(255,255,255,.13);
+      --text:#F8FAFC;
+      --muted:#94A3B8;
+      --muted2:#64748B;
+      --green:#22C55E;
+      --green2:#16A34A;
+      --blue:#38BDF8;
+      --amber:#F59E0B;
+      --red:#EF4444;
+      --shadow:0 24px 70px rgba(0,0,0,.38);
+      --radius:26px;
+      --radius2:18px;
+      --max:480px;
+    }
+
+    *{
+      box-sizing:border-box;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(34,197,94,.24), transparent 34%),
+        radial-gradient(circle at top right, rgba(56,189,248,.18), transparent 32%),
+        linear-gradient(180deg,var(--bg),var(--bg2));
+      color:var(--text);
+      overflow-x:hidden;
+    }
+
+    a{
+      color:inherit;
+      text-decoration:none;
+    }
+
+    button,input{
+      font:inherit;
+    }
+
+    button{
+      cursor:pointer;
+    }
+
+    .page{
+      width:100%;
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+    }
+
+    .app-shell{
+      width:100%;
+      max-width:var(--max);
+      min-height:100vh;
+      position:relative;
+      padding:18px 16px 34px;
+      display:flex;
+      flex-direction:column;
+    }
+
+    .glow{
+      position:fixed;
+      width:260px;
+      height:260px;
+      border-radius:999px;
+      filter:blur(50px);
+      opacity:.35;
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .glow.one{
+      background:var(--green);
+      top:-80px;
+      left:50%;
+      transform:translateX(-80%);
+    }
+
+    .glow.two{
+      background:var(--blue);
+      bottom:80px;
+      right:50%;
+      transform:translateX(80%);
+      opacity:.22;
+    }
+
+    .topbar{
+      position:relative;
+      z-index:2;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:22px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:11px;
+      min-width:0;
+    }
+
+    .logo{
+      width:46px;
+      height:46px;
+      border-radius:17px;
+      display:grid;
+      place-items:center;
+      background:
+        linear-gradient(145deg,rgba(34,197,94,.95),rgba(56,189,248,.72));
+      box-shadow:0 16px 42px rgba(34,197,94,.24);
+      color:#03100A;
+      font-weight:1000;
+      letter-spacing:-.6px;
+    }
+
+    .brand-title{
+      line-height:1.05;
+      min-width:0;
+    }
+
+    .brand-title h1{
+      margin:0;
+      font-size:18px;
+      letter-spacing:-.45px;
+    }
+
+    .brand-title span{
+      display:block;
+      margin-top:3px;
+      font-size:12px;
+      color:var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width:245px;
+    }
+
+    .back-link{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.07);
+      color:var(--text);
+      padding:9px 12px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:850;
+      backdrop-filter:blur(18px);
+      white-space:nowrap;
+    }
+
+    .hero{
+      position:relative;
+      z-index:2;
+      margin-top:8px;
+    }
+
+    .kicker{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 11px;
+      border-radius:999px;
+      border:1px solid rgba(34,197,94,.28);
+      background:rgba(34,197,94,.10);
+      color:#BBF7D0;
+      font-size:12px;
+      font-weight:850;
+      margin-bottom:14px;
+    }
+
+    .pulse{
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:var(--green);
+      box-shadow:0 0 0 6px rgba(34,197,94,.13);
+    }
+
+    .hero h2{
+      margin:0;
+      font-size:34px;
+      line-height:1.02;
+      letter-spacing:-1.5px;
+    }
+
+    .hero p{
+      margin:11px 0 0;
+      color:#CBD5E1;
+      font-size:14px;
+      line-height:1.48;
+      max-width:380px;
+    }
+
+    .auth-card{
+      position:relative;
+      z-index:2;
+      margin-top:22px;
+      border:1px solid var(--line);
+      background:linear-gradient(180deg,rgba(255,255,255,.105),rgba(255,255,255,.055));
+      box-shadow:var(--shadow);
+      border-radius:var(--radius);
+      padding:14px;
+      backdrop-filter:blur(22px);
+      overflow:hidden;
+    }
+
+    .auth-card:before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:radial-gradient(circle at top right,rgba(255,255,255,.12),transparent 38%);
+      pointer-events:none;
+    }
+
+    .auth-inner{
+      position:relative;
+      z-index:1;
+    }
+
+    .mode-tabs{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      padding:5px;
+      border-radius:18px;
+      background:rgba(0,0,0,.20);
+      border:1px solid rgba(255,255,255,.08);
+      margin-bottom:14px;
+    }
+
+    .mode-tab{
+      border:0;
+      border-radius:14px;
+      min-height:43px;
+      font-weight:950;
+      color:var(--muted);
+      background:transparent;
+    }
+
+    .mode-tab.active{
+      background:linear-gradient(135deg,var(--green),#86EFAC);
+      color:#03100A;
+      box-shadow:0 12px 24px rgba(34,197,94,.20);
+    }
+
+    .form-title{
+      margin:8px 2px 13px;
+    }
+
+    .form-title h3{
+      margin:0;
+      font-size:20px;
+      letter-spacing:-.45px;
+    }
+
+    .form-title p{
+      margin:5px 0 0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.38;
+    }
+
+    .field{
+      margin-top:11px;
+    }
+
+    .field label{
+      display:block;
+      font-size:12px;
+      color:#CBD5E1;
+      font-weight:850;
+      margin:0 0 6px 3px;
+    }
+
+    .input{
+      width:100%;
+      border:1px solid rgba(255,255,255,.13);
+      background:rgba(0,0,0,.20);
+      color:var(--text);
+      outline:none;
+      border-radius:17px;
+      min-height:52px;
+      padding:13px 14px;
+      font-size:15px;
+      transition:border .16s ease, background .16s ease;
+    }
+
+    .input:focus{
+      border-color:rgba(34,197,94,.55);
+      background:rgba(0,0,0,.28);
+    }
+
+    .input::placeholder{
+      color:#64748B;
+    }
+
+    .password-row{
+      position:relative;
+    }
+
+    .show-pass{
+      position:absolute;
+      right:8px;
+      top:8px;
+      height:36px;
+      padding:0 10px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.06);
+      color:#CBD5E1;
+      border-radius:12px;
+      font-size:12px;
+      font-weight:850;
+    }
+
+    .password-row .input{
+      padding-right:72px;
+    }
+
+    .consent-box{
+      display:none;
+      margin-top:13px;
+      border:1px solid rgba(245,158,11,.20);
+      background:rgba(245,158,11,.075);
+      border-radius:18px;
+      padding:12px;
+    }
+
+    .consent-box.show{
+      display:block;
+    }
+
+    .check-row{
+      display:grid;
+      grid-template-columns:24px 1fr;
+      gap:9px;
+      align-items:flex-start;
+    }
+
+    .check-row input{
+      width:20px;
+      height:20px;
+      margin-top:2px;
+      accent-color:var(--green);
+    }
+
+    .check-row label{
+      font-size:12.5px;
+      line-height:1.42;
+      color:#E2E8F0;
+    }
+
+    .check-row a{
+      color:#BBF7D0;
+      font-weight:850;
+      text-decoration:underline;
+      text-underline-offset:3px;
+    }
+
+    .disclaimer{
+      margin:10px 0 0 33px;
+      color:#FDE68A;
+      font-size:11.8px;
+      line-height:1.42;
+    }
+
+    .btn{
+      width:100%;
+      border:0;
+      border-radius:18px;
+      min-height:54px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:9px;
+      padding:14px 16px;
+      font-weight:950;
+      transition:transform .16s ease, opacity .16s ease, background .16s ease;
+      user-select:none;
+    }
+
+    .btn:active{
+      transform:scale(.985);
+    }
+
+    .btn.primary{
+      margin-top:14px;
+      background:linear-gradient(135deg,var(--green),#86EFAC);
+      color:#03100A;
+      box-shadow:0 18px 40px rgba(34,197,94,.25);
+    }
+
+    .btn.primary:disabled{
+      opacity:.48;
+      cursor:not-allowed;
+      transform:none;
+      box-shadow:none;
+    }
+
+    .btn.secondary{
+      margin-top:10px;
+      background:rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      color:var(--text);
+      backdrop-filter:blur(18px);
+    }
+
+    .link-row{
+      margin-top:13px;
+      text-align:center;
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    .link-row button{
+      border:0;
+      background:transparent;
+      color:#BBF7D0;
+      font-weight:900;
+      padding:0;
+    }
+
+    .status{
+      display:none;
+      margin-top:12px;
+      border-radius:16px;
+      padding:11px;
+      font-size:12.5px;
+      line-height:1.4;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.06);
+      color:#E2E8F0;
+    }
+
+    .status.show{
+      display:block;
+    }
+
+    .status.good{
+      border-color:rgba(34,197,94,.24);
+      background:rgba(34,197,94,.09);
+      color:#BBF7D0;
+    }
+
+    .status.bad{
+      border-color:rgba(239,68,68,.25);
+      background:rgba(239,68,68,.08);
+      color:#FECACA;
+    }
+
+    .safe-note{
+      position:relative;
+      z-index:2;
+      margin-top:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.055);
+      color:var(--muted);
+      border-radius:18px;
+      padding:12px;
+      font-size:12px;
+      line-height:1.4;
+    }
+
+    .footer{
+      position:relative;
+      z-index:2;
+      margin-top:auto;
+      padding-top:22px;
+      text-align:center;
+      color:var(--muted2);
+      font-size:11.5px;
+      line-height:1.45;
+    }
+
+    .footer a{
+      color:#CBD5E1;
+      font-weight:800;
+    }
+
+    .loader{
+      width:16px;
+      height:16px;
+      border-radius:50%;
+      border:2px solid rgba(3,16,10,.30);
+      border-top-color:#03100A;
+      display:none;
+      animation:spin .75s linear infinite;
+    }
+
+    .btn.loading .loader{
+      display:inline-block;
+    }
+
+    .btn.loading .btn-text{
+      opacity:.75;
+    }
+
+    @keyframes spin{
+      to{transform:rotate(360deg)}
+    }
+
+    @media(min-width:760px){
+      .app-shell{
+        padding-top:26px;
+      }
+
+      .app-shell:before{
+        content:"";
+        position:absolute;
+        inset:12px 0 18px;
+        border-radius:34px;
+        border:1px solid rgba(255,255,255,.08);
+        box-shadow:0 30px 90px rgba(0,0,0,.45);
+        pointer-events:none;
+      }
+    }
+
+    @media(max-width:380px){
+      .app-shell{
+        padding-left:13px;
+        padding-right:13px;
+      }
+
+      .hero h2{
+        font-size:31px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="glow one"></div>
+  <div class="glow two"></div>
+
+  <div class="page">
+    <main class="app-shell">
+
+      <header class="topbar">
+        <a href="index.html" class="brand" aria-label="FitApp home">
+          <div class="logo">FA</div>
+          <div class="brand-title">
+            <h1>FitApp</h1>
+            <span>Premium AI fitness coach</span>
+          </div>
+        </a>
+
+        <a class="back-link" href="index.html">Home</a>
+      </header>
+
+      <section class="hero">
+        <div class="kicker">
+          <span class="pulse"></span>
+          <span id="heroKicker">Account access</span>
+        </div>
+
+        <h2 id="heroTitle">Start your fitness plan.</h2>
+        <p id="heroText">
+          Create your account, accept the fitness disclaimer, then FitApp will build your setup around your body, food, work breaks, water, and gym time.
+        </p>
+      </section>
+
+      <section class="auth-card">
+        <div class="auth-inner">
+          <div class="mode-tabs" role="tablist" aria-label="Authentication mode">
+            <button class="mode-tab active" id="signupTab" type="button">Sign up</button>
+            <button class="mode-tab" id="loginTab" type="button">Login</button>
+          </div>
+
+          <div class="form-title">
+            <h3 id="formHeading">Create account</h3>
+            <p id="formSubtext">Start with email and password. Onboarding comes next.</p>
+          </div>
+
+          <form id="authForm">
+            <div class="field">
+              <label for="email">Email</label>
+              <input class="input" id="email" type="email" autocomplete="email" placeholder="you@example.com" required />
+            </div>
+
+            <div class="field">
+              <label for="password">Password</label>
+              <div class="password-row">
+                <input class="input" id="password" type="password" autocomplete="current-password" placeholder="Minimum 6 characters" required minlength="6" />
+                <button class="show-pass" id="togglePassword" type="button">Show</button>
+              </div>
+            </div>
+
+            <div class="consent-box show" id="consentBox">
+              <div class="check-row">
+                <input id="agree" type="checkbox" />
+                <label for="agree">
+                  I agree to the
+                  <a href="terms.html" target="_blank">Terms & Conditions</a>,
+                  <a href="privacy.html" target="_blank">Privacy Policy</a>, and
+                  <a href="disclaimer.html" target="_blank">Fitness Disclaimer</a>.
+                </label>
+              </div>
+
+              <div class="disclaimer">
+                FitApp provides general fitness and nutrition guidance only. It is not medical advice.
+                Stop any exercise that causes strong pain and speak with a professional if needed.
+              </div>
+            </div>
+
+            <button class="btn primary" id="submitBtn" type="submit" disabled>
+              <span class="loader"></span>
+              <span class="btn-text" id="submitText">Create Account</span>
+            </button>
+          </form>
+
+          <button class="btn secondary" id="continueBtn" type="button">Continue later</button>
+
+          <div class="link-row">
+            <span id="switchText">Already have an account?</span>
+            <button id="switchMode" type="button">Login</button>
+          </div>
+
+          <div class="status" id="statusBox"></div>
+        </div>
+      </section>
+
+      <div class="safe-note">
+        Safety basics like allergy settings, injury notes, delete data, and fitness disclaimer should stay available to all users.
+      </div>
+
+      <footer class="footer">
+        Temporary project name: FitApp.
+        <br>
+        <a href="terms.html">Terms</a> ·
+        <a href="privacy.html">Privacy</a> ·
+        <a href="disclaimer.html">Disclaimer</a>
+      </footer>
+
+    </main>
+  </div>
+
+<script>
+  const SUPABASE_URL = "https://qusmbveovroldkhbjudq.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_6zVS1VCVok16WmVWNPvTrw_vTiQvgX4";
+
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const $ = (q) => document.querySelector(q);
+
+  let mode = new URLSearchParams(location.search).get("mode") || "signup";
+  if(mode !== "login" && mode !== "signup") mode = "signup";
+
+  const signupTab = $("#signupTab");
+  const loginTab = $("#loginTab");
+  const formHeading = $("#formHeading");
+  const formSubtext = $("#formSubtext");
+  const heroKicker = $("#heroKicker");
+  const heroTitle = $("#heroTitle");
+  const heroText = $("#heroText");
+  const consentBox = $("#consentBox");
+  const agree = $("#agree");
+  const submitBtn = $("#submitBtn");
+  const submitText = $("#submitText");
+  const switchText = $("#switchText");
+  const switchMode = $("#switchMode");
+  const statusBox = $("#statusBox");
+  const authForm = $("#authForm");
+  const emailInput = $("#email");
+  const passwordInput = $("#password");
+  const togglePassword = $("#togglePassword");
+  const continueBtn = $("#continueBtn");
+
+  function setStatus(message, type){
+    statusBox.textContent = message || "";
+    statusBox.className = "status";
+    if(message){
+      statusBox.classList.add("show");
+      if(type) statusBox.classList.add(type);
+    }
+  }
+
+  function setLoading(isLoading){
+    submitBtn.disabled = isLoading || (mode === "signup" && !agree.checked);
+    submitBtn.classList.toggle("loading", isLoading);
+    emailInput.disabled = isLoading;
+    passwordInput.disabled = isLoading;
+    agree.disabled = isLoading;
+    signupTab.disabled = isLoading;
+    loginTab.disabled = isLoading;
+    continueBtn.disabled = isLoading;
+  }
+
+  function updateSubmitState(){
+    if(mode === "signup"){
+      submitBtn.disabled = !agree.checked;
+    }else{
+      submitBtn.disabled = false;
+    }
+  }
+
+  function updateMode(nextMode){
+    mode = nextMode;
+    const isSignup = mode === "signup";
+
+    signupTab.classList.toggle("active", isSignup);
+    loginTab.classList.toggle("active", !isSignup);
+
+    consentBox.classList.toggle("show", isSignup);
+
+    formHeading.textContent = isSignup ? "Create account" : "Welcome back";
+    formSubtext.textContent = isSignup
+      ? "Start with email and password. Onboarding comes next."
+      : "Login to continue your food, workout, water, and progress plan.";
+
+    heroKicker.textContent = isSignup ? "Free setup" : "Account access";
+    heroTitle.textContent = isSignup ? "Start your fitness plan." : "Continue your progress.";
+    heroText.textContent = isSignup
+      ? "Create your account, accept the fitness disclaimer, then FitApp will build your setup around your body, food, work breaks, water, and gym time."
+      : "Open your dashboard, follow today’s plan, and keep your weekly AI coach updates moving.";
+
+    submitText.textContent = isSignup ? "Create Account" : "Login";
+    switchText.textContent = isSignup ? "Already have an account?" : "New to FitApp?";
+    switchMode.textContent = isSignup ? "Login" : "Create account";
+
+    const url = new URL(location.href);
+    url.searchParams.set("mode", mode);
+    history.replaceState({}, "", url.toString());
+
+    setStatus("");
+    updateSubmitState();
+  }
+
+  async function ensureProfile(user){
+    const email = user.email || emailInput.value.trim();
+
+    const { error } = await supabaseClient
+      .from("profiles")
+      .upsert({
+        id: user.id,
+        email: email
+      }, { onConflict: "id" });
+
+    if(error) throw error;
+  }
+
+  async function saveConsent(user){
+    const { error } = await supabaseClient
+      .from("user_consents")
+      .insert({
+        user_id: user.id,
+        terms_accepted: true,
+        privacy_accepted: true,
+        disclaimer_accepted: true,
+        consent_version: "v1",
+        accepted_at: new Date().toISOString()
+      });
+
+    if(error) throw error;
+  }
+
+  async function getOnboardingStatus(userId){
+    const { data, error } = await supabaseClient
+      .from("profiles")
+      .select("onboarding_completed")
+      .eq("id", userId)
+      .single();
+
+    if(error) throw error;
+    return !!(data && data.onboarding_completed);
+  }
+
+  async function redirectAfterAuth(user){
+    await ensureProfile(user);
+
+    const done = await getOnboardingStatus(user.id);
+
+    if(done){
+      location.href = "app.html";
+    }else{
+      location.href = "onboarding.html";
+    }
+  }
+
+  authForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+
+    if(!email || !password){
+      setStatus("Enter email and password.", "bad");
+      return;
+    }
+
+    if(password.length < 6){
+      setStatus("Password must be at least 6 characters.", "bad");
+      return;
+    }
+
+    if(mode === "signup" && !agree.checked){
+      setStatus("Please accept Terms, Privacy Policy, and Fitness Disclaimer before creating account.", "bad");
+      return;
+    }
+
+    try{
+      setLoading(true);
+      setStatus(mode === "signup" ? "Creating account..." : "Logging in...");
+
+      if(mode === "signup"){
+        const { data, error } = await supabaseClient.auth.signUp({
+          email,
+          password
+        });
+
+        if(error) throw error;
+
+        if(!data.session && data.user){
+          setStatus("Account created. Check your email to confirm login. For testing, turn Confirm email OFF in Supabase Auth settings.", "good");
+          setLoading(false);
+          return;
+        }
+
+        const user = data.user || (data.session && data.session.user);
+        if(!user) throw new Error("Signup worked, but user session was not returned.");
+
+        await ensureProfile(user);
+        await saveConsent(user);
+
+        setStatus("Account created. Opening onboarding...", "good");
+        location.href = "onboarding.html";
+      }else{
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+          email,
+          password
+        });
+
+        if(error) throw error;
+
+        if(!data.user) throw new Error("Login failed. Please try again.");
+
+        setStatus("Login successful. Opening your app...", "good");
+        await redirectAfterAuth(data.user);
+      }
+    }catch(err){
+      console.error(err);
+      setStatus(err.message || "Something went wrong. Please try again.", "bad");
+      setLoading(false);
+    }
+  });
+
+  signupTab.addEventListener("click", () => updateMode("signup"));
+  loginTab.addEventListener("click", () => updateMode("login"));
+
+  switchMode.addEventListener("click", () => {
+    updateMode(mode === "signup" ? "login" : "signup");
+  });
+
+  agree.addEventListener("change", updateSubmitState);
+
+  togglePassword.addEventListener("click", () => {
+    const isPassword = passwordInput.type === "password";
+    passwordInput.type = isPassword ? "text" : "password";
+    togglePassword.textContent = isPassword ? "Hide" : "Show";
+  });
+
+  continueBtn.addEventListener("click", () => {
+    location.href = "index.html";
+  });
+
+  async function boot(){
+    updateMode(mode);
+
+    const { data } = await supabaseClient.auth.getSession();
+    if(data && data.session && data.session.user){
+      setStatus("You are already logged in. Redirecting...", "good");
+      setTimeout(() => redirectAfterAuth(data.session.user), 500);
+    }
+  }
+
+  boot();
+</script>
+</body>
+</html>
