@@ -74,7 +74,8 @@ async function readUserData(db, userId) {
     exerciseLogsRes,
     setLogsRes,
     painLogsRes,
-    exercisesRes
+    exercisesRes,
+    previousPlansRes
   ] = await Promise.all([
     db.from("profiles").select("*").eq("id", userId).maybeSingle(),
     db.from("food_preferences").select("*").eq("user_id", userId).maybeSingle(),
@@ -126,7 +127,13 @@ async function readUserData(db, userId) {
 
     db.from("exercises")
       .select("id,name,slug,category,section,target_muscle,equipment,difficulty,image_url,video_url,short_cue,common_mistake,safe_alternative,back_safe,knee_safe,shoulder_safe")
-      .order("category", { ascending: true })
+      .order("category", { ascending: true }),
+
+    db.from("weekly_plans")
+      .select("id,title,week_start,week_end,status,plan_json,ai_summary,created_at")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(3)
   ]);
 
   const errors = [
@@ -142,7 +149,8 @@ async function readUserData(db, userId) {
     exerciseLogsRes.error,
     setLogsRes.error,
     painLogsRes.error,
-    exercisesRes.error
+    exercisesRes.error,
+    previousPlansRes.error
   ].filter(Boolean);
 
   if (errors.length) throw new Error(errors[0].message || "Could not read user data.");
@@ -160,49 +168,106 @@ async function readUserData(db, userId) {
     exercise_logs: exerciseLogsRes.data || [],
     exercise_set_logs: setLogsRes.data || [],
     pain_logs: painLogsRes.data || [],
-    approved_exercise_library: exercisesRes.data || []
+    approved_exercise_library: exercisesRes.data || [],
+    previous_plans: previousPlansRes.data || []
   };
 }
 
 function buildPrompt(userData) {
   return `
-You are FitApp AI, a practical fitness planning engine.
+You are FitApp AI, a premium personal trainer + practical nutrition coach.
 
-Create a safe, simple, personalized 7-day food + workout + water plan.
+Your job:
+Create a 7-day plan that feels like a real coach made it, not a generic AI app.
 
-CRITICAL RULES:
-- Return ONLY valid JSON.
-- No markdown.
-- No comments.
-- No trailing commas.
-- This is general fitness/nutrition guidance, not medical advice.
-- Do not diagnose medical conditions.
-- Allergies and avoid_foods are HARD BLOCKS. Never include them.
-- Use the user's selected food_styles, usual_foods, diet_type, work breaks, workout days, workout time, pain history, and max_minutes.
-- Give exact foods, not vague advice.
-- Every food item needs 1-2 replacement options.
-- Keep meals realistic and short for phone display.
-- Use only exercises from approved_exercise_library.
+STYLE STANDARD:
+The plan should feel like a personalized trainer document:
+- clear weekly structure
+- clear goal reasoning
+- workday meal timing
+- gym/off-day meal timing
+- exact foods
+- 1-2 replacements per meal
+- workout focus notes
+- safe exercise choices
+- pain/back-safe rules when needed
+- meal prep plan
+- grocery list
+- bloating/stomach control
+- simple daily checklist logic
+
+PERSONALIZATION RULES:
+- Do NOT create a generic plan.
+- Use the user's real work days, workout days, breaks, workout time, max gym time, food styles, usual foods, allergies, avoid foods, measurements, pain logs, and exercise logs.
+- If the user has a heavy/active job, do not add random cardio.
+- If the user has back pain or pain logs, avoid ego deadlifts, heavy back-loading, risky bending, and risky spinal loading.
+- If the user works many steps/lifting, carbs are allowed around work and gym.
+- If goal includes belly/bloating, keep dinner lighter than lunch and avoid late heavy/fried meals.
+- If goal includes muscle/shape, protein must appear in every main meal.
+- Use foods the user actually eats. If usual_foods exists, use it strongly.
+- Allergies and avoid_foods are hard blocks.
+- If user selected Punjabi/Indian/home food, meals should look like real Punjabi/Indian home meals, not random western fitness meals.
+- If diet allows eggs/chicken, use them only according to diet_type and usual foods.
+- If vegetarian, do not include eggs/chicken unless diet_type says eggs_ok/chicken_ok.
+- Work break foods must match break duration and full_meal possibility.
+- If there is only a short break, give quick snack only.
+- If there is a 30-minute break, give packed meal.
+- Give exact meal examples, not vague "protein + carbs".
+- Give replacements that are equally practical.
+
+WORKOUT RULES:
+- Use only approved_exercise_library.
 - Every workout must include warmup, main, and stretch sections.
-- Every exercise must include planned_sets, target_weight, target_reps, weight_step, rest_seconds, cue.
-- If user has pain history, reduce intensity or choose safer alternatives.
-- For beginner users, prefer machines, dumbbells, cables, controlled movements.
-- Do not add running/cardio unless user asked or it fits recovery. Active workers may not need extra cardio.
-- Water target should be realistic and bottle-based.
+- Every exercise must include:
+  name, section, planned_sets, sets, target_weight, target_reps, weight_step, rest_seconds, cue, target_muscle.
+- Workouts should match available max_minutes.
+- If user is beginner/some_experience, prefer machines, dumbbells, cables, controlled form.
+- For back pain, prefer chest-supported rows, machines, hip thrust machine, leg press controlled, dead bug, Pallof press, face pulls.
+- Avoid risky lower-back loading unless pain history is clean.
+- If exercise_logs show hard effort or pain, keep/reduce weight or choose safer alternative.
+- If effort was easy and pain low, slightly increase reps or target weight.
+- Most sets should stop with 1-2 reps left. Do not tell user to train to failure every set.
+
+COACHING QUALITY:
+- Add "coach_reasoning" explaining why this plan fits the user.
+- Add "weekly_structure" explaining the day-by-day logic.
+- Add "meal_prep_plan" for busy/workdays.
+- Add "bloating_control" if goal or food notes suggest belly/bloating.
+- Add "daily_checklist" with simple yes/no items.
+- Keep text compact enough for mobile cards.
+
+RETURN ONLY VALID JSON.
+No markdown.
+No comments.
+No trailing commas.
 
 RETURN THIS EXACT JSON SHAPE:
 
 {
   "next_week_plan": {
-    "title": "FitApp 7-Day Plan",
+    "title": "FitApp Coach Plan",
     "start_date": "${dateISO(0)}",
     "end_date": "${dateISO(6)}",
-    "summary": "short summary",
+    "summary": "short trainer-style summary",
+    "coach_reasoning": "why this plan fits the user",
     "safety_note": "short safety note",
+    "weekly_structure": [
+      {
+        "day": "Sunday",
+        "focus": "Work + mobility",
+        "reason": "short reason"
+      }
+    ],
+    "targets": [
+      "specific target 1",
+      "specific target 2",
+      "specific target 3"
+    ],
     "water_goal": {
       "target_liters": 2,
       "bottle_size_ml": 1000,
-      "bottles_per_day": 2
+      "bottles_per_day": 2,
+      "note": "short note"
     },
     "daily_schedule": {
       "Sunday": [],
@@ -219,7 +284,16 @@ RETURN THIS EXACT JSON SHAPE:
       "pull": [],
       "mobility": []
     },
+    "meal_prep_plan": {
+      "prep_day": "Saturday",
+      "fridge_items": [],
+      "freezer_items": [],
+      "fresh_items": [],
+      "packing_notes": []
+    },
     "grocery_list": [],
+    "bloating_control": [],
+    "daily_checklist": [],
     "weekly_focus": [],
     "ai_adjustments": []
   }
@@ -229,36 +303,55 @@ FOOD ITEM FORMAT:
 {
   "time": "08:00",
   "title": "Breakfast",
-  "text": "2 roti + paneer bhurji + cucumber salad",
+  "text": "300 ml 2% milk smoothie with 1 banana, 1 scoop whey, 30g oats, 1 tbsp peanut butter, cinnamon",
   "type": "food",
   "replacement_options": [
-    "Oats with whey/Greek yogurt if allowed + banana",
-    "Tofu wrap + fruit"
-  ]
+    "2-3 eggs with 1-2 toast/roti and fruit",
+    "Greek yogurt/curd bowl with oats and berries if dairy is allowed"
+  ],
+  "coach_note": "why this meal is placed here"
 }
 
 GYM ITEM FORMAT:
 {
-  "time": "19:00",
+  "time": "10:45",
   "title": "Gym: Push Day",
-  "text": "Warm-up, chest/shoulders/triceps, stretches.",
+  "text": "Chest, shoulders, triceps, core. Start workout mode.",
   "type": "gym",
   "workout": "push"
+}
+
+MOBILITY ITEM FORMAT:
+{
+  "time": "20:30",
+  "title": "Short mobility",
+  "text": "Cat-cow, glute bridge, dead bug, light stretch.",
+  "type": "mobility"
 }
 
 WORKOUT EXERCISE FORMAT:
 {
   "name": "Machine Chest Press",
   "section": "main",
-  "planned_sets": 3,
-  "sets": "3 x 10",
+  "planned_sets": 4,
+  "sets": "4 x 8-12",
   "target_weight": 0,
   "target_reps": 10,
   "weight_step": 5,
   "rest_seconds": 90,
-  "cue": "Chest up, shoulder blades back.",
-  "target_muscle": "Chest"
+  "cue": "Chest up, shoulder blades back, do not over-arch lower back.",
+  "target_muscle": "Chest",
+  "coach_note": "why this exercise is included"
 }
+
+IMPORTANT:
+- Daily schedule must include exact foods with amounts where possible.
+- Every food item must include replacement_options.
+- Add gym item on workout days.
+- Add mobility or recovery item on active workdays if useful.
+- Grocery list should be practical, grouped as strings.
+- Do not include foods from allergies or avoid_foods.
+- Do not include exercises outside approved_exercise_library.
 
 USER DATA:
 ${JSON.stringify(userData, null, 2)}
@@ -305,7 +398,7 @@ export async function handler(event) {
       .from("ai_requests")
       .insert({
         user_id: userId,
-        request_type: "weekly_plan",
+        request_type: "weekly_plan_coach_v2",
         status: "pending",
         model: MODEL,
         prompt_payload: userData
@@ -324,7 +417,7 @@ export async function handler(event) {
       body: JSON.stringify({
         model: MODEL,
         input: buildPrompt(userData),
-        max_output_tokens: 9000
+        max_output_tokens: 12000
       })
     });
 
@@ -363,7 +456,7 @@ export async function handler(event) {
         user_id: userId,
         week_start: weekStart,
         week_end: weekEnd,
-        title: plan.title || "FitApp 7-Day Plan",
+        title: plan.title || "FitApp Coach Plan",
         status: "active",
         plan_json: plan,
         ai_summary: plan.summary || "",
@@ -386,7 +479,7 @@ export async function handler(event) {
 
     return jsonResponse(200, {
       ok: true,
-      message: "Plan generated and saved.",
+      message: "Coach-style plan generated and saved.",
       plan_id: savedPlanRes.data.id,
       plan
     });
