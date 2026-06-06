@@ -14,7 +14,6 @@
       --line:rgba(255,255,255,.13);
       --text:#F8FAFC;
       --muted:#94A3B8;
-      --muted2:#64748B;
       --green:#22C55E;
       --blue:#38BDF8;
       --amber:#F59E0B;
@@ -42,12 +41,20 @@
     button{cursor:pointer}
     a{color:inherit;text-decoration:none}
 
-    .page{width:100%;min-height:100vh;display:flex;justify-content:center}
-    .app-shell{width:100%;max-width:var(--max);min-height:100vh;position:relative;padding:16px 14px 34px}
+    .page{
+      width:100%;
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+    }
 
-    .glow{position:fixed;width:260px;height:260px;border-radius:999px;filter:blur(50px);opacity:.32;pointer-events:none;z-index:0}
-    .glow.one{background:var(--green);top:-80px;left:50%;transform:translateX(-85%)}
-    .glow.two{background:var(--blue);bottom:80px;right:50%;transform:translateX(85%);opacity:.20}
+    .app-shell{
+      width:100%;
+      max-width:var(--max);
+      min-height:100vh;
+      position:relative;
+      padding:16px 14px 104px;
+    }
 
     .topbar{
       position:sticky;
@@ -55,43 +62,150 @@
       z-index:20;
       margin:-16px -14px 14px;
       padding:14px 14px 10px;
-      background:linear-gradient(180deg,rgba(7,10,15,.96),rgba(7,10,15,.78),rgba(7,10,15,0));
+      background:linear-gradient(180deg,rgba(7,10,15,.97),rgba(7,10,15,.84),rgba(7,10,15,0));
       backdrop-filter:blur(18px);
     }
 
-    .toprow{display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .brand{display:flex;align-items:center;gap:10px;min-width:0}
-    .logo{
-      width:42px;height:42px;border-radius:16px;display:grid;place-items:center;
-      background:linear-gradient(145deg,rgba(34,197,94,.95),rgba(56,189,248,.72));
-      color:#03100A;font-weight:1000;box-shadow:0 14px 35px rgba(34,197,94,.22)
+    .toprow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
     }
-    .brand h1{margin:0;font-size:17px;letter-spacing:-.4px;line-height:1.05}
-    .brand span{display:block;margin-top:3px;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:245px}
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+    }
+
+    .logo{
+      width:42px;
+      height:42px;
+      border-radius:16px;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(145deg,rgba(34,197,94,.95),rgba(56,189,248,.72));
+      color:#03100A;
+      font-weight:1000;
+      box-shadow:0 14px 35px rgba(34,197,94,.22);
+      flex:0 0 auto;
+    }
+
+    .brand h1{
+      margin:0;
+      font-size:17px;
+      letter-spacing:-.4px;
+      line-height:1.05;
+    }
+
+    .brand span{
+      display:block;
+      margin-top:3px;
+      font-size:12px;
+      color:var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width:240px;
+    }
+
     .logout{
-      border:1px solid var(--line);background:rgba(255,255,255,.07);color:var(--text);
-      padding:8px 11px;border-radius:999px;font-size:12px;font-weight:850
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.07);
+      color:var(--text);
+      padding:8px 11px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:850;
+      white-space:nowrap;
     }
 
     .progress-wrap{margin-top:12px}
-    .progress-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px}
-    .progress-row span{font-size:12px;color:var(--muted);font-weight:800}
-    .bar{height:8px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.08);border-radius:999px;overflow:hidden}
-    .bar div{height:100%;width:0;background:linear-gradient(90deg,var(--green),#86EFAC);border-radius:999px;transition:.25s}
-
-    .screen{display:none;position:relative;z-index:2;animation:fade .18s ease}
-    .screen.active{display:block}
-    @keyframes fade{from{opacity:.45;transform:translateY(4px)}to{opacity:1;transform:none}}
-
-    .hero{padding:4px 2px 8px}
-    .kicker{
-      display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border-radius:999px;
-      border:1px solid rgba(34,197,94,.28);background:rgba(34,197,94,.10);
-      color:#BBF7D0;font-size:12px;font-weight:850;margin-bottom:12px
+    .progress-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:7px;
     }
-    .pulse{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 6px rgba(34,197,94,.13)}
-    h2{margin:0;font-size:31px;line-height:1.03;letter-spacing:-1.2px}
-    .hero p{margin:10px 0 0;color:#CBD5E1;font-size:14px;line-height:1.48}
+
+    .progress-row span{
+      font-size:12px;
+      color:var(--muted);
+      font-weight:800;
+    }
+
+    .bar{
+      height:8px;
+      background:rgba(255,255,255,.09);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:999px;
+      overflow:hidden;
+    }
+
+    .bar div{
+      height:100%;
+      width:0;
+      background:linear-gradient(90deg,var(--green),#86EFAC);
+      border-radius:999px;
+      transition:.25s;
+    }
+
+    .screen{
+      display:none;
+      position:relative;
+      z-index:2;
+      animation:fade .18s ease;
+    }
+
+    .screen.active{display:block}
+
+    @keyframes fade{
+      from{opacity:.45;transform:translateY(4px)}
+      to{opacity:1;transform:none}
+    }
+
+    .hero{
+      padding:4px 2px 8px;
+    }
+
+    .kicker{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid rgba(34,197,94,.28);
+      background:rgba(34,197,94,.10);
+      color:#BBF7D0;
+      font-size:12px;
+      font-weight:850;
+      margin-bottom:12px;
+    }
+
+    .pulse{
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:var(--green);
+      box-shadow:0 0 0 6px rgba(34,197,94,.13);
+    }
+
+    h2{
+      margin:0;
+      font-size:31px;
+      line-height:1.03;
+      letter-spacing:-1.2px;
+    }
+
+    .hero p{
+      margin:10px 0 0;
+      color:#CBD5E1;
+      font-size:14px;
+      line-height:1.48;
+    }
 
     .card{
       border:1px solid var(--line);
@@ -104,23 +218,100 @@
       overflow:hidden;
       position:relative;
     }
-    .card:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at top right,rgba(255,255,255,.11),transparent 38%);pointer-events:none}
-    .card-inner{position:relative;z-index:1}
 
-    .field{margin-top:11px}
-    .field label{display:block;font-size:12px;color:#CBD5E1;font-weight:850;margin:0 0 6px 3px}
-    .input,.select,.textarea{
-      width:100%;border:1px solid rgba(255,255,255,.13);background:rgba(0,0,0,.20);
-      color:var(--text);outline:none;border-radius:17px;min-height:50px;padding:12px 13px;font-size:15px;
+    .card:before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:radial-gradient(circle at top right,rgba(255,255,255,.11),transparent 38%);
+      pointer-events:none;
     }
-    .textarea{min-height:82px;resize:vertical;line-height:1.4}
-    .input:focus,.select:focus,.textarea:focus{border-color:rgba(34,197,94,.55);background:rgba(0,0,0,.28)}
-    .input::placeholder,.textarea::placeholder{color:#64748B}
 
-    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .card-inner{
+      position:relative;
+      z-index:1;
+    }
 
-    .chips{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
-    .chips.three{grid-template-columns:repeat(3,1fr)}
+    .grid2{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+    }
+
+    .field{
+      margin-top:11px;
+      min-width:0;
+    }
+
+    .field label{
+      display:block;
+      font-size:12px;
+      color:#CBD5E1;
+      font-weight:850;
+      margin:0 0 6px 3px;
+    }
+
+    .input,.select,.textarea{
+      width:100%;
+      min-width:0;
+      max-width:100%;
+      border:1px solid rgba(255,255,255,.13);
+      background:rgba(0,0,0,.20);
+      color:var(--text);
+      outline:none;
+      border-radius:17px;
+      min-height:50px;
+      padding:12px 13px;
+      font-size:15px;
+    }
+
+    .textarea{
+      min-height:82px;
+      resize:vertical;
+      line-height:1.4;
+    }
+
+    .input:focus,.select:focus,.textarea:focus{
+      border-color:rgba(34,197,94,.55);
+      background:rgba(0,0,0,.28);
+    }
+
+    .input::placeholder,.textarea::placeholder{
+      color:#64748B;
+    }
+
+    .section-title{
+      margin:14px 3px 8px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+    }
+
+    .section-title h3{
+      margin:0;
+      font-size:14px;
+      letter-spacing:-.15px;
+    }
+
+    .section-title span{
+      font-size:11.5px;
+      color:var(--muted);
+      font-weight:800;
+      text-align:right;
+    }
+
+    .chips{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin-top:9px;
+    }
+
+    .chips.three{
+      grid-template-columns:repeat(3,1fr);
+    }
+
     .chipbtn{
       border:1px solid rgba(255,255,255,.12);
       background:rgba(255,255,255,.06);
@@ -133,6 +324,7 @@
       line-height:1.15;
       text-align:center;
     }
+
     .chipbtn.active{
       background:rgba(34,197,94,.14);
       border-color:rgba(34,197,94,.42);
@@ -140,9 +332,25 @@
       box-shadow:0 12px 25px rgba(34,197,94,.08);
     }
 
-    .section-title{margin:14px 3px 8px;display:flex;justify-content:space-between;gap:10px;align-items:center}
-    .section-title h3{margin:0;font-size:14px;letter-spacing:-.15px}
-    .section-title span{font-size:11.5px;color:var(--muted);font-weight:800}
+    .pain-grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+      margin-top:9px;
+    }
+
+    .pain-card{
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.16);
+      border-radius:18px;
+      padding:10px;
+    }
+
+    .pain-card strong{
+      display:block;
+      font-size:13px;
+      margin-bottom:8px;
+    }
 
     .break-row{
       border:1px solid rgba(255,255,255,.10);
@@ -153,28 +361,32 @@
       position:relative;
     }
 
-    .remove-break{
-      border:1px solid rgba(239,68,68,.22);
-      background:rgba(239,68,68,.10);
-      color:#FECACA;
+    .mini-btn{
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.07);
+      color:#E2E8F0;
       border-radius:999px;
-      padding:7px 9px;
-      font-size:11px;
+      padding:8px 10px;
+      font-size:12px;
       font-weight:900;
     }
 
-    .btnbar{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;position:sticky;bottom:10px;z-index:10}
-    .btn{
-      border:0;border-radius:18px;min-height:53px;display:flex;align-items:center;justify-content:center;gap:8px;
-      padding:13px 14px;font-weight:950;transition:transform .16s ease,opacity .16s ease;user-select:none
+    .mini-btn.red{
+      border-color:rgba(239,68,68,.22);
+      background:rgba(239,68,68,.10);
+      color:#FECACA;
     }
-    .btn:active{transform:scale(.985)}
-    .btn.primary{background:linear-gradient(135deg,var(--green),#86EFAC);color:#03100A;box-shadow:0 18px 40px rgba(34,197,94,.24)}
-    .btn.secondary{background:rgba(255,255,255,.08);border:1px solid var(--line);color:var(--text);backdrop-filter:blur(18px)}
-    .btn.blue{background:rgba(56,189,248,.13);border:1px solid rgba(56,189,248,.25);color:#BAE6FD}
-    .btn.red{background:rgba(239,68,68,.13);border:1px solid rgba(239,68,68,.25);color:#FECACA}
-    .btn.full{grid-column:1 / -1}
-    .btn:disabled{opacity:.48;cursor:not-allowed;transform:none;box-shadow:none}
+
+    .safe-note{
+      border:1px solid rgba(245,158,11,.18);
+      background:rgba(245,158,11,.08);
+      color:#FDE68A;
+      border-radius:17px;
+      padding:11px;
+      font-size:12px;
+      line-height:1.4;
+      margin-top:11px;
+    }
 
     .summary-card{
       border:1px solid rgba(34,197,94,.22);
@@ -183,45 +395,126 @@
       padding:13px;
       margin-top:10px;
     }
-    .summary-grid{display:grid;gap:8px}
-    .summary-line{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid rgba(255,255,255,.08);padding-bottom:8px}
-    .summary-line:last-child{border-bottom:0;padding-bottom:0}
-    .summary-line span{font-size:12px;color:var(--muted)}
-    .summary-line strong{font-size:12.5px;text-align:right;color:#E2E8F0}
+
+    .summary-grid{
+      display:grid;
+      gap:8px;
+    }
+
+    .summary-line{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      padding-bottom:8px;
+    }
+
+    .summary-line:last-child{
+      border-bottom:0;
+      padding-bottom:0;
+    }
+
+    .summary-line span{
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .summary-line strong{
+      font-size:12.5px;
+      text-align:right;
+      color:#E2E8F0;
+    }
 
     .status{
-      display:none;margin-top:12px;border-radius:16px;padding:11px;font-size:12.5px;line-height:1.4;
-      border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#E2E8F0
+      display:none;
+      margin-top:12px;
+      border-radius:16px;
+      padding:11px;
+      font-size:12.5px;
+      line-height:1.4;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.06);
+      color:#E2E8F0;
     }
+
     .status.show{display:block}
     .status.good{border-color:rgba(34,197,94,.24);background:rgba(34,197,94,.09);color:#BBF7D0}
     .status.bad{border-color:rgba(239,68,68,.25);background:rgba(239,68,68,.08);color:#FECACA}
 
-    .loader{
-      width:16px;height:16px;border-radius:50%;border:2px solid rgba(3,16,10,.30);border-top-color:#03100A;
-      display:none;animation:spin .75s linear infinite
+    .btnbar{
+      position:fixed;
+      left:50%;
+      bottom:0;
+      transform:translateX(-50%);
+      width:100%;
+      max-width:var(--max);
+      z-index:30;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+      background:rgba(7,10,15,.88);
+      border-top:1px solid rgba(255,255,255,.10);
+      backdrop-filter:blur(18px);
     }
+
+    .btn{
+      border:0;
+      border-radius:18px;
+      min-height:53px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding:13px 14px;
+      font-weight:950;
+      transition:transform .16s ease,opacity .16s ease;
+      user-select:none;
+    }
+
+    .btn:active{transform:scale(.985)}
+    .btn.primary{background:linear-gradient(135deg,var(--green),#86EFAC);color:#03100A;box-shadow:0 18px 40px rgba(34,197,94,.24)}
+    .btn.secondary{background:rgba(255,255,255,.08);border:1px solid var(--line);color:var(--text)}
+    .btn:disabled{opacity:.48;cursor:not-allowed;transform:none;box-shadow:none}
+
+    .loader{
+      width:16px;
+      height:16px;
+      border-radius:50%;
+      border:2px solid rgba(3,16,10,.30);
+      border-top-color:#03100A;
+      display:none;
+      animation:spin .75s linear infinite;
+    }
+
     .btn.loading .loader{display:inline-block}
+
     @keyframes spin{to{transform:rotate(360deg)}}
 
-    .small-note{font-size:12px;color:var(--muted);line-height:1.42;margin-top:9px}
-    .safe-note{border:1px solid rgba(245,158,11,.18);background:rgba(245,158,11,.08);color:#FDE68A;border-radius:17px;padding:11px;font-size:12px;line-height:1.4;margin-top:11px}
-
-    @media(min-width:760px){
-      .app-shell{padding-top:24px}
-      .app-shell:before{content:"";position:absolute;inset:12px 0 18px;border-radius:34px;border:1px solid rgba(255,255,255,.08);box-shadow:0 30px 90px rgba(0,0,0,.45);pointer-events:none}
+    @media(min-width:520px){
+      .grid2{
+        grid-template-columns:1fr 1fr;
+      }
+      .pain-grid{
+        grid-template-columns:1fr 1fr;
+      }
     }
+
     @media(max-width:390px){
-      .chips.three{grid-template-columns:1fr 1fr}
-      h2{font-size:28px}
+      .chips.three{
+        grid-template-columns:1fr 1fr;
+      }
+      h2{
+        font-size:28px;
+      }
+      .brand span{
+        max-width:200px;
+      }
     }
   </style>
 </head>
 
 <body>
-  <div class="glow one"></div>
-  <div class="glow two"></div>
-
   <div class="page">
     <main class="app-shell">
       <header class="topbar">
@@ -238,8 +531,8 @@
 
         <div class="progress-wrap">
           <div class="progress-row">
-            <span id="stepText">Step 1 of 7</span>
-            <span id="progressText">14%</span>
+            <span id="stepText">Step 1 of 8</span>
+            <span id="progressText">13%</span>
           </div>
           <div class="bar"><div id="progressBar"></div></div>
         </div>
@@ -249,7 +542,7 @@
         <div class="hero">
           <div class="kicker"><span class="pulse"></span><span>Basic profile</span></div>
           <h2>Start with your basics.</h2>
-          <p>Date of birth lets FitApp calculate your age automatically every year.</p>
+          <p>Date of birth lets FitApp calculate age automatically every year.</p>
         </div>
 
         <div class="card">
@@ -301,7 +594,7 @@
         <div class="hero">
           <div class="kicker"><span class="pulse"></span><span>Measurements</span></div>
           <h2>Set your baseline.</h2>
-          <p>Weight, waist, and body measurements help FitApp check real improvement later.</p>
+          <p>These help the AI coach track changes properly.</p>
         </div>
 
         <div class="card">
@@ -322,8 +615,6 @@
               <div class="field"><label>Biceps</label><input class="input" id="biceps" type="number" step="0.1" placeholder="13" /></div>
               <div class="field"><label>Neck optional</label><input class="input" id="neck" type="number" step="0.1" placeholder="15" /></div>
             </div>
-
-            <div class="small-note">Later: weekly weight check, full measurements every 2 weeks.</div>
           </div>
         </div>
       </section>
@@ -332,7 +623,7 @@
         <div class="hero">
           <div class="kicker"><span class="pulse"></span><span>Goals</span></div>
           <h2>Choose your goals.</h2>
-          <p>You can select more than one. FitApp will prioritize them in your plan.</p>
+          <p>Pick more than one. The AI coach will prioritize them.</p>
         </div>
 
         <div class="card">
@@ -371,9 +662,9 @@
 
       <section class="screen" data-step="3">
         <div class="hero">
-          <div class="kicker"><span class="pulse"></span><span>Workout time</span></div>
+          <div class="kicker"><span class="pulse"></span><span>Workout</span></div>
           <h2>When can you train?</h2>
-          <p>Workout days come before work schedule because some users train on work days too.</p>
+          <p>Workout days come before work schedule because some people train on workdays too.</p>
         </div>
 
         <div class="card">
@@ -396,14 +687,14 @@
               <button class="chipbtn" data-value="Saturday">Sat</button>
             </div>
 
-            <div class="section-title"><h3>Workout on work days?</h3><span>Pick one</span></div>
+            <div class="section-title"><h3>Workout on workdays?</h3><span>Pick one</span></div>
             <div class="chips" data-single="workoutOnWorkDays">
               <button class="chipbtn" data-value="true">Yes</button>
               <button class="chipbtn" data-value="false">No</button>
             </div>
 
             <div class="grid2">
-              <div class="field"><label>Preferred time</label><input class="input" id="preferredTime" type="time" /></div>
+              <div class="field"><label>Preferred workout time</label><input class="input" id="preferredTime" type="time" /></div>
               <div class="field">
                 <label>Time available</label>
                 <select class="select" id="maxMinutes">
@@ -413,20 +704,18 @@
                   <option value="45">45 min</option>
                   <option value="60">60 min</option>
                   <option value="75">75 min</option>
+                  <option value="90">90 min</option>
+                  <option value="120">120 min</option>
                 </select>
               </div>
             </div>
 
-            <div class="field">
-              <label>Workout timing style</label>
-              <select class="select" id="preferredWorkoutContext">
-                <option value="">Select</option>
-                <option value="before_work">Before work</option>
-                <option value="after_work">After work</option>
-                <option value="evening">Evening</option>
-                <option value="night">Night</option>
-                <option value="flexible">Flexible</option>
-              </select>
+            <div class="section-title"><h3>Training split</h3><span>Pick one</span></div>
+            <div class="chips" data-single="preferredSplit">
+              <button class="chipbtn" data-value="push_legs_pull">Push / Legs / Pull</button>
+              <button class="chipbtn" data-value="full_body">Full body</button>
+              <button class="chipbtn" data-value="upper_lower">Upper / Lower</button>
+              <button class="chipbtn" data-value="ai_choose">AI choose</button>
             </div>
 
             <div class="field">
@@ -439,7 +728,7 @@
               </select>
             </div>
 
-            <div class="section-title"><h3>Equipment</h3><span>Pick any</span></div>
+            <div class="section-title"><h3>Equipment you like</h3><span>Pick any</span></div>
             <div class="chips three" data-multi="equipment">
               <button class="chipbtn" data-value="machines">Machines</button>
               <button class="chipbtn" data-value="dumbbells">Dumbbells</button>
@@ -450,10 +739,32 @@
             </div>
 
             <div class="field">
-              <label>Other equipment</label>
-              <input class="input" id="customEquipment" placeholder="Example: Smith machine, treadmill, leg press..." />
+              <label>Favourite exercises</label>
+              <textarea class="textarea" id="favouriteExercises" placeholder="Example: chest press, leg press, lat pulldown, hip thrust..."></textarea>
             </div>
 
+            <div class="field">
+              <label>Exercises you dislike</label>
+              <textarea class="textarea" id="dislikedExercises" placeholder="Example: running, burpees, heavy squats..."></textarea>
+            </div>
+
+            <div class="field">
+              <label>Exercises to avoid</label>
+              <textarea class="textarea" id="exercisesToAvoid" placeholder="Example: deadlift, back extension, jumping, heavy bending..."></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" data-step="4">
+        <div class="hero">
+          <div class="kicker"><span class="pulse"></span><span>Pain safety</span></div>
+          <h2>Tell us pain areas.</h2>
+          <p>The AI coach should reduce or avoid risky exercises.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-inner">
             <div class="section-title"><h3>Pain / injury areas</h3><span>Pick any</span></div>
             <div class="chips three" data-multi="painAreas">
               <button class="chipbtn" data-value="none">None</button>
@@ -462,21 +773,38 @@
               <button class="chipbtn" data-value="shoulder">Shoulder</button>
               <button class="chipbtn" data-value="wrist">Wrist</button>
               <button class="chipbtn" data-value="neck">Neck</button>
+              <button class="chipbtn" data-value="hip">Hip</button>
+              <button class="chipbtn" data-value="ankle">Ankle</button>
             </div>
 
             <div class="field">
-              <label>Injury notes</label>
-              <textarea class="textarea" id="injuryNotes" placeholder="Example: lower back pain when bending or heavy leg press."></textarea>
+              <label>Usual pain rating</label>
+              <select class="select" id="painRating">
+                <option value="">Select pain level</option>
+                <option value="0">0 - No pain</option>
+                <option value="1-2">1-2 - Mild, manageable</option>
+                <option value="3-4">3-4 - Careful, reduce intensity</option>
+                <option value="5+">5+ - Avoid risky movements</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Pain notes</label>
+              <textarea class="textarea" id="injuryNotes" placeholder="Example: lower back pain after bending, knee pain on lunges..."></textarea>
+            </div>
+
+            <div class="safe-note">
+              If pain is sharp, spreading down leg/arm, numbness, weakness, or bowel/bladder issue, user should get medical help. FitApp is not medical advice.
             </div>
           </div>
         </div>
       </section>
 
-      <section class="screen" data-step="4">
+      <section class="screen" data-step="5">
         <div class="hero">
           <div class="kicker"><span class="pulse"></span><span>Work schedule</span></div>
           <h2>Your real eating windows.</h2>
-          <p>Add only the times when you can actually eat, drink coffee, or take a snack.</p>
+          <p>Add the times when you can actually eat, drink coffee, or take a snack.</p>
         </div>
 
         <div class="card">
@@ -511,10 +839,12 @@
 
             <div class="section-title">
               <h3>Breaks / snack times</h3>
-              <button class="remove-break" id="addBreakBtn" type="button">+ Add break</button>
+              <span>Unlimited</span>
             </div>
 
             <div id="breakList"></div>
+
+            <button class="btn secondary" id="addBreakBtn" type="button" style="width:100%;margin-top:10px">+ Add another break</button>
 
             <div class="field">
               <label>Work notes</label>
@@ -524,11 +854,11 @@
         </div>
       </section>
 
-      <section class="screen" data-step="5">
+      <section class="screen" data-step="6">
         <div class="hero">
-          <div class="kicker"><span class="pulse"></span><span>Food style</span></div>
+          <div class="kicker"><span class="pulse"></span><span>Food preferences</span></div>
           <h2>Foods you actually eat.</h2>
-          <p>Allergies are hard blocks. FitApp should never suggest foods you cannot eat.</p>
+          <p>This is where the AI coach becomes personal.</p>
         </div>
 
         <div class="card">
@@ -544,7 +874,6 @@
               <button class="chipbtn" data-value="mexican">Mexican</button>
               <button class="chipbtn" data-value="spanish">Spanish</button>
               <button class="chipbtn" data-value="mediterranean">Mediterranean</button>
-              <button class="chipbtn" data-value="middle_eastern">Middle Eastern</button>
               <button class="chipbtn" data-value="western_gym_food">Western gym food</button>
               <button class="chipbtn" data-value="simple_home_food">Simple home food</button>
               <button class="chipbtn" data-value="mixed">Mixed</button>
@@ -564,12 +893,65 @@
               <button class="chipbtn" data-value="no_restriction">No restriction</button>
             </div>
 
+            <div class="section-title"><h3>Protein preferences</h3><span>Pick any</span></div>
+            <div class="chips" data-multi="preferredProteins">
+              <button class="chipbtn" data-value="whey">Whey protein</button>
+              <button class="chipbtn" data-value="eggs">Eggs</button>
+              <button class="chipbtn" data-value="chicken">Chicken</button>
+              <button class="chipbtn" data-value="paneer">Paneer</button>
+              <button class="chipbtn" data-value="tofu">Tofu</button>
+              <button class="chipbtn" data-value="soya">Soya chunks</button>
+              <button class="chipbtn" data-value="dal">Dal</button>
+              <button class="chipbtn" data-value="chana_rajma">Chana/Rajma</button>
+              <button class="chipbtn" data-value="greek_yogurt">Greek yogurt</button>
+              <button class="chipbtn" data-value="homemade_curd">Homemade curd</button>
+              <button class="chipbtn" data-value="milk">Milk</button>
+            </div>
+
+            <div class="section-title"><h3>Carb preferences</h3><span>Pick any</span></div>
+            <div class="chips" data-multi="preferredCarbs">
+              <button class="chipbtn" data-value="roti">Roti</button>
+              <button class="chipbtn" data-value="rice">Rice</button>
+              <button class="chipbtn" data-value="oats">Oats</button>
+              <button class="chipbtn" data-value="bread">Bread</button>
+              <button class="chipbtn" data-value="wraps">Wraps</button>
+              <button class="chipbtn" data-value="potato">Potato</button>
+              <button class="chipbtn" data-value="banana">Banana</button>
+              <button class="chipbtn" data-value="dates">Dates</button>
+            </div>
+
+            <div class="section-title"><h3>Smoothie and whey</h3><span>Important</span></div>
+            <div class="chips" data-single="likesSmoothies">
+              <button class="chipbtn" data-value="true">I like smoothies</button>
+              <button class="chipbtn" data-value="false">No smoothies</button>
+            </div>
+
+            <div class="chips" data-single="usesWheyProtein">
+              <button class="chipbtn" data-value="true">I use whey</button>
+              <button class="chipbtn" data-value="false">No whey</button>
+            </div>
+
+            <div class="field">
+              <label>Smoothie details</label>
+              <textarea class="textarea" id="smoothieDetails" placeholder="Example: milk, banana, whey, oats, peanut butter, berries, dates..."></textarea>
+            </div>
+
             <div class="field">
               <label>Usual foods</label>
               <textarea class="textarea" id="usualFoods" placeholder="Example: roti, dal, sabji, curd, oats, eggs, paneer, tofu, chicken..."></textarea>
             </div>
 
-            <div class="section-title"><h3>Allergies</h3><span>Pick any</span></div>
+            <div class="field">
+              <label>Favourite foods</label>
+              <textarea class="textarea" id="favouriteFoods" placeholder="Foods you like and want AI to use often."></textarea>
+            </div>
+
+            <div class="field">
+              <label>Disliked foods</label>
+              <textarea class="textarea" id="dislikedFoods" placeholder="Foods you do not like. AI should avoid them."></textarea>
+            </div>
+
+            <div class="section-title"><h3>Allergies</h3><span>Hard block</span></div>
             <div class="chips three" data-multi="allergies">
               <button class="chipbtn" data-value="none">No allergy</button>
               <button class="chipbtn" data-value="dairy">Dairy</button>
@@ -587,36 +969,39 @@
               <textarea class="textarea" id="avoidFoods" placeholder="Example: mushrooms, onion, garlic, peanuts, lactose..."></textarea>
             </div>
 
-            <div class="grid2">
-              <div class="field">
-                <label>Spice level</label>
-                <select class="select" id="spiceLevel">
-                  <option value="">Select</option>
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                </select>
-              </div>
-              <div class="field">
-                <label>Lactose tolerance</label>
-                <select class="select" id="lactoseTolerance">
-                  <option value="">Select</option>
-                  <option value="fine">Fine</option>
-                  <option value="low">Low</option>
-                  <option value="avoid">Avoid</option>
-                </select>
-              </div>
+            <div class="section-title"><h3>Bloating triggers</h3><span>Pick any</span></div>
+            <div class="chips" data-multi="bloatingTriggers">
+              <button class="chipbtn" data-value="fried_food">Fried food</button>
+              <button class="chipbtn" data-value="cola">Cola</button>
+              <button class="chipbtn" data-value="late_heavy_dinner">Late heavy dinner</button>
+              <button class="chipbtn" data-value="too_much_dairy">Too much dairy</button>
+              <button class="chipbtn" data-value="beans_chana_rajma">Beans/Chana/Rajma</button>
+              <button class="chipbtn" data-value="spicy_food">Spicy food</button>
+              <button class="chipbtn" data-value="unknown">Not sure</button>
+            </div>
+
+            <div class="section-title"><h3>Meal prep style</h3><span>Pick one</span></div>
+            <div class="chips" data-single="mealPrepStyle">
+              <button class="chipbtn" data-value="fresh_daily">Fresh daily</button>
+              <button class="chipbtn" data-value="fridge_2_days">Fridge 1-2 days</button>
+              <button class="chipbtn" data-value="fridge_freezer">Fridge + freezer</button>
+              <button class="chipbtn" data-value="quick_no_prep">Quick no prep</button>
             </div>
 
             <div class="field">
-              <label>Meal notes</label>
-              <textarea class="textarea" id="mealNotes" placeholder="Example: I prefer 3 roti meals, no heavy food before gym, quick snacks at work."></textarea>
+              <label>Snack preferences</label>
+              <textarea class="textarea" id="snackPreferences" placeholder="Example: banana, roasted chana, eggs, yogurt, protein bar, whey..."></textarea>
+            </div>
+
+            <div class="field">
+              <label>Dinner preference</label>
+              <textarea class="textarea" id="dinnerPreference" placeholder="Example: 2 roti + protein + sabji, lighter dinner, no rice at night..."></textarea>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="screen" data-step="6">
+      <section class="screen" data-step="7">
         <div class="hero">
           <div class="kicker"><span class="pulse"></span><span>Water and review</span></div>
           <h2>Review your setup.</h2>
@@ -642,27 +1027,8 @@
                   <option value="2.0" selected>2.0 L</option>
                   <option value="2.5">2.5 L</option>
                   <option value="3.0">3.0 L</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="grid2">
-              <div class="field">
-                <label>Work sweating</label>
-                <select class="select" id="workSweating">
-                  <option value="">Select</option>
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                </select>
-              </div>
-              <div class="field">
-                <label>Gym sweating</label>
-                <select class="select" id="gymSweating">
-                  <option value="">Select</option>
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
+                  <option value="3.5">3.5 L</option>
+                  <option value="4.0">4.0 L</option>
                 </select>
               </div>
             </div>
@@ -696,11 +1062,12 @@
   const SUPABASE_ANON_KEY = "sb_publishable_6zVS1VCVok16WmVWNPvTrw_vTiQvgX4";
 
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
   const $ = q => document.querySelector(q);
   const $$ = q => Array.from(document.querySelectorAll(q));
 
   let currentStep = 0;
-  const totalSteps = 7;
+  const totalSteps = 8;
   let currentUser = null;
   let saving = false;
   let breaksData = [];
@@ -744,14 +1111,22 @@
     return arr;
   }
 
+  function boolSingle(name){
+    return selectedSingle(name) === "true";
+  }
+
   function setSingle(name, value){
-    $$(`[data-single="${name}"] .chipbtn`).forEach(b => b.classList.toggle("active", b.dataset.value === String(value)));
+    $$(`[data-single="${name}"] .chipbtn`).forEach(b => {
+      b.classList.toggle("active", b.dataset.value === String(value));
+    });
     handleCustomVisibility();
   }
 
   function setMulti(name, values){
     const set = new Set(values || []);
-    $$(`[data-multi="${name}"] .chipbtn`).forEach(b => b.classList.toggle("active", set.has(b.dataset.value)));
+    $$(`[data-multi="${name}"] .chipbtn`).forEach(b => {
+      b.classList.toggle("active", set.has(b.dataset.value));
+    });
     handleCustomVisibility();
   }
 
@@ -769,8 +1144,9 @@
 
   function renderBreaks(){
     const list = $("#breakList");
+
     if(!breaksData.length){
-      list.innerHTML = `<div class="small-note">No breaks added yet. Tap "+ Add break" for snack, meal, coffee, or custom eating time.</div>`;
+      list.innerHTML = `<div class="safe-note">No break added yet. Add work snacks, lunch, coffee, or any small eating window.</div>`;
       return;
     }
 
@@ -778,17 +1154,18 @@
       <div class="break-row" data-break-index="${i}">
         <div class="section-title" style="margin-top:0">
           <h3>Break ${i + 1}</h3>
-          <button class="remove-break" type="button" data-remove-break="${i}">Remove</button>
+          <button class="mini-btn red" type="button" data-remove-break="${i}">Remove</button>
         </div>
 
         <div class="grid2">
           <div class="field">
-            <label>Time</label>
+            <label>Break time</label>
             <input class="input break-time" type="time" value="${b.time || ""}">
           </div>
           <div class="field">
             <label>Duration</label>
             <select class="select break-duration">
+              <option value="3" ${b.duration == 3 ? "selected" : ""}>3 min</option>
               <option value="5" ${b.duration == 5 ? "selected" : ""}>5 min</option>
               <option value="10" ${b.duration == 10 ? "selected" : ""}>10 min</option>
               <option value="15" ${b.duration == 15 ? "selected" : ""}>15 min</option>
@@ -800,7 +1177,7 @@
 
         <div class="grid2">
           <div class="field">
-            <label>Type</label>
+            <label>Break type</label>
             <select class="select break-type">
               <option value="small_snack" ${b.type === "small_snack" ? "selected" : ""}>Small snack</option>
               <option value="meal" ${b.type === "meal" ? "selected" : ""}>Meal</option>
@@ -821,7 +1198,7 @@
 
         <div class="field">
           <label>Break note</label>
-          <input class="input break-note" value="${b.note || ""}" placeholder="Example: only 3 minutes, can eat banana only">
+          <input class="input break-note" value="${b.note || ""}" placeholder="Example: only banana possible, or full lunch box">
         </div>
       </div>
     `).join("");
@@ -862,6 +1239,8 @@
     const dob = $("#dateOfBirth").value || null;
     const mainGoals = selectedMulti("mainGoals");
     const foodStyles = selectedMulti("foodStyles");
+    const preferredProteins = selectedMulti("preferredProteins");
+    const preferredCarbs = selectedMulti("preferredCarbs");
 
     return {
       profile: {
@@ -889,17 +1268,30 @@
         unit: $("#measureUnit").value,
         notes: "Onboarding baseline"
       },
-      food: {
-        food_styles: foodStyles,
-        food_style: foodStyles[0] || "",
-        food_style_custom: $("#foodStyleCustom").value.trim(),
-        diet_type: selectedSingle("dietType"),
-        allergies: selectedMulti("allergies"),
-        avoid_foods: textListToArray($("#avoidFoods").value),
-        spice_level: $("#spiceLevel").value,
-        lactose_tolerance: $("#lactoseTolerance").value,
-        usual_foods: $("#usualFoods").value.trim(),
-        meal_notes: $("#mealNotes").value.trim()
+      workout: {
+        workout_place: selectedSingle("workoutPlace"),
+        workout_days: selectedMulti("workoutDays"),
+        workout_on_work_days: selectedSingle("workoutOnWorkDays") === "true",
+        preferred_time: $("#preferredTime").value || null,
+        max_minutes: $("#maxMinutes").value ? Number($("#maxMinutes").value) : null,
+        preferred_split: selectedSingle("preferredSplit"),
+        experience_level: $("#experienceLevel").value,
+        equipment: selectedMulti("equipment"),
+        pain_areas: selectedMulti("painAreas"),
+        pain_rating: $("#painRating").value,
+        injury_notes: $("#injuryNotes").value.trim(),
+        favourite_exercises: $("#favouriteExercises").value.trim(),
+        disliked_exercises: $("#dislikedExercises").value.trim(),
+        exercises_to_avoid: $("#exercisesToAvoid").value.trim(),
+        machine_preference: selectedMulti("equipment").includes("machines"),
+        dumbbell_preference: selectedMulti("equipment").includes("dumbbells"),
+        barbell_preference: selectedMulti("equipment").includes("barbell"),
+        cable_preference: selectedMulti("equipment").includes("cables"),
+        bodyweight_preference: selectedMulti("equipment").includes("bodyweight"),
+        wants_exercise_photos: true,
+        rest_timer_preference: 90,
+        workout_intensity_preference: "controlled_progression",
+        progression_preference: "increase only if pain low and reps clean"
       },
       work: {
         work_days: selectedMulti("workDays"),
@@ -910,25 +1302,41 @@
         small_snack_available: getBreaks().some(b => b.type === "small_snack"),
         notes: $("#workNotes").value.trim()
       },
-      workout: {
-        workout_place: selectedSingle("workoutPlace"),
-        workout_days: selectedMulti("workoutDays"),
-        workout_on_work_days: selectedSingle("workoutOnWorkDays") === "true",
-        preferred_time: $("#preferredTime").value || null,
-        max_minutes: $("#maxMinutes").value ? Number($("#maxMinutes").value) : null,
-        preferred_workout_context: $("#preferredWorkoutContext").value,
-        experience_level: $("#experienceLevel").value,
-        equipment: selectedMulti("equipment"),
-        custom_equipment: $("#customEquipment").value.trim(),
-        pain_areas: selectedMulti("painAreas"),
-        injury_notes: $("#injuryNotes").value.trim()
+      food: {
+        food_styles: foodStyles,
+        food_style: foodStyles[0] || "",
+        food_style_custom: $("#foodStyleCustom").value.trim(),
+        diet_type: selectedSingle("dietType"),
+        allergies: selectedMulti("allergies"),
+        avoid_foods: textListToArray($("#avoidFoods").value),
+        preferred_proteins: preferredProteins,
+        preferred_carbs: preferredCarbs,
+        likes_smoothies: boolSingle("likesSmoothies"),
+        uses_whey_protein: boolSingle("usesWheyProtein"),
+        whey_preference: preferredProteins.includes("whey") ? "allowed" : "not_selected",
+        eats_eggs: preferredProteins.includes("eggs"),
+        eats_chicken: preferredProteins.includes("chicken"),
+        eats_paneer: preferredProteins.includes("paneer"),
+        eats_tofu: preferredProteins.includes("tofu"),
+        eats_soya: preferredProteins.includes("soya"),
+        greek_yogurt_ok: preferredProteins.includes("greek_yogurt"),
+        homemade_curd_ok: preferredProteins.includes("homemade_curd"),
+        milk_ok: preferredProteins.includes("milk"),
+        usual_foods: $("#usualFoods").value.trim(),
+        favourite_foods: $("#favouriteFoods").value.trim(),
+        disliked_foods: $("#dislikedFoods").value.trim(),
+        bloating_triggers: selectedMulti("bloatingTriggers"),
+        meal_prep_style: selectedSingle("mealPrepStyle"),
+        fridge_freezer_ok: selectedSingle("mealPrepStyle") === "fridge_freezer",
+        quick_meal_preference: $("#snackPreferences").value.trim(),
+        dinner_preference: $("#dinnerPreference").value.trim(),
+        smoothie_details: $("#smoothieDetails").value.trim(),
+        snack_preferences: $("#snackPreferences").value.trim(),
+        meal_notes: $("#dinnerPreference").value.trim()
       },
       water: {
         bottle_size_ml: Number($("#bottleSizeMl").value || 1000),
-        daily_target_liters: Number($("#dailyTargetLiters").value || 2),
-        sweat_level: "",
-        work_sweating: $("#workSweating").value,
-        gym_sweating: $("#gymSweating").value
+        daily_target_liters: Number($("#dailyTargetLiters").value || 2)
       }
     };
   }
@@ -952,11 +1360,12 @@
     if(currentStep === 3){
       if(!d.workout.workout_place) return "Select workout place.";
       if(!d.workout.workout_days.length) return "Select at least one workout day.";
-      if(!selectedSingle("workoutOnWorkDays")) return "Select if you workout on work days.";
+      if(!selectedSingle("workoutOnWorkDays")) return "Select if you workout on workdays.";
       if(!d.workout.max_minutes) return "Select workout time available.";
+      if(!d.workout.preferred_split) return "Select training split or AI choose.";
     }
 
-    if(currentStep === 5){
+    if(currentStep === 6){
       if(!d.food.food_styles.length) return "Select at least one food style.";
       if(d.food.food_styles.includes("custom") && !d.food.food_style_custom) return "Enter custom food style.";
       if(!d.food.diet_type) return "Select your diet type.";
@@ -993,12 +1402,12 @@
 
     $("#summaryBox").innerHTML = `
       <div class="summary-line"><span>Goals</span><strong>${d.profile.main_goals.length ? d.profile.main_goals.map(nice).join(", ") : "-"}</strong></div>
-      <div class="summary-line"><span>Body</span><strong>${d.profile.body_type === "custom" ? d.profile.body_type_custom : nice(d.profile.body_type)}</strong></div>
       <div class="summary-line"><span>Workout</span><strong>${nice(d.workout.workout_place)} / ${d.workout.max_minutes || "-"} min</strong></div>
       <div class="summary-line"><span>Workout days</span><strong>${d.workout.workout_days.length ? d.workout.workout_days.join(", ") : "-"}</strong></div>
-      <div class="summary-line"><span>Work breaks</span><strong>${d.work.breaks.length ? d.work.breaks.map(b => b.time).join(", ") : "none added"}</strong></div>
       <div class="summary-line"><span>Food</span><strong>${d.food.food_styles.length ? d.food.food_styles.map(nice).join(", ") : "-"}</strong></div>
-      <div class="summary-line"><span>Allergies</span><strong>${d.food.allergies.length ? d.food.allergies.map(nice).join(", ") : "none selected"}</strong></div>
+      <div class="summary-line"><span>Proteins</span><strong>${d.food.preferred_proteins.length ? d.food.preferred_proteins.map(nice).join(", ") : "-"}</strong></div>
+      <div class="summary-line"><span>Smoothie/Whey</span><strong>${d.food.likes_smoothies ? "Smoothie yes" : "No smoothie"} / ${d.food.uses_whey_protein ? "Whey yes" : "No whey"}</strong></div>
+      <div class="summary-line"><span>Breaks</span><strong>${d.work.breaks.length ? d.work.breaks.map(b => b.time).join(", ") : "none added"}</strong></div>
       <div class="summary-line"><span>Water</span><strong>${d.water.daily_target_liters} L / about ${bottles} bottles</strong></div>
     `;
   }
@@ -1047,20 +1456,20 @@
       }
     }
 
-    const { error: foodError } = await supabaseClient
-      .from("food_preferences")
-      .upsert({ user_id: userId, ...d.food }, { onConflict: "user_id" });
-    if(foodError) throw foodError;
+    const { error: workoutError } = await supabaseClient
+      .from("workout_availability")
+      .upsert({ user_id: userId, ...d.workout }, { onConflict: "user_id" });
+    if(workoutError) throw workoutError;
 
     const { error: workError } = await supabaseClient
       .from("work_schedules")
       .upsert({ user_id: userId, ...d.work }, { onConflict: "user_id" });
     if(workError) throw workError;
 
-    const { error: workoutError } = await supabaseClient
-      .from("workout_availability")
-      .upsert({ user_id: userId, ...d.workout }, { onConflict: "user_id" });
-    if(workoutError) throw workoutError;
+    const { error: foodError } = await supabaseClient
+      .from("food_preferences")
+      .upsert({ user_id: userId, ...d.food }, { onConflict: "user_id" });
+    if(foodError) throw foodError;
 
     const { error: waterError } = await supabaseClient
       .from("water_settings")
@@ -1109,12 +1518,15 @@
       setSingle("workoutOnWorkDays", String(!!wa.workout_on_work_days));
       $("#preferredTime").value = wa.preferred_time || "";
       $("#maxMinutes").value = wa.max_minutes || "";
-      $("#preferredWorkoutContext").value = wa.preferred_workout_context || "";
+      setSingle("preferredSplit", wa.preferred_split || "");
       $("#experienceLevel").value = wa.experience_level || "";
       setMulti("equipment", wa.equipment || []);
-      $("#customEquipment").value = wa.custom_equipment || "";
       setMulti("painAreas", wa.pain_areas || []);
+      $("#painRating").value = wa.pain_rating || "";
       $("#injuryNotes").value = wa.injury_notes || "";
+      $("#favouriteExercises").value = wa.favourite_exercises || "";
+      $("#dislikedExercises").value = wa.disliked_exercises || "";
+      $("#exercisesToAvoid").value = wa.exercises_to_avoid || "";
     }
 
     const { data: w } = await supabaseClient.from("work_schedules").select("*").eq("user_id", userId).maybeSingle();
@@ -1133,20 +1545,26 @@
       setMulti("foodStyles", f.food_styles || (f.food_style ? [f.food_style] : []));
       $("#foodStyleCustom").value = f.food_style_custom || "";
       setSingle("dietType", f.diet_type || "");
+      setMulti("preferredProteins", f.preferred_proteins || []);
+      setMulti("preferredCarbs", f.preferred_carbs || []);
+      setSingle("likesSmoothies", String(!!f.likes_smoothies));
+      setSingle("usesWheyProtein", String(!!f.uses_whey_protein));
+      $("#smoothieDetails").value = f.smoothie_details || "";
       $("#usualFoods").value = f.usual_foods || "";
+      $("#favouriteFoods").value = f.favourite_foods || "";
+      $("#dislikedFoods").value = f.disliked_foods || "";
       setMulti("allergies", f.allergies || []);
       $("#avoidFoods").value = (f.avoid_foods || []).join(", ");
-      $("#spiceLevel").value = f.spice_level || "";
-      $("#lactoseTolerance").value = f.lactose_tolerance || "";
-      $("#mealNotes").value = f.meal_notes || "";
+      setMulti("bloatingTriggers", f.bloating_triggers || []);
+      setSingle("mealPrepStyle", f.meal_prep_style || "");
+      $("#snackPreferences").value = f.snack_preferences || "";
+      $("#dinnerPreference").value = f.dinner_preference || "";
     }
 
     const { data: ws } = await supabaseClient.from("water_settings").select("*").eq("user_id", userId).maybeSingle();
     if(ws){
       $("#bottleSizeMl").value = ws.bottle_size_ml || 1000;
       $("#dailyTargetLiters").value = ws.daily_target_liters || 2.0;
-      $("#workSweating").value = ws.work_sweating || "";
-      $("#gymSweating").value = ws.gym_sweating || "";
     }
 
     handleCustomVisibility();
@@ -1187,6 +1605,10 @@
       syncBreakInputs();
       breaksData.push({ time:"", duration:10, type:"small_snack", full_meal:false, note:"" });
       renderBreaks();
+      setTimeout(() => {
+        const rows = $$(".break-row");
+        if(rows.length) rows[rows.length - 1].scrollIntoView({ behavior:"smooth", block:"center" });
+      }, 50);
     });
 
     $("#backBtn").addEventListener("click", () => {
