@@ -1,1 +1,798 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>FitApp - AI Fitness Coach</title>
+
+  <style>
+    :root{
+      --bg:#070A0F;
+      --bg2:#0B1220;
+      --card:rgba(255,255,255,.075);
+      --card2:rgba(255,255,255,.105);
+      --line:rgba(255,255,255,.13);
+      --text:#F8FAFC;
+      --muted:#94A3B8;
+      --muted2:#64748B;
+      --green:#22C55E;
+      --green2:#16A34A;
+      --blue:#38BDF8;
+      --amber:#F59E0B;
+      --red:#EF4444;
+      --shadow:0 24px 70px rgba(0,0,0,.38);
+      --radius:26px;
+      --radius2:18px;
+      --max:480px;
+    }
+
+    *{
+      box-sizing:border-box;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    html{
+      scroll-behavior:smooth;
+    }
+
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(34,197,94,.24), transparent 34%),
+        radial-gradient(circle at top right, rgba(56,189,248,.18), transparent 32%),
+        linear-gradient(180deg,var(--bg),var(--bg2));
+      color:var(--text);
+      overflow-x:hidden;
+    }
+
+    a{
+      color:inherit;
+      text-decoration:none;
+    }
+
+    button{
+      font:inherit;
+    }
+
+    .page{
+      width:100%;
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+    }
+
+    .app-shell{
+      width:100%;
+      max-width:var(--max);
+      min-height:100vh;
+      position:relative;
+      padding:18px 16px 120px;
+    }
+
+    .glow{
+      position:fixed;
+      width:260px;
+      height:260px;
+      border-radius:999px;
+      filter:blur(50px);
+      opacity:.35;
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .glow.one{
+      background:var(--green);
+      top:-80px;
+      left:50%;
+      transform:translateX(-80%);
+    }
+
+    .glow.two{
+      background:var(--blue);
+      bottom:90px;
+      right:50%;
+      transform:translateX(80%);
+      opacity:.22;
+    }
+
+    .topbar{
+      position:relative;
+      z-index:2;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:22px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:11px;
+      min-width:0;
+    }
+
+    .logo{
+      width:46px;
+      height:46px;
+      border-radius:17px;
+      display:grid;
+      place-items:center;
+      background:
+        linear-gradient(145deg,rgba(34,197,94,.95),rgba(56,189,248,.72));
+      box-shadow:0 16px 42px rgba(34,197,94,.24);
+      color:#03100A;
+      font-weight:1000;
+      letter-spacing:-.6px;
+    }
+
+    .brand-title{
+      line-height:1.05;
+      min-width:0;
+    }
+
+    .brand-title h1{
+      margin:0;
+      font-size:18px;
+      letter-spacing:-.45px;
+    }
+
+    .brand-title span{
+      display:block;
+      margin-top:3px;
+      font-size:12px;
+      color:var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width:245px;
+    }
+
+    .login-link{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.07);
+      color:var(--text);
+      padding:9px 12px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:800;
+      backdrop-filter:blur(18px);
+    }
+
+    .hero{
+      position:relative;
+      z-index:2;
+      padding:18px 0 10px;
+    }
+
+    .kicker{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 11px;
+      border-radius:999px;
+      border:1px solid rgba(34,197,94,.28);
+      background:rgba(34,197,94,.10);
+      color:#BBF7D0;
+      font-size:12px;
+      font-weight:850;
+      margin-bottom:14px;
+    }
+
+    .pulse{
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:var(--green);
+      box-shadow:0 0 0 6px rgba(34,197,94,.13);
+    }
+
+    .hero h2{
+      margin:0;
+      font-size:44px;
+      line-height:.98;
+      letter-spacing:-2.2px;
+    }
+
+    .hero h2 span{
+      background:linear-gradient(135deg,#fff,#86EFAC 58%,#7DD3FC);
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+    }
+
+    .hero p{
+      margin:15px 0 0;
+      color:#CBD5E1;
+      font-size:15px;
+      line-height:1.55;
+      max-width:390px;
+    }
+
+    .hero-actions{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+      margin-top:22px;
+    }
+
+    .btn{
+      border:0;
+      border-radius:18px;
+      min-height:54px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:9px;
+      padding:14px 16px;
+      font-weight:950;
+      cursor:pointer;
+      transition:transform .16s ease, opacity .16s ease, background .16s ease;
+      user-select:none;
+    }
+
+    .btn:active{
+      transform:scale(.985);
+    }
+
+    .btn.primary{
+      background:linear-gradient(135deg,var(--green),#86EFAC);
+      color:#03100A;
+      box-shadow:0 18px 40px rgba(34,197,94,.25);
+    }
+
+    .btn.secondary{
+      background:rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      color:var(--text);
+      backdrop-filter:blur(18px);
+    }
+
+    .micro{
+      margin-top:10px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:7px;
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    .cards{
+      position:relative;
+      z-index:2;
+      display:grid;
+      gap:12px;
+      margin-top:22px;
+    }
+
+    .card{
+      border:1px solid var(--line);
+      background:linear-gradient(180deg,rgba(255,255,255,.105),rgba(255,255,255,.055));
+      box-shadow:var(--shadow);
+      border-radius:var(--radius);
+      padding:16px;
+      backdrop-filter:blur(22px);
+      overflow:hidden;
+      position:relative;
+    }
+
+    .card:before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:radial-gradient(circle at top right,rgba(255,255,255,.12),transparent 38%);
+      pointer-events:none;
+    }
+
+    .card-content{
+      position:relative;
+      z-index:1;
+    }
+
+    .daily-preview{
+      display:grid;
+      gap:10px;
+    }
+
+    .preview-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .preview-top h3{
+      margin:0;
+      font-size:18px;
+      letter-spacing:-.45px;
+    }
+
+    .preview-top p{
+      margin:4px 0 0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.35;
+    }
+
+    .chip{
+      flex:0 0 auto;
+      border:1px solid rgba(34,197,94,.28);
+      background:rgba(34,197,94,.11);
+      color:#BBF7D0;
+      border-radius:999px;
+      padding:7px 10px;
+      font-size:12px;
+      font-weight:900;
+    }
+
+    .today-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:4px;
+    }
+
+    .mini-card{
+      border:1px solid rgba(255,255,255,.11);
+      background:rgba(0,0,0,.18);
+      border-radius:18px;
+      padding:12px;
+      min-height:96px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .mini-card strong{
+      display:block;
+      font-size:13px;
+      letter-spacing:-.1px;
+    }
+
+    .mini-card span{
+      display:block;
+      margin-top:3px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.32;
+    }
+
+    .mini-status{
+      display:inline-flex;
+      width:max-content;
+      border-radius:999px;
+      padding:5px 8px;
+      font-size:11px;
+      font-weight:900;
+      background:rgba(56,189,248,.12);
+      color:#BAE6FD;
+      border:1px solid rgba(56,189,248,.22);
+    }
+
+    .mini-status.green{
+      background:rgba(34,197,94,.12);
+      color:#BBF7D0;
+      border-color:rgba(34,197,94,.25);
+    }
+
+    .section-title{
+      position:relative;
+      z-index:2;
+      margin:25px 2px 11px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .section-title h3{
+      margin:0;
+      font-size:17px;
+      letter-spacing:-.35px;
+    }
+
+    .section-title span{
+      font-size:12px;
+      color:var(--muted);
+      font-weight:750;
+    }
+
+    .feature-list{
+      position:relative;
+      z-index:2;
+      display:grid;
+      gap:10px;
+    }
+
+    .feature{
+      border:1px solid rgba(255,255,255,.11);
+      background:rgba(255,255,255,.06);
+      border-radius:20px;
+      padding:13px;
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      backdrop-filter:blur(16px);
+    }
+
+    .feature-icon{
+      width:39px;
+      height:39px;
+      border-radius:15px;
+      display:grid;
+      place-items:center;
+      flex:0 0 auto;
+      background:rgba(34,197,94,.12);
+      color:#BBF7D0;
+      border:1px solid rgba(34,197,94,.20);
+      font-weight:1000;
+      font-size:13px;
+    }
+
+    .feature-icon.blue{
+      background:rgba(56,189,248,.12);
+      color:#BAE6FD;
+      border-color:rgba(56,189,248,.22);
+    }
+
+    .feature-icon.amber{
+      background:rgba(245,158,11,.12);
+      color:#FDE68A;
+      border-color:rgba(245,158,11,.22);
+    }
+
+    .feature-icon.red{
+      background:rgba(239,68,68,.12);
+      color:#FECACA;
+      border-color:rgba(239,68,68,.22);
+    }
+
+    .feature h4{
+      margin:0;
+      font-size:14px;
+      letter-spacing:-.15px;
+    }
+
+    .feature p{
+      margin:4px 0 0;
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.42;
+    }
+
+    .steps{
+      position:relative;
+      z-index:2;
+      display:grid;
+      gap:9px;
+      margin-top:10px;
+    }
+
+    .step{
+      display:grid;
+      grid-template-columns:32px 1fr;
+      gap:10px;
+      align-items:flex-start;
+      padding:12px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.055);
+    }
+
+    .step-num{
+      width:32px;
+      height:32px;
+      border-radius:13px;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(135deg,var(--green),#86EFAC);
+      color:#03100A;
+      font-weight:1000;
+      font-size:13px;
+    }
+
+    .step strong{
+      display:block;
+      font-size:13.5px;
+    }
+
+    .step span{
+      display:block;
+      margin-top:3px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.35;
+    }
+
+    .bottom-cta{
+      position:fixed;
+      left:50%;
+      bottom:0;
+      width:100%;
+      max-width:var(--max);
+      transform:translateX(-50%);
+      z-index:20;
+      padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+      background:linear-gradient(180deg,rgba(7,10,15,0),rgba(7,10,15,.92) 28%,rgba(7,10,15,.98));
+      backdrop-filter:blur(16px);
+    }
+
+    .bottom-cta-inner{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:9px;
+    }
+
+    .footer{
+      position:relative;
+      z-index:2;
+      margin-top:26px;
+      text-align:center;
+      color:var(--muted2);
+      font-size:11.5px;
+      line-height:1.45;
+      padding:0 10px;
+    }
+
+    .footer a{
+      color:#CBD5E1;
+      font-weight:800;
+    }
+
+    .safe-note{
+      position:relative;
+      z-index:2;
+      margin-top:16px;
+      border:1px solid rgba(245,158,11,.18);
+      background:rgba(245,158,11,.08);
+      color:#FDE68A;
+      border-radius:18px;
+      padding:12px;
+      font-size:12px;
+      line-height:1.4;
+    }
+
+    @media(min-width:760px){
+      body{
+        background:
+          radial-gradient(circle at 20% 0%, rgba(34,197,94,.20), transparent 30%),
+          radial-gradient(circle at 80% 20%, rgba(56,189,248,.16), transparent 32%),
+          linear-gradient(180deg,var(--bg),#05070B);
+      }
+
+      .app-shell{
+        padding-top:26px;
+      }
+
+      .app-shell:before{
+        content:"";
+        position:absolute;
+        inset:12px 0 18px;
+        border-radius:34px;
+        border:1px solid rgba(255,255,255,.08);
+        box-shadow:0 30px 90px rgba(0,0,0,.45);
+        pointer-events:none;
+      }
+    }
+
+    @media(max-width:380px){
+      .app-shell{
+        padding-left:13px;
+        padding-right:13px;
+      }
+
+      .hero h2{
+        font-size:39px;
+      }
+
+      .today-grid{
+        grid-template-columns:1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="glow one"></div>
+  <div class="glow two"></div>
+
+  <div class="page">
+    <main class="app-shell">
+
+      <header class="topbar">
+        <a href="index.html" class="brand" aria-label="FitApp home">
+          <div class="logo">FA</div>
+          <div class="brand-title">
+            <h1>FitApp</h1>
+            <span>AI fitness coach for real life</span>
+          </div>
+        </a>
+
+        <a class="login-link" href="auth.html?mode=login">Login</a>
+      </header>
+
+      <section class="hero">
+        <div class="kicker">
+          <span class="pulse"></span>
+          <span>No-brain fitness planning</span>
+        </div>
+
+        <h2>
+          Food. Gym. Water.<br>
+          <span>All planned daily.</span>
+        </h2>
+
+        <p>
+          FitApp builds your food and workout plan around your body, work breaks,
+          gym time, food style, allergies, pain history, and progress.
+        </p>
+
+        <div class="hero-actions">
+          <a class="btn primary" href="auth.html?mode=signup">Start Free Setup</a>
+          <a class="btn secondary" href="#how">See how it works</a>
+        </div>
+
+        <div class="micro">
+          <span>Quick setup</span>
+          <span>•</span>
+          <span>One-tap tracking</span>
+          <span>•</span>
+          <span>Weekly AI updates</span>
+        </div>
+      </section>
+
+      <section class="cards">
+        <div class="card">
+          <div class="card-content daily-preview">
+            <div class="preview-top">
+              <div>
+                <h3>Today at a glance</h3>
+                <p>Only what the user needs today. No clutter.</p>
+              </div>
+              <span class="chip">Sample</span>
+            </div>
+
+            <div class="today-grid">
+              <div class="mini-card">
+                <div>
+                  <strong>Meals</strong>
+                  <span>11:00 roti wrap<br>2:30 yogurt + fruit</span>
+                </div>
+                <span class="mini-status green">3 of 5 done</span>
+              </div>
+
+              <div class="mini-card">
+                <div>
+                  <strong>Workout</strong>
+                  <span>Push day<br>45 min gym</span>
+                </div>
+                <span class="mini-status">Start</span>
+              </div>
+
+              <div class="mini-card">
+                <div>
+                  <strong>Water</strong>
+                  <span>Goal: 2 L<br>Track by bottle</span>
+                </div>
+                <span class="mini-status">1 of 2 bottles</span>
+              </div>
+
+              <div class="mini-card">
+                <div>
+                  <strong>Progress</strong>
+                  <span>Weight weekly<br>Measurements biweekly</span>
+                </div>
+                <span class="mini-status green">Check-in</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-title">
+        <h3>Built for busy people</h3>
+        <span>Compact app flow</span>
+      </section>
+
+      <section class="feature-list">
+        <div class="feature">
+          <div class="feature-icon">AI</div>
+          <div>
+            <h4>Personal plan, not generic advice</h4>
+            <p>Plans use measurements, goal, food style, work breaks, gym time, allergies, and pain notes.</p>
+          </div>
+        </div>
+
+        <div class="feature">
+          <div class="feature-icon blue">GYM</div>
+          <div>
+            <h4>Workout player with photos</h4>
+            <p>Warm-up, main workout, stretches, auto rest timer, skip option, comfort and pain check.</p>
+          </div>
+        </div>
+
+        <div class="feature">
+          <div class="feature-icon amber">FOOD</div>
+          <div>
+            <h4>Food that fits real life</h4>
+            <p>Punjabi, Indian, Gujarati, Chinese, Spanish, regular gym food, or mixed plans.</p>
+          </div>
+        </div>
+
+        <div class="feature">
+          <div class="feature-icon red">SAFE</div>
+          <div>
+            <h4>Allergy and pain aware</h4>
+            <p>Allergies are treated as hard blocks. Pain history helps adjust exercises next time.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-title" id="how">
+        <h3>How it works</h3>
+        <span>Tap, follow, improve</span>
+      </section>
+
+      <section class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <strong>Tell FitApp your body and schedule</strong>
+            <span>Add measurements, food preferences, work breaks, workout time, gym days, allergies, and injuries.</span>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <strong>Get today’s food, workout, and water plan</strong>
+            <span>The dashboard shows only today’s meals, water target, and workout. No brain needed.</span>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">3</div>
+          <div>
+            <strong>Tap what happened</strong>
+            <span>Done, skipped, still hungry, too hard, pain, or low energy. The app remembers.</span>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">4</div>
+          <div>
+            <strong>Update your plan weekly</strong>
+            <span>AI checks logs, strength, pain, weight, waist, water, and meals to adjust the next week.</span>
+          </div>
+        </div>
+      </section>
+
+      <div class="safe-note">
+        FitApp gives general fitness and nutrition guidance only. It is not medical advice.
+        Stop exercises that cause strong pain and speak with a professional if needed.
+      </div>
+
+      <footer class="footer">
+        By creating an account later, users will agree to the
+        <a href="terms.html">Terms</a>,
+        <a href="privacy.html">Privacy Policy</a>, and
+        <a href="disclaimer.html">Fitness Disclaimer</a>.
+        <br><br>
+        Temporary project name: FitApp.
+      </footer>
+
+    </main>
+  </div>
+
+  <div class="bottom-cta">
+    <div class="bottom-cta-inner">
+      <a class="btn primary" href="auth.html?mode=signup">Create Account</a>
+    </div>
+  </div>
+</body>
+</html>
