@@ -1757,10 +1757,61 @@
       catch(err){ toast(err.message || "Could not save check-in"); }
     });
 
-    $("#updatePlanBtn").addEventListener("click", () => {
-      toast("AI button will be connected after foundation fixes.");
+    $("#updatePlanBtn").addEventListener("click", async () => {
+  const btn = $("#updatePlanBtn");
+  const oldText = btn.textContent;
+
+  try {
+    btn.disabled = true;
+    btn.textContent = "Creating plan...";
+    toast("FitApp AI is creating your plan...");
+
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+
+    if (!sessionData || !sessionData.session) {
+      toast("Please login again.");
+      location.href = "auth.html?mode=login";
+      return;
+    }
+
+    const res = await fetch("/.netlify/functions/generate-plan", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${sessionData.session.access_token}`
+      },
+      body: JSON.stringify({
+        request_type: "weekly_plan"
+      })
     });
+
+    const result = await res.json();
+
+    if (!res.ok || !result.ok) {
+      console.error(result);
+      const msg =
+        result.error?.error?.message ||
+        result.error?.message ||
+        result.error ||
+        "AI plan failed.";
+      throw new Error(msg);
+    }
+
+    toast("AI plan generated and saved.");
+
+    alert(
+      "Plan generated successfully!\n\n" +
+      (result.plan?.summary || "Your new FitApp plan is saved.")
+    );
+
+  } catch (err) {
+    console.error(err);
+    toast(err.message || "Could not generate AI plan.");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = oldText;
   }
+});
 
   async function logout(){
     await supabaseClient.auth.signOut();
