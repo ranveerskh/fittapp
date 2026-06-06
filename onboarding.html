@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>FitApp - Setup</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root{
+      --bg:#070A0F;
+      --bg2:#0B1220;
+      --card:rgba(255,255,255,.075);
+      --card2:rgba(255,255,255,.105);
+      --line:rgba(255,255,255,.13);
+      --text:#F8FAFC;
+      --muted:#94A3B8;
+      --muted2:#64748B;
+      --green:#22C55E;
+      --blue:#38BDF8;
+      --amber:#F59E0B;
+      --red:#EF4444;
+      --shadow:0 24px 70px rgba(0,0,0,.38);
+      --radius:26px;
+      --max:480px;
+    }
+
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(34,197,94,.24), transparent 34%),
+        radial-gradient(circle at top right, rgba(56,189,248,.18), transparent 32%),
+        linear-gradient(180deg,var(--bg),var(--bg2));
+      color:var(--text);
+      overflow-x:hidden;
+    }
+
+    button,input,select,textarea{font:inherit}
+    button{cursor:pointer}
+    a{color:inherit;text-decoration:none}
+
+    .page{width:100%;min-height:100vh;display:flex;justify-content:center}
+    .app-shell{width:100%;max-width:var(--max);min-height:100vh;position:relative;padding:16px 14px 34px}
+
+    .glow{position:fixed;width:260px;height:260px;border-radius:999px;filter:blur(50px);opacity:.32;pointer-events:none;z-index:0}
+    .glow.one{background:var(--green);top:-80px;left:50%;transform:translateX(-85%)}
+    .glow.two{background:var(--blue);bottom:80px;right:50%;transform:translateX(85%);opacity:.20}
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:20;
+      margin:-16px -14px 14px;
+      padding:14px 14px 10px;
+      background:linear-gradient(180deg,rgba(7,10,15,.96),rgba(7,10,15,.78),rgba(7,10,15,0));
+      backdrop-filter:blur(18px);
+    }
+
+    .toprow{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand{display:flex;align-items:center;gap:10px;min-width:0}
+    .logo{
+      width:42px;height:42px;border-radius:16px;display:grid;place-items:center;
+      background:linear-gradient(145deg,rgba(34,197,94,.95),rgba(56,189,248,.72));
+      color:#03100A;font-weight:1000;box-shadow:0 14px 35px rgba(34,197,94,.22)
+    }
+    .brand h1{margin:0;font-size:17px;letter-spacing:-.4px;line-height:1.05}
+    .brand span{display:block;margin-top:3px;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:245px}
+    .logout{
+      border:1px solid var(--line);background:rgba(255,255,255,.07);color:var(--text);
+      padding:8px 11px;border-radius:999px;font-size:12px;font-weight:850
+    }
+
+    .progress-wrap{margin-top:12px}
+    .progress-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px}
+    .progress-row span{font-size:12px;color:var(--muted);font-weight:800}
+    .bar{height:8px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.08);border-radius:999px;overflow:hidden}
+    .bar div{height:100%;width:0;background:linear-gradient(90deg,var(--green),#86EFAC);border-radius:999px;transition:.25s}
+
+    .screen{display:none;position:relative;z-index:2;animation:fade .18s ease}
+    .screen.active{display:block}
+    @keyframes fade{from{opacity:.45;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+    .hero{padding:4px 2px 8px}
+    .kicker{
+      display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border-radius:999px;
+      border:1px solid rgba(34,197,94,.28);background:rgba(34,197,94,.10);
+      color:#BBF7D0;font-size:12px;font-weight:850;margin-bottom:12px
+    }
+    .pulse{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 6px rgba(34,197,94,.13)}
+    h2{margin:0;font-size:31px;line-height:1.03;letter-spacing:-1.2px}
+    .hero p{margin:10px 0 0;color:#CBD5E1;font-size:14px;line-height:1.48}
+
+    .card{
+      border:1px solid var(--line);
+      background:linear-gradient(180deg,rgba(255,255,255,.105),rgba(255,255,255,.055));
+      box-shadow:var(--shadow);
+      border-radius:var(--radius);
+      padding:14px;
+      backdrop-filter:blur(22px);
+      margin-top:13px;
+      overflow:hidden;
+      position:relative;
+    }
+    .card:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at top right,rgba(255,255,255,.11),transparent 38%);pointer-events:none}
+    .card-inner{position:relative;z-index:1}
+
+    .field{margin-top:11px}
+    .field label{display:block;font-size:12px;color:#CBD5E1;font-weight:850;margin:0 0 6px 3px}
+    .input,.select,.textarea{
+      width:100%;border:1px solid rgba(255,255,255,.13);background:rgba(0,0,0,.20);
+      color:var(--text);outline:none;border-radius:17px;min-height:50px;padding:12px 13px;font-size:15px;
+    }
+    .textarea{min-height:82px;resize:vertical;line-height:1.4}
+    .input:focus,.select:focus,.textarea:focus{border-color:rgba(34,197,94,.55);background:rgba(0,0,0,.28)}
+    .input::placeholder,.textarea::placeholder{color:#64748B}
+
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+
+    .chips{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
+    .chips.three{grid-template-columns:repeat(3,1fr)}
+    .chipbtn{
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.06);
+      color:#E2E8F0;
+      border-radius:16px;
+      min-height:47px;
+      padding:9px 8px;
+      font-size:12.5px;
+      font-weight:850;
+      line-height:1.15;
+      text-align:center;
+    }
+    .chipbtn.active{
+      background:rgba(34,197,94,.14);
+      border-color:rgba(34,197,94,.42);
+      color:#BBF7D0;
+      box-shadow:0 12px 25px rgba(34,197,94,.08);
+    }
+
+    .section-title{margin:14px 3px 8px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+    .section-title h3{margin:0;font-size:14px;letter-spacing:-.15px}
+    .section-title span{font-size:11.5px;color:var(--muted);font-weight:800}
+
+    .break-row{
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.16);
+      border-radius:18px;
+      padding:10px;
+      margin-top:9px;
+    }
+
+    .btnbar{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;position:sticky;bottom:10px;z-index:10}
+    .btn{
+      border:0;border-radius:18px;min-height:53px;display:flex;align-items:center;justify-content:center;gap:8px;
+      padding:13px 14px;font-weight:950;transition:transform .16s ease,opacity .16s ease;user-select:none
+    }
+    .btn:active{transform:scale(.985)}
+    .btn.primary{background:linear-gradient(135deg,var(--green),#86EFAC);color:#03100A;box-shadow:0 18px 40px rgba(34,197,94,.24)}
+    .btn.secondary{background:rgba(255,255,255,.08);border:1px solid var(--line);color:var(--text);backdrop-filter:blur(18px)}
+    .btn.full{grid-column:1 / -1}
+    .btn:disabled{opacity:.48;cursor:not-allowed;transform:none;box-shadow:none}
+
+    .summary-card{
+      border:1px solid rgba(34,197,94,.22);
+      background:rgba(34,197,94,.08);
+      border-radius:21px;
+      padding:13px;
+      margin-top:10px;
+    }
+    .summary-grid{display:grid;gap:8px}
+    .summary-line{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid rgba(255,255,255,.08);padding-bottom:8px}
+    .summary-line:last-child{border-bottom:0;padding-bottom:0}
+    .summary-line span{font-size:12px;color:var(--muted)}
+    .summary-line strong{font-size:12.5px;text-align:right;color:#E2E8F0}
+
+    .status{
+      display:none;margin-top:12px;border-radius:16px;padding:11px;font-size:12.5px;line-height:1.4;
+      border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#E2E8F0
+    }
+    .status.show{display:block}
+    .status.good{border-color:rgba(34,197,94,.24);background:rgba(34,197,94,.09);color:#BBF7D0}
+    .status.bad{border-color:rgba(239,68,68,.25);background:rgba(239,68,68,.08);color:#FECACA}
+
+    .loader{
+      width:16px;height:16px;border-radius:50%;border:2px solid rgba(3,16,10,.30);border-top-color:#03100A;
+      display:none;animation:spin .75s linear infinite
+    }
+    .btn.loading .loader{display:inline-block}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .small-note{font-size:12px;color:var(--muted);line-height:1.42;margin-top:9px}
+    .safe-note{border:1px solid rgba(245,158,11,.18);background:rgba(245,158,11,.08);color:#FDE68A;border-radius:17px;padding:11px;font-size:12px;line-height:1.4;margin-top:11px}
+
+    @media(min-width:760px){
+      .app-shell{padding-top:24px}
+      .app-shell:before{content:"";position:absolute;inset:12px 0 18px;border-radius:34px;border:1px solid rgba(255,255,255,.08);box-shadow:0 30px 90px rgba(0,0,0,.45);pointer-events:none}
+    }
+    @media(max-width:390px){
+      .chips.three{grid-template-columns:1fr 1fr}
+      h2{font-size:28px}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="glow one"></div>
+  <div class="glow two"></div>
+
+  <div class="page">
+    <main class="app-shell">
+      <header class="topbar">
+        <div class="toprow">
+          <a href="index.html" class="brand">
+            <div class="logo">FA</div>
+            <div>
+              <h1>FitApp Setup</h1>
+              <span id="topSub">Building your plan profile</span>
+            </div>
+          </a>
+          <button class="logout" id="logoutBtn" type="button">Logout</button>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-row">
+            <span id="stepText">Step 1 of 7</span>
+            <span id="progressText">14%</span>
+          </div>
+          <div class="bar"><div id="progressBar"></div></div>
+        </div>
+      </header>
+
+      <section class="screen active" data-step="0">
+        <div class="hero">
+          <div class="kicker"><span class="pulse"></span><span>Basic profile</span></div>
+          <h2>Tell FitApp who you are.</h2>
+          <p>Keep it simple. These basics help create a realistic food and workout plan.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-inner">
+            <div class="field">
+              <label>Name</label>
+              <input class="input" id="fullName" placeholder="Your name" />
+            </div>
+
+            <div class="grid2">
+              <div class="field">
+                <label>Age</label>
+                <input class="input" id="age" type="number" min="13" max="100" placeholder="30" />
+              </div>
+              <div class="field">
+                <label>Gender</label>
+                <select class="select" id="gender">
+                  <option value="">Select</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="prefer_not_say">Prefer not to say</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid2">
+              <div class="field">
+                <label>Height cm</label>
+                <input class="input" id="heightCm" type="number" step="0.1" placeholder="175" />
+              </div>
+              <div class="field">
+                <label>Current weight</label>
+                <input class="input" id="startingWeight" type="number" step="0.1" placeholder="70" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Weight unit</label>
+              <select class="select" id="weightUnit">
+                <option value="kg">kg</option>
+                <option value="lb">lb</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" data-step="1">
+        <div class="hero">
+          <div class="kicker"><span class="pulse"></span><span>Measurements</span></div>
+          <h2>Baseline body measurements.</h2>
+          <p>These help track real progress. Weight alone can lie; waist and strength tell more.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-inner">
+            <div class="field">
+              <label>Measurement unit</label>
+              <select class="select" id="measureUnit">
+                <option value="inch">inch</option>
+                <option value="cm">cm</option>
+              </select>
+            </div>
+
+            <div class="grid2">
+              <div class="field"><label>Waist</label><input class="input" id="waist" type="number" step="0.1" placeholder="34" /></div>
+              <div class="field"><label>Chest</label><input class="input" id="chest" type="number" step="0.1" placeholder="38" /></div>
+              <div class="field"><label>Hips / glutes</label><input class="input" id="hips" type="number" step="0.1" placeholder="37" /></div>
+              <div class="field"><label>Thigh</label><input class="input" id="thigh" type="number" step="0.1" placeholder="21" /></div>
+              <div class="field"><label>Biceps</label><input class="input" id="biceps" type="number" step="0.1" placeholder="13" /></div>
+              <div class="field"><label>Neck optional</label><input class="input" id="neck" type="number" step="0.1" placeholder="15" /></div>
+            </div>
+
+            <div class="small-note">Later the app will ask weekly weight and biweekly measurements to check improvements.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" data-step="2">
+        <div class="hero">
+          <div class="kicker"><span class="pulse"></span><span>Goal</span></div>
+          <h2>What do you want?</h2>
+          <p>Choose the main goal. AI will use this to balance food, workouts, and progress speed.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-inner">
+            <div class="section-title"><h3>Main goal</h3><span>Pick one</span></div>
+            <div class="chips" data-single="mainGoal">
+              <button class="chipbtn" data-value="lose_belly">Lose belly</button>
+              <button class="chipbtn" data-value="build_muscle">Build muscle</button>
+              <button class="chipbtn" data-value="look_fit">Look fit</button>
+              <button class="chipbtn" data-value="gain_weight">Gain weight</button>
+              <button class="chipbtn" data-value="strength">Improve strength</button>
+              <button class="chipbtn" data-value="shape_posture">Shape/posture</button>
+            </div>
+
+            <div class="section-title"><h3>Body type</h3><span>Pick one</span></div>
+            <div class="chips" data-single="bodyType">
+              <button class="chipbtn" data-value="skinny">Skinny</button>
+              <button class="chipbtn" data-value="skinny_fat">Skinny fat</button>
+              <button class="chipbtn" data-value="average">Average</button>
+              <button class="chipbtn" data-value="overweight">Overweight</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" data-step="3">
+        <div class="hero">
+          <div class="kicker"><span class="pulse"></span><span>Food safety</span></div>
+          <h2>Food style and allergies.</h2>
+          <p>Allergies are hard blocks. FitApp should never suggest foods you cannot eat.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-inner">
+            <div class="section-title"><h3>Food style</h3><span>Pick one</span></div>
+            <div class="chips" data-single="foodStyle">
+              <button class="chipbtn" data-value="punjabi">Punjabi</button>
+              <button class="chipbtn" data-value="indian">Indian</button>
+              <button class="chipbtn" data-value="gujarati">Gujarati</button>
+              <button class="chipbtn" data-value="chinese">Chinese</button>
+              <button class="chipbtn" data-value="spanish">Spanish</button>
+              <button class="chipbtn" data-value="gym_food">Regular gym food</button>
+              <button class="chipbtn" data-value="mixed">Mixed</button>
+            </div>
+
+            <div class="section-title"><h3>Diet type</h3><span>Pick one</span></div>
+            <div class="chips" data-single="dietType">
+              <button class="chipbtn" data-value="vegetarian">Vegetarian</button>
+              <button class="chipbtn" data-value="eggs_ok">Eggs ok</button>
+              <button class="chipbtn" data-value="chicken_ok">Chicken ok</button>
+              <button class="chipbtn" data-value="no_restriction">No restriction</button>
+            </div>
+
+            <div class="section-title"><h3>Allergies</h3><span>Pick any</span></div>
+            <div class="chips three" data-multi="allergies">
+              <button class="chipbtn" data-value="none">No allergy</button>
+              <button class="chipbtn" data-value="dairy">Dairy</button>
+              <button class="chipbtn" data-value="eggs">Eggs</button>
+              <button class="chipbtn" data-value="peanuts">Peanuts</button>
+              <button class="chipbtn" data-value="tree_nuts">Tree nuts</button>
+              <button class="chipbtn" data-value="gluten">Gluten</button>
+              <button class="chipbtn" data-value="soy">Soy</button>
+              <button class="chipbtn" data-value="seafood">Seafood</button>
+              <button class="chipbtn" data-value="sesame">Sesame</button>
+            </div>
+
+            <div class="field">
+              <label>Other foods to avoid</label>
+              <textarea class="textarea" id="avoidFoods" placeholder="Example: mushrooms, onion, garlic, peanuts, lactose..."></textarea>
+            </div>
+
+            <div class="grid2">
+              <div class="field">
+                <label>Spice level</label>
+                <select class="select" id="spiceLevel">
+                  <option value="">Select</option>
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Lactose tolerance</label>
+                <select class="select" id="lactoseTolerance">
+                  <option value="">Select</option>
+                  <option value="fine">Fine</option>
+                  <option value="low">Low</option>
+                  <option value="avoid">Avoid</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" data-step="4">
+        <div class="hero">
+          <div class="kicker"><span class="pulse"></span><span>Work breaks</span></div>
+          <h2>Your real-life eating times.</h2>
+          <p>Add work days, breaks, and small snack times so meals fit your schedule.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-inner">
+            <div class="section-title"><h3>Work days</h3><span>Pick any</span></div>
+            <div class="chips three" data-multi="workDays">
+              <button class="chipbtn" data-value="Sunday">Sun</button>
+              <button class="chipbtn" data-value="Monday">Mon</button>
+              <button class="chipbtn" data-value="Tuesday">Tue</button>
+              <button class="chipbtn" data-value="Wednesday">Wed</button>
+              <button class="chipbtn" data-value="Thursday">Thu</button>
+              <button class="chipbtn" data-value="Friday">Fri</button>
+              <button class="chipbtn" data-value="Saturday">Sat</button>
+            </div>
+
+            <div class="grid2">
+              <div class="field"><label>Work start</label><input class="input" id="workStart" type="time" /></div>
+              <div class="field"><label>Work end</label><input class="input" id="workEnd" type="time" /></div>
+            </div>
+
+            <div class="field">
+              <label>Job activity</label>
+              <select class="select" id="jobActivity">
+                <option value="">Select</option>
+                <option value="sitting">Mostly sitting</option>
+                <option value="walking">Walking</option>
+                <option value="lifting">Lifting</option>
+                <option value="heavy_active">Heavy active job</option>
+                <option value="mixed">Mixed</option>
+              </select>
+            </div>
+
+            <div class="section-title"><h3>Breaks / snack times</h3><span>Optional</span></div>
+
+            <div class="break-row">
+              <div class="grid2">
+                <div class="field"><label>Small snack time</label><input class="input" id="break1Time" type="time" /></div>
+                <div class="field">
+                  <label>Duration</label>
+                  <select class="select" id="break1Duration">
+                    <option value="5">5 min</option>
+                    <option value="10">10 min</option>
+                    <option value="15">15 min</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="break-row">
+              <div class="grid2">
+                <div class="field"><label>Meal break 1</label><input class="input" id="break2Time" type="time" /></div>
+                <div class="field">
+                  <label>Duration</label>
+                  <select class="select" id="break2Duration">
+                    <option value="15">15 min</option>
+                    <option value="30" selected>30 min</option>
+                    <option value="45">45 min</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="break-row">
+              <div class="grid2">
+                <div class="field"><label>Meal break 2</label><input class="input" id="break3Time" type="time" /></div>
+                <div class="field">
+                  <label>Duration</label>
+                  <select class="select" id="break3Duration">
+                    <option value="15">15 min</option>
+                    <option value="30" selected>30 min</option>
+                    <option value="45">45 min</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Work notes</label>
+              <textarea class="textarea" id="workNotes" placeholder="Example: I can only eat small snacks while working."></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" data-step="5">
+        <div class="hero">
+          <div class="kicker"><span class="pulse"></span><span>Workout availability</span></div>
+          <h2>When can you train?</h2>
+          <p>FitApp should not give a 75-minute plan if you only have 35 minutes.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-inner">
+            <div class="section-title"><h3>Workout place</h3><span>Pick one</span></div>
+            <div class="chips" data-single="workoutPlace">
+              <button class="chipbtn" data-value="gym">Gym</button>
+              <button class="chipbtn" data-value="home">Home</button>
+              <button class="chipbtn" data-value="both">Both</button>
+            </div>
+
+            <div class="section-title"><h3>Workout days</h3><span>Pick any</span></div>
+            <div class="chips three" data-multi="workoutDays">
+              <button class="chipbtn" data-value="Sunday">Sun</button>
+              <button class="chipbtn" data-value="Monday">Mon</button>
+              <button class="chipbtn" data-value="Tuesday">Tue</button>
+              <button class="chipbtn" data-value="Wednesday">Wed</button>
+              <button class="chipbtn" data-value="Thursday">Thu</button>
+              <button class="chipbtn" data-value="Friday">Fri</button>
+              <button class="chipbtn" data-value="Saturday">Sat</button>
+            </div>
+
+            <div class="grid2">
+              <div class="field"><label>Workout time</label><input class="input" id="preferredTime" type="time" /></div>
+              <div class="field">
+                <label>Gym time</label>
+                <select class="select" id="maxMinutes">
+                  <option value="">Select</option>
+                  <option value="20">20 min</option>
+                  <option value="30">30 min</option>
+                  <option value="45">45 min</option>
+                  <option value="60">60 min</option>
+                  <option value="75">75 min</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Experience level</label>
+              <select class="select" id="experienceLevel">
+                <option value="">Select</option>
+                <option value="beginner">Beginner</option>
+                <option value="some_experience">Some experience</option>
+                <option value="intermediate">Intermediate</option>
+              </select>
+            </div>
+
+            <div class="section-title"><h3>Equipment</h3><span>Pick any</span></div>
+            <div class="chips three" data-multi="equipment">
+              <button class="chipbtn" data-value="machines">Machines</button>
+              <button class="chipbtn" data-value="dumbbells">Dumbbells</button>
+              <button class="chipbtn" data-value="cables">Cables</button>
+              <button class="chipbtn" data-value="barbell">Barbell</button>
+              <button class="chipbtn" data-value="bodyweight">Bodyweight</button>
+              <button class="chipbtn" data-value="resistance_bands">Bands</button>
+            </div>
+
+            <div class="section-title"><h3>Pain / injury areas</h3><span>Pick any</span></div>
+            <div class="chips three" data-multi="painAreas">
+              <button class="chipbtn" data-value="none">None</button>
+              <button class="chipbtn" data-value="lower_back">Lower back</button>
+              <button class="chipbtn" data-value="knee">Knee</button>
+              <button class="chipbtn" data-value="shoulder">Shoulder</button>
+              <button class="chipbtn" data-value="wrist">Wrist</button>
+              <button class="chipbtn" data-value="neck">Neck</button>
+            </div>
+
+            <div class="field">
+              <label>Injury notes</label>
+              <textarea class="textarea" id="injuryNotes" placeholder="Example: lower back pain when bending or heavy leg press."></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" data-step="6">
+        <div class="hero">
+          <div class="kicker"><span class="pulse"></span><span>Water and review</span></div>
+          <h2>Final setup check.</h2>
+          <p>Set water tracking by bottle. Then save and open your dashboard.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-inner">
+            <div class="grid2">
+              <div class="field">
+                <label>Bottle size</label>
+                <select class="select" id="bottleSizeMl">
+                  <option value="500">500 ml</option>
+                  <option value="750">750 ml</option>
+                  <option value="1000" selected>1 L</option>
+                  <option value="1500">1.5 L</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Daily water target</label>
+                <select class="select" id="dailyTargetLiters">
+                  <option value="1.5">1.5 L</option>
+                  <option value="2.0" selected>2.0 L</option>
+                  <option value="2.5">2.5 L</option>
+                  <option value="3.0">3.0 L</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid2">
+              <div class="field">
+                <label>Work sweating</label>
+                <select class="select" id="workSweating">
+                  <option value="">Select</option>
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Gym sweating</label>
+                <select class="select" id="gymSweating">
+                  <option value="">Select</option>
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="summary-card">
+              <div class="summary-grid" id="summaryBox"></div>
+            </div>
+
+            <div class="safe-note">
+              FitApp gives general fitness and nutrition guidance only. It is not medical advice.
+              Allergy settings are treated as hard blocks.
+            </div>
+
+            <div class="status" id="statusBox"></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="btnbar">
+        <button class="btn secondary" id="backBtn" type="button">Back</button>
+        <button class="btn primary" id="nextBtn" type="button">
+          <span class="loader"></span>
+          <span id="nextText">Next</span>
+        </button>
+      </div>
+    </main>
+  </div>
+
+<script>
+  const SUPABASE_URL = "https://qusmbveovroldkhbjudq.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_6zVS1VCVok16WmVWNPvTrw_vTiQvgX4";
+
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const $ = q => document.querySelector(q);
+  const $$ = q => Array.from(document.querySelectorAll(q));
+
+  let currentStep = 0;
+  const totalSteps = 7;
+  let currentUser = null;
+  let saving = false;
+
+  function showStatus(message, type){
+    const box = $("#statusBox");
+    if(!box) return;
+    box.textContent = message || "";
+    box.className = "status";
+    if(message){
+      box.classList.add("show");
+      if(type) box.classList.add(type);
+    }
+  }
+
+  function setLoading(isLoading){
+    saving = isLoading;
+    $("#nextBtn").disabled = isLoading;
+    $("#nextBtn").classList.toggle("loading", isLoading);
+    $("#backBtn").disabled = isLoading;
+  }
+
+  function selectedSingle(name){
+    const active = $(`[data-single="${name}"] .chipbtn.active`);
+    return active ? active.dataset.value : "";
+  }
+
+  function selectedMulti(name){
+    const arr = $$(`[data-multi="${name}"] .chipbtn.active`).map(b => b.dataset.value);
+    if(arr.includes("none") && arr.length > 1) return arr.filter(x => x !== "none");
+    return arr;
+  }
+
+  function setSingle(name, value){
+    $$(`[data-single="${name}"] .chipbtn`).forEach(b => b.classList.toggle("active", b.dataset.value === value));
+  }
+
+  function setMulti(name, values){
+    const set = new Set(values || []);
+    $$(`[data-multi="${name}"] .chipbtn`).forEach(b => b.classList.toggle("active", set.has(b.dataset.value)));
+  }
+
+  function textListToArray(value){
+    return String(value || "")
+      .split(/,|\n/)
+      .map(x => x.trim())
+      .filter(Boolean);
+  }
+
+  function getBreaks(){
+    const breaks = [];
+
+    if($("#break1Time").value){
+      breaks.push({
+        time: $("#break1Time").value,
+        type: "small_snack",
+        duration: Number($("#break1Duration").value || 5)
+      });
+    }
+
+    if($("#break2Time").value){
+      breaks.push({
+        time: $("#break2Time").value,
+        type: "meal",
+        duration: Number($("#break2Duration").value || 30)
+      });
+    }
+
+    if($("#break3Time").value){
+      breaks.push({
+        time: $("#break3Time").value,
+        type: "meal",
+        duration: Number($("#break3Duration").value || 30)
+      });
+    }
+
+    return breaks;
+  }
+
+  function userData(){
+    return {
+      profile: {
+        full_name: $("#fullName").value.trim(),
+        age: $("#age").value ? Number($("#age").value) : null,
+        gender: $("#gender").value,
+        height_cm: $("#heightCm").value ? Number($("#heightCm").value) : null,
+        starting_weight: $("#startingWeight").value ? Number($("#startingWeight").value) : null,
+        weight_unit: $("#weightUnit").value,
+        main_goal: selectedSingle("mainGoal"),
+        body_type: selectedSingle("bodyType")
+      },
+      measurement: {
+        entry_date: new Date().toISOString().slice(0,10),
+        weight: $("#startingWeight").value ? Number($("#startingWeight").value) : null,
+        waist: $("#waist").value ? Number($("#waist").value) : null,
+        chest: $("#chest").value ? Number($("#chest").value) : null,
+        hips: $("#hips").value ? Number($("#hips").value) : null,
+        thigh: $("#thigh").value ? Number($("#thigh").value) : null,
+        biceps: $("#biceps").value ? Number($("#biceps").value) : null,
+        neck: $("#neck").value ? Number($("#neck").value) : null,
+        unit: $("#measureUnit").value,
+        notes: "Onboarding baseline"
+      },
+      food: {
+        food_style: selectedSingle("foodStyle"),
+        diet_type: selectedSingle("dietType"),
+        allergies: selectedMulti("allergies"),
+        avoid_foods: textListToArray($("#avoidFoods").value),
+        spice_level: $("#spiceLevel").value,
+        lactose_tolerance: $("#lactoseTolerance").value
+      },
+      work: {
+        work_days: selectedMulti("workDays"),
+        work_start: $("#workStart").value || null,
+        work_end: $("#workEnd").value || null,
+        job_activity: $("#jobActivity").value,
+        breaks: getBreaks(),
+        small_snack_available: !!$("#break1Time").value,
+        notes: $("#workNotes").value.trim()
+      },
+      workout: {
+        workout_place: selectedSingle("workoutPlace"),
+        workout_days: selectedMulti("workoutDays"),
+        preferred_time: $("#preferredTime").value || null,
+        max_minutes: $("#maxMinutes").value ? Number($("#maxMinutes").value) : null,
+        experience_level: $("#experienceLevel").value,
+        equipment: selectedMulti("equipment"),
+        pain_areas: selectedMulti("painAreas"),
+        injury_notes: $("#injuryNotes").value.trim()
+      },
+      water: {
+        bottle_size_ml: Number($("#bottleSizeMl").value || 1000),
+        daily_target_liters: Number($("#dailyTargetLiters").value || 2),
+        sweat_level: "",
+        work_sweating: $("#workSweating").value,
+        gym_sweating: $("#gymSweating").value
+      }
+    };
+  }
+
+  function validateStep(){
+    const d = userData();
+
+    if(currentStep === 0){
+      if(!d.profile.full_name) return "Enter your name.";
+      if(!d.profile.age) return "Enter your age.";
+      if(!d.profile.height_cm) return "Enter your height.";
+      if(!d.profile.starting_weight) return "Enter your current weight.";
+    }
+
+    if(currentStep === 2){
+      if(!d.profile.main_goal) return "Select your main goal.";
+      if(!d.profile.body_type) return "Select your body type.";
+    }
+
+    if(currentStep === 3){
+      if(!d.food.food_style) return "Select your food style.";
+      if(!d.food.diet_type) return "Select your diet type.";
+    }
+
+    if(currentStep === 5){
+      if(!d.workout.workout_place) return "Select workout place.";
+      if(!d.workout.max_minutes) return "Select gym/workout time available.";
+    }
+
+    return "";
+  }
+
+  function renderStep(){
+    $$(".screen").forEach((s,i) => s.classList.toggle("active", i === currentStep));
+
+    const pct = Math.round(((currentStep + 1) / totalSteps) * 100);
+    $("#stepText").textContent = `Step ${currentStep + 1} of ${totalSteps}`;
+    $("#progressText").textContent = pct + "%";
+    $("#progressBar").style.width = pct + "%";
+
+    $("#backBtn").textContent = currentStep === 0 ? "Home" : "Back";
+    $("#nextText").textContent = currentStep === totalSteps - 1 ? "Save setup" : "Next";
+
+    if(currentStep === totalSteps - 1) renderSummary();
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+
+  function nice(value){
+    if(!value) return "-";
+    return String(value).replaceAll("_", " ");
+  }
+
+  function renderSummary(){
+    const d = userData();
+    const bottles = d.water.daily_target_liters && d.water.bottle_size_ml
+      ? Math.round((d.water.daily_target_liters * 1000) / d.water.bottle_size_ml * 10) / 10
+      : "-";
+
+    $("#summaryBox").innerHTML = `
+      <div class="summary-line"><span>Goal</span><strong>${nice(d.profile.main_goal)}</strong></div>
+      <div class="summary-line"><span>Food</span><strong>${nice(d.food.food_style)} / ${nice(d.food.diet_type)}</strong></div>
+      <div class="summary-line"><span>Allergies</span><strong>${d.food.allergies.length ? d.food.allergies.map(nice).join(", ") : "none selected"}</strong></div>
+      <div class="summary-line"><span>Work breaks</span><strong>${d.work.breaks.length ? d.work.breaks.map(b => b.time).join(", ") : "none added"}</strong></div>
+      <div class="summary-line"><span>Workout</span><strong>${nice(d.workout.workout_place)} / ${d.workout.max_minutes || "-"} min</strong></div>
+      <div class="summary-line"><span>Pain areas</span><strong>${d.workout.pain_areas.length ? d.workout.pain_areas.map(nice).join(", ") : "none selected"}</strong></div>
+      <div class="summary-line"><span>Water</span><strong>${d.water.daily_target_liters} L / about ${bottles} bottles</strong></div>
+    `;
+  }
+
+  async function saveSetup(){
+    const d = userData();
+    const userId = currentUser.id;
+
+    const profilePayload = {
+      id: userId,
+      email: currentUser.email,
+      ...d.profile,
+      onboarding_completed: true,
+      updated_at: new Date().toISOString()
+    };
+
+    const { error: profileError } = await supabaseClient
+      .from("profiles")
+      .upsert(profilePayload, { onConflict: "id" });
+    if(profileError) throw profileError;
+
+    const measurementHasData = Object.entries(d.measurement)
+      .some(([k,v]) => !["entry_date","unit","notes"].includes(k) && v !== null && v !== "");
+
+    if(measurementHasData){
+      const today = new Date().toISOString().slice(0,10);
+      const { data: existing } = await supabaseClient
+        .from("measurements")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("entry_date", today)
+        .order("created_at", { ascending:false })
+        .limit(1);
+
+      if(existing && existing.length){
+        const { error } = await supabaseClient
+          .from("measurements")
+          .update({ ...d.measurement, updated_at: new Date().toISOString() })
+          .eq("id", existing[0].id);
+        if(error) throw error;
+      }else{
+        const { error } = await supabaseClient
+          .from("measurements")
+          .insert({ user_id: userId, ...d.measurement });
+        if(error) throw error;
+      }
+    }
+
+    const { error: foodError } = await supabaseClient
+      .from("food_preferences")
+      .upsert({ user_id: userId, ...d.food }, { onConflict: "user_id" });
+    if(foodError) throw foodError;
+
+    const { error: workError } = await supabaseClient
+      .from("work_schedules")
+      .upsert({ user_id: userId, ...d.work }, { onConflict: "user_id" });
+    if(workError) throw workError;
+
+    const { error: workoutError } = await supabaseClient
+      .from("workout_availability")
+      .upsert({ user_id: userId, ...d.workout }, { onConflict: "user_id" });
+    if(workoutError) throw workoutError;
+
+    const { error: waterError } = await supabaseClient
+      .from("water_settings")
+      .upsert({ user_id: userId, ...d.water }, { onConflict: "user_id" });
+    if(waterError) throw waterError;
+  }
+
+  async function loadExisting(){
+    const userId = currentUser.id;
+
+    const { data: p } = await supabaseClient.from("profiles").select("*").eq("id", userId).maybeSingle();
+    if(p){
+      $("#fullName").value = p.full_name || "";
+      $("#age").value = p.age || "";
+      $("#gender").value = p.gender || "";
+      $("#heightCm").value = p.height_cm || "";
+      $("#startingWeight").value = p.starting_weight || "";
+      $("#weightUnit").value = p.weight_unit || "kg";
+      setSingle("mainGoal", p.main_goal || "");
+      setSingle("bodyType", p.body_type || "");
+    }
+
+    const { data: m } = await supabaseClient
+      .from("measurements")
+      .select("*")
+      .eq("user_id", userId)
+      .order("entry_date", { ascending:false })
+      .limit(1)
+      .maybeSingle();
+
+    if(m){
+      $("#measureUnit").value = m.unit || "inch";
+      $("#waist").value = m.waist || "";
+      $("#chest").value = m.chest || "";
+      $("#hips").value = m.hips || "";
+      $("#thigh").value = m.thigh || "";
+      $("#biceps").value = m.biceps || "";
+      $("#neck").value = m.neck || "";
+    }
+
+    const { data: f } = await supabaseClient.from("food_preferences").select("*").eq("user_id", userId).maybeSingle();
+    if(f){
+      setSingle("foodStyle", f.food_style || "");
+      setSingle("dietType", f.diet_type || "");
+      setMulti("allergies", f.allergies || []);
+      $("#avoidFoods").value = (f.avoid_foods || []).join(", ");
+      $("#spiceLevel").value = f.spice_level || "";
+      $("#lactoseTolerance").value = f.lactose_tolerance || "";
+    }
+
+    const { data: w } = await supabaseClient.from("work_schedules").select("*").eq("user_id", userId).maybeSingle();
+    if(w){
+      setMulti("workDays", w.work_days || []);
+      $("#workStart").value = w.work_start || "";
+      $("#workEnd").value = w.work_end || "";
+      $("#jobActivity").value = w.job_activity || "";
+      $("#workNotes").value = w.notes || "";
+
+      const breaks = Array.isArray(w.breaks) ? w.breaks : [];
+      if(breaks[0]){
+        $("#break1Time").value = breaks[0].time || "";
+        $("#break1Duration").value = breaks[0].duration || 5;
+      }
+      if(breaks[1]){
+        $("#break2Time").value = breaks[1].time || "";
+        $("#break2Duration").value = breaks[1].duration || 30;
+      }
+      if(breaks[2]){
+        $("#break3Time").value = breaks[2].time || "";
+        $("#break3Duration").value = breaks[2].duration || 30;
+      }
+    }
+
+    const { data: wa } = await supabaseClient.from("workout_availability").select("*").eq("user_id", userId).maybeSingle();
+    if(wa){
+      setSingle("workoutPlace", wa.workout_place || "");
+      setMulti("workoutDays", wa.workout_days || []);
+      $("#preferredTime").value = wa.preferred_time || "";
+      $("#maxMinutes").value = wa.max_minutes || "";
+      $("#experienceLevel").value = wa.experience_level || "";
+      setMulti("equipment", wa.equipment || []);
+      setMulti("painAreas", wa.pain_areas || []);
+      $("#injuryNotes").value = wa.injury_notes || "";
+    }
+
+    const { data: ws } = await supabaseClient.from("water_settings").select("*").eq("user_id", userId).maybeSingle();
+    if(ws){
+      $("#bottleSizeMl").value = ws.bottle_size_ml || 1000;
+      $("#dailyTargetLiters").value = ws.daily_target_liters || 2.0;
+      $("#workSweating").value = ws.work_sweating || "";
+      $("#gymSweating").value = ws.gym_sweating || "";
+    }
+  }
+
+  function initChips(){
+    $$("[data-single] .chipbtn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const wrap = btn.closest("[data-single]");
+        $$(`[data-single="${wrap.dataset.single}"] .chipbtn`).forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+      });
+    });
+
+    $$("[data-multi] .chipbtn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const wrap = btn.closest("[data-multi]");
+        const group = wrap.dataset.multi;
+
+        if(btn.dataset.value === "none"){
+          $$(`[data-multi="${group}"] .chipbtn`).forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          return;
+        }
+
+        const noneBtn = $(`[data-multi="${group}"] .chipbtn[data-value="none"]`);
+        if(noneBtn) noneBtn.classList.remove("active");
+        btn.classList.toggle("active");
+      });
+    });
+  }
+
+  function initNav(){
+    $("#backBtn").addEventListener("click", () => {
+      if(saving) return;
+      if(currentStep === 0){
+        location.href = "index.html";
+        return;
+      }
+      currentStep--;
+      renderStep();
+    });
+
+    $("#nextBtn").addEventListener("click", async () => {
+      if(saving) return;
+
+      const error = validateStep();
+      if(error){
+        showStatus(error, "bad");
+        if(currentStep !== totalSteps - 1) alert(error);
+        return;
+      }
+
+      if(currentStep < totalSteps - 1){
+        currentStep++;
+        renderStep();
+        return;
+      }
+
+      try{
+        setLoading(true);
+        showStatus("Saving your setup...", "");
+        await saveSetup();
+        showStatus("Setup saved. Opening dashboard...", "good");
+        location.href = "app.html";
+      }catch(err){
+        console.error(err);
+        showStatus(err.message || "Could not save setup. Please try again.", "bad");
+        setLoading(false);
+      }
+    });
+
+    $("#logoutBtn").addEventListener("click", async () => {
+      await supabaseClient.auth.signOut();
+      location.href = "auth.html?mode=login";
+    });
+  }
+
+  async function boot(){
+    const { data } = await supabaseClient.auth.getSession();
+
+    if(!data || !data.session || !data.session.user){
+      location.href = "auth.html?mode=login";
+      return;
+    }
+
+    currentUser = data.session.user;
+    $("#topSub").textContent = currentUser.email || "Building your plan profile";
+
+    initChips();
+    initNav();
+
+    try{
+      await loadExisting();
+    }catch(err){
+      console.warn("Could not load existing setup", err);
+    }
+
+    renderStep();
+  }
+
+  boot();
+</script>
+</body>
+</html>
