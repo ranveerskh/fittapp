@@ -14,6 +14,7 @@
       --line:rgba(255,255,255,.13);
       --text:#F8FAFC;
       --muted:#94A3B8;
+      --muted2:#64748B;
       --green:#22C55E;
       --blue:#38BDF8;
       --amber:#F59E0B;
@@ -180,6 +181,16 @@
       border-radius:12px;
       padding:7px;
     }
+    .coach-note{
+      margin-top:7px;
+      font-size:11.5px;
+      line-height:1.35;
+      color:#FDE68A;
+      border:1px solid rgba(245,158,11,.16);
+      background:rgba(245,158,11,.075);
+      border-radius:12px;
+      padding:7px;
+    }
 
     .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
     .btn-row.three{grid-template-columns:repeat(3,1fr)}
@@ -215,72 +226,52 @@
     .water-big strong{font-size:26px;letter-spacing:-1px}
     .water-big span{font-size:12px;color:#BAE6FD}
 
-    .exercise-row{
+    .exercise-card{
       border:1px solid rgba(255,255,255,.10);
       background:rgba(0,0,0,.16);
-      border-radius:17px;
+      border-radius:18px;
       padding:10px;
       display:grid;
-      grid-template-columns:54px 1fr;
+      grid-template-columns:58px 1fr;
       gap:10px;
-      align-items:center;
+      align-items:start;
       margin-bottom:8px;
     }
+
+    .exercise-card.done{
+      border-color:rgba(34,197,94,.30);
+      background:rgba(34,197,94,.08);
+    }
+
     .exercise-art{
-      width:54px;height:54px;border-radius:16px;
-      background:radial-gradient(circle at 30% 20%,rgba(34,197,94,.25),transparent 45%),rgba(255,255,255,.07);
+      width:58px;
+      height:58px;
+      border-radius:17px;
+      background:
+        radial-gradient(circle at 30% 20%,rgba(34,197,94,.25),transparent 45%),
+        rgba(255,255,255,.07);
       border:1px solid rgba(255,255,255,.10);
-      display:grid;place-items:center;color:#BBF7D0;overflow:hidden
+      display:grid;
+      place-items:center;
+      color:#BBF7D0;
+      overflow:hidden;
     }
-    .exercise-art svg{width:31px;height:31px;stroke:currentColor}
+    .exercise-art svg{width:34px;height:34px;stroke:currentColor}
     .exercise-art img{width:100%;height:100%;object-fit:cover}
-    .exercise-row b{display:block;font-size:13.5px;margin-bottom:3px}
-    .exercise-row span{display:block;color:var(--muted);font-size:12px;line-height:1.3}
+    .exercise-body b{display:block;font-size:14px;margin-bottom:3px}
+    .exercise-body span{display:block;color:var(--muted);font-size:12px;line-height:1.35}
+    .exercise-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px}
 
-    .workout-player{
-      border:1px solid rgba(255,255,255,.11);
-      background:rgba(0,0,0,.18);
-      border-radius:24px;
-      padding:12px;
+    .section-block{margin-top:12px}
+    .section-title{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin:14px 2px 8px;
     }
-    .player-visual{
-      width:100%;height:150px;border-radius:22px;border:1px solid rgba(255,255,255,.10);
-      background:radial-gradient(circle at 30% 10%,rgba(34,197,94,.22),transparent 42%),radial-gradient(circle at 70% 80%,rgba(56,189,248,.16),transparent 38%),rgba(255,255,255,.055);
-      display:grid;place-items:center;overflow:hidden;margin-bottom:12px;color:#BBF7D0;
-    }
-    .player-visual img{width:100%;height:100%;object-fit:cover}
-    .player-visual svg{width:70px;height:70px;stroke:currentColor;opacity:.95}
-    .player-title{font-size:22px;font-weight:1000;letter-spacing:-.6px;line-height:1.05;margin-bottom:4px}
-    .player-sub{font-size:12.5px;color:var(--muted);line-height:1.35}
-
-    .set-strip{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:11px}
-    .set-box{border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.055);border-radius:18px;padding:11px}
-    .set-box span{display:block;color:var(--muted);font-size:11px;font-weight:900;margin-bottom:5px}
-    .set-box strong{display:block;font-size:18px;letter-spacing:-.4px}
-
-    .counter-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:11px}
-    .counter-box{border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.055);border-radius:18px;padding:10px}
-    .counter-box label{display:block;color:var(--muted);font-size:11.5px;font-weight:900;margin-bottom:8px}
-    .counter-control{display:grid;grid-template-columns:38px 1fr 38px;gap:7px;align-items:center}
-    .counter-control button{border:0;border-radius:13px;background:rgba(34,197,94,.12);color:#BBF7D0;height:38px;font-size:20px;font-weight:1000}
-    .counter-control input{width:100%;height:38px;border:1px solid rgba(255,255,255,.11);background:rgba(0,0,0,.18);color:var(--text);border-radius:13px;text-align:center;font-weight:950;outline:none}
-
-    .feedback{display:none;margin-top:11px;border:1px solid rgba(245,158,11,.20);background:rgba(245,158,11,.075);border-radius:20px;padding:11px}
-    .feedback.show{display:block}
-    .feedback h4{margin:0 0 9px;font-size:14px}
-    .select-chips{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:9px}
-    .select-chips.four{grid-template-columns:repeat(4,1fr)}
-    .select-chip{
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.06);
-      color:#E2E8F0;
-      border-radius:14px;
-      min-height:40px;
-      padding:8px 6px;
-      font-size:12px;
-      font-weight:850;
-    }
-    .select-chip.active{background:rgba(34,197,94,.14);border-color:rgba(34,197,94,.42);color:#BBF7D0}
+    .section-title h3{margin:0;font-size:16px}
+    .section-title span{font-size:12px;color:var(--muted);font-weight:800}
 
     .field{margin-top:10px}
     .field label{display:block;font-size:12px;color:#CBD5E1;font-weight:850;margin:0 0 6px 3px}
@@ -302,6 +293,25 @@
     .summary-line span{color:var(--muted)}
     .summary-line strong{text-align:right;color:#E2E8F0}
 
+    .week-day{
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.15);
+      border-radius:20px;
+      padding:11px;
+      margin-bottom:10px;
+    }
+    .week-day h3{margin:0 0 8px;font-size:16px}
+    .mini-list{display:grid;gap:7px}
+    .mini-item{
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.045);
+      border-radius:14px;
+      padding:9px;
+      font-size:12px;
+      line-height:1.35;
+    }
+    .mini-item b{display:block;margin-bottom:3px;color:#F8FAFC}
+
     .bottom-tabs{
       position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:var(--max);z-index:40;
       display:grid;grid-template-columns:repeat(5,1fr);gap:5px;
@@ -314,7 +324,7 @@
 
     .toast{
       position:fixed;left:50%;bottom:82px;transform:translateX(-50%) translateY(10px);
-      width:calc(100% - 28px);max-width:452px;z-index:60;background:#111827;color:#fff;
+      width:calc(100% - 28px);max-width:452px;z-index:70;background:#111827;color:#fff;
       border:1px solid rgba(255,255,255,.10);border-radius:18px;padding:12px;box-shadow:var(--shadow);
       opacity:0;pointer-events:none;transition:.2s;font-size:13px;line-height:1.35;
     }
@@ -324,11 +334,101 @@
     .spin{width:32px;height:32px;border-radius:50%;border:3px solid rgba(255,255,255,.12);border-top-color:var(--green);margin:0 auto 12px;animation:spin .75s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
 
+    .modal{
+      position:fixed;
+      inset:0;
+      z-index:80;
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      background:rgba(0,0,0,.56);
+      backdrop-filter:blur(8px);
+      padding:14px;
+    }
+    .modal.show{display:flex}
+    .sheet{
+      width:100%;
+      max-width:var(--max);
+      max-height:88vh;
+      overflow:auto;
+      border:1px solid rgba(255,255,255,.13);
+      background:linear-gradient(180deg,#101827,#07111f);
+      border-radius:26px;
+      box-shadow:var(--shadow);
+      padding:14px;
+    }
+    .sheet-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .sheet-head h3{margin:0;font-size:20px;letter-spacing:-.4px}
+    .close-btn{
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.08);
+      color:var(--text);
+      border-radius:999px;
+      width:38px;
+      height:38px;
+      font-weight:1000;
+    }
+    .media-box{
+      width:100%;
+      height:190px;
+      border-radius:22px;
+      border:1px solid rgba(255,255,255,.11);
+      background:
+        radial-gradient(circle at 30% 10%,rgba(34,197,94,.22),transparent 42%),
+        radial-gradient(circle at 70% 80%,rgba(56,189,248,.16),transparent 38%),
+        rgba(255,255,255,.055);
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+      margin-bottom:12px;
+      color:#BBF7D0;
+    }
+    .media-box img,.media-box video{width:100%;height:100%;object-fit:cover}
+    .media-box svg{width:72px;height:72px;stroke:currentColor;opacity:.95}
+
+    .select-chips{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:9px}
+    .select-chips.four{grid-template-columns:repeat(4,1fr)}
+    .select-chip{
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.06);
+      color:#E2E8F0;
+      border-radius:14px;
+      min-height:40px;
+      padding:8px 6px;
+      font-size:12px;
+      font-weight:850;
+    }
+    .select-chip.active{background:rgba(34,197,94,.14);border-color:rgba(34,197,94,.42);color:#BBF7D0}
+
+    .print-only{display:none}
+
     @media(max-width:390px){
       .btn-row.four{grid-template-columns:repeat(2,1fr)}
       .select-chips.four{grid-template-columns:repeat(2,1fr)}
       .hero h2{font-size:25px}
-      .player-visual{height:135px}
+      .media-box{height:160px}
+      .grid2{grid-template-columns:1fr}
+    }
+
+    @media print{
+      body{background:#fff;color:#111;padding:0}
+      .topbar,.bottom-tabs,.toast,.modal,.no-print{display:none!important}
+      .print-only{display:block}
+      .app-shell{max-width:none;padding:0}
+      .screen{display:none!important}
+      #printArea{display:block!important;color:#111;background:#fff;padding:24px;font-family:Arial,sans-serif}
+      #printArea h1{font-size:26px;margin:0 0 8px}
+      #printArea h2{font-size:20px;margin:22px 0 8px;border-bottom:1px solid #ddd;padding-bottom:6px}
+      #printArea h3{font-size:16px;margin:14px 0 6px}
+      #printArea p,#printArea li{font-size:12px;line-height:1.45}
+      #printArea .print-card{border:1px solid #ddd;border-radius:10px;padding:10px;margin:8px 0;break-inside:avoid}
+      #printArea .small{color:#555;font-size:11px}
     }
   </style>
 </head>
@@ -341,7 +441,7 @@
           <div class="brand">
             <div class="logo">FA</div>
             <div>
-              <h1 id="topTitle">FitApp</h1>
+              <h1>FitApp</h1>
               <span id="topSub">Loading your plan...</span>
             </div>
           </div>
@@ -383,8 +483,8 @@
             </div>
             <div id="workoutPreview"></div>
             <div class="btn-row">
-              <button class="btn primary" id="startWorkoutToday">Start workout</button>
-              <button class="btn secondary" id="tooBusyBtn">Short workout</button>
+              <button class="btn primary" id="startWorkoutToday">Open workout</button>
+              <button class="btn secondary" id="tooBusyBtn">Short version</button>
             </div>
           </div>
         </div>
@@ -410,119 +510,67 @@
       <section class="screen" id="workoutScreen">
         <div class="hero">
           <h2 id="workoutTitle">Workout</h2>
-          <p id="workoutSub">Set-by-set workout tracking.</p>
+          <p>Simple coach cards. Tap exercise for details. Use Report only when something important changes.</p>
           <div class="chips-row">
-            <span class="tag green" id="sectionTag">Warm-up</span>
-            <span class="tag blue" id="exerciseCountTag">1 / 1</span>
-            <span class="tag amber" id="setTag">Set 1 / 1</span>
+            <span class="tag green" id="workoutPlanTag">Coach plan</span>
+            <span class="tag blue" id="workoutCountTag">0 exercises</span>
           </div>
         </div>
 
-        <div class="card"><div class="card-inner"><div class="btn-row" id="sectionActions"></div></div></div>
-
         <div class="card">
           <div class="card-inner">
-            <div class="workout-player">
-              <div class="player-visual" id="playerVisual"></div>
-              <div class="player-title" id="exerciseName">Loading...</div>
-              <div class="player-sub" id="exerciseInfo"></div>
-
-              <div style="margin-top:11px"><div class="progress-mini"><div id="workoutProgressBar"></div></div></div>
-
-              <div class="set-strip">
-                <div class="set-box"><span>Current set</span><strong id="setNumberText">1 of 3</strong></div>
-                <div class="set-box"><span>Rest after set</span><strong id="restTextMini">90 sec</strong></div>
+            <div class="card-head">
+              <div>
+                <h3>Today workout</h3>
+                <p>One tap Done. Report only for pain, hard/easy, or weight/reps.</p>
               </div>
+              <span class="status-pill blue" id="simpleWorkoutStatus">Ready</span>
+            </div>
 
-              <div class="counter-grid" id="counterGrid">
-                <div class="counter-box">
-                  <label>Weight</label>
-                  <div class="counter-control">
-                    <button data-step-weight="-1">-</button>
-                    <input id="weightInput" type="number" step="1" value="0">
-                    <button data-step-weight="1">+</button>
-                  </div>
-                </div>
-                <div class="counter-box">
-                  <label>Reps</label>
-                  <div class="counter-control">
-                    <button data-step-reps="-1">-</button>
-                    <input id="repsInput" type="number" step="1" value="10">
-                    <button data-step-reps="1">+</button>
-                  </div>
-                </div>
-              </div>
+            <div id="workoutSections"></div>
 
-              <div class="feedback" id="feedbackBox">
-                <h4>How did this exercise feel?</h4>
-                <div class="select-chips" data-select="effort">
-                  <button class="select-chip" data-value="easy">Easy</button>
-                  <button class="select-chip active" data-value="good">Good</button>
-                  <button class="select-chip" data-value="hard">Hard</button>
-                </div>
-
-                <h4>Pain level</h4>
-                <div class="select-chips four" data-select="pain">
-                  <button class="select-chip active" data-value="0">0</button>
-                  <button class="select-chip" data-value="2">Mild</button>
-                  <button class="select-chip" data-value="4">Medium</button>
-                  <button class="select-chip" data-value="7">High</button>
-                </div>
-
-                <h4>Where?</h4>
-                <div class="select-chips four" data-select="painArea">
-                  <button class="select-chip active" data-value="">None</button>
-                  <button class="select-chip" data-value="lower_back">Back</button>
-                  <button class="select-chip" data-value="knee">Knee</button>
-                  <button class="select-chip" data-value="shoulder">Shoulder</button>
-                  <button class="select-chip" data-value="wrist">Wrist</button>
-                  <button class="select-chip" data-value="neck">Neck</button>
-                </div>
-
-                <div class="field">
-                  <label>Optional notes</label>
-                  <textarea class="textarea" id="exerciseNotes" placeholder="Form issue, pain detail, machine busy..."></textarea>
-                </div>
-
-                <button class="btn primary" id="saveExerciseFeedbackBtn" style="width:100%;margin-top:10px">Save and next exercise</button>
-              </div>
-
-              <div class="card" id="restBox" style="display:none;margin-top:11px;background:rgba(56,189,248,.08);border-color:rgba(56,189,248,.18)">
-                <div class="card-inner" style="text-align:center">
-                  <div style="font-size:12px;color:#BAE6FD;font-weight:900">Rest timer</div>
-                  <div style="font-size:34px;font-weight:1000;letter-spacing:-1px;margin:4px 0" id="restTime">01:30</div>
-                  <div class="btn-row">
-                    <button class="btn secondary" id="skipRestBtn">Skip rest</button>
-                    <button class="btn blue" id="addRestBtn">+30 sec</button>
-                  </div>
-                </div>
-              </div>
-
-              <div class="btn-row four">
-                <button class="btn secondary" id="prevExerciseBtn">Prev</button>
-                <button class="btn amber" id="skipExerciseBtn">Skip</button>
-                <button class="btn primary" id="doneSetBtn">Done set</button>
-                <button class="btn blue" id="nextExerciseBtn">Next</button>
-              </div>
+            <div class="btn-row">
+              <button class="btn primary" id="finishWorkoutBtn">Finish workout</button>
+              <button class="btn secondary" id="resetWorkoutBtn">Reset today</button>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="screen" id="mealsScreen">
+      <section class="screen" id="weekScreen">
         <div class="hero">
-          <h2>Meals</h2>
-          <p>Exact food plan and replacements.</p>
-          <div class="chips-row" id="mealTags"></div>
+          <h2>Week Plan</h2>
+          <p>Full 7-day meal, workout, prep, grocery, and coach notes.</p>
+          <div class="chips-row">
+            <span class="tag green" id="weekPlanTag">Active plan</span>
+            <span class="tag blue">PDF export</span>
+          </div>
         </div>
-        <div class="card"><div class="card-inner"><div class="card-head"><div><h3>Today meal plan</h3><p>From active AI plan when available.</p></div><span class="status-pill">Food</span></div><div class="timeline" id="mealPageList"></div></div></div>
+
+        <div class="card">
+          <div class="card-inner">
+            <div class="card-head">
+              <div>
+                <h3>Full week plan</h3>
+                <p>Export everything given for this week.</p>
+              </div>
+              <span class="status-pill purple">PDF</span>
+            </div>
+            <div class="btn-row">
+              <button class="btn primary" id="exportPdfBtn">Export Week PDF</button>
+              <button class="btn secondary" id="refreshWeekBtn">Refresh</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="fullWeekPlan"></div>
       </section>
 
       <section class="screen" id="progressScreen">
         <div class="hero">
           <h2>Progress</h2>
           <p>Check-ins and AI plan updates.</p>
-          <div class="chips-row"><span class="tag green">Weight weekly</span><span class="tag blue">Measurements biweekly</span></div>
+          <div class="chips-row"><span class="tag green">Weight weekly</span><span class="tag blue">AI coach</span></div>
         </div>
 
         <div class="card">
@@ -571,16 +619,112 @@
           </div>
         </div>
       </section>
+
+      <div id="printArea" class="print-only"></div>
     </main>
   </div>
 
   <nav class="bottom-tabs">
-    <button class="tab active" data-tab="todayScreen"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-9.5Z"/></svg><span>Today</span></button>
-    <button class="tab" data-tab="workoutScreen"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg><span>Workout</span></button>
-    <button class="tab" data-tab="mealsScreen"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M7 3v8M4 3v8M10 3v8M4 11h6M7 11v10M16 3v18M16 3c3 2 4 5 4 8 0 2-1 4-4 4"/></svg><span>Meals</span></button>
-    <button class="tab" data-tab="progressScreen"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 19V5M4 19h16M8 16v-5M12 16V8M16 16v-9"/></svg><span>Progress</span></button>
-    <button class="tab" data-tab="profileScreen"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21c1.5-4 14.5-4 16 0"/></svg><span>Profile</span></button>
+    <button class="tab active" data-tab="todayScreen">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-9.5Z"/></svg>
+      <span>Today</span>
+    </button>
+    <button class="tab" data-tab="workoutScreen">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg>
+      <span>Workout</span>
+    </button>
+    <button class="tab" data-tab="weekScreen">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+      <span>Week</span>
+    </button>
+    <button class="tab" data-tab="progressScreen">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 19V5M4 19h16M8 16v-5M12 16V8M16 16v-9"/></svg>
+      <span>Progress</span>
+    </button>
+    <button class="tab" data-tab="profileScreen">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21c1.5-4 14.5-4 16 0"/></svg>
+      <span>Profile</span>
+    </button>
   </nav>
+
+  <div class="modal" id="detailModal">
+    <div class="sheet">
+      <div class="sheet-head">
+        <div>
+          <h3 id="detailTitle">Exercise</h3>
+          <div class="tag green" id="detailTag" style="display:inline-flex;margin-top:7px">Details</div>
+        </div>
+        <button class="close-btn" data-close-modal="detailModal">×</button>
+      </div>
+      <div class="media-box" id="detailMedia"></div>
+      <div class="summary-list" id="detailInfo"></div>
+      <div class="btn-row">
+        <button class="btn primary" id="detailDoneBtn">Done</button>
+        <button class="btn amber" id="detailReportBtn">Report</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="reportModal">
+    <div class="sheet">
+      <div class="sheet-head">
+        <div>
+          <h3 id="reportTitle">Report exercise</h3>
+          <div class="tag amber" style="display:inline-flex;margin-top:7px">Optional details</div>
+        </div>
+        <button class="close-btn" data-close-modal="reportModal">×</button>
+      </div>
+
+      <div class="grid2">
+        <div class="field">
+          <label>Weight used</label>
+          <input class="input" id="reportWeight" type="number" step="0.5" placeholder="Optional">
+        </div>
+        <div class="field">
+          <label>Best reps</label>
+          <input class="input" id="reportReps" type="number" step="1" placeholder="Optional">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Effort</label>
+        <div class="select-chips" data-select="effort">
+          <button class="select-chip" data-value="easy">Easy</button>
+          <button class="select-chip active" data-value="good">Good</button>
+          <button class="select-chip" data-value="hard">Hard</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Pain level</label>
+        <div class="select-chips four" data-select="pain">
+          <button class="select-chip active" data-value="0">0</button>
+          <button class="select-chip" data-value="2">Mild</button>
+          <button class="select-chip" data-value="4">Medium</button>
+          <button class="select-chip" data-value="7">High</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Where?</label>
+        <div class="select-chips four" data-select="painArea">
+          <button class="select-chip active" data-value="">None</button>
+          <button class="select-chip" data-value="lower_back">Back</button>
+          <button class="select-chip" data-value="knee">Knee</button>
+          <button class="select-chip" data-value="shoulder">Shoulder</button>
+          <button class="select-chip" data-value="wrist">Wrist</button>
+          <button class="select-chip" data-value="neck">Neck</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Notes</label>
+        <textarea class="textarea" id="reportNotes" placeholder="Machine busy, pain, too easy/hard, form issue..."></textarea>
+      </div>
+
+      <button class="btn primary" id="saveReportBtn" style="width:100%;margin-top:12px">Save report</button>
+    </div>
+  </div>
 
   <div class="toast" id="toast">Saved</div>
 
@@ -596,31 +740,72 @@ let user = null;
 let data = {};
 let activePlan = null;
 let todayMeals = [];
+let todaySchedule = [];
 let workoutPlan = [];
-let workoutIndex = 0;
-let currentSet = 1;
-let setRecords = {};
-let restTimer = null;
-let restSeconds = 90;
+let workoutSession = null;
+let reportIndex = null;
+let detailIndex = null;
 let shortWorkoutMode = false;
+let doneMap = new Set();
 
 const iconSvg = `<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg>`;
+const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 
 function todayISO(){ return new Date().toISOString().slice(0,10); }
-function dayName(){ return ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][new Date().getDay()]; }
+function dayName(){ return DAYS[new Date().getDay()]; }
 function nice(v){ return v ? String(v).replaceAll("_"," ") : "-"; }
 function niceList(arr){ return arr && arr.length ? arr.map(nice).join(", ") : "-"; }
+function esc(v){ return String(v ?? "").replace(/[&<>"']/g, s => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[s])); }
 function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),1600); }
-function formatTime(t){ if(!t) return ""; const p=String(t).split(":"); let h=Number(p[0]||0); const m=p[1]||"00"; const a=h>=12?"PM":"AM"; h=h%12||12; return `${h}:${m} ${a}`; }
+
+function formatTime(t){
+  if(!t) return "";
+  const p=String(t).split(":");
+  let h=Number(p[0]||0);
+  const m=p[1]||"00";
+  const a=h>=12?"PM":"AM";
+  h=h%12||12;
+  return `${h}:${m} ${a}`;
+}
+
 function displayTime(t){ return formatTime(t)||t||"-"; }
-function calculateAge(dob){ if(!dob) return null; const b=new Date(dob), n=new Date(); let a=n.getFullYear()-b.getFullYear(); const m=n.getMonth()-b.getMonth(); if(m<0||(m===0&&n.getDate()<b.getDate()))a--; return a; }
+
+function calculateAge(dob){
+  if(!dob) return null;
+  const b=new Date(dob), n=new Date();
+  let a=n.getFullYear()-b.getFullYear();
+  const m=n.getMonth()-b.getMonth();
+  if(m<0||(m===0&&n.getDate()<b.getDate())) a--;
+  return a;
+}
+
+function doneStorageKey(){
+  return `fitapp.doneExercises.${user?.id || "x"}.${todayISO()}`;
+}
+
+function loadDoneMap(){
+  try{
+    doneMap = new Set(JSON.parse(localStorage.getItem(doneStorageKey()) || "[]"));
+  }catch{
+    doneMap = new Set();
+  }
+}
+
+function saveDoneMap(){
+  localStorage.setItem(doneStorageKey(), JSON.stringify(Array.from(doneMap)));
+}
+
+function exerciseDoneKey(index, ex){
+  return `${todayISO()}_${index}_${ex.name}`.toLowerCase().replace(/[^a-z0-9]+/g,"_");
+}
 
 function switchTab(id){
   $$(".screen").forEach(s=>s.classList.toggle("active",s.id===id));
   $$(".tab").forEach(t=>t.classList.toggle("active",t.dataset.tab===id));
-  $("#topPill").textContent = id.replace("Screen","").replace("today","Today");
+  $("#topPill").textContent = id.replace("Screen","").replace("today","Today").replace("week","Week");
   window.scrollTo({top:0,behavior:"smooth"});
-  if(id==="workoutScreen") renderWorkoutPlayer();
+  if(id==="workoutScreen") renderWorkout();
+  if(id==="weekScreen") renderWeekPlan();
   if(id==="progressScreen") renderProgress();
 }
 
@@ -643,19 +828,37 @@ async function loadAll(){
   data.workout = await getSingle("workout_availability");
   data.water = await getSingle("water_settings");
 
-  const { data: measurements } = await supabaseClient.from("measurements").select("*").eq("user_id",user.id).order("entry_date",{ascending:false}).limit(1);
+  const { data: measurements } = await supabaseClient
+    .from("measurements")
+    .select("*")
+    .eq("user_id",user.id)
+    .order("entry_date",{ascending:false})
+    .limit(1);
+
   data.latestMeasurement = measurements?.[0] || null;
 
-  const { data: exercises } = await supabaseClient.from("exercises").select("*").order("category",{ascending:true});
+  const { data: exercises } = await supabaseClient
+    .from("exercises")
+    .select("*")
+    .order("category",{ascending:true});
+
   data.exercises = exercises || [];
 
-  const { data: plans } = await supabaseClient.from("weekly_plans").select("*").eq("user_id",user.id).eq("status","active").order("created_at",{ascending:false}).limit(1);
+  const { data: plans } = await supabaseClient
+    .from("weekly_plans")
+    .select("*")
+    .eq("user_id",user.id)
+    .eq("status","active")
+    .order("created_at",{ascending:false})
+    .limit(1);
+
   activePlan = plans?.[0]?.plan_json || null;
 
   await ensureDailyLog();
   await ensureWaterLog();
 
-  buildTodayMeals();
+  loadDoneMap();
+  buildTodaySchedule();
   buildWorkoutPlan();
 
   $("#loader").style.display="none";
@@ -663,8 +866,12 @@ async function loadAll(){
 }
 
 async function ensureDailyLog(){
-  const { data: log, error } = await supabaseClient.from("daily_logs")
-    .upsert({user_id:user.id,log_date:todayISO()},{onConflict:"user_id,log_date"}).select().single();
+  const { data: log, error } = await supabaseClient
+    .from("daily_logs")
+    .upsert({user_id:user.id,log_date:todayISO()},{onConflict:"user_id,log_date"})
+    .select()
+    .single();
+
   if(error) throw error;
   data.dailyLog = log;
 }
@@ -672,20 +879,35 @@ async function ensureDailyLog(){
 async function ensureWaterLog(){
   const target = activePlan?.water_goal?.target_liters || data.water?.daily_target_liters || 2;
   const bottle = activePlan?.water_goal?.bottle_size_ml || data.water?.bottle_size_ml || 1000;
-  const { data: log, error } = await supabaseClient.from("water_logs")
-    .upsert({user_id:user.id,daily_log_id:data.dailyLog?.id||null,log_date:todayISO(),target_liters:target,bottle_size_ml:bottle},{onConflict:"user_id,log_date"}).select().single();
+
+  const { data: log, error } = await supabaseClient
+    .from("water_logs")
+    .upsert({
+      user_id:user.id,
+      daily_log_id:data.dailyLog?.id||null,
+      log_date:todayISO(),
+      target_liters:target,
+      bottle_size_ml:bottle
+    },{onConflict:"user_id,log_date"})
+    .select()
+    .single();
+
   if(error) throw error;
   data.waterLog = log;
 }
 
-function isWorkoutDay(){ return (data.workout?.workout_days || []).includes(dayName()); }
+function isWorkoutDay(){
+  return (data.workout?.workout_days || []).includes(dayName());
+}
 
 function todayWorkoutType(){
   const gymItem = (activePlan?.daily_schedule?.[dayName()] || []).find(x=>x.type==="gym" && x.workout);
   if(gymItem) return gymItem.workout;
+
   const days = data.workout?.workout_days || [];
   const idx = Math.max(0, days.indexOf(dayName()));
   const cycle = ["push","legs","pull"];
+
   if(!isWorkoutDay()) return "mobility";
   return cycle[idx % cycle.length];
 }
@@ -693,51 +915,85 @@ function todayWorkoutType(){
 function fallbackMeals(){
   const breaks = Array.isArray(data.work?.breaks) ? data.work.breaks : [];
   const meals = [
-    {time:"08:00",title:"Breakfast",text:"Oats or roti meal with protein + fruit",type:"food",replacement_options:["Smoothie with protein + banana","Tofu/paneer wrap + fruit"]}
+    {
+      time:"08:00",
+      title:"Breakfast",
+      text:"Smoothie or roti/oats meal with protein",
+      type:"food",
+      replacement_options:["Whey/curd/oats bowl if allowed","Eggs/tofu/paneer wrap with fruit"],
+      coach_note:"Morning protein keeps energy stable."
+    }
   ];
+
   breaks.forEach(b=>{
     meals.push({
       time:b.time,
       title:b.full_meal ? "Work meal" : "Quick snack",
       text:b.full_meal ? "Roti/rice + protein + vegetables" : "Banana + protein snack",
       type:"food",
-      replacement_options:["Yogurt/dairy-free bowl + fruit","Protein shake + banana"]
+      replacement_options:["Yogurt/curd or dairy-free bowl + fruit","Protein shake + banana"],
+      coach_note:b.full_meal ? "Full break can handle a packed meal." : "Short break needs quick food."
     });
   });
-  meals.push({time:"20:30",title:"Dinner",text:"Protein + vegetables + moderate carbs",type:"food",replacement_options:["Dal/chana + roti + salad","Tofu/paneer/chicken bowl + vegetables"]});
+
+  meals.push({
+    time:"20:30",
+    title:"Dinner",
+    text:"Protein + vegetables + moderate carbs",
+    type:"food",
+    replacement_options:["Dal/chana + roti + salad","Tofu/paneer/chicken bowl + vegetables"],
+    coach_note:"Dinner stays lighter for belly and digestion."
+  });
+
   return meals;
 }
 
-function buildTodayMeals(){
-  const items = activePlan?.daily_schedule?.[dayName()] || [];
-  todayMeals = items.filter(x=>x.type==="food");
-  if(!todayMeals.length) todayMeals = fallbackMeals();
+function buildTodaySchedule(){
+  todaySchedule = activePlan?.daily_schedule?.[dayName()] || [];
+  if(!todaySchedule.length) todaySchedule = fallbackMeals();
+  todayMeals = todaySchedule.filter(x=>x.type==="food");
   todayMeals.sort((a,b)=>String(a.time).localeCompare(String(b.time)));
 }
 
-function exBy(cat, sec){ return data.exercises.filter(e=>e.category===cat && e.section===sec); }
+function exBy(cat, sec){
+  return data.exercises.filter(e=>e.category===cat && e.section===sec);
+}
+
+function parseSets(s){
+  const m = String(s||"").match(/(\d+)\s*x/i);
+  return m ? Number(m[1]) : null;
+}
+
+function findExerciseFromLibrary(name){
+  const n = String(name || "").toLowerCase().trim();
+  return data.exercises.find(e => String(e.name || "").toLowerCase().trim() === n) || null;
+}
 
 function normalizeExercise(ex, section){
+  const lib = findExerciseFromLibrary(ex.name) || {};
   const plannedSets = Number(ex.planned_sets || parseSets(ex.sets) || (section==="main"?3:1));
+
   return {
-    id: ex.id || null,
-    name: ex.name,
-    plan_section: ex.section || section,
+    id: ex.id || lib.id || null,
+    name: ex.name || lib.name || "Exercise",
+    plan_section: ex.section || ex.plan_section || section,
     planned_sets: plannedSets,
     sets: ex.sets || `${plannedSets} x ${ex.target_reps || 10}`,
     target_weight: Number(ex.target_weight || 0),
     target_reps: Number(ex.target_reps || 10),
     weight_step: Number(ex.weight_step || (data.profile?.weight_unit==="lb"?5:2.5)),
     rest_seconds: Number(ex.rest_seconds || (section==="main"?90:30)),
-    cue: ex.cue || ex.short_cue || "Controlled reps.",
-    target_muscle: ex.target_muscle || "",
-    image_url: ex.image_url || ""
+    cue: ex.cue || ex.short_cue || lib.short_cue || "Controlled reps.",
+    target_muscle: ex.target_muscle || lib.target_muscle || "",
+    image_url: ex.image_url || lib.image_url || "",
+    video_url: ex.video_url || lib.video_url || "",
+    common_mistake: ex.common_mistake || lib.common_mistake || "",
+    safe_alternative: ex.safe_alternative || lib.safe_alternative || "",
+    coach_note: ex.coach_note || "",
+    back_safe: lib.back_safe,
+    knee_safe: lib.knee_safe,
+    shoulder_safe: lib.shoulder_safe
   };
-}
-
-function parseSets(s){
-  const m = String(s||"").match(/(\d+)\s*x/i);
-  return m ? Number(m[1]) : null;
 }
 
 function buildWorkoutPlan(){
@@ -754,9 +1010,12 @@ function buildWorkoutPlan(){
     workoutPlan = [...warm,...main,...stretch];
   }
 
-  workoutIndex = 0;
-  currentSet = 1;
-  setRecords = {};
+  if(shortWorkoutMode){
+    const warm = workoutPlan.filter(x=>x.plan_section==="warmup").slice(0,2);
+    const main = workoutPlan.filter(x=>x.plan_section==="main").slice(0,3);
+    const stretch = workoutPlan.filter(x=>x.plan_section==="stretch").slice(0,2);
+    workoutPlan = [...warm,...main,...stretch];
+  }
 }
 
 function renderAll(){
@@ -766,7 +1025,8 @@ function renderAll(){
 
   $("#topSub").textContent = `${name} • ${niceList(goals)}`;
   $("#todayTitle").textContent = `Today, ${name.split(" ")[0] || "friend"}`;
-  $("#todaySubtitle").textContent = activePlan ? (activePlan.summary || "Your AI plan is active.") : "Starter plan. Tap Update next plan for AI plan.";
+  $("#todaySubtitle").textContent = activePlan ? (activePlan.summary || "Your AI coach plan is active.") : "Starter plan. Tap Update next plan for AI coach plan.";
+
   $("#todayTags").innerHTML = `
     <span class="tag green">${activePlan ? "AI plan active" : "Starter plan"}</span>
     <span class="tag blue">${niceList(foodStyles)}</span>
@@ -775,7 +1035,9 @@ function renderAll(){
 
   renderMeals();
   renderWorkoutPreview();
+  renderWorkout();
   renderWater();
+  renderWeekPlan();
   renderProgress();
   renderProfile();
 }
@@ -784,27 +1046,105 @@ function mealHTML(m){
   const reps = Array.isArray(m.replacement_options) ? m.replacement_options.slice(0,2) : [];
   return `
     <div class="meal">
-      <div class="meal-time">${displayTime(m.time)}</div>
+      <div class="meal-time">${esc(displayTime(m.time))}</div>
       <div>
-        <b>${m.title || "Meal"}</b>
-        <span>${m.text || ""}</span>
-        ${reps.length ? `<div class="replacements">${reps.map(r=>`<div class="replacement">Swap: ${r}</div>`).join("")}</div>` : ""}
+        <b>${esc(m.title || "Meal")}</b>
+        <span>${esc(m.text || "")}</span>
+        ${reps.length ? `<div class="replacements">${reps.map(r=>`<div class="replacement">Swap: ${esc(r)}</div>`).join("")}</div>` : ""}
+        ${m.coach_note ? `<div class="coach-note">${esc(m.coach_note)}</div>` : ""}
       </div>
     </div>
   `;
 }
 
 function renderMeals(){
-  const html = todayMeals.map(mealHTML).join("");
+  const html = todayMeals.map(mealHTML).join("") || `<div class="meal"><div class="meal-time">Plan</div><div><b>No meals yet</b><span>Generate an AI plan from Progress.</span></div></div>`;
   $("#todayMeals").innerHTML = html;
-  $("#mealPageList").innerHTML = html;
   $("#mealStatusPill").textContent = nice(data.dailyLog?.meals_status || "pending");
-  $("#mealTags").innerHTML = `<span class="tag green">${activePlan ? "AI meals" : "Starter meals"}</span>`;
 }
 
-function exerciseIconHTML(ex){
-  if(ex.image_url) return `<img src="${ex.image_url}" alt="">`;
+function exerciseMediaHTML(ex, big=false){
+  if(ex.video_url){
+    return `<video src="${esc(ex.video_url)}" controls playsinline></video>`;
+  }
+  if(ex.image_url){
+    return `<img src="${esc(ex.image_url)}" alt="${esc(ex.name)}">`;
+  }
   return iconSvg;
+}
+
+function exerciseCardHTML(ex, index){
+  const key = exerciseDoneKey(index, ex);
+  const done = doneMap.has(key);
+  return `
+    <div class="exercise-card ${done ? "done" : ""}" data-exercise-index="${index}">
+      <div class="exercise-art">${exerciseMediaHTML(ex)}</div>
+      <div class="exercise-body">
+        <b>${esc(ex.name)} ${done ? "✓" : ""}</b>
+        <span>${esc(ex.sets)} • Rest ${esc(ex.rest_seconds)} sec</span>
+        <span>${esc(ex.target_muscle || "Body")} • ${esc(ex.cue || "")}</span>
+        ${ex.coach_note ? `<div class="coach-note">${esc(ex.coach_note)}</div>` : ""}
+        <div class="exercise-actions">
+          <button class="btn primary exercise-done" data-done-index="${index}">Done</button>
+          <button class="btn amber exercise-report" data-report-index="${index}">Report</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function sectionLabel(section){
+  if(section === "warmup") return "Warm-up";
+  if(section === "main") return "Workout";
+  if(section === "stretch") return "Stretches";
+  return nice(section);
+}
+
+function renderWorkout(){
+  const groups = {
+    warmup: workoutPlan.filter(x=>x.plan_section==="warmup"),
+    main: workoutPlan.filter(x=>x.plan_section==="main"),
+    stretch: workoutPlan.filter(x=>x.plan_section==="stretch")
+  };
+
+  $("#workoutPlanTag").textContent = activePlan ? "AI coach" : "Starter";
+  $("#workoutCountTag").textContent = `${workoutPlan.length} exercises`;
+
+  if(!workoutPlan.length){
+    $("#workoutSections").innerHTML = `
+      <div class="meal">
+        <div class="meal-time">No</div>
+        <div><b>No workout found</b><span>Add exercises or generate an AI plan.</span></div>
+      </div>
+    `;
+    return;
+  }
+
+  let html = "";
+
+  ["warmup","main","stretch"].forEach(section => {
+    const arr = groups[section];
+    if(!arr.length) return;
+
+    html += `
+      <div class="section-block">
+        <div class="section-title">
+          <h3>${sectionLabel(section)}</h3>
+          <span>${arr.length} items</span>
+        </div>
+        ${arr.map(ex => exerciseCardHTML(ex, workoutPlan.indexOf(ex))).join("")}
+      </div>
+    `;
+  });
+
+  $("#workoutSections").innerHTML = html;
+  updateWorkoutStatus();
+}
+
+function updateWorkoutStatus(){
+  const total = workoutPlan.length;
+  const done = workoutPlan.filter((ex,i)=>doneMap.has(exerciseDoneKey(i,ex))).length;
+  $("#simpleWorkoutStatus").textContent = total ? `${done}/${total} done` : "Ready";
 }
 
 function renderWorkoutPreview(){
@@ -812,12 +1152,12 @@ function renderWorkoutPreview(){
   const main = workoutPlan.filter(e=>e.plan_section==="main");
   $("#workoutPreviewSub").textContent = `${nice(type)} • ${workoutPlan.length} exercises`;
   $("#workoutStatusPill").textContent = activePlan ? "AI Plan" : "Ready";
-  $("#workoutPreview").innerHTML = (main.length ? main : workoutPlan).slice(0,4).map(ex=>`
-    <div class="exercise-row">
-      <div class="exercise-art">${exerciseIconHTML(ex)}</div>
-      <div><b>${ex.name}</b><span>${ex.sets} • ${ex.cue}</span></div>
+  $("#workoutPreview").innerHTML = (main.length ? main : workoutPlan).slice(0,4).map((ex,i)=>exerciseCardHTML(ex, workoutPlan.indexOf(ex))).join("") || `
+    <div class="meal">
+      <div class="meal-time">Rest</div>
+      <div><b>No workout today</b><span>Follow meals, water, and mobility if listed.</span></div>
     </div>
-  `).join("");
+  `;
   $("#workoutTitle").textContent = `${nice(type)} workout`;
 }
 
@@ -834,48 +1174,143 @@ function renderWater(){
   $("#waterStatusPill").textContent = wl.status==="done" ? "Done" : `${pct}%`;
 }
 
-function currentExercise(){ return workoutPlan[workoutIndex] || null; }
-function firstIndex(section){ return workoutPlan.findIndex(e=>e.plan_section===section); }
-function moveToSection(section){ const i=firstIndex(section); if(i>=0){ stopRest(); workoutIndex=i; currentSet=1; renderWorkoutPlayer(); } }
-
-function renderSectionActions(section){
-  const box = $("#sectionActions");
-  if(section==="warmup"){
-    box.innerHTML = `<button class="btn primary" id="doneWarmup">All warm-up done</button><button class="btn secondary" id="skipWorkout">Skip to workout</button>`;
-    $("#doneWarmup").onclick=()=>moveToSection("main");
-    $("#skipWorkout").onclick=()=>moveToSection("main");
-  } else if(section==="main"){
-    box.innerHTML = `<button class="btn primary" id="doneMain">All workout done</button><button class="btn secondary" id="skipStretch">Skip to stretches</button>`;
-    $("#doneMain").onclick=()=>moveToSection("stretch");
-    $("#skipStretch").onclick=()=>moveToSection("stretch");
-  } else {
-    box.innerHTML = `<button class="btn primary" id="doneStretch">Finish workout</button><button class="btn secondary" id="finishWorkout">All stretches done</button>`;
-    $("#doneStretch").onclick=completeWorkoutSession;
-    $("#finishWorkout").onclick=completeWorkoutSession;
-  }
+function scheduleItemMiniHTML(item){
+  const reps = Array.isArray(item.replacement_options) ? item.replacement_options.slice(0,2) : [];
+  return `
+    <div class="mini-item">
+      <b>${esc(displayTime(item.time))} • ${esc(item.title || nice(item.type))}</b>
+      <div>${esc(item.text || "")}</div>
+      ${reps.length ? `<div class="small" style="margin-top:5px;color:#BAE6FD">${reps.map(r=>"Swap: "+esc(r)).join("<br>")}</div>` : ""}
+    </div>
+  `;
 }
 
-function renderWorkoutPlayer(){
-  const ex = currentExercise();
-  if(!ex){ $("#exerciseName").textContent="No workout"; return; }
-  const section = ex.plan_section || "main";
-  const sets = Number(ex.planned_sets || 1);
+function renderWeekPlan(){
+  if(!activePlan){
+    $("#weekPlanTag").textContent = "No AI plan";
+    $("#fullWeekPlan").innerHTML = `
+      <div class="card">
+        <div class="card-inner">
+          <div class="card-head">
+            <div>
+              <h3>No active AI plan yet</h3>
+              <p>Go to Progress and tap Update next plan.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    return;
+  }
 
-  $("#sectionTag").textContent = section==="main" ? "Workout" : section==="warmup" ? "Warm-up" : "Stretches";
-  $("#exerciseCountTag").textContent = `${workoutIndex+1} / ${workoutPlan.length}`;
-  $("#setTag").textContent = `Set ${currentSet} / ${sets}`;
-  $("#setNumberText").textContent = `${currentSet} of ${sets}`;
-  $("#restTextMini").textContent = `${ex.rest_seconds} sec`;
-  $("#exerciseName").textContent = ex.name;
-  $("#exerciseInfo").textContent = `${ex.target_muscle || "Body"} • ${ex.cue || ""}`;
-  $("#weightInput").value = ex.target_weight || 0;
-  $("#repsInput").value = ex.target_reps || 10;
-  $("#counterGrid").style.display = section==="main" ? "grid" : "none";
-  $("#playerVisual").innerHTML = exerciseIconHTML(ex);
-  $("#workoutProgressBar").style.width = Math.round(workoutIndex/Math.max(1,workoutPlan.length)*100)+"%";
-  $("#feedbackBox").classList.remove("show");
-  $("#exerciseNotes").value = "";
-  renderSectionActions(section);
+  $("#weekPlanTag").textContent = activePlan.title || "AI plan";
+
+  let html = "";
+
+  html += `
+    <div class="card">
+      <div class="card-inner">
+        <div class="card-head">
+          <div>
+            <h3>${esc(activePlan.title || "FitApp Coach Plan")}</h3>
+            <p>${esc(activePlan.summary || "")}</p>
+          </div>
+          <span class="status-pill green">Active</span>
+        </div>
+        ${activePlan.coach_reasoning ? `<div class="coach-note">${esc(activePlan.coach_reasoning)}</div>` : ""}
+        ${activePlan.safety_note ? `<div class="coach-note">${esc(activePlan.safety_note)}</div>` : ""}
+      </div>
+    </div>
+  `;
+
+  DAYS.forEach(day => {
+    const items = activePlan.daily_schedule?.[day] || [];
+    html += `
+      <div class="week-day">
+        <h3>${day}</h3>
+        <div class="mini-list">
+          ${items.length ? items.map(scheduleItemMiniHTML).join("") : `<div class="mini-item"><b>No items</b><div>No plan items for this day.</div></div>`}
+        </div>
+      </div>
+    `;
+  });
+
+  html += infoSectionHTML("Meal Prep", activePlan.meal_prep_plan);
+  html += arraySectionHTML("Grocery List", activePlan.grocery_list);
+  html += arraySectionHTML("Bloating Control", activePlan.bloating_control);
+  html += arraySectionHTML("Daily Checklist", activePlan.daily_checklist);
+  html += arraySectionHTML("Weekly Focus", activePlan.weekly_focus);
+
+  $("#fullWeekPlan").innerHTML = html;
+}
+
+function arraySectionHTML(title, arr){
+  if(!Array.isArray(arr) || !arr.length) return "";
+  return `
+    <div class="card">
+      <div class="card-inner">
+        <div class="card-head"><div><h3>${esc(title)}</h3></div></div>
+        <div class="mini-list">
+          ${arr.map(x=>`<div class="mini-item">${esc(typeof x === "string" ? x : JSON.stringify(x))}</div>`).join("")}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function infoSectionHTML(title, obj){
+  if(!obj || typeof obj !== "object") return "";
+  let parts = [];
+  Object.keys(obj).forEach(k => {
+    const v = obj[k];
+    if(Array.isArray(v) && v.length){
+      parts.push(`<div class="mini-item"><b>${esc(nice(k))}</b>${v.map(x=>`<div>${esc(String(x))}</div>`).join("")}</div>`);
+    }else if(typeof v === "string" && v){
+      parts.push(`<div class="mini-item"><b>${esc(nice(k))}</b><div>${esc(v)}</div></div>`);
+    }
+  });
+  if(!parts.length) return "";
+  return `
+    <div class="card">
+      <div class="card-inner">
+        <div class="card-head"><div><h3>${esc(title)}</h3></div></div>
+        <div class="mini-list">${parts.join("")}</div>
+      </div>
+    </div>
+  `;
+}
+
+async function ensureWorkoutSession(){
+  if(workoutSession) return workoutSession;
+
+  const { data: existing } = await supabaseClient
+    .from("workout_sessions")
+    .select("*")
+    .eq("user_id", user.id)
+    .eq("workout_date", todayISO())
+    .eq("workout_type", todayWorkoutType())
+    .order("created_at",{ascending:false})
+    .limit(1);
+
+  if(existing && existing.length){
+    workoutSession = existing[0];
+    return workoutSession;
+  }
+
+  const { data: session, error } = await supabaseClient
+    .from("workout_sessions")
+    .insert({
+      user_id:user.id,
+      workout_date:todayISO(),
+      workout_type:todayWorkoutType(),
+      status:"started"
+    })
+    .select()
+    .single();
+
+  if(error) throw error;
+  workoutSession = session;
+  return session;
 }
 
 function selectValue(group){
@@ -883,157 +1318,115 @@ function selectValue(group){
   return active ? active.dataset.value : "";
 }
 
-async function ensureWorkoutSession(){
-  if(data.workoutSession) return data.workoutSession;
-  const { data: session, error } = await supabaseClient.from("workout_sessions").insert({
-    user_id:user.id, workout_date:todayISO(), workout_type:todayWorkoutType(), status:"started"
-  }).select().single();
-  if(error) throw error;
-  data.workoutSession = session;
-  return session;
-}
-
-async function saveSetLog(skipped=false){
-  const ex = currentExercise();
+async function saveExercise(index, opts = {}){
+  const ex = workoutPlan[index];
   if(!ex) return;
+
   const session = await ensureWorkoutSession();
-  const { data: row, error } = await supabaseClient.from("exercise_set_logs").insert({
+
+  const pain = Number(opts.pain ?? 0);
+  const painArea = opts.painArea || "";
+  const effort = opts.effort || "good";
+
+  const payload = {
     user_id:user.id,
     workout_session_id:session.id,
-    exercise_name:ex.name,
-    set_number:currentSet,
-    target_weight:Number(ex.target_weight||0),
-    actual_weight:Number($("#weightInput").value||0),
-    weight_unit:data.profile?.weight_unit || "kg",
-    target_reps:Number(ex.target_reps||10),
-    actual_reps:Number($("#repsInput").value||0),
-    rest_seconds:Number(ex.rest_seconds||90),
-    skipped
-  }).select().single();
-  if(error) throw error;
-  setRecords[workoutIndex] = setRecords[workoutIndex] || [];
-  setRecords[workoutIndex].push(row);
-}
-
-async function saveExerciseLog(skipped=false){
-  const ex = currentExercise();
-  const session = await ensureWorkoutSession();
-  const records = setRecords[workoutIndex] || [];
-  const pain = Number(selectValue("pain")||0);
-  const painArea = selectValue("painArea") || "";
-  const effort = selectValue("effort") || "good";
-
-  const avgWeight = records.length ? Math.round(records.reduce((s,r)=>s+Number(r.actual_weight||0),0)/records.length*10)/10 : Number($("#weightInput").value||0);
-  const avgReps = records.length ? Math.round(records.reduce((s,r)=>s+Number(r.actual_reps||0),0)/records.length) : Number($("#repsInput").value||0);
-
-  const { data: log, error } = await supabaseClient.from("exercise_logs").insert({
-    user_id:user.id,
-    workout_session_id:session.id,
+    exercise_id:ex.id || null,
     exercise_name:ex.name,
     section:ex.plan_section,
-    exercise_order:workoutIndex+1,
+    exercise_order:index+1,
     planned_sets:Number(ex.planned_sets||1),
-    sets_done:skipped ? 0 : records.length,
+    sets_done:opts.skipped ? 0 : Number(ex.planned_sets||1),
     target_weight:Number(ex.target_weight||0),
-    actual_weight:avgWeight,
+    actual_weight:opts.weight !== "" && opts.weight !== undefined ? Number(opts.weight) : Number(ex.target_weight||0),
     weight_unit:data.profile?.weight_unit || "kg",
     target_reps:Number(ex.target_reps||10),
-    actual_reps:avgReps,
+    actual_reps:opts.reps !== "" && opts.reps !== undefined ? Number(opts.reps) : Number(ex.target_reps||10),
     rest_seconds:Number(ex.rest_seconds||90),
     effort,
     comfort_level:effort,
     pain_level:pain,
     pain_area:painArea,
-    skipped,
-    notes:$("#exerciseNotes").value.trim()
-  }).select().single();
+    skipped:!!opts.skipped,
+    notes:opts.notes || ""
+  };
+
+  const { data: log, error } = await supabaseClient
+    .from("exercise_logs")
+    .insert(payload)
+    .select()
+    .single();
+
   if(error) throw error;
 
-  if(records.length){
-    await supabaseClient.from("exercise_set_logs").update({exercise_log_id:log.id, effort}).in("id",records.map(r=>r.id));
-  }
-
-  if(pain>0 || painArea){
+  if(pain > 0 || painArea){
     await supabaseClient.from("pain_logs").insert({
-      user_id:user.id, workout_session_id:session.id, exercise_log_id:log.id,
-      exercise_name:ex.name, pain_area:painArea, pain_level:pain, notes:$("#exerciseNotes").value.trim()
+      user_id:user.id,
+      workout_session_id:session.id,
+      exercise_log_id:log.id,
+      exercise_id:ex.id || null,
+      exercise_name:ex.name,
+      pain_area:painArea,
+      pain_level:pain,
+      notes:opts.notes || ""
     });
   }
-}
 
-function startRest(seconds){
-  stopRest();
-  restSeconds = seconds || 90;
-  $("#restBox").style.display="block";
-  renderRest();
-  restTimer=setInterval(()=>{
-    restSeconds--;
-    renderRest();
-    if(restSeconds<=0){ stopRest(); $("#restBox").style.display="none"; toast("Rest done"); }
-  },1000);
-}
-function renderRest(){ const m=String(Math.floor(restSeconds/60)).padStart(2,"0"); const s=String(restSeconds%60).padStart(2,"0"); $("#restTime").textContent=`${m}:${s}`; }
-function stopRest(){ if(restTimer) clearInterval(restTimer); restTimer=null; }
-
-async function doneSet(){
-  const ex = currentExercise();
-  const sets = Number(ex.planned_sets || 1);
-  try{
-    await saveSetLog(false);
-    if(currentSet < sets){
-      currentSet++;
-      renderWorkoutPlayer();
-      startRest(ex.rest_seconds || 90);
-      toast(`Set saved. Set ${currentSet} ready.`);
-    }else{
-      $("#feedbackBox").classList.add("show");
-      toast("Exercise done. Save comfort and pain.");
-    }
-  }catch(err){ toast(err.message || "Could not save set"); }
-}
-
-async function completeExercise(skipped=false){
-  try{
-    if(skipped && !(setRecords[workoutIndex] || []).length) await saveSetLog(true);
-    await saveExerciseLog(skipped);
-    if(workoutIndex < workoutPlan.length-1){
-      workoutIndex++;
-      currentSet=1;
-      stopRest();
-      renderWorkoutPlayer();
-      toast(skipped ? "Exercise skipped" : "Exercise saved");
-    }else{
-      await completeWorkoutSession();
-    }
-  }catch(err){ toast(err.message || "Could not save exercise"); }
-}
-
-async function completeWorkoutSession(){
-  try{
-    const session = await ensureWorkoutSession();
-    await supabaseClient.from("workout_sessions").update({status:"completed",completed_at:new Date().toISOString()}).eq("id",session.id);
-    await updateDaily("workout_status","done");
-    toast("Workout complete");
-    switchTab("todayScreen");
-  }catch(err){ toast(err.message || "Could not finish workout"); }
+  doneMap.add(exerciseDoneKey(index, ex));
+  saveDoneMap();
+  renderWorkout();
+  renderWorkoutPreview();
+  toast("Exercise saved");
 }
 
 async function updateDaily(field,value){
-  const update = {}; update[field]=value;
-  const { data: log, error } = await supabaseClient.from("daily_logs").update(update).eq("id",data.dailyLog.id).select().single();
+  const update = {};
+  update[field]=value;
+
+  const { data: log, error } = await supabaseClient
+    .from("daily_logs")
+    .update(update)
+    .eq("id",data.dailyLog.id)
+    .select()
+    .single();
+
   if(error) throw error;
   data.dailyLog = log;
   renderAll();
 }
 
 async function updateWater(changes){
-  const { data: log, error } = await supabaseClient.from("water_logs").update(changes).eq("id",data.waterLog.id).select().single();
+  const { data: log, error } = await supabaseClient
+    .from("water_logs")
+    .update(changes)
+    .eq("id",data.waterLog.id)
+    .select()
+    .single();
+
   if(error) throw error;
   data.waterLog = log;
   renderWater();
+
   const target=Number(log.target_liters||2), bottle=Number(log.bottle_size_ml||1000);
   const need=Math.max(1,Math.round((target*1000/bottle)*10)/10);
+
   if(Number(log.bottles_done||0)>=need) await updateDaily("water_status","done");
+}
+
+async function finishWorkout(){
+  try{
+    const session = await ensureWorkoutSession();
+    await supabaseClient
+      .from("workout_sessions")
+      .update({status:"completed",completed_at:new Date().toISOString()})
+      .eq("id",session.id);
+
+    await updateDaily("workout_status","done");
+    toast("Workout finished");
+    switchTab("todayScreen");
+  }catch(e){
+    toast(e.message || "Could not finish workout");
+  }
 }
 
 function renderProgress(){
@@ -1045,7 +1438,8 @@ function renderProgress(){
 
 async function saveMeasurement(){
   const payload = {
-    user_id:user.id, entry_date:todayISO(),
+    user_id:user.id,
+    entry_date:todayISO(),
     weight: $("#mWeight").value ? Number($("#mWeight").value) : null,
     waist: $("#mWaist").value ? Number($("#mWaist").value) : null,
     chest: $("#mChest").value ? Number($("#mChest").value) : null,
@@ -1054,7 +1448,13 @@ async function saveMeasurement(){
     unit: $("#mUnit").value,
     notes: $("#mNotes").value.trim()
   };
-  const { data: row, error } = await supabaseClient.from("measurements").insert(payload).select().single();
+
+  const { data: row, error } = await supabaseClient
+    .from("measurements")
+    .insert(payload)
+    .select()
+    .single();
+
   if(error) throw error;
   data.latestMeasurement = row;
   ["mWeight","mWaist","mChest","mHips","mThigh","mNotes"].forEach(id=>$("#"+id).value="");
@@ -1064,66 +1464,83 @@ async function saveMeasurement(){
 
 function renderProfile(){
   $("#premiumPill").textContent = data.profile?.is_premium ? "Premium" : "Free";
+
   const goals = data.profile?.main_goals || [];
   const foodStyles = data.food?.food_styles || [];
   const allergies = data.food?.allergies?.length ? data.food.allergies.map(nice).join(", ") : "None selected";
+
   $("#profileSummary").innerHTML = `
-    <div class="summary-line"><span>Name</span><strong>${data.profile?.full_name || "-"}</strong></div>
+    <div class="summary-line"><span>Name</span><strong>${esc(data.profile?.full_name || "-")}</strong></div>
     <div class="summary-line"><span>Age</span><strong>${calculateAge(data.profile?.date_of_birth) || "-"}</strong></div>
-    <div class="summary-line"><span>Goals</span><strong>${niceList(goals)}</strong></div>
-    <div class="summary-line"><span>Food</span><strong>${niceList(foodStyles)} / ${nice(data.food?.diet_type)}</strong></div>
-    <div class="summary-line"><span>Allergies</span><strong>${allergies}</strong></div>
-    <div class="summary-line"><span>Workout</span><strong>${nice(data.workout?.workout_place)} / ${data.workout?.max_minutes || "-"} min</strong></div>
+    <div class="summary-line"><span>Goals</span><strong>${esc(niceList(goals))}</strong></div>
+    <div class="summary-line"><span>Food</span><strong>${esc(niceList(foodStyles))} / ${esc(nice(data.food?.diet_type))}</strong></div>
+    <div class="summary-line"><span>Allergies</span><strong>${esc(allergies)}</strong></div>
+    <div class="summary-line"><span>Workout</span><strong>${esc(nice(data.workout?.workout_place))} / ${data.workout?.max_minutes || "-"} min</strong></div>
     <div class="summary-line"><span>Active plan</span><strong>${activePlan ? "AI plan" : "Starter plan"}</strong></div>
   `;
 }
 
-function initEvents(){
-  $$(".tab").forEach(btn=>btn.addEventListener("click",()=>switchTab(btn.dataset.tab)));
-  $("#editOnboardingBtn").onclick=()=>location.href="onboarding.html";
-  $("#logoutBtn").onclick=logout;
-  $("#startWorkoutToday").onclick=()=>switchTab("workoutScreen");
-  $("#tooBusyBtn").onclick=()=>{ shortWorkoutMode=true; buildWorkoutPlan(); renderAll(); toast("Short workout ready"); switchTab("workoutScreen"); };
+function openDetail(index){
+  const ex = workoutPlan[index];
+  if(!ex) return;
+  detailIndex = index;
 
-  $$("[data-meal-status]").forEach(btn=>btn.onclick=async()=>{ try{ await updateDaily("meals_status",btn.dataset.mealStatus); toast("Meals updated"); }catch(e){ toast(e.message||"Could not save"); } });
+  $("#detailTitle").textContent = ex.name;
+  $("#detailTag").textContent = sectionLabel(ex.plan_section);
+  $("#detailMedia").innerHTML = exerciseMediaHTML(ex, true);
 
-  $("#addBottleBtn").onclick=async()=>{ try{ await updateWater({bottles_done:Number(data.waterLog?.bottles_done||0)+1,status:"almost"}); toast("Bottle added"); }catch(e){ toast(e.message||"Could not save water"); } };
-  $("#waterDoneBtn").onclick=async()=>{ try{ const target=Number(data.waterLog?.target_liters||2), bottle=Number(data.waterLog?.bottle_size_ml||1000); const need=Math.max(1,Math.round((target*1000/bottle)*10)/10); await updateWater({bottles_done:need,status:"done"}); await updateDaily("water_status","done"); toast("Water goal done"); }catch(e){ toast(e.message||"Could not save water"); } };
+  $("#detailInfo").innerHTML = `
+    <div class="summary-line"><span>Sets</span><strong>${esc(ex.sets)}</strong></div>
+    <div class="summary-line"><span>Target muscle</span><strong>${esc(ex.target_muscle || "-")}</strong></div>
+    <div class="summary-line"><span>Rest</span><strong>${esc(ex.rest_seconds)} sec</strong></div>
+    <div class="summary-line"><span>Cue</span><strong>${esc(ex.cue || "-")}</strong></div>
+    ${ex.common_mistake ? `<div class="summary-line"><span>Mistake</span><strong>${esc(ex.common_mistake)}</strong></div>` : ""}
+    ${ex.safe_alternative ? `<div class="summary-line"><span>Alternative</span><strong>${esc(ex.safe_alternative)}</strong></div>` : ""}
+    ${ex.coach_note ? `<div class="summary-line"><span>Coach note</span><strong>${esc(ex.coach_note)}</strong></div>` : ""}
+  `;
 
-  $("#prevExerciseBtn").onclick=()=>{ stopRest(); workoutIndex=Math.max(0,workoutIndex-1); currentSet=1; renderWorkoutPlayer(); };
-  $("#nextExerciseBtn").onclick=()=>{ stopRest(); workoutIndex=Math.min(workoutPlan.length-1,workoutIndex+1); currentSet=1; renderWorkoutPlayer(); };
-  $("#doneSetBtn").onclick=doneSet;
-  $("#saveExerciseFeedbackBtn").onclick=()=>completeExercise(false);
-  $("#skipExerciseBtn").onclick=()=>completeExercise(true);
-
-  $$("[data-step-weight]").forEach(btn=>btn.onclick=()=>{ const ex=currentExercise(); const step=Number(ex?.weight_step||5); $("#weightInput").value=Math.max(0,Number($("#weightInput").value||0)+Number(btn.dataset.stepWeight)*step); });
-  $$("[data-step-reps]").forEach(btn=>btn.onclick=()=>{ $("#repsInput").value=Math.max(0,Number($("#repsInput").value||0)+Number(btn.dataset.stepReps)); });
-
-  $("#skipRestBtn").onclick=()=>{ stopRest(); $("#restBox").style.display="none"; toast("Rest skipped"); };
-  $("#addRestBtn").onclick=()=>{ restSeconds+=30; renderRest(); };
-  $("#openMeasureBtn").onclick=()=>$("#measureCard").scrollIntoView({behavior:"smooth"});
-  $("#saveMeasureBtn").onclick=async()=>{ try{ await saveMeasurement(); }catch(e){ toast(e.message||"Could not save check-in"); } };
-
-  $("#updatePlanBtn").onclick=generatePlan;
+  $("#detailModal").classList.add("show");
 }
 
-function initSelectChips(){
-  $$("[data-select] .select-chip").forEach(btn=>{
-    btn.onclick=()=>{
-      const group=btn.closest("[data-select]").dataset.select;
-      $$(`[data-select="${group}"] .select-chip`).forEach(b=>b.classList.remove("active"));
-      btn.classList.add("active");
-    };
-  });
+function openReport(index){
+  const ex = workoutPlan[index];
+  if(!ex) return;
+
+  reportIndex = index;
+  $("#reportTitle").textContent = `Report: ${ex.name}`;
+  $("#reportWeight").value = ex.target_weight || "";
+  $("#reportReps").value = ex.target_reps || "";
+  $("#reportNotes").value = "";
+  resetSelectChips();
+  $("#reportModal").classList.add("show");
+}
+
+function closeModal(id){
+  $("#"+id).classList.remove("show");
+}
+
+function resetSelectChips(){
+  $$("[data-select='effort'] .select-chip").forEach(b=>b.classList.toggle("active", b.dataset.value==="good"));
+  $$("[data-select='pain'] .select-chip").forEach(b=>b.classList.toggle("active", b.dataset.value==="0"));
+  $$("[data-select='painArea'] .select-chip").forEach(b=>b.classList.toggle("active", b.dataset.value===""));
+}
+
+function sectionLabel(section){
+  if(section === "warmup") return "Warm-up";
+  if(section === "main") return "Workout";
+  if(section === "stretch") return "Stretches";
+  return nice(section);
 }
 
 async function generatePlan(){
   const btn=$("#updatePlanBtn");
   const old=btn.textContent;
+
   try{
     btn.disabled=true;
     btn.textContent="Creating...";
-    toast("AI is creating your exact plan...");
+    toast("GPT-5.5 is creating your coach plan...");
+
     const { data: sessionData } = await supabaseClient.auth.getSession();
     if(!sessionData?.session){ location.href="auth.html?mode=login"; return; }
 
@@ -1137,6 +1554,7 @@ async function generatePlan(){
     });
 
     const result = await res.json();
+
     if(!res.ok || !result.ok){
       const msg = result.error?.error?.message || result.error?.message || result.error || "AI plan failed.";
       throw new Error(msg);
@@ -1144,9 +1562,10 @@ async function generatePlan(){
 
     activePlan = result.plan;
     await ensureWaterLog();
-    buildTodayMeals();
+    buildTodaySchedule();
     buildWorkoutPlan();
     renderAll();
+
     toast("AI plan saved and loaded.");
     alert("Plan generated successfully.\n\n" + (result.plan?.summary || "Your new FitApp plan is ready."));
   }catch(e){
@@ -1156,6 +1575,248 @@ async function generatePlan(){
     btn.disabled=false;
     btn.textContent=old;
   }
+}
+
+function printLine(title, value){
+  if(!value) return "";
+  return `<p><strong>${esc(title)}:</strong> ${esc(value)}</p>`;
+}
+
+function buildPrintHTML(){
+  if(!activePlan){
+    return `<h1>FitApp Weekly Plan</h1><p>No active AI plan yet.</p>`;
+  }
+
+  let html = `
+    <h1>${esc(activePlan.title || "FitApp Weekly Plan")}</h1>
+    <p class="small">${esc(activePlan.start_date || "")} to ${esc(activePlan.end_date || "")}</p>
+    ${printLine("Summary", activePlan.summary)}
+    ${printLine("Coach reasoning", activePlan.coach_reasoning)}
+    ${printLine("Safety", activePlan.safety_note)}
+  `;
+
+  if(Array.isArray(activePlan.weekly_structure) && activePlan.weekly_structure.length){
+    html += `<h2>Weekly Structure</h2>`;
+    activePlan.weekly_structure.forEach(x=>{
+      html += `<div class="print-card"><strong>${esc(x.day || "")}: ${esc(x.focus || "")}</strong><p>${esc(x.reason || "")}</p></div>`;
+    });
+  }
+
+  html += `<h2>7-Day Meal and Activity Plan</h2>`;
+  DAYS.forEach(day=>{
+    const items = activePlan.daily_schedule?.[day] || [];
+    html += `<h3>${day}</h3>`;
+    if(!items.length){
+      html += `<p>No items.</p>`;
+    }else{
+      items.forEach(item=>{
+        const reps = Array.isArray(item.replacement_options) ? item.replacement_options : [];
+        html += `
+          <div class="print-card">
+            <strong>${esc(displayTime(item.time))} - ${esc(item.title || nice(item.type))}</strong>
+            <p>${esc(item.text || "")}</p>
+            ${reps.length ? `<p class="small"><strong>Replacements:</strong><br>${reps.map(esc).join("<br>")}</p>` : ""}
+            ${item.coach_note ? `<p class="small"><strong>Coach note:</strong> ${esc(item.coach_note)}</p>` : ""}
+          </div>
+        `;
+      });
+    }
+  });
+
+  html += `<h2>Workout Plan</h2>`;
+  ["push","legs","pull","mobility"].forEach(type=>{
+    const arr = activePlan.workouts?.[type] || [];
+    if(!arr.length) return;
+    html += `<h3>${esc(nice(type))}</h3>`;
+    arr.forEach(ex=>{
+      html += `
+        <div class="print-card">
+          <strong>${esc(ex.name || "Exercise")}</strong>
+          <p>${esc(ex.section || "")} • ${esc(ex.sets || "")} • Rest ${esc(ex.rest_seconds || "")} sec</p>
+          <p>${esc(ex.cue || "")}</p>
+          ${ex.coach_note ? `<p class="small"><strong>Coach note:</strong> ${esc(ex.coach_note)}</p>` : ""}
+        </div>
+      `;
+    });
+  });
+
+  if(activePlan.water_goal){
+    html += `<h2>Water Goal</h2><div class="print-card"><p>${esc(activePlan.water_goal.target_liters || "")} L daily • ${esc(activePlan.water_goal.bottles_per_day || "")} bottles</p><p>${esc(activePlan.water_goal.note || "")}</p></div>`;
+  }
+
+  if(activePlan.meal_prep_plan){
+    html += `<h2>Meal Prep Plan</h2>`;
+    Object.keys(activePlan.meal_prep_plan).forEach(k=>{
+      const v = activePlan.meal_prep_plan[k];
+      if(Array.isArray(v)){
+        html += `<div class="print-card"><strong>${esc(nice(k))}</strong><ul>${v.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`;
+      }else if(v){
+        html += `<div class="print-card"><strong>${esc(nice(k))}</strong><p>${esc(v)}</p></div>`;
+      }
+    });
+  }
+
+  [
+    ["Grocery List", activePlan.grocery_list],
+    ["Bloating Control", activePlan.bloating_control],
+    ["Daily Checklist", activePlan.daily_checklist],
+    ["Weekly Focus", activePlan.weekly_focus],
+    ["AI Adjustments", activePlan.ai_adjustments]
+  ].forEach(([title, arr])=>{
+    if(Array.isArray(arr) && arr.length){
+      html += `<h2>${esc(title)}</h2><ul>${arr.map(x=>`<li>${esc(typeof x === "string" ? x : JSON.stringify(x))}</li>`).join("")}</ul>`;
+    }
+  });
+
+  return html;
+}
+
+function exportWeekPDF(){
+  $("#printArea").innerHTML = buildPrintHTML();
+  setTimeout(() => window.print(), 100);
+}
+
+function initSelectChips(){
+  $$("[data-select] .select-chip").forEach(btn=>{
+    btn.onclick=()=>{
+      const group=btn.closest("[data-select]").dataset.select;
+      $$(`[data-select="${group}"] .select-chip`).forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+    };
+  });
+}
+
+function initEvents(){
+  $$(".tab").forEach(btn=>btn.addEventListener("click",()=>switchTab(btn.dataset.tab)));
+
+  $("#editOnboardingBtn").onclick=()=>location.href="onboarding.html";
+  $("#logoutBtn").onclick=logout;
+  $("#startWorkoutToday").onclick=()=>switchTab("workoutScreen");
+
+  $("#tooBusyBtn").onclick=()=>{
+    shortWorkoutMode=true;
+    buildWorkoutPlan();
+    renderAll();
+    toast("Short workout ready");
+    switchTab("workoutScreen");
+  };
+
+  $("#finishWorkoutBtn").onclick=finishWorkout;
+
+  $("#resetWorkoutBtn").onclick=()=>{
+    if(confirm("Reset today's workout checkmarks?")){
+      doneMap.clear();
+      saveDoneMap();
+      renderWorkout();
+      renderWorkoutPreview();
+      toast("Workout reset");
+    }
+  };
+
+  $$("[data-meal-status]").forEach(btn=>{
+    btn.onclick=async()=>{
+      try{
+        await updateDaily("meals_status",btn.dataset.mealStatus);
+        toast("Meals updated");
+      }catch(e){
+        toast(e.message||"Could not save");
+      }
+    };
+  });
+
+  $("#addBottleBtn").onclick=async()=>{
+    try{
+      await updateWater({bottles_done:Number(data.waterLog?.bottles_done||0)+1,status:"almost"});
+      toast("Bottle added");
+    }catch(e){
+      toast(e.message||"Could not save water");
+    }
+  };
+
+  $("#waterDoneBtn").onclick=async()=>{
+    try{
+      const target=Number(data.waterLog?.target_liters||2), bottle=Number(data.waterLog?.bottle_size_ml||1000);
+      const need=Math.max(1,Math.round((target*1000/bottle)*10)/10);
+      await updateWater({bottles_done:need,status:"done"});
+      await updateDaily("water_status","done");
+      toast("Water goal done");
+    }catch(e){
+      toast(e.message||"Could not save water");
+    }
+  };
+
+  document.addEventListener("click", async e=>{
+    const doneBtn = e.target.closest(".exercise-done");
+    const reportBtn = e.target.closest(".exercise-report");
+    const card = e.target.closest(".exercise-card");
+
+    if(doneBtn){
+      e.stopPropagation();
+      const index = Number(doneBtn.dataset.doneIndex);
+      try{ await saveExercise(index, {effort:"good", pain:0, notes:"Done tap"}); }
+      catch(err){ toast(err.message || "Could not save exercise"); }
+      return;
+    }
+
+    if(reportBtn){
+      e.stopPropagation();
+      openReport(Number(reportBtn.dataset.reportIndex));
+      return;
+    }
+
+    if(card){
+      openDetail(Number(card.dataset.exerciseIndex));
+    }
+  });
+
+  $$("[data-close-modal]").forEach(btn=>{
+    btn.onclick=()=>closeModal(btn.dataset.closeModal);
+  });
+
+  $("#detailDoneBtn").onclick=async()=>{
+    if(detailIndex === null) return;
+    try{
+      await saveExercise(detailIndex, {effort:"good", pain:0, notes:"Done from details"});
+      closeModal("detailModal");
+    }catch(e){
+      toast(e.message || "Could not save exercise");
+    }
+  };
+
+  $("#detailReportBtn").onclick=()=>{
+    if(detailIndex === null) return;
+    closeModal("detailModal");
+    openReport(detailIndex);
+  };
+
+  $("#saveReportBtn").onclick=async()=>{
+    if(reportIndex === null) return;
+
+    try{
+      await saveExercise(reportIndex, {
+        weight: $("#reportWeight").value,
+        reps: $("#reportReps").value,
+        effort: selectValue("effort"),
+        pain: Number(selectValue("pain") || 0),
+        painArea: selectValue("painArea"),
+        notes: $("#reportNotes").value.trim()
+      });
+
+      closeModal("reportModal");
+    }catch(e){
+      toast(e.message || "Could not save report");
+    }
+  };
+
+  $("#openMeasureBtn").onclick=()=>$("#measureCard").scrollIntoView({behavior:"smooth"});
+  $("#saveMeasureBtn").onclick=async()=>{
+    try{ await saveMeasurement(); }
+    catch(e){ toast(e.message||"Could not save check-in"); }
+  };
+
+  $("#updatePlanBtn").onclick=generatePlan;
+  $("#exportPdfBtn").onclick=exportWeekPDF;
+  $("#refreshWeekBtn").onclick=()=>renderWeekPlan();
 }
 
 async function logout(){
