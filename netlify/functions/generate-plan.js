@@ -12,7 +12,10 @@ const CORS_HEADERS = {
 function jsonResponse(statusCode, body) {
   return {
     statusCode,
-    headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
+    headers: {
+      ...CORS_HEADERS,
+      "Content-Type": "application/json"
+    },
     body: JSON.stringify(body)
   };
 }
@@ -78,9 +81,13 @@ async function readUserData(db, userId) {
     previousPlansRes
   ] = await Promise.all([
     db.from("profiles").select("*").eq("id", userId).maybeSingle(),
+
     db.from("food_preferences").select("*").eq("user_id", userId).maybeSingle(),
+
     db.from("work_schedules").select("*").eq("user_id", userId).maybeSingle(),
+
     db.from("workout_availability").select("*").eq("user_id", userId).maybeSingle(),
+
     db.from("water_settings").select("*").eq("user_id", userId).maybeSingle(),
 
     db.from("measurements")
@@ -123,7 +130,7 @@ async function readUserData(db, userId) {
       .select("*")
       .eq("user_id", userId)
       .order("logged_at", { ascending: false })
-      .limit(30),
+      .limit(40),
 
     db.from("exercises")
       .select("id,name,slug,category,section,target_muscle,equipment,difficulty,image_url,video_url,short_cue,common_mistake,safe_alternative,back_safe,knee_safe,shoulder_safe")
@@ -153,7 +160,9 @@ async function readUserData(db, userId) {
     previousPlansRes.error
   ].filter(Boolean);
 
-  if (errors.length) throw new Error(errors[0].message || "Could not read user data.");
+  if (errors.length) {
+    throw new Error(errors[0].message || "Could not read user data.");
+  }
 
   return {
     profile: profileRes.data,
@@ -175,71 +184,78 @@ async function readUserData(db, userId) {
 
 function buildPrompt(userData) {
   return `
-You are FitApp AI, a premium personal trainer + practical nutrition coach.
+You are FitApp AI, a premium personal trainer and practical nutrition coach.
 
 Your job:
-Create a 7-day plan that feels like a real coach made it, not a generic AI app.
+Create a 7-day food + workout + water plan that feels like a real trainer made it.
 
-STYLE STANDARD:
-The plan should feel like a personalized trainer document:
+This must NOT feel like a generic AI plan.
+
+The plan should feel like a coach document:
 - clear weekly structure
-- clear goal reasoning
+- exact foods
+- exact meal times
+- 1-2 replacements per meal
+- smoothie/whey options if user allows
 - workday meal timing
 - gym/off-day meal timing
-- exact foods
-- 1-2 replacements per meal
-- workout focus notes
-- safe exercise choices
-- pain/back-safe rules when needed
-- meal prep plan
 - grocery list
-- bloating/stomach control
-- simple daily checklist logic
+- meal prep system
+- bloating control
+- back-safe / pain-safe workout rules
+- exact exercises, sets, reps, rest, cues
+- trainer reasoning
 
 PERSONALIZATION RULES:
-- Do NOT create a generic plan.
-- Use the user's real work days, workout days, breaks, workout time, max gym time, food styles, usual foods, allergies, avoid foods, measurements, pain logs, and exercise logs.
-- If the user has a heavy/active job, do not add random cardio.
-- If the user has back pain or pain logs, avoid ego deadlifts, heavy back-loading, risky bending, and risky spinal loading.
-- If the user works many steps/lifting, carbs are allowed around work and gym.
-- If goal includes belly/bloating, keep dinner lighter than lunch and avoid late heavy/fried meals.
-- If goal includes muscle/shape, protein must appear in every main meal.
-- Use foods the user actually eats. If usual_foods exists, use it strongly.
-- Allergies and avoid_foods are hard blocks.
-- If user selected Punjabi/Indian/home food, meals should look like real Punjabi/Indian home meals, not random western fitness meals.
-- If diet allows eggs/chicken, use them only according to diet_type and usual foods.
-- If vegetarian, do not include eggs/chicken unless diet_type says eggs_ok/chicken_ok.
-- Work break foods must match break duration and full_meal possibility.
-- If there is only a short break, give quick snack only.
-- If there is a 30-minute break, give packed meal.
-- Give exact meal examples, not vague "protein + carbs".
-- Give replacements that are equally practical.
+- Use the user's real date of birth/age, measurements, goals, body type, work days, breaks, workout days, workout time, food styles, usual foods, favorite foods, disliked foods, allergies, avoid foods, smoothie preference, whey preference, protein preferences, carb preferences, meal prep style, bloating triggers, exercise preferences, pain areas, pain rating, exercise logs, and set logs.
+- Allergies and avoid_foods are HARD BLOCKS. Never include those foods.
+- Disliked foods should be avoided unless no other option exists.
+- Favorite foods and usual foods should be used strongly.
+- If user likes smoothies and uses whey, include smoothie and whey options.
+- If user does not use whey, do not include whey.
+- If user does not like smoothies, do not include smoothies.
+- If user selected Punjabi/Indian/home food, meals should look like real home meals.
+- If user prefers roti, rice, oats, wraps, bananas, dates, use those in the plan.
+- If user has short work break, give fast snack only.
+- If user has 30-minute break, give full packed meal.
+- If job is heavy_active, walking, lifting, or user has high steps, do not add random cardio.
+- If goal includes belly/reduce bloating, keep dinner lighter than lunch and include bloating control.
+- If goal includes muscle/shape, include protein in every main meal.
+- If user has pain rating 3-4 or 5+, reduce risky loading.
+- If user has lower back pain, avoid ego deadlifts, heavy back-loaded squats, risky bending, and risky back extensions.
+- Use back-safe options like machines, chest-supported row, leg press controlled, hip thrust machine, dead bug, Pallof press, face pulls, glute bridge.
 
 WORKOUT RULES:
-- Use only approved_exercise_library.
+- Use ONLY approved_exercise_library for exercise names.
 - Every workout must include warmup, main, and stretch sections.
+- If approved_exercise_library is missing a perfect exercise, choose the closest safe exercise from that library.
+- Never invent exercise names outside approved_exercise_library.
 - Every exercise must include:
-  name, section, planned_sets, sets, target_weight, target_reps, weight_step, rest_seconds, cue, target_muscle.
-- Workouts should match available max_minutes.
-- If user is beginner/some_experience, prefer machines, dumbbells, cables, controlled form.
-- For back pain, prefer chest-supported rows, machines, hip thrust machine, leg press controlled, dead bug, Pallof press, face pulls.
-- Avoid risky lower-back loading unless pain history is clean.
-- If exercise_logs show hard effort or pain, keep/reduce weight or choose safer alternative.
+  name, section, planned_sets, sets, target_weight, target_reps, weight_step, rest_seconds, cue, target_muscle, coach_note.
+- Workouts must match max_minutes.
+- If user is beginner or some_experience, prefer machines, dumbbells, cables, controlled movements.
+- If exercise_logs show hard effort or pain, keep same, reduce, or replace with safer alternative.
 - If effort was easy and pain low, slightly increase reps or target weight.
-- Most sets should stop with 1-2 reps left. Do not tell user to train to failure every set.
+- Most sets should stop with 1-2 reps left.
+- Do not tell user to train to failure every set.
 
-COACHING QUALITY:
-- Add "coach_reasoning" explaining why this plan fits the user.
-- Add "weekly_structure" explaining the day-by-day logic.
-- Add "meal_prep_plan" for busy/workdays.
-- Add "bloating_control" if goal or food notes suggest belly/bloating.
-- Add "daily_checklist" with simple yes/no items.
-- Keep text compact enough for mobile cards.
+MEAL QUALITY RULES:
+- Give exact meals, not vague “protein + carbs”.
+- Include amounts when useful, like 2 roti, 3 roti, 300 ml milk, 1 scoop whey, 30g oats, 1 banana.
+- Every food item must include replacement_options with 1-2 practical replacements.
+- Each meal must include coach_note.
+- Workday meals must be realistic for work breaks.
+- Gym-day meals must include pre-workout and post-workout if workout time exists.
+- If user allows whey, post-workout whey is allowed.
+- If user likes smoothie, breakfast smoothie is allowed.
+- If user prefers meal prep, include meal prep plan.
+- If user has fridge_freezer_ok, include fridge/freezer strategy.
 
 RETURN ONLY VALID JSON.
 No markdown.
 No comments.
 No trailing commas.
+No text outside JSON.
 
 RETURN THIS EXACT JSON SHAPE:
 
@@ -299,7 +315,7 @@ RETURN THIS EXACT JSON SHAPE:
   }
 }
 
-FOOD ITEM FORMAT:
+DAILY FOOD ITEM FORMAT:
 {
   "time": "08:00",
   "title": "Breakfast",
@@ -344,14 +360,19 @@ WORKOUT EXERCISE FORMAT:
   "coach_note": "why this exercise is included"
 }
 
-IMPORTANT:
-- Daily schedule must include exact foods with amounts where possible.
-- Every food item must include replacement_options.
+DAILY SCHEDULE REQUIREMENTS:
+- Every day must include at least 5 items unless user schedule is extremely limited.
+- Workdays should include breakfast, break meals/snacks based on break times, after-work small option, dinner, and optional mobility.
+- Gym days should include breakfast, pre-workout, gym item, post-workout, lunch, snack, dinner.
+- Every food item must have 1-2 replacement_options.
 - Add gym item on workout days.
-- Add mobility or recovery item on active workdays if useful.
-- Grocery list should be practical, grouped as strings.
-- Do not include foods from allergies or avoid_foods.
-- Do not include exercises outside approved_exercise_library.
+- Add mobility/recovery item on workdays if useful.
+
+WORKOUT REQUIREMENTS:
+- push workout: warmup + chest/shoulders/triceps/main + core if available + stretch.
+- legs workout: warmup + thighs/glutes/back-safe main + stretch.
+- pull workout: warmup + back/biceps/posture main + stretch.
+- mobility workout: short warmup/mobility/stretch only.
 
 USER DATA:
 ${JSON.stringify(userData, null, 2)}
@@ -360,45 +381,85 @@ ${JSON.stringify(userData, null, 2)}
 
 export async function handler(event) {
   if (event.httpMethod === "OPTIONS") {
-    return { statusCode: 200, headers: CORS_HEADERS, body: "" };
+    return {
+      statusCode: 200,
+      headers: CORS_HEADERS,
+      body: ""
+    };
   }
 
   if (event.httpMethod !== "POST") {
-    return jsonResponse(405, { ok: false, error: "Use POST from logged-in app." });
+    return jsonResponse(405, {
+      ok: false,
+      error: "Use POST from logged-in app."
+    });
   }
 
   try {
     const openaiKey = process.env.OPENAI_API_KEY;
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    if (!openaiKey) return jsonResponse(500, { ok: false, error: "OPENAI_API_KEY missing in Netlify." });
-    if (!serviceRoleKey) return jsonResponse(500, { ok: false, error: "SUPABASE_SERVICE_ROLE_KEY missing in Netlify." });
+    if (!openaiKey) {
+      return jsonResponse(500, {
+        ok: false,
+        error: "OPENAI_API_KEY missing in Netlify."
+      });
+    }
+
+    if (!serviceRoleKey) {
+      return jsonResponse(500, {
+        ok: false,
+        error: "SUPABASE_SERVICE_ROLE_KEY missing in Netlify."
+      });
+    }
 
     const token = getBearerToken(event);
-    if (!token) return jsonResponse(401, { ok: false, error: "Missing Authorization Bearer token." });
+
+    if (!token) {
+      return jsonResponse(401, {
+        ok: false,
+        error: "Missing Authorization Bearer token."
+      });
+    }
 
     const db = createClient(SUPABASE_URL, serviceRoleKey, {
-      auth: { persistSession: false, autoRefreshToken: false }
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false
+      }
     });
 
     const { data: authData, error: authError } = await db.auth.getUser(token);
 
     if (authError || !authData.user) {
-      return jsonResponse(401, { ok: false, error: "Invalid or expired user token." });
+      return jsonResponse(401, {
+        ok: false,
+        error: "Invalid or expired user token."
+      });
     }
 
     const userId = authData.user.id;
     const userData = await readUserData(db, userId);
 
     if (!userData.profile || !userData.profile.onboarding_completed) {
-      return jsonResponse(400, { ok: false, error: "Onboarding is not completed." });
+      return jsonResponse(400, {
+        ok: false,
+        error: "Onboarding is not completed."
+      });
+    }
+
+    if (!userData.approved_exercise_library.length) {
+      return jsonResponse(400, {
+        ok: false,
+        error: "Exercise library is empty. Add exercises first before generating a workout plan."
+      });
     }
 
     const aiRequestInsert = await db
       .from("ai_requests")
       .insert({
         user_id: userId,
-        request_type: "weekly_plan_coach_v2",
+        request_type: "weekly_plan_coach_v3_preferences",
         status: "pending",
         model: MODEL,
         prompt_payload: userData
@@ -417,7 +478,7 @@ export async function handler(event) {
       body: JSON.stringify({
         model: MODEL,
         input: buildPrompt(userData),
-        max_output_tokens: 12000
+        max_output_tokens: 14000
       })
     });
 
@@ -425,13 +486,19 @@ export async function handler(event) {
 
     if (!openaiResponse.ok) {
       if (aiRequestId) {
-        await db.from("ai_requests").update({
-          status: "failed",
-          error_message: JSON.stringify(openaiData)
-        }).eq("id", aiRequestId);
+        await db
+          .from("ai_requests")
+          .update({
+            status: "failed",
+            error_message: JSON.stringify(openaiData)
+          })
+          .eq("id", aiRequestId);
       }
 
-      return jsonResponse(openaiResponse.status, { ok: false, error: openaiData });
+      return jsonResponse(openaiResponse.status, {
+        ok: false,
+        error: openaiData
+      });
     }
 
     const outputText = getOutputText(openaiData);
@@ -445,7 +512,8 @@ export async function handler(event) {
     const weekStart = plan.start_date || dateISO(0);
     const weekEnd = plan.end_date || dateISO(6);
 
-    await db.from("weekly_plans")
+    await db
+      .from("weekly_plans")
       .update({ status: "archived" })
       .eq("user_id", userId)
       .eq("status", "active");
@@ -466,26 +534,35 @@ export async function handler(event) {
       .select()
       .single();
 
-    if (savedPlanRes.error) throw savedPlanRes.error;
+    if (savedPlanRes.error) {
+      throw savedPlanRes.error;
+    }
 
     if (aiRequestId) {
-      await db.from("ai_requests").update({
-        status: "completed",
-        response_payload: parsed,
-        input_tokens: openaiData.usage?.input_tokens || null,
-        output_tokens: openaiData.usage?.output_tokens || null
-      }).eq("id", aiRequestId);
+      await db
+        .from("ai_requests")
+        .update({
+          status: "completed",
+          response_payload: parsed,
+          input_tokens: openaiData.usage?.input_tokens || null,
+          output_tokens: openaiData.usage?.output_tokens || null
+        })
+        .eq("id", aiRequestId);
     }
 
     return jsonResponse(200, {
       ok: true,
-      message: "Coach-style plan generated and saved.",
+      message: "Coach-style weekly plan generated and saved.",
       plan_id: savedPlanRes.data.id,
       plan
     });
 
   } catch (error) {
     console.error(error);
-    return jsonResponse(500, { ok: false, error: error.message || "Plan generation failed." });
+
+    return jsonResponse(500, {
+      ok: false,
+      error: error.message || "Plan generation failed."
+    });
   }
 }
