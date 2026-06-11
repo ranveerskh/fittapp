@@ -380,7 +380,7 @@ async function readUserData(db, userId) {
       .limit(50),
 
     db.from("exercises")
-      .select("id,name,slug,category,section,target_muscle,equipment,difficulty,image_url,video_url,short_cue,common_mistake,safe_alternative,back_safe,knee_safe,shoulder_safe")
+      .select("id,name,slug,category,section,target_muscle,equipment,difficulty,image_url,video_url,image_path,video_path,short_cue,common_mistake,common_mistakes,safe_alternative,alternatives,pain_warning,guide_steps,back_safe,knee_safe,shoulder_safe,approved,plan_ready,usage_priority,media_required,media_status,guide_status")
       .order("category", { ascending: true }),
 
     db.from("weekly_plans")
@@ -412,6 +412,17 @@ async function readUserData(db, userId) {
     throw new Error(errors[0].message || "Could not read user data.");
   }
 
+  const allExercises = exercisesRes.data || [];
+  const approvedExercises = allExercises.filter(ex => ex.approved !== false);
+  const readyExercises = approvedExercises.filter(ex => ex.plan_ready === true);
+  const exerciseLibrary = readyExercises.length >= 8
+    ? readyExercises
+    : (approvedExercises.length ? approvedExercises : allExercises);
+
+  const exerciseLibraryMode = readyExercises.length >= 8
+    ? "plan_ready_only"
+    : "approved_fallback_not_enough_plan_ready";
+
   return {
     profile: profileRes.data,
     food_preferences: foodRes.data,
@@ -426,7 +437,17 @@ async function readUserData(db, userId) {
     exercise_logs: exerciseLogsRes.data || [],
     exercise_set_logs: setLogsRes.data || [],
     pain_logs: painLogsRes.data || [],
-    approved_exercise_library: exercisesRes.data || [],
+    approved_exercise_library: exerciseLibrary,
+    all_exercises: allExercises,
+    exercise_library_status: {
+      mode: exerciseLibraryMode,
+      total: allExercises.length,
+      approved: approvedExercises.length,
+      plan_ready: readyExercises.length,
+      used_for_ai: exerciseLibrary.length,
+      missing_media: approvedExercises.filter(ex => (ex.media_status || "missing") === "missing").length,
+      missing_guide: approvedExercises.filter(ex => (ex.guide_status || "missing") === "missing").length
+    },
     previous_plans: previousPlansRes.data || []
   };
 }
@@ -465,6 +486,7 @@ function buildInputSummary(userData, entitlement, usageInfo) {
       workout_place: workout.workout_place || null,
       max_minutes: workout.max_minutes || null
     },
+    exercise_library: userData.exercise_library_status || {},
     recent_data_counts: {
       measurements: userData.measurements.length,
       daily_logs: userData.daily_logs.length,
@@ -530,11 +552,13 @@ PERSONALIZATION RULES:
 - If user has fridge_freezer_ok, include fridge/freezer strategy.
 
 WORKOUT RULES:
-- Use ONLY approved_exercise_library for exercise names.
+- Use ONLY approved_exercise_library for exercise names. This is the app-owned exercise library with reusable photos/videos/guides.
 - Exercise names must match approved_exercise_library name exactly.
+- Prefer exercises with usage_priority "high" or "medium" unless user safety requires another option.
 - Every workout must include warmup, main, and stretch sections.
 - If approved_exercise_library is missing a perfect exercise, choose the closest safe exercise from that library.
 - Never invent exercise names outside approved_exercise_library.
+- Do not request new exercise photos. The app reuses media from the library.
 - Every exercise must include:
   name, section, planned_sets, sets, target_weight, target_reps, weight_step, rest_seconds, cue, target_muscle, coach_note.
 - Workouts must match max_minutes.
@@ -752,8 +776,16 @@ function sanitizeExercise(ex, lookup, exercises, workoutKey) {
     coach_note: normalizeText(ex?.coach_note, "Included because it fits the weekly training focus."),
     image_url: libraryExercise.image_url || null,
     video_url: libraryExercise.video_url || null,
+    image_path: libraryExercise.image_path || null,
+    video_path: libraryExercise.video_path || null,
+    guide_steps: Array.isArray(libraryExercise.guide_steps) ? libraryExercise.guide_steps : [],
+    common_mistakes: Array.isArray(libraryExercise.common_mistakes) ? libraryExercise.common_mistakes : [],
     common_mistake: libraryExercise.common_mistake || null,
-    safe_alternative: libraryExercise.safe_alternative || null
+    pain_warning: libraryExercise.pain_warning || null,
+    alternatives: Array.isArray(libraryExercise.alternatives) ? libraryExercise.alternatives : [],
+    safe_alternative: libraryExercise.safe_alternative || null,
+    usage_priority: libraryExercise.usage_priority || "medium",
+    plan_ready: libraryExercise.plan_ready === true
   };
 }
 
@@ -1003,7 +1035,10 @@ export async function handler(event) {
       is_admin_bypass: admin,
       monthly_used: monthlyUsed,
       monthly_limit: monthlyLimit,
-      remaining_this_month: admin ? "admin_bypass" : Math.max(0, monthlyLimit - monthlyUsed - 1)
+      remaining_this_month: admin ? "admin_bypass" : Math.max(0, monthlyLimit - monthlyUsed - 1),
+      exercise_library_mode: userData.exercise_library_status?.mode || "unknown",
+      plan_ready_exercises: userData.exercise_library_status?.plan_ready || 0,
+      ai_exercises_available: userData.exercise_library_status?.used_for_ai || 0
     };
 
     const inputSummary = buildInputSummary(userData, entitlement, usageInfo);
