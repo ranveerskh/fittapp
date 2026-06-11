@@ -95,7 +95,7 @@ export async function handler(event) {
 
     const { data, error } = await db
       .from("exercises")
-      .select("id,name,slug,category,section,target_muscle,equipment,difficulty,image_url,video_url,image_path,video_path,short_cue,common_mistake,common_mistakes,safe_alternative,alternatives,pain_warning,guide_steps,back_safe,knee_safe,shoulder_safe,media_updated_at,created_at")
+      .select("id,name,slug,category,section,target_muscle,equipment,difficulty,image_url,video_url,image_path,video_path,short_cue,common_mistake,common_mistakes,safe_alternative,alternatives,pain_warning,guide_steps,back_safe,knee_safe,shoulder_safe,approved,plan_ready,usage_priority,media_required,media_status,guide_status,last_reviewed_at,reviewed_by,media_updated_at,created_at")
       .order("category", { ascending: true })
       .order("name", { ascending: true });
 
