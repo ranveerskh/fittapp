@@ -81,6 +81,32 @@ function arrayFrom(value) {
     .slice(0, 20);
 }
 
+function normalizePriority(value) {
+  const v = String(value || "medium").trim().toLowerCase();
+  return ["high", "medium", "low"].includes(v) ? v : "medium";
+}
+
+function mediaStatus(payload) {
+  const hasImage = Boolean(payload.image_url || payload.image_path);
+  const hasVideo = Boolean(payload.video_url || payload.video_path);
+  if (hasImage && hasVideo) return "image_video";
+  if (hasImage) return "image";
+  if (hasVideo) return "video";
+  return "missing";
+}
+
+function guideStatus(payload) {
+  const steps = Array.isArray(payload.guide_steps) ? payload.guide_steps.length : 0;
+  const mistakes = Array.isArray(payload.common_mistakes) ? payload.common_mistakes.length : 0;
+  const hasCue = Boolean(payload.short_cue);
+  const hasPain = Boolean(payload.pain_warning);
+  const hasMistake = mistakes > 0 || Boolean(payload.common_mistake);
+
+  if (steps >= 3 && (hasCue || hasPain) && hasMistake) return "complete";
+  if (steps >= 1 || hasCue || hasMistake) return "basic";
+  return "missing";
+}
+
 function normalizePayload(body) {
   const name = textOrNull(body.name, 120);
   if (!name) throw new Error("Exercise name is required.");
@@ -110,8 +136,25 @@ function normalizePayload(body) {
     back_safe: bool(body.back_safe),
     knee_safe: bool(body.knee_safe),
     shoulder_safe: bool(body.shoulder_safe),
+    approved: body.approved === undefined ? true : bool(body.approved),
+    plan_ready: bool(body.plan_ready),
+    usage_priority: normalizePriority(body.usage_priority),
+    media_required: body.media_required === undefined ? true : bool(body.media_required),
     media_updated_at: new Date().toISOString()
   };
+
+  payload.media_status = mediaStatus(payload);
+  payload.guide_status = guideStatus(payload);
+
+  if (payload.plan_ready && payload.media_required && payload.media_status === "missing") {
+    throw new Error("Plan-ready exercises need at least one image or video.");
+  }
+
+  if (payload.plan_ready && payload.guide_status === "missing") {
+    throw new Error("Plan-ready exercises need guide steps or a short cue.");
+  }
+
+  return payload;
 }
 
 function attachPublicUrls(db, exercise) {
@@ -169,7 +212,7 @@ export async function handler(event) {
         .from("exercises")
         .update(payload)
         .eq("id", id)
-        .select("id,name,slug,category,section,target_muscle,equipment,difficulty,image_url,video_url,image_path,video_path,short_cue,common_mistake,common_mistakes,safe_alternative,alternatives,pain_warning,guide_steps,back_safe,knee_safe,shoulder_safe,media_updated_at,created_at")
+        .select("id,name,slug,category,section,target_muscle,equipment,difficulty,image_url,video_url,image_path,video_path,short_cue,common_mistake,common_mistakes,safe_alternative,alternatives,pain_warning,guide_steps,back_safe,knee_safe,shoulder_safe,approved,plan_ready,usage_priority,media_required,media_status,guide_status,last_reviewed_at,reviewed_by,media_updated_at,created_at")
         .single();
       if (error) throw error;
       saved = data;
@@ -177,7 +220,7 @@ export async function handler(event) {
       const { data, error } = await db
         .from("exercises")
         .insert(payload)
-        .select("id,name,slug,category,section,target_muscle,equipment,difficulty,image_url,video_url,image_path,video_path,short_cue,common_mistake,common_mistakes,safe_alternative,alternatives,pain_warning,guide_steps,back_safe,knee_safe,shoulder_safe,media_updated_at,created_at")
+        .select("id,name,slug,category,section,target_muscle,equipment,difficulty,image_url,video_url,image_path,video_path,short_cue,common_mistake,common_mistakes,safe_alternative,alternatives,pain_warning,guide_steps,back_safe,knee_safe,shoulder_safe,approved,plan_ready,usage_priority,media_required,media_status,guide_status,last_reviewed_at,reviewed_by,media_updated_at,created_at")
         .single();
       if (error) throw error;
       saved = data;
