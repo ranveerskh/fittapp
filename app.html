@@ -313,14 +313,119 @@
     .mini-item b{display:block;margin-bottom:3px;color:#F8FAFC}
 
     .bottom-tabs{
-      position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:var(--max);z-index:40;
-      display:grid;grid-template-columns:repeat(5,1fr);gap:5px;
+      position:fixed;
+      left:50%;
+      bottom:10px;
+      transform:translateX(-50%);
+      width:calc(100% - 22px);
+      max-width:452px;
+      z-index:40;
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:4px;
       padding:8px 8px calc(8px + env(safe-area-inset-bottom));
-      background:rgba(7,10,15,.88);border-top:1px solid rgba(255,255,255,.10);backdrop-filter:blur(20px);
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:30px;
+      background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.075));
+      box-shadow:0 24px 70px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.22);
+      backdrop-filter:blur(26px) saturate(190%);
     }
-    .tab{border:0;background:transparent;color:var(--muted);border-radius:15px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10.5px;font-weight:900}
-    .tab svg{width:19px;height:19px;stroke:currentColor}
-    .tab.active{background:rgba(34,197,94,.12);color:#BBF7D0}
+    .tab{
+      border:0;
+      background:transparent;
+      color:rgba(226,232,240,.72);
+      border-radius:22px;
+      padding:9px 4px;
+      min-height:54px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:4px;
+      font-size:10.5px;
+      font-weight:950;
+      position:relative;
+      overflow:hidden;
+    }
+    .tab svg{width:20px;height:20px;stroke:currentColor}
+    .tab.active{
+      color:#06120A;
+      background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(255,255,255,.58));
+      box-shadow:0 12px 26px rgba(255,255,255,.08), inset 0 1px 0 rgba(255,255,255,.82);
+    }
+    .tab.active:after{
+      content:"";
+      position:absolute;
+      width:5px;
+      height:5px;
+      border-radius:50%;
+      bottom:5px;
+      background:rgba(34,197,94,.85);
+    }
+
+    .liquid-card{
+      border:1px solid rgba(255,255,255,.15);
+      background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.055));
+      backdrop-filter:blur(24px) saturate(180%);
+      box-shadow:0 24px 70px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.14);
+    }
+
+    .premium-lock{
+      border:1px solid rgba(245,158,11,.22);
+      background:radial-gradient(circle at top right,rgba(245,158,11,.15),transparent 42%),rgba(245,158,11,.07);
+      color:#FDE68A;
+      border-radius:18px;
+      padding:11px;
+      font-size:12.5px;
+      line-height:1.38;
+      margin-top:10px;
+    }
+
+    .feature-lock-card{
+      border:1px solid rgba(245,158,11,.22);
+      background:radial-gradient(circle at top right,rgba(245,158,11,.13),transparent 40%),rgba(0,0,0,.15);
+      border-radius:22px;
+      padding:13px;
+      margin-top:12px;
+    }
+    .feature-lock-card h3{margin:0;font-size:17px;letter-spacing:-.3px}
+    .feature-lock-card p{margin:6px 0 0;color:#FDE68A;font-size:12.5px;line-height:1.4}
+
+    .plan-access-card{
+      border:1px solid rgba(56,189,248,.20);
+      background:radial-gradient(circle at top right,rgba(56,189,248,.14),transparent 40%),rgba(0,0,0,.16);
+      border-radius:22px;
+      padding:13px;
+      margin-top:12px;
+    }
+    .plan-access-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+    .plan-access-top h3{margin:0;font-size:17px;letter-spacing:-.35px}
+    .plan-access-top p{margin:5px 0 0;color:var(--muted);font-size:12.5px;line-height:1.35}
+    .plan-chip{
+      white-space:nowrap;
+      border-radius:999px;
+      padding:7px 10px;
+      font-size:11px;
+      font-weight:1000;
+      border:1px solid rgba(34,197,94,.28);
+      background:rgba(34,197,94,.11);
+      color:#BBF7D0;
+    }
+    .plan-chip.free{border-color:rgba(255,255,255,.14);background:rgba(255,255,255,.07);color:#E2E8F0}
+    .feature-mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+    .feature-mini{border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.055);border-radius:15px;padding:9px;font-size:11.5px;line-height:1.3;color:#CBD5E1}
+    .feature-mini.good{border-color:rgba(34,197,94,.20);background:rgba(34,197,94,.08);color:#BBF7D0}
+    .feature-mini.locked{border-color:rgba(245,158,11,.18);background:rgba(245,158,11,.07);color:#FDE68A}
+
+    .promo-inline{margin-top:12px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.15);border-radius:18px;padding:10px}
+    .promo-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
+    .promo-row .btn{min-height:48px;margin-top:0;white-space:nowrap}
+    .promo-msg{margin-top:8px;font-size:12px;line-height:1.35;color:var(--muted)}
+    .promo-msg.good{color:#BBF7D0}
+    .promo-msg.warn{color:#FDE68A}
+
+    .upgrade-list{display:grid;gap:8px;margin-top:12px}
+    .upgrade-list div{border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.055);border-radius:15px;padding:9px;font-size:12.5px;color:#E2E8F0}
 
     .toast{
       position:fixed;left:50%;bottom:82px;transform:translateX(-50%) translateY(10px);
@@ -604,6 +709,10 @@
             <button class="btn primary" id="saveMeasureBtn" style="width:100%;margin-top:10px">Save check-in</button>
           </div>
         </div>
+
+        <div class="card" id="progressPhotosCard">
+          <div class="card-inner" id="progressPhotosContent"></div>
+        </div>
       </section>
 
       <section class="screen" id="profileScreen">
@@ -618,32 +727,36 @@
             </div>
           </div>
         </div>
+
+        <div class="card">
+          <div class="card-inner" id="planAccessBox"></div>
+        </div>
       </section>
 
       <div id="printArea" class="print-only"></div>
     </main>
   </div>
 
-  <nav class="bottom-tabs">
-    <button class="tab active" data-tab="todayScreen">
+  <nav class="bottom-tabs" aria-label="FitApp tabs">
+    <button class="tab active" data-tab="todayScreen" type="button">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-9.5Z"/></svg>
       <span>Today</span>
     </button>
-    <button class="tab" data-tab="workoutScreen">
+    <button class="tab" data-tab="weekScreen" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 7h14M7 4v6M17 4v6M5 7v12h14V7"/><path d="M8 12h4M8 16h7"/></svg>
+      <span>Meals</span>
+    </button>
+    <button class="tab" data-tab="workoutScreen" type="button">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg>
-      <span>Workout</span>
+      <span>Train</span>
     </button>
-    <button class="tab" data-tab="weekScreen">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
-      <span>Week</span>
-    </button>
-    <button class="tab" data-tab="progressScreen">
+    <button class="tab" data-tab="progressScreen" type="button">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 19V5M4 19h16M8 16v-5M12 16V8M16 16v-9"/></svg>
       <span>Progress</span>
     </button>
-    <button class="tab" data-tab="profileScreen">
+    <button class="tab" data-tab="profileScreen" type="button">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21c1.5-4 14.5-4 16 0"/></svg>
-      <span>Profile</span>
+      <span>Me</span>
     </button>
   </nav>
 
@@ -726,6 +839,37 @@
     </div>
   </div>
 
+  <div class="modal" id="upgradeModal">
+    <div class="sheet">
+      <div class="sheet-head">
+        <div>
+          <h3 id="upgradeTitle">Unlock Premium</h3>
+          <div class="tag amber" style="display:inline-flex;margin-top:7px">Premium feature</div>
+        </div>
+        <button class="close-btn" data-close-modal="upgradeModal">×</button>
+      </div>
+
+      <p id="upgradeText" style="color:#CBD5E1;font-size:13px;line-height:1.45;margin:0">Use a promo code now. Payments can be connected later.</p>
+      <div class="upgrade-list">
+        <div>✓ Full weekly meal + workout plan</div>
+        <div>✓ PDF export and grocery list</div>
+        <div>✓ Exercise photos/videos and smart replacements</div>
+        <div>✓ Progress photos for paid users only</div>
+      </div>
+
+      <div class="promo-inline">
+        <div class="promo-row">
+          <div class="field" style="margin-top:0">
+            <label>Promo code</label>
+            <input class="input" id="upgradePromoCode" placeholder="Example: PLUS30">
+          </div>
+          <button class="btn primary" id="upgradeApplyBtn" type="button">Apply</button>
+        </div>
+        <div class="promo-msg" id="upgradeMsg">Admin can create codes from admin.html.</div>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast">Saved</div>
 
 <script>
@@ -747,6 +891,8 @@ let reportIndex = null;
 let detailIndex = null;
 let shortWorkoutMode = false;
 let doneMap = new Set();
+let currentEntitlement = null;
+let isAppAdmin = false;
 
 const iconSvg = `<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg>`;
 const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
@@ -769,6 +915,212 @@ function formatTime(t){
 }
 
 function displayTime(t){ return formatTime(t)||t||"-"; }
+
+function planName(code){
+  if(code === "premium_plus") return "Premium Plus";
+  if(code === "premium") return "Premium";
+  return "Free User";
+}
+
+function currentPlanCode(){
+  return currentEntitlement?.plan_code || data.profile?.selected_plan_code || (data.profile?.is_premium ? "premium" : "free");
+}
+
+function currentPlanFeatures(){
+  return currentEntitlement?.features || {};
+}
+
+function isPaidPlan(){
+  return ["premium","premium_plus"].includes(currentPlanCode());
+}
+
+function hasFeature(key){
+  const code = currentPlanCode();
+  if(code === "premium_plus") return true;
+
+  const f = currentPlanFeatures();
+  const val = f?.[key];
+  if(val === true || val === "limited") return true;
+
+  if(code === "premium"){
+    return ["full_week_meals","gym_offday_meals","pdf_export","grocery_list","progress_photos","exercise_videos"].includes(key);
+  }
+
+  return ["today_page","starter_plan","basic_exercise_guide"].includes(key);
+}
+
+async function getAccessToken(){
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  return sessionData?.session?.access_token || "";
+}
+
+async function fetchEntitlement(){
+  const token = await getAccessToken();
+  if(!token) return null;
+
+  const res = await fetch("/.netlify/functions/get-entitlement", {
+    method:"GET",
+    headers:{"Authorization":`Bearer ${token}`}
+  });
+
+  const result = await res.json().catch(()=>({}));
+  if(!res.ok || !result.ok){
+    throw new Error(result.error || "Could not load plan access.");
+  }
+
+  currentEntitlement = result.entitlement || null;
+  return currentEntitlement;
+}
+
+function lockedFeatureCard(title, text, feature){
+  return `
+    <div class="feature-lock-card">
+      <h3>${esc(title)}</h3>
+      <p>${esc(text)}</p>
+      <button class="btn amber" type="button" style="width:100%;margin-top:10px" data-upgrade-feature="${esc(feature || title)}">Unlock with promo</button>
+    </div>
+  `;
+}
+
+function showUpgrade(title="Unlock Premium", text="This feature is included in Premium or Premium Plus."){
+  $("#upgradeTitle").textContent = title;
+  $("#upgradeText").textContent = text;
+  $("#upgradeMsg").textContent = "Enter a promo code to unlock Premium or Premium Plus.";
+  $("#upgradeMsg").className = "promo-msg";
+  $("#upgradeModal").classList.add("show");
+}
+
+async function applyPromoFromApp(){
+  const code = ($("#upgradePromoCode")?.value || "").trim();
+  if(!code){
+    $("#upgradeMsg").textContent = "Enter a promo code first.";
+    $("#upgradeMsg").className = "promo-msg warn";
+    return;
+  }
+
+  const token = await getAccessToken();
+  if(!token){ location.href="auth.html?mode=login"; return; }
+
+  const btn = $("#upgradeApplyBtn");
+  const old = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "Applying...";
+
+  try{
+    const res = await fetch("/.netlify/functions/redeem-promo", {
+      method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":`Bearer ${token}`},
+      body:JSON.stringify({ code })
+    });
+
+    const result = await res.json().catch(()=>({}));
+    if(!res.ok || !result.ok){
+      throw new Error(result.error || "Promo code failed.");
+    }
+
+    currentEntitlement = result.entitlement || currentEntitlement;
+    if(data.profile){
+      data.profile.selected_plan_code = currentPlanCode();
+      data.profile.is_premium = isPaidPlan();
+    }
+
+    $("#upgradeMsg").textContent = result.message || `${planName(currentPlanCode())} unlocked.`;
+    $("#upgradeMsg").className = "promo-msg good";
+    toast(`${planName(currentPlanCode())} unlocked`);
+    renderAll();
+    setTimeout(()=>closeModal("upgradeModal"), 650);
+  }catch(e){
+    $("#upgradeMsg").textContent = e.message || "Could not apply promo code.";
+    $("#upgradeMsg").className = "promo-msg warn";
+  }finally{
+    btn.disabled = false;
+    btn.textContent = old;
+  }
+}
+
+function featureMini(label, ok){
+  return `<div class="feature-mini ${ok ? "good" : "locked"}">${ok ? "✓" : "✕"} ${esc(label)}</div>`;
+}
+
+function renderPlanAccessBox(){
+  const code = currentPlanCode();
+  const end = currentEntitlement?.ends_at ? new Date(currentEntitlement.ends_at).toLocaleDateString() : "No expiry";
+  const source = currentEntitlement?.source ? nice(currentEntitlement.source) : "setup";
+  const isFree = code === "free";
+
+  const box = $("#planAccessBox");
+  if(!box) return;
+
+  box.innerHTML = `
+    <div class="plan-access-card">
+      <div class="plan-access-top">
+        <div>
+          <h3>Plan access</h3>
+          <p>${esc(source)} • ${esc(end)}</p>
+        </div>
+        <span class="plan-chip ${isFree ? "free" : ""}">${esc(planName(code))}</span>
+      </div>
+      <div class="feature-mini-grid">
+        ${featureMini("PDF export", hasFeature("pdf_export"))}
+        ${featureMini("Grocery list", hasFeature("grocery_list"))}
+        ${featureMini("Progress photos", hasFeature("progress_photos"))}
+        ${featureMini(code === "premium_plus" ? "Weekly AI update" : "AI updates", code !== "free")}
+      </div>
+      <div class="btn-row" style="margin-top:12px">
+        <button class="btn primary" id="openUpgradeBtn" type="button">Apply promo</button>
+        <a class="btn secondary" href="admin.html" id="adminLink" style="display:${isAppAdmin ? "flex" : "none"}">Admin</a>
+      </div>
+    </div>
+  `;
+
+  $("#openUpgradeBtn")?.addEventListener("click",()=>showUpgrade("Apply promo code","Use your promo code to unlock Premium or Premium Plus."));
+}
+
+function renderProgressPhotosBox(){
+  const box = $("#progressPhotosContent");
+  if(!box) return;
+
+  if(!hasFeature("progress_photos")){
+    box.innerHTML = `
+      <div class="card-head">
+        <div><h3>Progress photos</h3><p>Private photo tracking is paid only.</p></div>
+        <span class="status-pill amber">Locked</span>
+      </div>
+      <div class="premium-lock">Free users cannot upload progress photos. This protects storage costs and keeps Premium valuable.</div>
+      <button class="btn amber" type="button" style="width:100%;margin-top:10px" data-upgrade-feature="progress_photos">Unlock progress photos</button>
+    `;
+    return;
+  }
+
+  box.innerHTML = `
+    <div class="card-head">
+      <div><h3>Progress photos</h3><p>Private front / side / back comparison.</p></div>
+      <span class="status-pill green">${currentPlanCode()==="premium_plus" ? "Included" : "Limited"}</span>
+    </div>
+    <div class="summary-list">
+      <div class="summary-line"><span>Status</span><strong>Ready for storage setup</strong></div>
+      <div class="summary-line"><span>Access</span><strong>${esc(planName(currentPlanCode()))}</strong></div>
+    </div>
+    <div class="coach-note">Next build step: connect a private Supabase Storage bucket so only the logged-in user can view their own progress photos.</div>
+  `;
+}
+
+function updateEntitlementUI(){
+  const code = currentPlanCode();
+  const plan = planName(code);
+
+  if($("#premiumPill")){
+    $("#premiumPill").textContent = plan;
+    $("#premiumPill").className = `status-pill ${code === "free" ? "amber" : "green"}`;
+  }
+
+  if($("#exportPdfBtn")){
+    $("#exportPdfBtn").textContent = hasFeature("pdf_export") ? "Export Week PDF" : "Premium PDF";
+  }
+
+  renderPlanAccessBox();
+  renderProgressPhotosBox();
+}
 
 function calculateAge(dob){
   if(!dob) return null;
@@ -823,6 +1175,29 @@ async function loadAll(){
   if(!profile?.onboarding_completed){ location.href="onboarding.html"; return; }
 
   data.profile = profile;
+
+  currentEntitlement = {
+    plan_code: profile.selected_plan_code || (profile.is_premium ? "premium" : "free"),
+    plan_name: planName(profile.selected_plan_code || (profile.is_premium ? "premium" : "free")),
+    source: "profile",
+    starts_at: null,
+    ends_at: null,
+    features: {}
+  };
+
+  try{
+    await fetchEntitlement();
+  }catch(e){
+    console.warn("Entitlement fallback used", e);
+  }
+
+  try{
+    const { data: adminRow } = await supabaseClient.from("app_admins").select("user_id,role").eq("user_id", user.id).maybeSingle();
+    isAppAdmin = !!adminRow;
+  }catch(e){
+    isAppAdmin = false;
+  }
+
   data.food = await getSingle("food_preferences");
   data.work = await getSingle("work_schedules");
   data.workout = await getSingle("workout_availability");
@@ -1023,13 +1398,13 @@ function renderAll(){
   const goals = data.profile?.main_goals || [];
   const foodStyles = data.food?.food_styles || [];
 
-  $("#topSub").textContent = `${name} • ${niceList(goals)}`;
+  $("#topSub").textContent = `${name} • ${planName(currentPlanCode())}`;
   $("#todayTitle").textContent = `Today, ${name.split(" ")[0] || "friend"}`;
   $("#todaySubtitle").textContent = activePlan ? (activePlan.summary || "Your AI coach plan is active.") : "Starter plan. Tap Update next plan for AI coach plan.";
 
   $("#todayTags").innerHTML = `
     <span class="tag green">${activePlan ? "AI plan active" : "Starter plan"}</span>
-    <span class="tag blue">${niceList(foodStyles)}</span>
+    <span class="tag blue">${esc(planName(currentPlanCode()))}</span>
     <span class="tag amber">${data.workout?.max_minutes || "-"} min</span>
   `;
 
@@ -1040,6 +1415,7 @@ function renderAll(){
   renderWeekPlan();
   renderProgress();
   renderProfile();
+  updateEntitlementUI();
 }
 
 function mealHTML(m){
@@ -1223,7 +1599,9 @@ function renderWeekPlan(){
     </div>
   `;
 
-  DAYS.forEach(day => {
+  const visibleDays = hasFeature("full_week_meals") ? DAYS : [dayName()];
+
+  visibleDays.forEach(day => {
     const items = activePlan.daily_schedule?.[day] || [];
     html += `
       <div class="week-day">
@@ -1235,8 +1613,20 @@ function renderWeekPlan(){
     `;
   });
 
-  html += infoSectionHTML("Meal Prep", activePlan.meal_prep_plan);
-  html += arraySectionHTML("Grocery List", activePlan.grocery_list);
+  if(!hasFeature("full_week_meals")){
+    html += lockedFeatureCard("Full week plan locked", "Free users see today only. Premium unlocks the full 7-day meal plan, gym/off-day meals, grocery list, and PDF export.", "full_week_meals");
+  }
+
+  if(hasFeature("full_week_meals")){
+    html += infoSectionHTML("Meal Prep", activePlan.meal_prep_plan);
+  }
+
+  if(hasFeature("grocery_list")){
+    html += arraySectionHTML("Grocery List", activePlan.grocery_list);
+  }else if(activePlan.grocery_list?.length){
+    html += lockedFeatureCard("Grocery list locked", "Premium unlocks your weekly grocery list and meal prep system.", "grocery_list");
+  }
+
   html += arraySectionHTML("Bloating Control", activePlan.bloating_control);
   html += arraySectionHTML("Daily Checklist", activePlan.daily_checklist);
   html += arraySectionHTML("Weekly Focus", activePlan.weekly_focus);
@@ -1434,6 +1824,7 @@ function renderProgress(){
   $("#statWater").textContent = nice(data.waterLog?.status || "pending");
   $("#statWorkout").textContent = nice(data.dailyLog?.workout_status || "pending");
   $("#statWeight").textContent = data.latestMeasurement?.weight ? `${data.latestMeasurement.weight} ${data.profile?.weight_unit||""}` : "-";
+  renderProgressPhotosBox();
 }
 
 async function saveMeasurement(){
@@ -1463,7 +1854,7 @@ async function saveMeasurement(){
 }
 
 function renderProfile(){
-  $("#premiumPill").textContent = data.profile?.is_premium ? "Premium" : "Free";
+  $("#premiumPill").textContent = planName(currentPlanCode());
 
   const goals = data.profile?.main_goals || [];
   const foodStyles = data.food?.food_styles || [];
@@ -1476,8 +1867,10 @@ function renderProfile(){
     <div class="summary-line"><span>Food</span><strong>${esc(niceList(foodStyles))} / ${esc(nice(data.food?.diet_type))}</strong></div>
     <div class="summary-line"><span>Allergies</span><strong>${esc(allergies)}</strong></div>
     <div class="summary-line"><span>Workout</span><strong>${esc(nice(data.workout?.workout_place))} / ${data.workout?.max_minutes || "-"} min</strong></div>
+    <div class="summary-line"><span>Plan access</span><strong>${esc(planName(currentPlanCode()))}</strong></div>
     <div class="summary-line"><span>Active plan</span><strong>${activePlan ? "AI plan" : "Starter plan"}</strong></div>
   `;
+  renderPlanAccessBox();
 }
 
 function openDetail(index){
@@ -1539,7 +1932,7 @@ async function generatePlan(){
   try{
     btn.disabled=true;
     btn.textContent="Creating...";
-    toast("GPT-5.5 is creating your coach plan...");
+    toast(`${planName(currentPlanCode())} coach plan is creating...`);
 
     const { data: sessionData } = await supabaseClient.auth.getSession();
     if(!sessionData?.session){ location.href="auth.html?mode=login"; return; }
@@ -1570,7 +1963,11 @@ async function generatePlan(){
     alert("Plan generated successfully.\n\n" + (result.plan?.summary || "Your new FitApp plan is ready."));
   }catch(e){
     console.error(e);
-    toast(e.message || "Could not generate plan.");
+    const msg = e.message || "Could not generate plan.";
+    toast(msg);
+    if(msg.toLowerCase().includes("limit") || msg.toLowerCase().includes("premium") || msg.toLowerCase().includes("free")){
+      showUpgrade("Upgrade AI plan updates", msg);
+    }
   }finally{
     btn.disabled=false;
     btn.textContent=old;
@@ -1672,6 +2069,10 @@ function buildPrintHTML(){
 }
 
 function exportWeekPDF(){
+  if(!hasFeature("pdf_export")){
+    showUpgrade("PDF export is Premium", "Premium unlocks full weekly PDF export with meals, workouts, grocery list, and coach notes.");
+    return;
+  }
   $("#printArea").innerHTML = buildPrintHTML();
   setTimeout(() => window.print(), 100);
 }
@@ -1817,6 +2218,17 @@ function initEvents(){
   $("#updatePlanBtn").onclick=generatePlan;
   $("#exportPdfBtn").onclick=exportWeekPDF;
   $("#refreshWeekBtn").onclick=()=>renderWeekPlan();
+
+  $("#upgradeApplyBtn")?.addEventListener("click", applyPromoFromApp);
+  $("#upgradePromoCode")?.addEventListener("keydown", e=>{ if(e.key === "Enter") applyPromoFromApp(); });
+
+  document.addEventListener("click", e=>{
+    const lockBtn = e.target.closest("[data-upgrade-feature]");
+    if(lockBtn){
+      const feature = lockBtn.dataset.upgradeFeature || "Premium";
+      showUpgrade("Unlock " + nice(feature), "This feature is included with Premium or Premium Plus. Apply a promo code to unlock it now.");
+    }
+  });
 }
 
 async function logout(){
