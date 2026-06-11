@@ -406,6 +406,17 @@
                   <label class="check-pill"><input type="checkbox" id="exShoulderSafe" /> Shoulder safe</label>
                 </div>
 
+                <div class="section-title"><h3>AI library control</h3><span>Used for weekly plans</span></div>
+                <div class="checkbox-row">
+                  <label class="check-pill"><input type="checkbox" id="exApproved" checked /> Approved</label>
+                  <label class="check-pill"><input type="checkbox" id="exPlanReady" /> Plan ready</label>
+                  <label class="check-pill"><input type="checkbox" id="exMediaRequired" checked /> Media required</label>
+                </div>
+                <div class="row2">
+                  <div class="field"><label>Usage priority</label><select class="select" id="exUsagePriority"><option value="high">High - common exercise</option><option value="medium">Medium</option><option value="low">Low - rare/advanced</option></select></div>
+                  <div class="field"><label>Quality note</label><input class="input" id="exQualityNote" disabled placeholder="Plan ready needs media + guide" /></div>
+                </div>
+
                 <div class="upload-box">
                   <div class="row2">
                     <div class="field"><label>Image upload</label><input class="input" id="exImageFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif" /></div>
@@ -434,7 +445,10 @@
                   <button class="mini-btn green" id="refreshExercisesBtn" type="button">Refresh</button>
                 </div>
 
-                <div class="field" style="margin-top:0"><label>Search</label><input class="input" id="exerciseSearch" placeholder="Search chest, pull, dumbbell..." /></div>
+                <div class="row2">
+                  <div class="field" style="margin-top:0"><label>Search</label><input class="input" id="exerciseSearch" placeholder="Search chest, pull, dumbbell..." /></div>
+                  <div class="field" style="margin-top:0"><label>Filter</label><select class="select" id="exerciseFilter"><option value="all">All exercises</option><option value="plan_ready">Plan ready</option><option value="not_ready">Not plan-ready</option><option value="missing_media">Missing media</option><option value="missing_guide">Missing guide</option><option value="high_priority">High priority</option></select></div>
+                </div>
                 <div class="exercise-list" id="exerciseList" style="margin-top:10px"></div>
                 <div class="status" id="exerciseListStatus"></div>
               </div>
@@ -631,7 +645,8 @@
     $("#statTotal").textContent = total;
     $("#statActive").textContent = active;
     $("#statUsed").textContent = used;
-    $("#statExercises").textContent = exercises.length || 0;
+    const ready = exercises.filter(e => e.plan_ready && e.approved !== false).length;
+    $("#statExercises").textContent = `${ready}/${exercises.length || 0}`;
   }
 
   function renderPromos(){
@@ -695,6 +710,11 @@
     $("#exBackSafe").checked = false;
     $("#exKneeSafe").checked = false;
     $("#exShoulderSafe").checked = false;
+    $("#exApproved").checked = true;
+    $("#exPlanReady").checked = false;
+    $("#exMediaRequired").checked = true;
+    $("#exUsagePriority").value = "medium";
+    $("#exQualityNote").value = "Plan ready needs media + guide";
     $("#exImageFile").value = "";
     $("#exVideoFile").value = "";
     $("#exImagePath").value = "";
@@ -728,6 +748,11 @@
     $("#exBackSafe").checked = !!ex.back_safe;
     $("#exKneeSafe").checked = !!ex.knee_safe;
     $("#exShoulderSafe").checked = !!ex.shoulder_safe;
+    $("#exApproved").checked = ex.approved !== false;
+    $("#exPlanReady").checked = !!ex.plan_ready;
+    $("#exMediaRequired").checked = ex.media_required !== false;
+    $("#exUsagePriority").value = ex.usage_priority || "medium";
+    $("#exQualityNote").value = `Media: ${ex.media_status || "missing"} • Guide: ${ex.guide_status || "missing"}`;
     $("#exImageFile").value = "";
     $("#exVideoFile").value = "";
     $("#exImagePath").value = ex.image_path || ex.image_url || "";
@@ -766,7 +791,11 @@
       safe_alternative: $("#exSafeAlternative").value.trim() || null,
       back_safe: $("#exBackSafe").checked,
       knee_safe: $("#exKneeSafe").checked,
-      shoulder_safe: $("#exShoulderSafe").checked
+      shoulder_safe: $("#exShoulderSafe").checked,
+      approved: $("#exApproved").checked,
+      plan_ready: $("#exPlanReady").checked,
+      media_required: $("#exMediaRequired").checked,
+      usage_priority: $("#exUsagePriority").value || "medium"
     };
 
     if(imagePathValue.startsWith("http")) payload.image_url = imagePathValue;
@@ -877,9 +906,17 @@
   function renderExercises(){
     const list = $("#exerciseList");
     const q = $("#exerciseSearch").value.trim().toLowerCase();
+    const filter = $("#exerciseFilter")?.value || "all";
     const filtered = exercises.filter(ex => {
-      if(!q) return true;
-      return [ex.name, ex.category, ex.section, ex.target_muscle, ex.equipment, ex.difficulty].join(" ").toLowerCase().includes(q);
+      const haystack = [ex.name, ex.category, ex.section, ex.target_muscle, ex.equipment, ex.difficulty, ex.usage_priority, ex.media_status, ex.guide_status].join(" ").toLowerCase();
+      const matchesSearch = !q || haystack.includes(q);
+      if(!matchesSearch) return false;
+      if(filter === "plan_ready") return ex.plan_ready && ex.approved !== false;
+      if(filter === "not_ready") return !ex.plan_ready || ex.approved === false;
+      if(filter === "missing_media") return (ex.media_status || "missing") === "missing";
+      if(filter === "missing_guide") return (ex.guide_status || "missing") === "missing";
+      if(filter === "high_priority") return (ex.usage_priority || "medium") === "high";
+      return true;
     });
 
     if(!filtered.length){
@@ -891,7 +928,9 @@
     showStatus("#exerciseListStatus", "", "");
     list.innerHTML = filtered.map(ex => {
       const media = ex.image_public_url ? `<img src="${esc(ex.image_public_url)}" alt="">` : (ex.video_public_url ? `<video src="${esc(ex.video_public_url)}"></video>` : "▣");
-      const mediaStatus = ex.image_public_url || ex.video_public_url ? `<span class="status-pill blue">Media</span>` : `<span class="status-pill amber">No media</span>`;
+      const mediaStatus = ex.plan_ready && ex.approved !== false
+        ? `<span class="status-pill">Plan ready</span>`
+        : ((ex.media_status || "missing") === "missing" ? `<span class="status-pill amber">No media</span>` : `<span class="status-pill blue">Draft</span>`);
       return `
         <article class="exercise-card">
           <div class="exercise-top">
@@ -900,8 +939,9 @@
               <div>
                 <div class="exercise-name">${esc(ex.name)}</div>
                 <div class="exercise-meta">
-                  ${esc(ex.category || "general")} • ${esc(ex.section || "main")} • ${esc(ex.difficulty || "beginner")}<br>
-                  ${esc(ex.target_muscle || "No target muscle")} ${ex.equipment ? `• ${esc(ex.equipment)}` : ""}
+                  ${esc(ex.category || "general")} • ${esc(ex.section || "main")} • ${esc(ex.difficulty || "beginner")} • ${esc(ex.usage_priority || "medium")}<br>
+                  ${esc(ex.target_muscle || "No target muscle")} ${ex.equipment ? `• ${esc(ex.equipment)}` : ""}<br>
+                  Media: ${esc(ex.media_status || "missing")} • Guide: ${esc(ex.guide_status || "missing")} ${ex.approved === false ? "• Not approved" : ""}
                 </div>
               </div>
             </div>
@@ -946,6 +986,7 @@
   $("#uploadMediaBtn").addEventListener("click", uploadExerciseMedia);
   $("#saveExerciseBtn").addEventListener("click", saveExercise);
   $("#exerciseSearch").addEventListener("input", renderExercises);
+  $("#exerciseFilter").addEventListener("change", renderExercises);
   $("#exName").addEventListener("input", () => { if(!$("#exSlug").value.trim()) $("#exSlug").value = slugify($("#exName").value); });
   $("#exImagePath").addEventListener("input", () => renderExercisePreview(null));
   $("#exVideoPath").addEventListener("input", () => renderExercisePreview(null));
