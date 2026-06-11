@@ -1551,9 +1551,17 @@ function normalizeExercise(ex, section){
     target_muscle: ex.target_muscle || lib.target_muscle || "",
     image_url: ex.image_url || lib.image_url || "",
     video_url: ex.video_url || lib.video_url || "",
+    image_path: ex.image_path || lib.image_path || "",
+    video_path: ex.video_path || lib.video_path || "",
+    guide_steps: Array.isArray(ex.guide_steps) && ex.guide_steps.length ? ex.guide_steps : (Array.isArray(lib.guide_steps) ? lib.guide_steps : []),
+    common_mistakes: Array.isArray(ex.common_mistakes) && ex.common_mistakes.length ? ex.common_mistakes : (Array.isArray(lib.common_mistakes) ? lib.common_mistakes : []),
     common_mistake: ex.common_mistake || lib.common_mistake || "",
+    pain_warning: ex.pain_warning || lib.pain_warning || "",
+    alternatives: Array.isArray(ex.alternatives) && ex.alternatives.length ? ex.alternatives : (Array.isArray(lib.alternatives) ? lib.alternatives : []),
     safe_alternative: ex.safe_alternative || lib.safe_alternative || "",
     coach_note: ex.coach_note || "",
+    usage_priority: ex.usage_priority || lib.usage_priority || "medium",
+    plan_ready: ex.plan_ready === true || lib.plan_ready === true,
     back_safe: lib.back_safe,
     knee_safe: lib.knee_safe,
     shoulder_safe: lib.shoulder_safe
@@ -1628,12 +1636,22 @@ function renderMeals(){
   $("#mealStatusPill").textContent = nice(data.dailyLog?.meals_status || "pending");
 }
 
+function publicExerciseMediaUrl(url, path){
+  if(url) return url;
+  if(!path) return "";
+  if(String(path).startsWith("http")) return path;
+  const safePath = String(path).split("/").map(encodeURIComponent).join("/");
+  return `${SUPABASE_URL}/storage/v1/object/public/exercise-media/${safePath}`;
+}
+
 function exerciseMediaHTML(ex, big=false){
-  if(ex.video_url){
-    return `<video src="${esc(ex.video_url)}" controls playsinline></video>`;
+  const video = publicExerciseMediaUrl(ex.video_url, ex.video_path);
+  const image = publicExerciseMediaUrl(ex.image_url, ex.image_path);
+  if(video){
+    return `<video src="${esc(video)}" controls playsinline></video>`;
   }
-  if(ex.image_url){
-    return `<img src="${esc(ex.image_url)}" alt="${esc(ex.name)}">`;
+  if(image){
+    return `<img src="${esc(image)}" alt="${esc(ex.name)}">`;
   }
   return iconSvg;
 }
@@ -2244,6 +2262,27 @@ function renderProfile(){
   renderPlanAccessBox();
 }
 
+function smallListHTML(title, items){
+  const list = (Array.isArray(items) ? items : []).filter(Boolean).slice(0,8);
+  if(!list.length) return "";
+  return `
+    <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.14);border-radius:18px;padding:11px">
+      <div style="font-size:12px;color:#94A3B8;font-weight:900;margin-bottom:7px">${esc(title)}</div>
+      <ol style="margin:0;padding-left:18px;color:#E2E8F0;font-size:12.5px;line-height:1.45">${list.map(item => `<li>${esc(item)}</li>`).join("")}</ol>
+    </div>`;
+}
+
+function noteBlockHTML(title, text, tone=""){
+  if(!text) return "";
+  const color = tone === "warn" ? "#FDE68A" : "#BAE6FD";
+  const border = tone === "warn" ? "rgba(245,158,11,.18)" : "rgba(56,189,248,.18)";
+  const bg = tone === "warn" ? "rgba(245,158,11,.08)" : "rgba(56,189,248,.08)";
+  return `
+    <div style="margin-top:10px;border:1px solid ${border};background:${bg};border-radius:18px;padding:11px;color:${color};font-size:12.5px;line-height:1.45">
+      <b style="display:block;margin-bottom:4px">${esc(title)}</b>${esc(text)}
+    </div>`;
+}
+
 function openDetail(index){
   const ex = workoutPlan[index];
   if(!ex) return;
@@ -2253,14 +2292,20 @@ function openDetail(index){
   $("#detailTag").textContent = sectionLabel(ex.plan_section);
   $("#detailMedia").innerHTML = exerciseMediaHTML(ex, true);
 
+  const mistakeItems = ex.common_mistakes?.length ? ex.common_mistakes : (ex.common_mistake ? [ex.common_mistake] : []);
+  const alternativeItems = ex.alternatives?.length ? ex.alternatives : (ex.safe_alternative ? [ex.safe_alternative] : []);
+
   $("#detailInfo").innerHTML = `
     <div class="summary-line"><span>Sets</span><strong>${esc(ex.sets)}</strong></div>
     <div class="summary-line"><span>Target muscle</span><strong>${esc(ex.target_muscle || "-")}</strong></div>
     <div class="summary-line"><span>Rest</span><strong>${esc(ex.rest_seconds)} sec</strong></div>
     <div class="summary-line"><span>Cue</span><strong>${esc(ex.cue || "-")}</strong></div>
-    ${ex.common_mistake ? `<div class="summary-line"><span>Mistake</span><strong>${esc(ex.common_mistake)}</strong></div>` : ""}
-    ${ex.safe_alternative ? `<div class="summary-line"><span>Alternative</span><strong>${esc(ex.safe_alternative)}</strong></div>` : ""}
-    ${ex.coach_note ? `<div class="summary-line"><span>Coach note</span><strong>${esc(ex.coach_note)}</strong></div>` : ""}
+    ${ex.plan_ready ? `<div class="summary-line"><span>Guide status</span><strong>Plan-ready library exercise</strong></div>` : ""}
+    ${smallListHTML("How to do it", ex.guide_steps)}
+    ${smallListHTML("Common mistakes", mistakeItems)}
+    ${noteBlockHTML("Pain warning", ex.pain_warning, "warn")}
+    ${smallListHTML("Alternatives", alternativeItems)}
+    ${ex.coach_note ? noteBlockHTML("Coach note", ex.coach_note) : ""}
   `;
 
   $("#detailModal").classList.add("show");
