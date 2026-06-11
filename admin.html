@@ -815,16 +815,36 @@
 
   async function uploadOneMedia(file, kind){
     if(!file) return null;
+
     const name = $("#exName").value.trim() || "exercise";
     const folder = slugify($("#exSlug").value.trim() || name) || "exercise";
     const path = `${folder}/${kind}-${safeFileName(file)}`;
 
+    // More reliable than direct browser upload with RLS:
+    // admin is verified by Netlify function, then Supabase returns a signed upload token.
+    const signed = await api("/.netlify/functions/admin-create-media-upload-url", {
+      method:"POST",
+      body:JSON.stringify({
+        bucket:"exercise-media",
+        path,
+        mime_type:file.type || "application/octet-stream",
+        size:file.size || 0
+      })
+    });
+
+    if(!signed?.token || !signed?.path){
+      throw new Error("Could not create signed upload URL.");
+    }
+
     const { data, error } = await supabaseClient.storage
       .from("exercise-media")
-      .upload(path, file, { cacheControl:"3600", upsert:true });
+      .uploadToSignedUrl(signed.path, signed.token, file, {
+        cacheControl:"3600",
+        contentType:file.type || undefined
+      });
 
     if(error) throw error;
-    return data.path;
+    return data?.path || signed.path;
   }
 
   async function uploadExerciseMedia(){
