@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>FitApp - Admin</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root{
+      --bg:#070A0F;
+      --bg2:#0B1220;
+      --line:rgba(255,255,255,.13);
+      --text:#F8FAFC;
+      --muted:#94A3B8;
+      --muted2:#64748B;
+      --green:#22C55E;
+      --blue:#38BDF8;
+      --amber:#F59E0B;
+      --red:#EF4444;
+      --purple:#A78BFA;
+      --shadow:0 24px 70px rgba(0,0,0,.38);
+      --radius:26px;
+      --max:720px;
+    }
+
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(34,197,94,.24), transparent 34%),
+        radial-gradient(circle at top right, rgba(56,189,248,.18), transparent 32%),
+        radial-gradient(circle at 70% 85%, rgba(167,139,250,.12), transparent 32%),
+        linear-gradient(180deg,var(--bg),var(--bg2));
+      color:var(--text);
+      overflow-x:hidden;
+    }
+
+    button,input,select,textarea{font:inherit}
+    button{cursor:pointer}
+    a{color:inherit;text-decoration:none}
+
+    .page{width:100%;min-height:100vh;display:flex;justify-content:center}
+    .app-shell{width:100%;max-width:var(--max);min-height:100vh;position:relative;padding:16px 14px 96px}
+
+    .glow{position:fixed;width:280px;height:280px;border-radius:999px;filter:blur(58px);opacity:.23;pointer-events:none;z-index:0}
+    .glow.one{background:var(--green);top:-110px;left:-80px}
+    .glow.two{background:var(--blue);bottom:60px;right:-100px;opacity:.17}
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:25;
+      margin:-16px -14px 12px;
+      padding:14px 14px 12px;
+      background:linear-gradient(180deg,rgba(7,10,15,.97),rgba(7,10,15,.82),rgba(7,10,15,0));
+      backdrop-filter:blur(22px) saturate(160%);
+    }
+    .toprow{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand{display:flex;align-items:center;gap:10px;min-width:0}
+    .logo{
+      width:44px;height:44px;border-radius:17px;display:grid;place-items:center;
+      background:linear-gradient(145deg,rgba(34,197,94,.95),rgba(56,189,248,.74));
+      color:#03100A;font-weight:1000;box-shadow:0 14px 35px rgba(34,197,94,.22);flex:0 0 auto;
+    }
+    .brand h1{margin:0;font-size:18px;letter-spacing:-.45px;line-height:1.05}
+    .brand span{display:block;margin-top:3px;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:390px}
+
+    .top-actions{display:flex;gap:8px;align-items:center}
+    .pill-link,.top-pill{
+      border:1px solid rgba(255,255,255,.13);
+      background:rgba(255,255,255,.075);
+      color:var(--text);
+      padding:9px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      white-space:nowrap;
+      backdrop-filter:blur(18px);
+    }
+    .top-pill{border-color:rgba(34,197,94,.24);background:rgba(34,197,94,.10);color:#BBF7D0}
+
+    .screen{position:relative;z-index:2}
+    .hidden{display:none!important}
+
+    .hero{
+      border:1px solid rgba(34,197,94,.20);
+      background:
+        radial-gradient(circle at top right,rgba(34,197,94,.18),transparent 42%),
+        linear-gradient(180deg,rgba(255,255,255,.095),rgba(255,255,255,.045));
+      border-radius:30px;
+      padding:17px;
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(24px) saturate(170%);
+      overflow:hidden;
+      margin-bottom:12px;
+    }
+    .hero h2{margin:0;font-size:34px;line-height:1.02;letter-spacing:-1.3px}
+    .hero p{margin:9px 0 0;color:#CBD5E1;font-size:14px;line-height:1.45;max-width:560px}
+    .chips-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:13px}
+    .tag{border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);color:#CBD5E1;border-radius:999px;padding:7px 10px;font-size:11.5px;font-weight:900}
+    .tag.green{border-color:rgba(34,197,94,.28);background:rgba(34,197,94,.10);color:#BBF7D0}
+    .tag.blue{border-color:rgba(56,189,248,.25);background:rgba(56,189,248,.10);color:#BAE6FD}
+    .tag.amber{border-color:rgba(245,158,11,.25);background:rgba(245,158,11,.10);color:#FDE68A}
+
+    .grid{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:760px){.grid.two{grid-template-columns:.86fr 1.14fr}.grid.three{grid-template-columns:repeat(3,1fr)}}
+
+    .card{
+      border:1px solid var(--line);
+      background:linear-gradient(180deg,rgba(255,255,255,.105),rgba(255,255,255,.055));
+      box-shadow:var(--shadow);
+      border-radius:var(--radius);
+      padding:14px;
+      backdrop-filter:blur(24px) saturate(170%);
+      overflow:hidden;
+      position:relative;
+    }
+    .card:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at top right,rgba(255,255,255,.11),transparent 38%);pointer-events:none}
+    .card-inner{position:relative;z-index:1}
+    .card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}
+    .card-head h3{margin:0;font-size:18px;letter-spacing:-.35px}
+    .card-head p{margin:5px 0 0;color:var(--muted);font-size:12.5px;line-height:1.36}
+
+    .field{margin-top:10px}
+    .field label{display:block;font-size:12px;color:#CBD5E1;font-weight:900;margin:0 0 6px 3px}
+    .input,.select,.textarea{
+      width:100%;border:1px solid rgba(255,255,255,.13);background:rgba(0,0,0,.20);color:var(--text);
+      outline:none;border-radius:17px;min-height:50px;padding:12px 13px;font-size:14.5px;
+    }
+    .textarea{min-height:82px;resize:vertical;line-height:1.4}
+    .input:focus,.select:focus,.textarea:focus{border-color:rgba(34,197,94,.55);background:rgba(0,0,0,.28)}
+    .input::placeholder,.textarea::placeholder{color:#64748B}
+
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+    @media(max-width:520px){.row2{grid-template-columns:1fr}}
+
+    .btn{
+      border:0;border-radius:18px;min-height:52px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
+      padding:13px 14px;font-weight:1000;transition:transform .16s ease,opacity .16s ease;user-select:none;
+    }
+    .btn:active{transform:scale(.985)}
+    .btn.primary{background:linear-gradient(135deg,var(--green),#86EFAC);color:#03100A;box-shadow:0 18px 40px rgba(34,197,94,.24)}
+    .btn.secondary{background:rgba(255,255,255,.08);border:1px solid var(--line);color:var(--text)}
+    .btn.blue{background:rgba(56,189,248,.14);border:1px solid rgba(56,189,248,.25);color:#BAE6FD}
+    .btn.amber{background:rgba(245,158,11,.14);border:1px solid rgba(245,158,11,.25);color:#FDE68A}
+    .btn.red{background:rgba(239,68,68,.14);border:1px solid rgba(239,68,68,.25);color:#FECACA}
+    .btn:disabled{opacity:.52;cursor:not-allowed;transform:none;box-shadow:none}
+    .mini-btn{border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.075);color:var(--text);border-radius:999px;padding:8px 10px;font-size:12px;font-weight:900;white-space:nowrap}
+    .mini-btn.green{border-color:rgba(34,197,94,.26);background:rgba(34,197,94,.10);color:#BBF7D0}
+    .mini-btn.red{border-color:rgba(239,68,68,.24);background:rgba(239,68,68,.10);color:#FECACA}
+
+    .status{
+      display:none;margin-top:12px;border-radius:17px;padding:12px;font-size:13px;line-height:1.42;
+      border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#E2E8F0;
+    }
+    .status.show{display:block}
+    .status.good{border-color:rgba(34,197,94,.25);background:rgba(34,197,94,.09);color:#BBF7D0}
+    .status.bad{border-color:rgba(239,68,68,.25);background:rgba(239,68,68,.08);color:#FECACA}
+    .status.info{border-color:rgba(56,189,248,.24);background:rgba(56,189,248,.08);color:#BAE6FD}
+
+    .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:12px}
+    @media(max-width:520px){.stats-grid{grid-template-columns:1fr}}
+    .stat{border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.16);border-radius:20px;padding:12px;min-height:86px;display:flex;flex-direction:column;justify-content:space-between;gap:10px}
+    .stat span{font-size:12px;color:var(--muted)}
+    .stat strong{font-size:22px;letter-spacing:-.6px}
+
+    .promo-list{display:grid;gap:10px}
+    .promo-card{border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.16);border-radius:21px;padding:12px}
+    .promo-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+    .promo-code{font-size:18px;font-weight:1000;letter-spacing:.6px;word-break:break-word}
+    .promo-meta{margin-top:5px;color:var(--muted);font-size:12.5px;line-height:1.4}
+    .status-pill{white-space:nowrap;border-radius:999px;padding:7px 10px;font-size:11px;font-weight:950;border:1px solid rgba(34,197,94,.28);background:rgba(34,197,94,.10);color:#BBF7D0}
+    .status-pill.red{border-color:rgba(239,68,68,.25);background:rgba(239,68,68,.10);color:#FECACA}
+    .status-pill.amber{border-color:rgba(245,158,11,.25);background:rgba(245,158,11,.10);color:#FDE68A}
+    .promo-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+    @media(max-width:390px){.promo-actions{grid-template-columns:1fr}}
+
+    .loader-screen{min-height:56vh;display:grid;place-items:center;text-align:center;color:var(--muted);position:relative;z-index:2}
+    .spin{width:32px;height:32px;border-radius:50%;border:3px solid rgba(255,255,255,.12);border-top-color:var(--green);margin:0 auto 12px;animation:spin .75s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .bottom-tabs{
+      position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:var(--max);z-index:40;
+      padding:9px 10px calc(9px + env(safe-area-inset-bottom));
+      pointer-events:none;
+    }
+    .tabs-glass{
+      pointer-events:auto;
+      display:grid;grid-template-columns:1fr 1fr;gap:8px;
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.10);
+      backdrop-filter:blur(28px) saturate(180%);
+      box-shadow:0 20px 55px rgba(0,0,0,.35);
+      border-radius:999px;
+      padding:7px;
+    }
+    .tab{
+      min-height:48px;border:0;border-radius:999px;background:transparent;color:#CBD5E1;font-weight:1000;font-size:13px;
+      display:flex;align-items:center;justify-content:center;gap:8px;
+    }
+    .tab.active{background:rgba(255,255,255,.18);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 8px 22px rgba(0,0,0,.20)}
+
+    @media(min-width:760px){
+      .app-shell{padding-top:22px}
+      .hero h2{font-size:38px}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="glow one"></div>
+  <div class="glow two"></div>
+
+  <div class="page">
+    <main class="app-shell">
+      <header class="topbar">
+        <div class="toprow">
+          <a href="app.html" class="brand">
+            <div class="logo">FA</div>
+            <div>
+              <h1>FitApp Admin</h1>
+              <span id="topSub">Promo code manager</span>
+            </div>
+          </a>
+          <div class="top-actions">
+            <a class="pill-link" href="app.html">App</a>
+            <button class="top-pill" id="logoutBtn" type="button">Logout</button>
+          </div>
+        </div>
+      </header>
+
+      <div id="loader" class="loader-screen">
+        <div><div class="spin"></div><div>Checking admin access...</div></div>
+      </div>
+
+      <section class="screen hidden" id="adminScreen">
+        <div class="hero">
+          <h2>Promo codes.</h2>
+          <p>Create free Premium or Premium Plus access codes for testers, friends, giveaways, or customers before payments are connected.</p>
+          <div class="chips-row">
+            <span class="tag green" id="adminRoleTag">Admin</span>
+            <span class="tag blue">Payment later</span>
+            <span class="tag amber">Service role protected</span>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat"><span>Total codes</span><strong id="statTotal">0</strong></div>
+          <div class="stat"><span>Active codes</span><strong id="statActive">0</strong></div>
+          <div class="stat"><span>Total uses</span><strong id="statUsed">0</strong></div>
+        </div>
+
+        <div class="grid two">
+          <section class="card" id="createSection">
+            <div class="card-inner">
+              <div class="card-head">
+                <div>
+                  <h3>Create promo</h3>
+                  <p>Leave code empty to auto-generate.</p>
+                </div>
+              </div>
+
+              <div class="field">
+                <label>Plan to unlock</label>
+                <select class="select" id="planCode">
+                  <option value="premium">Premium</option>
+                  <option value="premium_plus">Premium Plus</option>
+                  <option value="free">Free User</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label>Custom code optional</label>
+                <input class="input" id="customCode" placeholder="Example: FITPLUS30" maxlength="40" />
+              </div>
+
+              <div class="row2">
+                <div class="field">
+                  <label>Duration days</label>
+                  <input class="input" id="durationDays" type="number" min="1" step="1" placeholder="30" />
+                </div>
+                <div class="field">
+                  <label>Max redemptions</label>
+                  <input class="input" id="maxRedemptions" type="number" min="1" step="1" placeholder="1" />
+                </div>
+              </div>
+
+              <div class="field">
+                <label>Code expiry optional</label>
+                <input class="input" id="expiresAt" type="datetime-local" />
+              </div>
+
+              <div class="field">
+                <label>Notes optional</label>
+                <textarea class="textarea" id="notes" placeholder="Example: Instagram giveaway, tester, friend, launch offer..."></textarea>
+              </div>
+
+              <button class="btn primary" id="createBtn" type="button">Create promo code</button>
+              <div class="status" id="createStatus"></div>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card-inner">
+              <div class="card-head">
+                <div>
+                  <h3>Quick rules</h3>
+                  <p>Keep access simple while payment is not connected.</p>
+                </div>
+              </div>
+
+              <div class="promo-card">
+                <div class="promo-code">Best codes to create</div>
+                <div class="promo-meta">
+                  • Premium Plus, 30 days, 1 use for private testers<br>
+                  • Premium, 7 days, 20 uses for launch giveaway<br>
+                  • Premium Plus, 90 days, 1 use for close beta users
+                </div>
+              </div>
+
+              <div class="promo-card" style="margin-top:10px">
+                <div class="promo-code">Security note</div>
+                <div class="promo-meta">
+                  Users cannot read all promo codes. They can only redeem through the Netlify function. Admin list/create/update uses service role inside functions.
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <section class="card" style="margin-top:12px" id="listSection">
+          <div class="card-inner">
+            <div class="card-head">
+              <div>
+                <h3>Existing promo codes</h3>
+                <p>Copy, deactivate, reactivate, and track usage.</p>
+              </div>
+              <button class="mini-btn green" id="refreshBtn" type="button">Refresh</button>
+            </div>
+
+            <div class="promo-list" id="promoList"></div>
+            <div class="status" id="listStatus"></div>
+          </div>
+        </section>
+      </section>
+
+      <section class="screen hidden" id="noAccessScreen">
+        <div class="hero">
+          <h2>No admin access.</h2>
+          <p>This page is only for users added in the app_admins table. Login with your admin account or return to the app.</p>
+          <div class="chips-row">
+            <a class="btn secondary" href="auth.html?mode=login" style="width:auto;min-width:160px">Login</a>
+            <a class="btn primary" href="app.html" style="width:auto;min-width:160px">Open app</a>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="bottom-tabs" aria-label="Admin navigation">
+    <div class="tabs-glass">
+      <button class="tab active" id="createTab" type="button">＋ Create</button>
+      <button class="tab" id="codesTab" type="button">◎ Codes</button>
+    </div>
+  </nav>
+
+<script>
+  const SUPABASE_URL = "https://qusmbveovroldkhbjudq.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_6zVS1VCVok16WmVWNPvTrw_vTiQvgX4";
+
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+      detectSessionInUrl: false,
+      persistSession: true,
+      autoRefreshToken: true
+    }
+  });
+
+  const $ = q => document.querySelector(q);
+  const $$ = q => Array.from(document.querySelectorAll(q));
+
+  let currentSession = null;
+  let promos = [];
+
+  function show(el){ el?.classList.remove("hidden"); }
+  function hide(el){ el?.classList.add("hidden"); }
+
+  function esc(value){
+    return String(value ?? "").replace(/[&<>'"]/g, ch => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"
+    }[ch]));
+  }
+
+  function showStatus(id, message, type = ""){
+    const box = $(id);
+    if(!box) return;
+    box.textContent = message || "";
+    box.className = "status";
+    if(message){
+      box.classList.add("show");
+      if(type) box.classList.add(type);
+    }
+  }
+
+  function money(cents){
+    const n = Number(cents || 0);
+    if(!n) return "$0";
+    return `$${(n/100).toFixed(2)}`;
+  }
+
+  function planName(code){
+    if(code === "premium_plus") return "Premium Plus";
+    if(code === "premium") return "Premium";
+    return "Free User";
+  }
+
+  function prettyDate(value){
+    if(!value) return "No expiry";
+    const d = new Date(value);
+    if(Number.isNaN(d.getTime())) return "No expiry";
+    return d.toLocaleString([], { year:"numeric", month:"short", day:"numeric", hour:"numeric", minute:"2-digit" });
+  }
+
+  function isExpired(row){
+    return row.expires_at && new Date(row.expires_at).getTime() < Date.now();
+  }
+
+  function statusPill(row){
+    if(!row.is_active) return `<span class="status-pill red">Inactive</span>`;
+    if(isExpired(row)) return `<span class="status-pill amber">Expired</span>`;
+    if(row.max_redemptions !== null && row.max_redemptions !== undefined && Number(row.used_count || 0) >= Number(row.max_redemptions)){
+      return `<span class="status-pill amber">Used up</span>`;
+    }
+    return `<span class="status-pill">Active</span>`;
+  }
+
+  function requireSession(){
+    if(!currentSession?.access_token){
+      location.href = "auth.html?mode=login";
+      return "";
+    }
+    return currentSession.access_token;
+  }
+
+  async function api(path, options = {}){
+    const token = requireSession();
+    if(!token) throw new Error("Login required.");
+
+    const res = await fetch(path, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+        ...(options.headers || {})
+      }
+    });
+
+    const result = await res.json().catch(() => ({}));
+
+    if(!res.ok || result.ok === false){
+      throw new Error(result.error || "Request failed.");
+    }
+
+    return result;
+  }
+
+  function readForm(){
+    const code = $("#customCode").value.trim().toUpperCase().replace(/\s+/g, "");
+    const duration = $("#durationDays").value.trim();
+    const max = $("#maxRedemptions").value.trim();
+    const expiresRaw = $("#expiresAt").value;
+
+    return {
+      plan_code: $("#planCode").value,
+      code: code || undefined,
+      duration_days: duration ? Number(duration) : null,
+      max_redemptions: max ? Number(max) : null,
+      expires_at: expiresRaw ? new Date(expiresRaw).toISOString() : null,
+      notes: $("#notes").value.trim() || null
+    };
+  }
+
+  function resetForm(){
+    $("#customCode").value = "";
+    $("#durationDays").value = "30";
+    $("#maxRedemptions").value = "1";
+    $("#expiresAt").value = "";
+    $("#notes").value = "";
+    $("#planCode").value = "premium_plus";
+  }
+
+  async function createPromo(){
+    const btn = $("#createBtn");
+    const old = btn.textContent;
+
+    try{
+      btn.disabled = true;
+      btn.textContent = "Creating...";
+      showStatus("#createStatus", "", "");
+
+      const payload = readForm();
+
+      const result = await api("/.netlify/functions/admin-create-promo", {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
+
+      const code = result.promo?.code || payload.code || "Created";
+      showStatus("#createStatus", `Promo created: ${code}`, "good");
+
+      try{ await navigator.clipboard.writeText(code); }catch{}
+
+      resetForm();
+      await loadPromos();
+      scrollToCodes(false);
+    }catch(err){
+      showStatus("#createStatus", err.message || "Could not create promo.", "bad");
+    }finally{
+      btn.disabled = false;
+      btn.textContent = old;
+    }
+  }
+
+  async function loadPromos(){
+    try{
+      showStatus("#listStatus", "Loading promo codes...", "info");
+
+      const result = await api("/.netlify/functions/admin-list-promos", { method: "GET" });
+      promos = result.promos || [];
+
+      renderStats();
+      renderPromos();
+      showStatus("#listStatus", promos.length ? "" : "No promo codes yet.", promos.length ? "" : "info");
+
+      if(result.admin?.role){
+        $("#adminRoleTag").textContent = result.admin.role;
+      }
+    }catch(err){
+      showStatus("#listStatus", err.message || "Could not load promo codes.", "bad");
+      if(String(err.message || "").toLowerCase().includes("admin")){
+        hide($("#adminScreen"));
+        show($("#noAccessScreen"));
+      }
+    }
+  }
+
+  function renderStats(){
+    const total = promos.length;
+    const active = promos.filter(p => p.is_active && !isExpired(p)).length;
+    const used = promos.reduce((sum,p) => sum + Number(p.used_count || 0), 0);
+
+    $("#statTotal").textContent = total;
+    $("#statActive").textContent = active;
+    $("#statUsed").textContent = used;
+  }
+
+  function renderPromos(){
+    const list = $("#promoList");
+
+    if(!promos.length){
+      list.innerHTML = "";
+      return;
+    }
+
+    list.innerHTML = promos.map(row => {
+      const plan = row.plan_name || planName(row.plan_code);
+      const usedText = `${Number(row.used_count || 0)} / ${row.max_redemptions ?? "∞"}`;
+      const durationText = row.duration_days ? `${row.duration_days} days access` : "Lifetime/no end after redeem";
+
+      return `
+        <article class="promo-card" data-promo-id="${esc(row.id)}">
+          <div class="promo-top">
+            <div>
+              <div class="promo-code">${esc(row.code)}</div>
+              <div class="promo-meta">
+                ${esc(plan)} • ${money(row.monthly_price_cents)} • ${esc(durationText)}<br>
+                Uses: ${esc(usedText)} • Code expiry: ${esc(prettyDate(row.expires_at))}<br>
+                Created: ${esc(prettyDate(row.created_at))}
+                ${row.notes ? `<br>Notes: ${esc(row.notes)}` : ""}
+              </div>
+            </div>
+            ${statusPill(row)}
+          </div>
+          <div class="promo-actions">
+            <button class="mini-btn green" type="button" data-copy-code="${esc(row.code)}">Copy code</button>
+            <button class="mini-btn ${row.is_active ? "red" : "green"}" type="button" data-toggle-promo="${esc(row.id)}" data-active="${row.is_active ? "false" : "true"}">
+              ${row.is_active ? "Deactivate" : "Reactivate"}
+            </button>
+          </div>
+        </article>
+      `;
+    }).join("");
+  }
+
+  async function updatePromo(id, updates){
+    await api("/.netlify/functions/admin-update-promo", {
+      method: "POST",
+      body: JSON.stringify({ id, ...updates })
+    });
+    await loadPromos();
+  }
+
+  async function copyText(text){
+    try{
+      await navigator.clipboard.writeText(text);
+      showStatus("#listStatus", `Copied: ${text}`, "good");
+    }catch{
+      showStatus("#listStatus", `Copy manually: ${text}`, "info");
+    }
+  }
+
+  function scrollToCodes(smooth = true){
+    $("#codesTab").classList.add("active");
+    $("#createTab").classList.remove("active");
+    $("#listSection").scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
+  }
+
+  function scrollToCreate(){
+    $("#createTab").classList.add("active");
+    $("#codesTab").classList.remove("active");
+    $("#createSection").scrollIntoView({ behavior:"smooth", block:"start" });
+  }
+
+  async function boot(){
+    const { data } = await supabaseClient.auth.getSession();
+    currentSession = data?.session || null;
+
+    if(!currentSession){
+      location.href = "auth.html?mode=login";
+      return;
+    }
+
+    hide($("#loader"));
+    show($("#adminScreen"));
+
+    resetForm();
+    await loadPromos();
+  }
+
+  $("#createBtn").addEventListener("click", createPromo);
+  $("#refreshBtn").addEventListener("click", loadPromos);
+  $("#logoutBtn").addEventListener("click", async () => {
+    await supabaseClient.auth.signOut();
+    location.href = "auth.html?mode=login";
+  });
+
+  $("#createTab").addEventListener("click", scrollToCreate);
+  $("#codesTab").addEventListener("click", () => scrollToCodes(true));
+
+  document.addEventListener("click", async e => {
+    const copy = e.target.closest("[data-copy-code]");
+    if(copy){
+      await copyText(copy.dataset.copyCode);
+      return;
+    }
+
+    const toggle = e.target.closest("[data-toggle-promo]");
+    if(toggle){
+      const id = toggle.dataset.togglePromo;
+      const active = toggle.dataset.active === "true";
+      toggle.disabled = true;
+      try{
+        await updatePromo(id, { is_active: active });
+        showStatus("#listStatus", active ? "Promo reactivated." : "Promo deactivated.", "good");
+      }catch(err){
+        showStatus("#listStatus", err.message || "Could not update promo.", "bad");
+      }finally{
+        toggle.disabled = false;
+      }
+    }
+  });
+
+  boot();
+</script>
+</body>
+</html>
