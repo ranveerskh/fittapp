@@ -403,6 +403,20 @@
       color:#BBF7D0;
     }
     .plan-chip.free{border-color:rgba(255,255,255,.14);background:rgba(255,255,255,.07);color:#E2E8F0}
+    .ai-status-box{
+      margin-top:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.07);
+      border-radius:22px;
+      padding:14px;
+    }
+    .ai-status-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+    .ai-status-top h4{margin:0;font-size:15px;letter-spacing:-.25px}
+    .ai-status-top p{margin:4px 0 0;color:var(--muted);font-size:12.5px;line-height:1.35}
+    .ai-status-meta{display:grid;gap:8px;margin-top:12px}
+    .ai-status-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid rgba(255,255,255,.09);padding-top:8px;font-size:12.5px}
+    .ai-status-row span{color:var(--muted)}
+    .ai-status-row strong{font-size:12.5px;text-align:right}
     .feature-mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
     .feature-mini{border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.055);border-radius:15px;padding:9px;font-size:11.5px;line-height:1.3;color:#CBD5E1}
     .feature-mini.good{border-color:rgba(34,197,94,.20);background:rgba(34,197,94,.08);color:#BBF7D0}
@@ -787,6 +801,7 @@
               <div class="stat"><span>Workout</span><strong id="statWorkout">-</strong></div>
               <div class="stat"><span>Latest weight</span><strong id="statWeight">-</strong></div>
             </div>
+            <div id="aiCoachStatusBox" class="ai-status-box"></div>
             <div class="btn-row">
               <button class="btn primary" id="updatePlanBtn">Update next plan</button>
               <button class="btn secondary" id="openMeasureBtn">Add check-in</button>
@@ -983,6 +998,7 @@ const $$ = q => Array.from(document.querySelectorAll(q));
 let user = null;
 let data = {};
 let activePlan = null;
+let activePlanMeta = null;
 let todayMeals = [];
 let todaySchedule = [];
 let workoutPlan = [];
@@ -1025,6 +1041,31 @@ function planName(code){
 
 function currentPlanCode(){
   return currentEntitlement?.plan_code || data.profile?.selected_plan_code || (data.profile?.is_premium ? "premium" : "free");
+}
+
+function formatDateTime(value){
+  if(!value) return "Not updated yet";
+  const d = new Date(value);
+  if(Number.isNaN(d.getTime())) return "Not updated yet";
+  return d.toLocaleString([], { month:"short", day:"numeric", hour:"numeric", minute:"2-digit" });
+}
+
+function relativeTime(value){
+  if(!value) return "Not updated yet";
+  const d = new Date(value);
+  if(Number.isNaN(d.getTime())) return "Not updated yet";
+  const diff = Date.now() - d.getTime();
+  const mins = Math.max(0, Math.round(diff / 60000));
+  if(mins < 1) return "just now";
+  if(mins < 60) return `${mins} min ago`;
+  const hrs = Math.round(mins / 60);
+  if(hrs < 24) return `${hrs} hr${hrs === 1 ? "" : "s"} ago`;
+  const days = Math.round(hrs / 24);
+  return `${days} day${days === 1 ? "" : "s"} ago`;
+}
+
+function lastAiUpdateText(){
+  return activePlanMeta?.created_at ? `${formatDateTime(activePlanMeta.created_at)} (${relativeTime(activePlanMeta.created_at)})` : "Not updated yet";
 }
 
 function currentPlanFeatures(){
@@ -1401,7 +1442,21 @@ async function loadAll(){
     .order("created_at",{ascending:false})
     .limit(1);
 
-  activePlan = plans?.[0]?.plan_json || null;
+  const activeRow = plans?.[0] || null;
+  activePlanMeta = activeRow ? {
+    id: activeRow.id,
+    title: activeRow.title || activeRow.plan_json?.title || "AI coach plan",
+    week_start: activeRow.week_start || activeRow.plan_json?.start_date || null,
+    week_end: activeRow.week_end || activeRow.plan_json?.end_date || null,
+    status: activeRow.status || "active",
+    ai_summary: activeRow.ai_summary || "",
+    created_at: activeRow.created_at || null,
+    model_used: activeRow.model_used || null,
+    plan_code: activeRow.plan_code || activeRow.plan_json?.plan_code || currentPlanCode(),
+    generation_type: activeRow.generation_type || activeRow.plan_json?.generation_type || null
+  } : null;
+  activePlan = activeRow?.plan_json || null;
+  if(activePlan && activePlanMeta) activePlan.__meta = activePlanMeta;
 
   if(hasFeature("progress_photos")){
     await loadProgressPhotos();
@@ -1589,12 +1644,15 @@ function renderAll(){
 
   $("#topSub").textContent = `${name} • ${planName(currentPlanCode())}`;
   $("#todayTitle").textContent = `Today, ${name.split(" ")[0] || "friend"}`;
-  $("#todaySubtitle").textContent = activePlan ? (activePlan.summary || "Your AI coach plan is active.") : "Starter plan. Tap Update next plan for AI coach plan.";
+  const pendingAi = readPendingPlanData();
+  $("#todaySubtitle").textContent = pendingAi
+    ? "Your AI coach is updating your next plan. Your current plan stays active until the new one is ready."
+    : (activePlan ? (activePlan.summary || "Your AI coach plan is active.") : "Starter plan. Tap Update next plan for AI coach plan.");
 
   $("#todayTags").innerHTML = `
-    <span class="tag green">${activePlan ? "AI plan active" : "Starter plan"}</span>
+    <span class="tag green">${pendingAi ? "AI updating" : (activePlan ? "AI plan active" : "Starter plan")}</span>
     <span class="tag blue">${esc(planName(currentPlanCode()))}</span>
-    <span class="tag amber">${data.workout?.max_minutes || "-"} min</span>
+    <span class="tag amber">${activePlanMeta?.created_at ? esc(relativeTime(activePlanMeta.created_at)) : `${data.workout?.max_minutes || "-"} min`}</span>
   `;
 
   renderMeals();
@@ -1604,6 +1662,7 @@ function renderAll(){
   renderWeekPlan();
   renderProgress();
   renderProfile();
+  renderAiCoachStatusUI();
   updateEntitlementUI();
 }
 
@@ -2249,7 +2308,8 @@ function renderProfile(){
     <div class="summary-line"><span>Allergies</span><strong>${esc(allergies)}</strong></div>
     <div class="summary-line"><span>Workout</span><strong>${esc(nice(data.workout?.workout_place))} / ${data.workout?.max_minutes || "-"} min</strong></div>
     <div class="summary-line"><span>Plan access</span><strong>${esc(planName(currentPlanCode()))}</strong></div>
-    <div class="summary-line"><span>Active plan</span><strong>${activePlan ? "AI plan" : "Starter plan"}</strong></div>
+    <div class="summary-line"><span>Active plan</span><strong>${readPendingPlanData() ? "Generating new plan" : (activePlan ? "AI plan" : "Starter plan")}</strong></div>
+    <div class="summary-line"><span>Last AI update</span><strong>${esc(lastAiUpdateText())}</strong></div>
   `;
   renderPlanAccessBox();
 }
@@ -2348,20 +2408,83 @@ function clearPendingPlanRequest(){
   localStorage.removeItem(PENDING_PLAN_KEY);
 }
 
-function readPendingPlanRequest(){
+function readPendingPlanData(){
   try{
     const raw = localStorage.getItem(PENDING_PLAN_KEY);
     if(!raw) return null;
-    const data = JSON.parse(raw);
-    if(!data?.request_id) return null;
-    if(Date.now() - Number(data.saved_at || 0) > 1000 * 60 * 60 * 3){
+    const item = JSON.parse(raw);
+    if(!item?.request_id) return null;
+    if(Date.now() - Number(item.saved_at || 0) > 1000 * 60 * 60 * 3){
       clearPendingPlanRequest();
       return null;
     }
-    return data.request_id;
+    return item;
   }catch{
     return null;
   }
+}
+
+function readPendingPlanRequest(){
+  return readPendingPlanData()?.request_id || null;
+}
+
+function renderAiCoachStatusUI(){
+  const box = $("#aiCoachStatusBox");
+  if(!box) return;
+
+  const pending = readPendingPlanData();
+  const code = currentPlanCode();
+  const plan = planName(code);
+
+  if(pending){
+    box.innerHTML = `
+      <div class="ai-status-top">
+        <div>
+          <h4>Your AI coach is updating your plan</h4>
+          <p>This can take a few minutes. You can stay here or come back later.</p>
+        </div>
+        <span class="status-pill purple">Generating</span>
+      </div>
+      <div class="ai-status-meta">
+        <div class="ai-status-row"><span>Started</span><strong>${esc(formatDateTime(pending.saved_at))}</strong></div>
+        <div class="ai-status-row"><span>Current plan</span><strong>${esc(activePlan ? "Old plan still active" : "Starter plan showing")}</strong></div>
+        <div class="ai-status-row"><span>Plan access</span><strong>${esc(plan)}</strong></div>
+      </div>
+    `;
+    return;
+  }
+
+  if(activePlanMeta?.created_at){
+    box.innerHTML = `
+      <div class="ai-status-top">
+        <div>
+          <h4>Your AI plan is ready</h4>
+          <p>Last AI update: ${esc(lastAiUpdateText())}</p>
+        </div>
+        <span class="status-pill green">Ready</span>
+      </div>
+      <div class="ai-status-meta">
+        <div class="ai-status-row"><span>Plan</span><strong>${esc(activePlanMeta.title || activePlan?.title || "AI coach plan")}</strong></div>
+        <div class="ai-status-row"><span>Week</span><strong>${esc((activePlanMeta.week_start || activePlan?.start_date || "") + " → " + (activePlanMeta.week_end || activePlan?.end_date || ""))}</strong></div>
+        <div class="ai-status-row"><span>Access</span><strong>${esc(plan)}</strong></div>
+      </div>
+    `;
+    return;
+  }
+
+  box.innerHTML = `
+    <div class="ai-status-top">
+      <div>
+        <h4>No AI update yet</h4>
+        <p>You are seeing the starter plan. Tap Update next plan to generate your first AI coach plan.</p>
+      </div>
+      <span class="status-pill blue">Starter</span>
+    </div>
+    <div class="ai-status-meta">
+      <div class="ai-status-row"><span>Last AI update</span><strong>Not updated yet</strong></div>
+      <div class="ai-status-row"><span>Plan access</span><strong>${esc(plan)}</strong></div>
+    </div>
+  `;
 }
 
 async function startBackgroundPlan(requestId, token){
@@ -2406,8 +2529,8 @@ async function resumePendingPlanIfAny(){
 
     if(status.status === "completed"){
       clearPendingPlanRequest();
-      if(status.plan) activePlan = status.plan;
-      else await loadPlan();
+      await loadPlan();
+      if(status.plan && !activePlan) activePlan = status.plan;
       await ensureWaterLog();
       buildTodaySchedule();
       buildWorkoutPlan();
@@ -2470,10 +2593,9 @@ async function pollPlanUntilReady(requestId, token, btn){
 
     if(status.status === "completed"){
       clearPendingPlanRequest();
-      if(status.plan){
+      await loadPlan();
+      if(status.plan && !activePlan){
         activePlan = status.plan;
-      }else{
-        await loadPlan();
       }
 
       await ensureWaterLog();
@@ -2531,6 +2653,7 @@ async function generatePlan(){
 
     if(result.request_id){
       savePendingPlanRequest(result.request_id);
+      renderAiCoachStatusUI();
       await startBackgroundPlan(result.request_id, token);
       btn.textContent="Generating plan...";
       await pollPlanUntilReady(result.request_id, token, btn);
