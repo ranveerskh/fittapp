@@ -33,7 +33,7 @@ FREE USER PLAN RULES:
     generationType: "premium_biweekly",
     isPremium: true,
     depth: "full",
-    maxOutputTokens: 14000,
+    maxOutputTokens: 6500,
     planInstruction: `
 PREMIUM PLAN RULES:
 - Create a full practical 7-day plan.
