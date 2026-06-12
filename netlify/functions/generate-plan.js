@@ -1074,6 +1074,11 @@ export async function handler(event) {
       body: JSON.stringify({
         model: MODEL,
         input: buildPrompt(userData, entitlement, usageInfo),
+        text: {
+          format: {
+            type: "json_object"
+          }
+        },
         max_output_tokens: tier.maxOutputTokens
       })
     });
@@ -1098,7 +1103,32 @@ export async function handler(event) {
     }
 
     const outputText = getOutputText(openaiData);
-    const parsed = extractJson(outputText);
+
+    let parsed;
+    try {
+      parsed = extractJson(outputText);
+    } catch (parseError) {
+      if (aiRequestId) {
+        await db
+          .from("ai_requests")
+          .update({
+            status: "failed",
+            error_message: `AI returned invalid JSON: ${parseError.message}`,
+            response_payload: {
+              parse_error: parseError.message,
+              raw_output_preview: outputText.slice(0, 6000),
+              openai_status: openaiData.status || null,
+              openai_usage: openaiData.usage || null
+            },
+            input_tokens: openaiData.usage?.input_tokens || null,
+            output_tokens: openaiData.usage?.output_tokens || null
+          })
+          .eq("id", aiRequestId);
+      }
+
+      throw new Error("AI returned invalid JSON. JSON mode has been enabled; check ai_requests.response_payload raw_output_preview if this happens again.");
+    }
+
     const rawPlan = parsed.next_week_plan || parsed;
     const plan = sanitizePlan(rawPlan, userData, entitlement);
 
