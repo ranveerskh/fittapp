@@ -207,6 +207,7 @@ export async function handler(event) {
         already_running: true,
         request_id: existing.id,
         status: existing.status,
+        needs_background_start: true,
         message: "Your AI coach is already updating your plan. It should be ready in a few minutes."
       });
     }
@@ -244,27 +245,10 @@ export async function handler(event) {
     if (requestInsert.error) throw requestInsert.error;
     const requestId = requestInsert.data.id;
 
-    const origin = siteOrigin(event);
-    if (!origin) throw new Error("Could not resolve site URL to start background plan generation.");
-
-    const bgRes = await fetch(`${origin}/.netlify/functions/generate-plan-background`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": event.headers.authorization || event.headers.Authorization || ""
-      },
-      body: JSON.stringify({ request_id: requestId })
-    });
-
-    if (![200, 202].includes(bgRes.status)) {
-      const txt = await bgRes.text().catch(() => "");
-      await db.from("ai_requests").update({ status: "failed", error_message: `Could not start background function: ${txt || bgRes.status}` }).eq("id", requestId);
-      throw new Error("Could not start background plan generation.");
-    }
-
     return jsonResponse(202, {
       ok: true,
       started: true,
+      needs_background_start: true,
       request_id: requestId,
       status: "pending",
       message: "Your AI coach is updating your plan. This can take a few minutes. You can stay on this page or come back later."
