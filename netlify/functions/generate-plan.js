@@ -380,8 +380,7 @@ async function readUserData(db, userId) {
       .limit(50),
 
     db.from("exercises")
-      .select("id,name,slug,category,section,target_muscle,equipment,difficulty,image_url,video_url,image_path,video_path,short_cue,common_mistake,common_mistakes,safe_alternative,alternatives,pain_warning,guide_steps,back_safe,knee_safe,shoulder_safe,approved,plan_ready,usage_priority,media_required,media_status,guide_status")
-      .order("category", { ascending: true }),
+      .select("id,name,category,section,target_muscle,equipment,difficulty,short_cue,safe_alternative,back_safe,knee_safe,shoulder_safe,approved,plan_ready,usage_priority")
 
     db.from("weekly_plans")
       .select("id,title,week_start,week_end,status,ai_summary,created_at")
