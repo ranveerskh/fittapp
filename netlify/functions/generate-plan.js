@@ -17,7 +17,7 @@ const PLAN_LEVELS = {
     generationType: "starter",
     isPremium: false,
     depth: "starter",
-    maxOutputTokens: 9000,
+    maxOutputTokens: 3000,
     planInstruction: `
 FREE USER PLAN RULES:
 - Create a useful 7-day starter plan, but keep it simple.
@@ -33,7 +33,7 @@ FREE USER PLAN RULES:
     generationType: "premium_biweekly",
     isPremium: true,
     depth: "full",
-    maxOutputTokens: 6500,
+    maxOutputTokens: 3000,
     planInstruction: `
 PREMIUM PLAN RULES:
 - Create a full practical 7-day plan.
@@ -49,7 +49,7 @@ PREMIUM PLAN RULES:
     generationType: "premium_plus_weekly",
     isPremium: true,
     depth: "advanced",
-    maxOutputTokens: 18000,
+    maxOutputTokens: 6500,
     planInstruction: `
 PREMIUM PLUS PLAN RULES:
 - Create the strongest version of the plan.
