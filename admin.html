@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>FitApp - Admin</title>
+  <title>ShapeCue - Admin</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -226,6 +226,158 @@
 
     @media(min-width:760px){.app-shell{padding-top:22px}.hero h2{font-size:38px}}
     @media(max-width:430px){.tab{font-size:12px}.hero h2{font-size:31px}}
+
+    /* Step Admin UI: calmer Liquid Glass + collapsed workspace */
+    :root{
+      --bg:#F5F7FB;
+      --bg2:#EAF0F8;
+      --text:#0F172A;
+      --muted:#64748B;
+      --muted2:#94A3B8;
+      --line:rgba(15,23,42,.10);
+      --green:#18C37E;
+      --blue:#0EA5E9;
+      --amber:#D97706;
+      --red:#E11D48;
+      --purple:#7C3AED;
+      --shadow:0 20px 60px rgba(15,23,42,.10);
+    }
+    body{
+      background:
+        radial-gradient(circle at 8% -8%, rgba(24,195,126,.20), transparent 32%),
+        radial-gradient(circle at 94% 0%, rgba(14,165,233,.14), transparent 28%),
+        linear-gradient(180deg,var(--bg),var(--bg2));
+      color:var(--text);
+    }
+    .glow{display:none}
+    .topbar{
+      background:linear-gradient(180deg,rgba(245,247,251,.88),rgba(245,247,251,.72),rgba(245,247,251,0));
+      backdrop-filter:blur(28px) saturate(190%);
+    }
+    .logo{
+      background:linear-gradient(145deg,rgba(255,255,255,.90),rgba(255,255,255,.50));
+      border:1px solid rgba(255,255,255,.65);
+      box-shadow:0 12px 30px rgba(15,23,42,.10), inset 0 1px 0 rgba(255,255,255,.90);
+      color:#0F172A;
+    }
+    .brand h1,.card-head h3,.promo-code,.exercise-name,.hero h2{color:#0F172A}
+    .hero,.card,.collapse-panel{
+      background:linear-gradient(180deg,rgba(255,255,255,.70),rgba(255,255,255,.38));
+      border:1px solid rgba(255,255,255,.72);
+      box-shadow:0 18px 55px rgba(15,23,42,.10), inset 0 1px 0 rgba(255,255,255,.70);
+      backdrop-filter:blur(30px) saturate(190%);
+    }
+    .hero{padding:15px;border-radius:28px}
+    .hero h2{font-size:30px;letter-spacing:-1px}
+    .hero p{color:#475569}
+    .tag,.pill-link,.mini-btn,.top-pill{
+      background:rgba(255,255,255,.42);
+      border-color:rgba(15,23,42,.10);
+      color:#334155;
+    }
+    .tag.green,.top-pill,.mini-btn.green{background:rgba(24,195,126,.12);color:#047857;border-color:rgba(24,195,126,.20)}
+    .tag.blue,.mini-btn.blue{background:rgba(14,165,233,.12);color:#0369A1;border-color:rgba(14,165,233,.20)}
+    .tag.amber{background:rgba(217,119,6,.12);color:#92400E;border-color:rgba(217,119,6,.20)}
+    .tag.purple{background:rgba(124,58,237,.10);color:#5B21B6;border-color:rgba(124,58,237,.18)}
+    .input,.select,.textarea{
+      background:rgba(255,255,255,.58);
+      border-color:rgba(15,23,42,.10);
+      color:#0F172A;
+      min-height:45px;
+      border-radius:15px;
+    }
+    .input:focus,.select:focus,.textarea:focus{background:rgba(255,255,255,.76);border-color:rgba(24,195,126,.36)}
+    .promo-card,.exercise-card,.stat,.upload-box,.media-preview,.check-pill{
+      background:rgba(255,255,255,.46);
+      border-color:rgba(15,23,42,.08);
+      color:#0F172A;
+    }
+    .promo-meta,.exercise-meta,.field label,.brand span,.card-head p,.stat span{color:#64748B}
+    .btn{min-height:46px;border-radius:15px}
+    .btn.primary{background:linear-gradient(135deg,#18C37E,#7AE7B7);box-shadow:0 14px 28px rgba(24,195,126,.18)}
+    .btn.secondary{background:rgba(255,255,255,.46);border-color:rgba(15,23,42,.10);color:#0F172A}
+    .btn.blue{background:rgba(14,165,233,.12);color:#0369A1;border-color:rgba(14,165,233,.20)}
+    .btn.amber{background:rgba(217,119,6,.12);color:#92400E;border-color:rgba(217,119,6,.20)}
+    .status-pill{background:rgba(24,195,126,.12);color:#047857;border-color:rgba(24,195,126,.22)}
+    .status-pill.red{background:rgba(225,29,72,.10);color:#9F1239;border-color:rgba(225,29,72,.20)}
+    .status-pill.amber{background:rgba(217,119,6,.12);color:#92400E;border-color:rgba(217,119,6,.20)}
+    .status-pill.blue{background:rgba(14,165,233,.12);color:#0369A1;border-color:rgba(14,165,233,.20)}
+
+    .collapse-panel{
+      display:block;
+      border-radius:26px;
+      margin-top:12px;
+      overflow:hidden;
+      position:relative;
+    }
+    .collapse-panel > summary{
+      list-style:none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:14px;
+      cursor:pointer;
+      user-select:none;
+    }
+    .collapse-panel > summary::-webkit-details-marker{display:none}
+    .collapse-panel > summary h3{
+      margin:0;
+      color:#0F172A;
+      font-size:17px;
+      letter-spacing:-.3px;
+    }
+    .collapse-panel > summary p{
+      margin:4px 0 0;
+      color:#64748B;
+      font-size:12.5px;
+      line-height:1.35;
+    }
+    .collapse-panel > summary:after{
+      content:"⌄";
+      width:34px;
+      height:34px;
+      border-radius:999px;
+      display:grid;
+      place-items:center;
+      flex:0 0 auto;
+      color:#334155;
+      background:rgba(255,255,255,.58);
+      border:1px solid rgba(15,23,42,.08);
+      transition:transform .18s ease;
+    }
+    .collapse-panel[open] > summary:after{transform:rotate(180deg)}
+    .collapse-body{
+      padding:0 12px 12px;
+    }
+    .collapse-panel.card{padding:0}
+    .collapse-panel.card:before{display:none}
+    .collapse-panel.card .card-inner{padding:0 12px 12px}
+    .collapse-panel.card .card-head{display:none}
+
+    .quick-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      gap:8px;
+      margin-top:10px;
+    }
+    @media(max-width:560px){.quick-actions{grid-template-columns:1fr}}
+    .bottom-tabs{padding:6px 10px calc(6px + env(safe-area-inset-bottom));}
+    .tabs-glass{
+      background:rgba(255,255,255,.54);
+      border-color:rgba(15,23,42,.10);
+      border-radius:24px;
+      padding:5px;
+      box-shadow:0 16px 40px rgba(15,23,42,.14), inset 0 1px 0 rgba(255,255,255,.70);
+    }
+    .tab{min-height:39px;font-size:12px;color:#64748B}
+    .tab.active{
+      background:rgba(15,23,42,.88);
+      color:#fff;
+      box-shadow:0 8px 18px rgba(15,23,42,.18);
+    }
+    .app-shell{padding-bottom:84px}
+
   </style>
 </head>
 
@@ -238,9 +390,9 @@
       <header class="topbar">
         <div class="toprow">
           <a href="app.html" class="brand">
-            <div class="logo">FA</div>
+            <div class="logo">SC</div>
             <div>
-              <h1>FitApp Admin</h1>
+              <h1>ShapeCue Admin</h1>
               <span id="topSub">Promo + exercise media manager</span>
             </div>
           </a>
@@ -252,13 +404,13 @@
       </header>
 
       <div id="loader" class="loader-screen">
-        <div><div class="spin"></div><div>Checking admin access...</div></div>
+        <div><div class="spin"></div><div>Checking ShapeCue admin access...</div></div>
       </div>
 
       <section class="screen hidden" id="adminScreen">
         <div class="hero">
-          <h2>Admin control.</h2>
-          <p>Create promo codes and manage the exercise library with photos, videos, form guide, common mistakes, and safe alternatives.</p>
+          <h2>Admin Control</h2>
+          <p>Manage promo codes and the exercise library with a cleaner, collapsed Liquid Glass admin workspace.</p>
           <div class="chips-row">
             <span class="tag green" id="adminRoleTag">Admin</span>
             <span class="tag blue">Promo codes</span>
@@ -274,7 +426,20 @@
           <div class="stat"><span>Exercises</span><strong id="statExercises">0</strong></div>
         </div>
 
-        <section id="createSection">
+        <div class="quick-actions">
+          <button class="btn secondary" type="button" id="quickCreateBtn">Create promo</button>
+          <button class="btn secondary" type="button" id="quickCodesBtn">View codes</button>
+          <button class="btn secondary" type="button" id="quickExerciseBtn">Exercise library</button>
+        </div>
+
+        <details class="collapse-panel" id="createSection" open>
+          <summary>
+            <div>
+              <h3>Create promo</h3>
+              <p>Generate tester, launch, or manual access codes.</p>
+            </div>
+          </summary>
+          <div class="collapse-body">
           <div class="grid two">
             <section class="card">
               <div class="card-inner">
@@ -289,14 +454,14 @@
                   <label>Plan to unlock</label>
                   <select class="select" id="planCode">
                     <option value="premium">Premium</option>
-                    <option value="premium_plus">Premium Plus</option>
-                    <option value="free">Free User</option>
+                    <option value="premium_plus">Coach</option>
+                    <option value="free">Free</option>
                   </select>
                 </div>
 
                 <div class="field">
                   <label>Custom code optional</label>
-                  <input class="input" id="customCode" placeholder="Example: FITPLUS30" maxlength="40" />
+                  <input class="input" id="customCode" placeholder="Example: SHAPE30" maxlength="40" />
                 </div>
 
                 <div class="row2">
@@ -324,9 +489,9 @@
                 <div class="promo-card">
                   <div class="promo-code">Best codes to create</div>
                   <div class="promo-meta">
-                    • Premium Plus, 30 days, 1 use for testers<br>
+                    • Coach, 30 days, 1 use for testers<br>
                     • Premium, 7 days, 20 uses for launch giveaway<br>
-                    • Premium Plus, 90 days, 1 use for close beta users
+                    • Coach, 90 days, 1 use for close beta users
                   </div>
                 </div>
 
@@ -339,9 +504,16 @@
               </div>
             </section>
           </div>
-        </section>
+          </div>
+        </details>
 
-        <section class="card" style="margin-top:12px" id="listSection">
+        <details class="collapse-panel card" id="listSection">
+          <summary>
+            <div>
+              <h3>Existing promo codes</h3>
+              <p>Copy, deactivate, reactivate, and track usage.</p>
+            </div>
+          </summary>
           <div class="card-inner">
             <div class="card-head">
               <div>
@@ -354,9 +526,16 @@
             <div class="promo-list" id="promoList"></div>
             <div class="status" id="listStatus"></div>
           </div>
-        </section>
+        </details>
 
-        <section style="margin-top:12px" id="exerciseSection">
+        <details class="collapse-panel" id="exerciseSection">
+          <summary>
+            <div>
+              <h3>Exercise library</h3>
+              <p>Edit guide text, upload media, and control AI readiness.</p>
+            </div>
+          </summary>
+          <div class="collapse-body">
           <div class="grid two">
             <section class="card">
               <div class="card-inner">
@@ -454,7 +633,8 @@
               </div>
             </section>
           </div>
-        </section>
+          </div>
+        </details>
       </section>
 
       <section class="screen hidden" id="noAccessScreen">
@@ -470,7 +650,7 @@
     </main>
   </div>
 
-  <nav class="bottom-tabs" aria-label="Admin navigation">
+  <nav class="bottom-tabs" aria-label="ShapeCue admin navigation">
     <div class="tabs-glass">
       <button class="tab active" id="createTab" type="button">＋ Promo</button>
       <button class="tab" id="codesTab" type="button">◎ Codes</button>
@@ -526,9 +706,10 @@
   }
 
   function planName(code){
-    if(code === "premium_plus") return "Premium Plus";
+    if(code === "premium_plus" || code === "coach") return "Coach";
     if(code === "premium") return "Premium";
-    return "Free User";
+    if(code === "plus") return "Plus";
+    return "Free";
   }
 
   function prettyDate(value){
@@ -985,9 +1166,27 @@
     tab.classList.add("active");
   }
 
-  function scrollToCodes(smooth = true){ setActiveTab($("#codesTab")); $("#listSection").scrollIntoView({ behavior:smooth ? "smooth" : "auto", block:"start" }); }
-  function scrollToCreate(){ setActiveTab($("#createTab")); $("#createSection").scrollIntoView({ behavior:"smooth", block:"start" }); }
-  function scrollToExercises(){ setActiveTab($("#exerciseTab")); $("#exerciseSection").scrollIntoView({ behavior:"smooth", block:"start" }); }
+  function openPanel(selector){
+    const el = $(selector);
+    if(el && el.tagName === "DETAILS") el.open = true;
+    return el;
+  }
+
+  function scrollToCodes(smooth = true){
+    setActiveTab($("#codesTab"));
+    const el = openPanel("#listSection");
+    el?.scrollIntoView({ behavior:smooth ? "smooth" : "auto", block:"start" });
+  }
+  function scrollToCreate(){
+    setActiveTab($("#createTab"));
+    const el = openPanel("#createSection");
+    el?.scrollIntoView({ behavior:"smooth", block:"start" });
+  }
+  function scrollToExercises(){
+    setActiveTab($("#exerciseTab"));
+    const el = openPanel("#exerciseSection");
+    el?.scrollIntoView({ behavior:"smooth", block:"start" });
+  }
 
   async function boot(){
     const { data } = await supabaseClient.auth.getSession();
@@ -1019,6 +1218,9 @@
   $("#createTab").addEventListener("click", scrollToCreate);
   $("#codesTab").addEventListener("click", () => scrollToCodes(true));
   $("#exerciseTab").addEventListener("click", scrollToExercises);
+  $("#quickCreateBtn")?.addEventListener("click", scrollToCreate);
+  $("#quickCodesBtn")?.addEventListener("click", () => scrollToCodes(true));
+  $("#quickExerciseBtn")?.addEventListener("click", scrollToExercises);
 
   document.addEventListener("click", async e => {
     const copy = e.target.closest("[data-copy-code]");
