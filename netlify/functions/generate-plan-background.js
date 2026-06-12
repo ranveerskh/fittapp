@@ -17,7 +17,7 @@ const PLAN_LEVELS = {
     generationType: "starter",
     isPremium: false,
     depth: "starter",
-    maxOutputTokens: 3800,
+    maxOutputTokens: 10000,
     planInstruction: `
 FREE USER PLAN RULES:
 - Create a useful 7-day starter plan, but keep it simple.
@@ -33,7 +33,7 @@ FREE USER PLAN RULES:
     generationType: "premium_biweekly",
     isPremium: true,
     depth: "full",
-    maxOutputTokens: 6200,
+    maxOutputTokens: 15000,
     planInstruction: `
 PREMIUM PLAN RULES:
 - Create a full practical 7-day plan.
@@ -49,7 +49,7 @@ PREMIUM PLAN RULES:
     generationType: "premium_plus_weekly",
     isPremium: true,
     depth: "advanced",
-    maxOutputTokens: 18000,
+    maxOutputTokens: 20000,
     planInstruction: `
 PREMIUM PLUS PLAN RULES:
 - Create the strongest version of the plan.
@@ -511,6 +511,116 @@ function compactRows(rows, fields, limit = 20) {
   });
 }
 
+function toTextList(value) {
+  if (Array.isArray(value)) {
+    return value
+      .map(v => String(v || "").trim())
+      .filter(Boolean);
+  }
+
+  if (typeof value === "string") {
+    return value
+      .split(/[,.\n]/)
+      .map(v => v.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+}
+
+function uniqueTextList(values) {
+  const seen = new Set();
+  const out = [];
+
+  for (const value of values.flatMap(v => toTextList(v))) {
+    const key = value.toLowerCase();
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push(value);
+  }
+
+  return out;
+}
+
+function truthyFoodFlag(value) {
+  return value === true || value === "true" || value === "yes" || value === "allowed" || value === 1;
+}
+
+function buildFoodRules(food = {}) {
+  const preferredProteins = uniqueTextList([
+    food.preferred_proteins,
+    food.protein_preferences
+  ]);
+
+  const preferredCarbs = uniqueTextList([
+    food.preferred_carbs,
+    food.carb_preferences
+  ]);
+
+  const hardBlockedFoods = uniqueTextList([
+    food.allergies,
+    food.avoid_foods
+  ]);
+
+  const dislikedFoods = uniqueTextList([food.disliked_foods]);
+
+  const allowedProteins = [...preferredProteins];
+
+  const positiveProteinFlags = [
+    ["eggs", food.eats_eggs],
+    ["chicken", food.eats_chicken],
+    ["paneer", food.eats_paneer],
+    ["tofu", food.eats_tofu],
+    ["soya", food.eats_soya],
+    ["Greek yogurt", food.greek_yogurt_ok],
+    ["homemade curd", food.homemade_curd_ok],
+    ["milk", food.milk_ok],
+    ["whey protein", food.uses_whey_protein]
+  ];
+
+  for (const [label, value] of positiveProteinFlags) {
+    if (truthyFoodFlag(value)) allowedProteins.push(label);
+  }
+
+  if (truthyFoodFlag(food.likes_smoothies)) allowedProteins.push("smoothies");
+
+  const dietType = String(food.diet_type || "").toLowerCase();
+  const dietBlocks = [];
+
+  if (dietType.includes("vegan")) {
+    dietBlocks.push("milk", "curd", "Greek yogurt", "paneer", "whey protein", "eggs", "chicken", "fish", "meat");
+  } else if (dietType.includes("vegetarian")) {
+    dietBlocks.push("chicken", "fish", "meat");
+  }
+
+  return {
+    food_styles: toTextList(food.food_styles || food.food_style),
+    diet_type: food.diet_type || "not_specified",
+    usual_foods: normalizeText(food.usual_foods),
+    favourite_foods: normalizeText(food.favourite_foods),
+    preferred_proteins: uniqueTextList([allowedProteins]),
+    preferred_carbs: preferredCarbs,
+    hard_blocked_foods: uniqueTextList([hardBlockedFoods, dietBlocks]),
+    disliked_foods: dislikedFoods,
+    allergies: toTextList(food.allergies),
+    avoid_foods: toTextList(food.avoid_foods),
+    likes_smoothies: truthyFoodFlag(food.likes_smoothies),
+    uses_whey_protein: truthyFoodFlag(food.uses_whey_protein),
+    smoothie_details: normalizeText(food.smoothie_details),
+    bloating_triggers: toTextList(food.bloating_triggers),
+    meal_prep_style: normalizeText(food.meal_prep_style),
+    fridge_freezer_ok: truthyFoodFlag(food.fridge_freezer_ok),
+    quick_meal_preference: normalizeText(food.quick_meal_preference || food.snack_preferences),
+    dinner_preference: normalizeText(food.dinner_preference || food.meal_notes),
+    interpretation_notes: [
+      "Only hard_blocked_foods and allergies are strict avoid rules.",
+      "False or missing food booleans mean not selected yet, not that the user refuses that food.",
+      "Do not write 'user does not eat X' unless X is in hard_blocked_foods or diet_type clearly blocks it.",
+      "Use preferred_proteins strongly, but normal common foods may be used when not blocked."
+    ]
+  };
+}
+
 function buildAiUserData(userData) {
   const p = userData.profile || {};
   const food = userData.food_preferences || {};
@@ -538,7 +648,8 @@ function buildAiUserData(userData) {
       preferred_language: p.preferred_language || "en",
       preferred_plan_detail: p.preferred_plan_detail || null
     },
-    food_preferences: food,
+    food_preferences: buildFoodRules(food),
+    raw_food_preference_keys_present: Object.keys(food || {}).filter(key => food[key] !== null && food[key] !== undefined && food[key] !== ""),
     work_schedule: work,
     workout_availability: workout,
     water_settings: water,
@@ -559,7 +670,7 @@ function buildPrompt(userData, entitlement, usageInfo) {
   const tier = planTierInfo(entitlement);
 
   return `
-You are FitApp AI, a premium personal trainer and practical nutrition coach.
+You are ShapeCue AI, a premium personal trainer and practical nutrition coach.
 
 You are generating a plan for plan tier: ${tier.label} (${tier.code}).
 
@@ -593,12 +704,16 @@ STRICT SAFETY RULES:
 
 PERSONALIZATION RULES:
 - Use user's real date of birth/age, measurements, goals, body type, work days, breaks, workout days, workout time, food styles, usual foods, favorite foods, disliked foods, allergies, avoid foods, smoothie preference, whey preference, protein preferences, carb preferences, meal prep style, bloating triggers, exercise preferences, pain areas, pain rating, logs, and previous plans.
-- Allergies and avoid_foods are HARD BLOCKS. Never include those foods.
-- Disliked foods should be avoided unless no other option exists.
+- CRITICAL FOOD INTERPRETATION: only food_preferences.hard_blocked_foods and food_preferences.allergies are strict avoid rules.
+- Do NOT say or imply the user avoids eggs, milk, whey, Greek yogurt, curd, paneer, tofu, soya, or chicken unless that exact food is inside hard_blocked_foods/allergies or the diet_type clearly blocks it.
+- False or missing food booleans mean "not selected yet", NOT "the user does not eat this".
+- If preferred_proteins contains a food, use it confidently.
+- If preferred_proteins is empty or incomplete, use practical normal options that are not blocked instead of inventing restrictions.
+- Disliked foods should be avoided unless no other option exists, but dislikes are not allergies.
 - Favorite foods and usual foods should be used strongly.
-- If user likes smoothies and uses whey, include smoothie and whey options.
-- If user does not use whey, do not include whey.
-- If user does not like smoothies, do not include smoothies.
+- If likes_smoothies is true, include smoothie options. If uses_whey_protein is true, whey is allowed.
+- If likes_smoothies is false or missing, do not claim the user hates smoothies; simply prefer non-smoothie meals unless smoothie_details/preferred_proteins support it.
+- If uses_whey_protein is false or missing, do not claim the user refuses whey; only avoid whey if hard_blocked_foods says so.
 - If user selected Punjabi/Indian/home food, meals should look like real home meals.
 - If user prefers roti, rice, oats, wraps, bananas, dates, use those in the plan.
 - If user has a short work break, give fast snack only.
@@ -627,8 +742,8 @@ MEAL/RECIPE RULES:
 - Every food item should include estimated_protein_g, prep_minutes, work_friendly, ingredients, and coach_note where possible.
 - Workday meals must be realistic for breaks.
 - Gym-day meals must include pre-workout and post-workout if workout time exists.
-- If user allows whey, post-workout whey is allowed.
-- If user likes smoothie, breakfast smoothie is allowed.
+- Whey is allowed when uses_whey_protein is true, preferred_proteins includes whey, or whey is not blocked and the plan needs a practical protein option.
+- Smoothies are allowed when likes_smoothies is true, smoothie_details exists, or the user has not blocked smoothies.
 - If user prefers meal prep, include meal prep plan.
 
 RETURN ONLY VALID JSON.
@@ -641,7 +756,7 @@ RETURN THIS EXACT JSON SHAPE:
 
 {
   "next_week_plan": {
-    "title": "FitApp Coach Plan",
+    "title": "ShapeCue Coach Plan",
     "plan_code": "${tier.code}",
     "generation_type": "${tier.generationType}",
     "start_date": "${dateISO(0)}",
@@ -929,7 +1044,7 @@ function sanitizePlan(rawPlan, userData, entitlement) {
   const plan = safeObject(rawPlan);
 
   const clean = {
-    title: normalizeText(plan.title, "FitApp Coach Plan"),
+    title: normalizeText(plan.title, "ShapeCue Coach Plan"),
     plan_code: tier.code,
     generation_type: tier.generationType,
     start_date: normalizeText(plan.start_date, dateISO(0)),
@@ -1136,7 +1251,12 @@ export async function handler(event) {
           error_message: "AI returned invalid JSON. Output may have been cut or malformed.",
           response_payload: {
             parse_error: parseError.message || "JSON parse failed",
-            raw_output_preview: String(outputText || "").slice(0, 6000),
+            openai_status: openaiData.status || null,
+            incomplete_details: openaiData.incomplete_details || null,
+            openai_usage: openaiData.usage || null,
+            output_length: String(outputText || "").length,
+            raw_output_preview: String(outputText || "").slice(0, 12000),
+            raw_output_end: String(outputText || "").slice(-12000),
             usage: openaiData.usage || null
           },
           input_tokens: openaiData.usage?.input_tokens || null,
@@ -1165,7 +1285,7 @@ export async function handler(event) {
         user_id: userId,
         week_start: weekStart,
         week_end: weekEnd,
-        title: plan.title || "FitApp Coach Plan",
+        title: plan.title || "ShapeCue Coach Plan",
         status: "active",
         plan_json: plan,
         ai_summary: plan.summary || "",
@@ -1189,7 +1309,7 @@ export async function handler(event) {
         status: "completed",
         response_payload: {
           plan_id: savedPlanRes.data.id,
-          plan_title: plan.title || "FitApp Coach Plan",
+          plan_title: plan.title || "ShapeCue Coach Plan",
           plan_summary: plan.summary || "",
           completed_at: new Date().toISOString(),
           usage: openaiData.usage || null
