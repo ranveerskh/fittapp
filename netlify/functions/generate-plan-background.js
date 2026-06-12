@@ -49,7 +49,7 @@ PREMIUM PLAN RULES:
     generationType: "premium_plus_weekly",
     isPremium: true,
     depth: "advanced",
-    maxOutputTokens: 7600,
+    maxOutputTokens: 18000,
     planInstruction: `
 PREMIUM PLUS PLAN RULES:
 - Create the strongest version of the plan.
