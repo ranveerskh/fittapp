@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>ShapeCue - AI Fitness & Diet Coach</title>
+  <title>ShapeCue - Dashboard</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -169,29 +169,8 @@
       font-weight:950;
       padding:5px;
     }
-    .meal b{display:block;font-size:14px;margin-bottom:3px;letter-spacing:-.12px}
-    .meal span{display:block;color:#CBD5E1;font-size:12.5px;line-height:1.38}
-    .meal-meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
-    .meal-chip{
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(255,255,255,.065);
-      color:#E2E8F0;
-      border-radius:999px;
-      padding:4px 7px;
-      font-size:10.5px;
-      font-weight:900;
-      line-height:1;
-    }
-    .ingredients-line{
-      margin-top:7px;
-      color:#D1FAE5;
-      border:1px solid rgba(34,197,94,.14);
-      background:rgba(34,197,94,.06);
-      border-radius:12px;
-      padding:7px;
-      font-size:11.5px;
-      line-height:1.35;
-    }
+    .meal b{display:block;font-size:13.5px;margin-bottom:3px}
+    .meal span{display:block;color:var(--muted);font-size:12px;line-height:1.35}
     .replacements{margin-top:7px;display:grid;gap:5px}
     .replacement{
       font-size:11.5px;
@@ -424,6 +403,20 @@
       color:#BBF7D0;
     }
     .plan-chip.free{border-color:rgba(255,255,255,.14);background:rgba(255,255,255,.07);color:#E2E8F0}
+    .ai-status-box{
+      margin-top:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.07);
+      border-radius:22px;
+      padding:14px;
+    }
+    .ai-status-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+    .ai-status-top h4{margin:0;font-size:15px;letter-spacing:-.25px}
+    .ai-status-top p{margin:4px 0 0;color:var(--muted);font-size:12.5px;line-height:1.35}
+    .ai-status-meta{display:grid;gap:8px;margin-top:12px}
+    .ai-status-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid rgba(255,255,255,.09);padding-top:8px;font-size:12.5px}
+    .ai-status-row span{color:var(--muted)}
+    .ai-status-row strong{font-size:12.5px;text-align:right}
     .feature-mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
     .feature-mini{border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.055);border-radius:15px;padding:9px;font-size:11.5px;line-height:1.3;color:#CBD5E1}
     .feature-mini.good{border-color:rgba(34,197,94,.20);background:rgba(34,197,94,.08);color:#BBF7D0}
@@ -689,7 +682,7 @@
         <div class="card">
           <div class="card-inner">
             <div class="card-head">
-              <div><h3>Today meals</h3><p>Exact foods, protein, ingredients, and swaps.</p></div>
+              <div><h3>Today meals</h3><p>Exact foods with replacements.</p></div>
               <span class="status-pill" id="mealStatusPill">Pending</span>
             </div>
             <div class="timeline" id="todayMeals"></div>
@@ -1040,14 +1033,51 @@ function formatTime(t){
 
 function displayTime(t){ return formatTime(t)||t||"-"; }
 
+function normalizePlanCode(code){
+  const c = String(code || "free").toLowerCase();
+  if(c === "coach") return "coach"; // old internal code compatibility
+  if(c === "coach") return "coach";
+  if(c === "premium") return "premium";
+  if(c === "plus") return "plus";
+  return "free";
+}
+
 function planName(code){
-  if(code === "premium_plus") return "Premium Plus";
-  if(code === "premium") return "Premium";
-  return "Free User";
+  const c = normalizePlanCode(code);
+  if(c === "coach") return "Coach";
+  if(c === "premium") return "Premium";
+  if(c === "plus") return "Plus";
+  return "Free";
 }
 
 function currentPlanCode(){
-  return currentEntitlement?.plan_code || data.profile?.selected_plan_code || (data.profile?.is_premium ? "premium" : "free");
+  const raw = currentEntitlement?.plan_code || data.profile?.selected_plan_code || (data.profile?.is_premium ? "premium" : "free");
+  return normalizePlanCode(raw);
+}
+
+function formatDateTime(value){
+  if(!value) return "Not updated yet";
+  const d = new Date(value);
+  if(Number.isNaN(d.getTime())) return "Not updated yet";
+  return d.toLocaleString([], { month:"short", day:"numeric", hour:"numeric", minute:"2-digit" });
+}
+
+function relativeTime(value){
+  if(!value) return "Not updated yet";
+  const d = new Date(value);
+  if(Number.isNaN(d.getTime())) return "Not updated yet";
+  const diff = Date.now() - d.getTime();
+  const mins = Math.max(0, Math.round(diff / 60000));
+  if(mins < 1) return "just now";
+  if(mins < 60) return `${mins} min ago`;
+  const hrs = Math.round(mins / 60);
+  if(hrs < 24) return `${hrs} hr${hrs === 1 ? "" : "s"} ago`;
+  const days = Math.round(hrs / 24);
+  return `${days} day${days === 1 ? "" : "s"} ago`;
+}
+
+function lastAiUpdateText(){
+  return activePlanMeta?.created_at ? `${formatDateTime(activePlanMeta.created_at)} (${relativeTime(activePlanMeta.created_at)})` : "Not updated yet";
 }
 
 function currentPlanFeatures(){
@@ -1055,19 +1085,38 @@ function currentPlanFeatures(){
 }
 
 function isPaidPlan(){
-  return ["premium","premium_plus"].includes(currentPlanCode());
+  return ["plus","premium","coach"].includes(currentPlanCode());
 }
 
 function hasFeature(key){
   const code = currentPlanCode();
-  if(code === "premium_plus") return true;
+  if(code === "coach") return true;
 
   const f = currentPlanFeatures();
   const val = f?.[key];
   if(val === true || val === "limited") return true;
 
   if(code === "premium"){
-    return ["full_week_meals","gym_offday_meals","pdf_export","grocery_list","progress_photos","exercise_videos"].includes(key);
+    return [
+      "full_week_meals",
+      "gym_offday_meals",
+      "pdf_export",
+      "grocery_list",
+      "progress_photos",
+      "exercise_videos",
+      "smart_replacements",
+      "progress_review"
+    ].includes(key);
+  }
+
+  if(code === "plus"){
+    return [
+      "full_week_meals",
+      "gym_offday_meals",
+      "pdf_export",
+      "grocery_list",
+      "exercise_videos"
+    ].includes(key);
   }
 
   return ["today_page","starter_plan","basic_exercise_guide"].includes(key);
@@ -1106,10 +1155,10 @@ function lockedFeatureCard(title, text, feature){
   `;
 }
 
-function showUpgrade(title="Unlock Premium", text="This feature is included in Premium or Premium Plus."){
+function showUpgrade(title="Unlock Premium", text="This feature is included in Plus, Premium, or Coach."){
   $("#upgradeTitle").textContent = title;
   $("#upgradeText").textContent = text;
-  $("#upgradeMsg").textContent = "Enter a promo code to unlock Premium or Premium Plus.";
+  $("#upgradeMsg").textContent = "Enter a promo code to unlock Plus, Premium, or Coach.";
   $("#upgradeMsg").className = "promo-msg";
   $("#upgradeModal").classList.add("show");
 }
@@ -1191,7 +1240,7 @@ function renderPlanAccessBox(){
         ${featureMini("PDF export", hasFeature("pdf_export"))}
         ${featureMini("Grocery list", hasFeature("grocery_list"))}
         ${featureMini("Progress photos", hasFeature("progress_photos"))}
-        ${featureMini(code === "premium_plus" ? "Weekly AI update" : "AI updates", code !== "free")}
+        ${featureMini(code === "coach" ? "Weekly AI update" : "AI updates", code !== "free")}
       </div>
       <div class="btn-row" style="margin-top:12px">
         <button class="btn primary" id="openUpgradeBtn" type="button">Apply promo</button>
@@ -1200,12 +1249,12 @@ function renderPlanAccessBox(){
     </div>
   `;
 
-  $("#openUpgradeBtn")?.addEventListener("click",()=>showUpgrade("Apply promo code","Use your promo code to unlock Premium or Premium Plus."));
+  $("#openUpgradeBtn")?.addEventListener("click",()=>showUpgrade("Apply promo code","Use your promo code to unlock Plus, Premium, or Coach."));
 }
 
 function progressPhotoLimit(){
   const code = currentPlanCode();
-  if(code === "premium_plus") return Infinity;
+  if(code === "coach") return Infinity;
   if(code === "premium") return 4;
   return 0;
 }
@@ -1250,7 +1299,7 @@ function renderProgressPhotosBox(){
   box.innerHTML = `
     <div class="card-head">
       <div><h3>Progress photos</h3><p>Private front / side / back comparison.</p></div>
-      <span class="status-pill green">${code === "premium_plus" ? "Included" : "Limited"}</span>
+      <span class="status-pill green">${code === "coach" ? "Included" : "Limited"}</span>
     </div>
 
     <div class="summary-list">
@@ -1281,7 +1330,7 @@ function renderProgressPhotosBox(){
       <div class="field"><label>Choose photo</label><input class="input" id="progressPhotoFile" type="file" accept="image/jpeg,image/png,image/webp"></div>
       <div class="field"><label>Notes optional</label><textarea class="textarea" id="photoNotes" placeholder="Example: morning photo, same lighting, relaxed posture"></textarea></div>
       <button class="btn primary" id="uploadProgressPhotoBtn" type="button" style="width:100%;margin-top:10px" ${canUpload ? "" : "disabled"}>${canUpload ? "Upload private photo" : "Monthly limit reached"}</button>
-      <div class="photo-limit-note">${code === "premium_plus" ? "Premium Plus: higher photo tracking is enabled." : "Premium: limited progress-photo tracking. Premium Plus can be used for heavier photo history."}</div>
+      <div class="photo-limit-note">${code === "coach" ? "Coach: highest photo tracking is enabled." : "Premium: limited progress-photo tracking. Coach unlocks heavier photo history."}</div>
     </div>
 
     ${progressPhotoLoading ? `<div class="empty-photos">Loading photos...</div>` : ""}
@@ -1323,7 +1372,7 @@ function calculateAge(dob){
 }
 
 function doneStorageKey(){
-  return `fitapp.doneExercises.${user?.id || "x"}.${todayISO()}`;
+  return `shapecue.doneExercises.${user?.id || "x"}.${todayISO()}`;
 }
 
 function loadDoneMap(){
@@ -1648,35 +1697,6 @@ function renderAll(){
   updateEntitlementUI();
 }
 
-function mealMetaHTML(m){
-  const chips = [];
-  const protein = Number(m?.estimated_protein_g || 0);
-  const prep = Number(m?.prep_minutes || 0);
-
-  if(protein > 0) chips.push(`${Math.round(protein)}g protein`);
-  if(prep > 0) chips.push(`${Math.round(prep)} min prep`);
-  if(m?.work_friendly === true) chips.push("work-friendly");
-
-  return chips.length
-    ? `<div class="meal-meta">${chips.map(c=>`<span class="meal-chip">${esc(c)}</span>`).join("")}</div>`
-    : "";
-}
-
-function ingredientsLineHTML(m){
-  const ingredients = Array.isArray(m?.ingredients)
-    ? m.ingredients.slice(0,5).map(x => {
-        if(typeof x === "string") return x;
-        const name = x?.name || "";
-        const amount = x?.amount || "";
-        return [amount, name].filter(Boolean).join(" ").trim();
-      }).filter(Boolean)
-    : [];
-
-  return ingredients.length
-    ? `<div class="ingredients-line"><b>Ingredients</b><br>${esc(ingredients.join(" • "))}</div>`
-    : "";
-}
-
 function mealHTML(m){
   const reps = Array.isArray(m.replacement_options) ? m.replacement_options.slice(0,2) : [];
   return `
@@ -1685,8 +1705,6 @@ function mealHTML(m){
       <div>
         <b>${esc(m.title || "Meal")}</b>
         <span>${esc(m.text || "")}</span>
-        ${mealMetaHTML(m)}
-        ${ingredientsLineHTML(m)}
         ${reps.length ? `<div class="replacements">${reps.map(r=>`<div class="replacement">Swap: ${esc(r)}</div>`).join("")}</div>` : ""}
         ${m.coach_note ? `<div class="coach-note">${esc(m.coach_note)}</div>` : ""}
       </div>
@@ -1695,10 +1713,9 @@ function mealHTML(m){
 }
 
 function renderMeals(){
-  const html = todayMeals.map(mealHTML).join("") || `<div class="meal"><div class="meal-time">Plan</div><div><b>No meals yet</b><span>Generate an AI plan from Me.</span></div></div>`;
+  const html = todayMeals.map(mealHTML).join("") || `<div class="meal"><div class="meal-time">Plan</div><div><b>No meals yet</b><span>Generate an AI plan from Progress.</span></div></div>`;
   $("#todayMeals").innerHTML = html;
-  const status = data.dailyLog?.meals_status;
-  $("#mealStatusPill").textContent = status ? nice(status) : "Report pending";
+  $("#mealStatusPill").textContent = nice(data.dailyLog?.meals_status || "pending");
 }
 
 function publicExerciseMediaUrl(url, path){
@@ -1842,7 +1859,7 @@ function renderWeekPlan(){
           <div class="card-head">
             <div>
               <h3>No active AI plan yet</h3>
-              <p>Go to Me and tap Update next plan.</p>
+              <p>Go to Progress and tap Update next plan.</p>
             </div>
           </div>
         </div>
@@ -2164,7 +2181,7 @@ function safeFileExt(file){
 
 async function uploadProgressPhoto(){
   if(!hasFeature("progress_photos")){
-    showUpgrade("Unlock progress photos", "Private progress photos are included in Premium and Premium Plus.");
+    showUpgrade("Unlock progress photos", "Private progress photos are included in Premium and Coach.");
     return;
   }
 
@@ -2937,7 +2954,7 @@ function initEvents(){
     const lockBtn = e.target.closest("[data-upgrade-feature]");
     if(lockBtn){
       const feature = lockBtn.dataset.upgradeFeature || "Premium";
-      showUpgrade("Unlock " + nice(feature), "This feature is included with Premium or Premium Plus. Apply a promo code to unlock it now.");
+      showUpgrade("Unlock " + nice(feature), "This feature is included with Plus, Premium, or Coach. Apply a promo code to unlock it now.");
     }
   });
 }
