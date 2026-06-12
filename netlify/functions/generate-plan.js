@@ -384,7 +384,7 @@ async function readUserData(db, userId) {
       .order("category", { ascending: true }),
 
     db.from("weekly_plans")
-      .select("id,title,week_start,week_end,status,plan_json,ai_summary,plan_code,generation_type,created_at")
+      .select("id,title,week_start,week_end,status,ai_summary,created_at")
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(4)
