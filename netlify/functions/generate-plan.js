@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 
 const SUPABASE_URL = "https://qusmbveovroldkhbjudq.supabase.co";
-const MODEL = process.env.OPENAI_MODEL || "gpt-5.5";
+const MODEL = process.env.OPENAI_MODEL || "gpt-5.5-mini";
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
