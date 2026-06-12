@@ -1418,6 +1418,7 @@ async function loadAll(){
 
   $("#loader").style.display="none";
   renderAll();
+  setTimeout(()=>resumePendingPlanIfAny(), 700);
 }
 
 async function ensureDailyLog(){
@@ -2336,6 +2337,105 @@ function sleep(ms){
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+const PENDING_PLAN_KEY = "shapecue_pending_ai_plan_request";
+
+function savePendingPlanRequest(requestId){
+  if(!requestId) return;
+  localStorage.setItem(PENDING_PLAN_KEY, JSON.stringify({ request_id: requestId, saved_at: Date.now() }));
+}
+
+function clearPendingPlanRequest(){
+  localStorage.removeItem(PENDING_PLAN_KEY);
+}
+
+function readPendingPlanRequest(){
+  try{
+    const raw = localStorage.getItem(PENDING_PLAN_KEY);
+    if(!raw) return null;
+    const data = JSON.parse(raw);
+    if(!data?.request_id) return null;
+    if(Date.now() - Number(data.saved_at || 0) > 1000 * 60 * 60 * 3){
+      clearPendingPlanRequest();
+      return null;
+    }
+    return data.request_id;
+  }catch{
+    return null;
+  }
+}
+
+async function startBackgroundPlan(requestId, token){
+  if(!requestId) throw new Error("AI request id missing.");
+
+  const res = await fetch("/.netlify/functions/generate-plan-background", {
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization":`Bearer ${token}`
+    },
+    body:JSON.stringify({request_id:requestId})
+  });
+
+  // Netlify background functions normally answer 202 immediately.
+  if(![200,202].includes(res.status)){
+    const result = await res.json().catch(()=>({}));
+    throw new Error(result.error || "Could not start background plan update.");
+  }
+
+  return true;
+}
+
+async function resumePendingPlanIfAny(){
+  const requestId = readPendingPlanRequest();
+  if(!requestId) return;
+
+  const btn = $("#updatePlanBtn");
+  const old = btn?.textContent || "Update next plan";
+
+  try{
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const token = sessionData?.session?.access_token;
+    if(!token) return;
+
+    if(btn){
+      btn.disabled = true;
+      btn.textContent = "Checking plan...";
+    }
+
+    const status = await checkPlanRequestStatus(requestId, token);
+
+    if(status.status === "completed"){
+      clearPendingPlanRequest();
+      if(status.plan) activePlan = status.plan;
+      else await loadPlan();
+      await ensureWaterLog();
+      buildTodaySchedule();
+      buildWorkoutPlan();
+      renderAll();
+      toast("Your new plan is ready.");
+      return;
+    }
+
+    if(status.status === "failed"){
+      clearPendingPlanRequest();
+      toast(status.error || "AI plan failed.");
+      return;
+    }
+
+    toast("Your AI coach is still updating your plan. This can take a few minutes.");
+    await startBackgroundPlan(requestId, token);
+    await pollPlanUntilReady(requestId, token, btn);
+  }catch(e){
+    console.warn(e);
+    toast(e.message || "Could not resume AI plan update.");
+  }finally{
+    if(btn){
+      btn.disabled = false;
+      btn.textContent = old;
+    }
+  }
+}
+
 async function checkPlanRequestStatus(requestId, token){
   const res = await fetch("/.netlify/functions/get-plan-request-status", {
     method:"POST",
@@ -2369,6 +2469,7 @@ async function pollPlanUntilReady(requestId, token, btn){
     const status = await checkPlanRequestStatus(requestId, token);
 
     if(status.status === "completed"){
+      clearPendingPlanRequest();
       if(status.plan){
         activePlan = status.plan;
       }else{
@@ -2386,6 +2487,7 @@ async function pollPlanUntilReady(requestId, token, btn){
     }
 
     if(status.status === "failed"){
+      clearPendingPlanRequest();
       throw new Error(status.error || "AI plan failed.");
     }
   }
@@ -2423,11 +2525,14 @@ async function generatePlan(){
       throw new Error(msg);
     }
 
-    btn.textContent="Generating plan...";
+    btn.textContent="Starting background coach...";
     toast(result.message || "Your AI coach is updating your plan. This can take a few minutes.");
     alert("Your AI coach is updating your plan.\n\nThis can take a few minutes. You can stay on this page or come back later.");
 
     if(result.request_id){
+      savePendingPlanRequest(result.request_id);
+      await startBackgroundPlan(result.request_id, token);
+      btn.textContent="Generating plan...";
       await pollPlanUntilReady(result.request_id, token, btn);
     }
   }catch(e){
