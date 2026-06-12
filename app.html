@@ -353,15 +353,6 @@
       background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(255,255,255,.58));
       box-shadow:0 12px 26px rgba(255,255,255,.08), inset 0 1px 0 rgba(255,255,255,.82);
     }
-    .tab.active:after{
-      content:"";
-      position:absolute;
-      width:5px;
-      height:5px;
-      border-radius:50%;
-      bottom:5px;
-      background:rgba(34,197,94,.85);
-    }
 
     .liquid-card{
       border:1px solid rgba(255,255,255,.15);
@@ -2341,42 +2332,104 @@ function sectionLabel(section){
   return nice(section);
 }
 
+function sleep(ms){
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function checkPlanRequestStatus(requestId, token){
+  const res = await fetch("/.netlify/functions/get-plan-request-status", {
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization":`Bearer ${token}`
+    },
+    body:JSON.stringify({request_id:requestId})
+  });
+
+  const result = await res.json().catch(()=>({ok:false,error:"Could not read plan status."}));
+  if(!res.ok || !result.ok){
+    throw new Error(result.error || "Could not check plan status.");
+  }
+  return result;
+}
+
+async function pollPlanUntilReady(requestId, token, btn){
+  const started = Date.now();
+  const maxMs = 8 * 60 * 1000;
+  let count = 0;
+
+  while(Date.now() - started < maxMs){
+    await sleep(count < 3 ? 3500 : 6000);
+    count++;
+
+    if(btn){
+      btn.textContent = count % 2 ? "Generating plan..." : "Still working...";
+    }
+
+    const status = await checkPlanRequestStatus(requestId, token);
+
+    if(status.status === "completed"){
+      if(status.plan){
+        activePlan = status.plan;
+      }else{
+        await loadPlan();
+      }
+
+      await ensureWaterLog();
+      buildTodaySchedule();
+      buildWorkoutPlan();
+      renderAll();
+
+      toast("Your new plan is ready.");
+      alert("Your new AI coach plan is ready.");
+      return true;
+    }
+
+    if(status.status === "failed"){
+      throw new Error(status.error || "AI plan failed.");
+    }
+  }
+
+  toast("Your plan is still updating. Come back in a few minutes.");
+  return false;
+}
+
 async function generatePlan(){
   const btn=$("#updatePlanBtn");
   const old=btn.textContent;
 
   try{
     btn.disabled=true;
-    btn.textContent="Creating...";
-    toast(`${planName(currentPlanCode())} coach plan is creating...`);
+    btn.textContent="Starting...";
 
     const { data: sessionData } = await supabaseClient.auth.getSession();
     if(!sessionData?.session){ location.href="auth.html?mode=login"; return; }
+
+    const token = sessionData.session.access_token;
 
     const res = await fetch("/.netlify/functions/generate-plan", {
       method:"POST",
       headers:{
         "Content-Type":"application/json",
-        "Authorization":`Bearer ${sessionData.session.access_token}`
+        "Authorization":`Bearer ${token}`
       },
       body:JSON.stringify({request_type:"weekly_plan"})
     });
 
-    const result = await res.json();
+    const result = await res.json().catch(()=>({ok:false,error:"Could not start AI plan."}));
 
     if(!res.ok || !result.ok){
       const msg = result.error?.error?.message || result.error?.message || result.error || "AI plan failed.";
       throw new Error(msg);
     }
 
-    activePlan = result.plan;
-    await ensureWaterLog();
-    buildTodaySchedule();
-    buildWorkoutPlan();
-    renderAll();
+    btn.textContent="Generating plan...";
+    toast(result.message || "Your AI coach is updating your plan. This can take a few minutes.");
+    alert("Your AI coach is updating your plan.\n\nThis can take a few minutes. You can stay on this page or come back later.");
 
-    toast("AI plan saved and loaded.");
-    alert("Plan generated successfully.\n\n" + (result.plan?.summary || "Your new FitApp plan is ready."));
+    if(result.request_id){
+      await pollPlanUntilReady(result.request_id, token, btn);
+    }
   }catch(e){
     console.error(e);
     const msg = e.message || "Could not generate plan.";
