@@ -1,0 +1,1840 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark light" />
+  <title>ShapeCue - Membership</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root{
+      --page:#000000;
+      --surface:#111111;
+      --surface-2:#1A1A1A;
+      --surface-3:#242424;
+      --glass:rgba(24,24,24,.74);
+      --glass-strong:rgba(29,29,31,.90);
+
+      --text:#FFFFFF;
+      --text-2:#B5B5BC;
+      --text-3:#777780;
+
+      --line:rgba(255,255,255,.09);
+      --line-strong:rgba(255,255,255,.16);
+
+      --green:#34D46F;
+      --green-ink:#04190B;
+      --blue:#2997FF;
+      --amber:#FF9F0A;
+      --red:#FF453A;
+      --purple:#BF5AF2;
+
+      --shadow:0 20px 56px rgba(0,0,0,.46);
+      --radius:22px;
+      --max:480px;
+    }
+
+    html[data-theme="light"]{
+      --page:#F5F5F7;
+      --surface:#FFFFFF;
+      --surface-2:#F0F0F3;
+      --surface-3:#E7E7EB;
+      --glass:rgba(255,255,255,.76);
+      --glass-strong:rgba(255,255,255,.92);
+
+      --text:#111111;
+      --text-2:#65656C;
+      --text-3:#8C8C94;
+
+      --line:rgba(0,0,0,.075);
+      --line-strong:rgba(0,0,0,.13);
+
+      --green:#22C55E;
+      --green-ink:#031608;
+      --blue:#007AFF;
+      --amber:#FF9500;
+      --red:#FF3B30;
+      --purple:#AF52DE;
+
+      --shadow:0 16px 42px rgba(0,0,0,.12);
+    }
+
+    *{
+      box-sizing:border-box;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    html{
+      scroll-behavior:smooth;
+    }
+
+    body{
+      margin:0;
+      min-height:100vh;
+      background:var(--page);
+      color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Arial,sans-serif;
+      overflow-x:hidden;
+    }
+
+    button,
+    input,
+    select{
+      font:inherit;
+    }
+
+    button{
+      cursor:pointer;
+    }
+
+    a{
+      color:inherit;
+      text-decoration:none;
+    }
+
+    .page{
+      width:100%;
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+    }
+
+    .shell{
+      width:100%;
+      max-width:var(--max);
+      min-height:100vh;
+      padding:10px 14px calc(34px + env(safe-area-inset-bottom));
+    }
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:30;
+      margin:-10px -14px 8px;
+      padding:10px 14px;
+      background:rgba(4,4,5,.965);
+      border-bottom:1px solid var(--line);
+      backdrop-filter:blur(24px) saturate(160%);
+      -webkit-backdrop-filter:blur(24px) saturate(160%);
+    }
+
+    html[data-theme="light"] .topbar{
+      background:rgba(245,245,247,.965);
+    }
+
+    .toprow{
+      min-height:42px;
+      display:grid;
+      grid-template-columns:72px 1fr 72px;
+      align-items:center;
+      gap:8px;
+    }
+
+    .back-btn{
+      justify-self:start;
+      border:0;
+      background:transparent;
+      color:var(--blue);
+      min-height:40px;
+      padding:6px 0;
+      display:inline-flex;
+      align-items:center;
+      gap:3px;
+      font-size:14px;
+      font-weight:900;
+    }
+
+    .top-title{
+      text-align:center;
+      font-size:16px;
+      font-weight:950;
+      letter-spacing:-.25px;
+    }
+
+    .top-spacer{
+      width:72px;
+    }
+
+    .hero{
+      margin-top:10px;
+      padding:17px;
+      border:1px solid var(--line);
+      border-radius:26px;
+      background:var(--surface);
+    }
+
+    .hero h1{
+      margin:0;
+      font-size:31px;
+      line-height:1.02;
+      letter-spacing:-1.2px;
+    }
+
+    .hero p{
+      margin:8px 0 0;
+      color:var(--text-2);
+      font-size:13px;
+      line-height:1.45;
+    }
+
+    .hero-chips{
+      display:flex;
+      gap:7px;
+      flex-wrap:wrap;
+      margin-top:13px;
+    }
+
+    .chip{
+      border:1px solid var(--line);
+      background:var(--surface-2);
+      color:var(--text-2);
+      border-radius:999px;
+      padding:6px 9px;
+      font-size:10.8px;
+      font-weight:900;
+    }
+
+    .chip.green{
+      color:var(--green);
+      background:color-mix(in srgb,var(--green) 10%,var(--surface));
+      border-color:color-mix(in srgb,var(--green) 24%,transparent);
+    }
+
+    .chip.purple{
+      color:var(--purple);
+      background:color-mix(in srgb,var(--purple) 10%,var(--surface));
+      border-color:color-mix(in srgb,var(--purple) 24%,transparent);
+    }
+
+    .section-label{
+      margin:20px 4px 8px;
+      color:var(--text-3);
+      font-size:10.5px;
+      font-weight:950;
+      text-transform:uppercase;
+      letter-spacing:.75px;
+    }
+
+    .current-card{
+      border:1px solid var(--line);
+      background:var(--surface);
+      border-radius:24px;
+      padding:15px;
+    }
+
+    .current-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .current-copy h2{
+      margin:0;
+      font-size:22px;
+      letter-spacing:-.65px;
+    }
+
+    .current-copy p{
+      margin:5px 0 0;
+      color:var(--text-2);
+      font-size:12.2px;
+      line-height:1.42;
+    }
+
+    .current-pill{
+      flex:0 0 auto;
+      border:1px solid color-mix(in srgb,var(--green) 30%,transparent);
+      background:color-mix(in srgb,var(--green) 10%,var(--surface));
+      color:var(--green);
+      border-radius:999px;
+      padding:7px 10px;
+      font-size:11px;
+      font-weight:1000;
+    }
+
+    .current-meta{
+      display:grid;
+      gap:8px;
+      margin-top:14px;
+    }
+
+    .meta-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      border-top:1px solid var(--line);
+      padding-top:8px;
+      font-size:12px;
+    }
+
+    .meta-row span{
+      color:var(--text-2);
+    }
+
+    .meta-row strong{
+      text-align:right;
+      font-size:12px;
+    }
+
+    .action-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin-top:13px;
+    }
+
+    .btn{
+      min-height:44px;
+      border:1px solid transparent;
+      border-radius:15px;
+      padding:10px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:7px;
+      font-size:12.5px;
+      font-weight:950;
+    }
+
+    .btn.primary{
+      background:var(--green);
+      color:var(--green-ink);
+    }
+
+    .btn.secondary{
+      background:var(--surface-2);
+      border-color:var(--line);
+      color:var(--text);
+    }
+
+    .btn.blue{
+      background:color-mix(in srgb,var(--blue) 12%,var(--surface));
+      border-color:color-mix(in srgb,var(--blue) 24%,transparent);
+      color:var(--blue);
+    }
+
+    .btn.amber{
+      background:color-mix(in srgb,var(--amber) 12%,var(--surface));
+      border-color:color-mix(in srgb,var(--amber) 24%,transparent);
+      color:var(--amber);
+    }
+
+    .btn.red{
+      background:color-mix(in srgb,var(--red) 12%,var(--surface));
+      border-color:color-mix(in srgb,var(--red) 24%,transparent);
+      color:var(--red);
+    }
+
+    .btn:disabled{
+      opacity:.48;
+      cursor:not-allowed;
+    }
+
+    .billing-toggle{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:5px;
+      padding:5px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:var(--surface);
+    }
+
+    .billing-toggle button{
+      min-height:40px;
+      border:0;
+      border-radius:11px;
+      background:transparent;
+      color:var(--text-2);
+      font-size:12px;
+      font-weight:950;
+    }
+
+    .billing-toggle button.active{
+      background:var(--surface-2);
+      color:var(--text);
+      box-shadow:0 1px 6px rgba(0,0,0,.15);
+    }
+
+    .save-pill{
+      display:inline-flex;
+      margin-left:5px;
+      padding:3px 6px;
+      border-radius:999px;
+      background:color-mix(in srgb,var(--green) 13%,var(--surface));
+      color:var(--green);
+      font-size:9px;
+      font-weight:1000;
+    }
+
+    .plans{
+      display:grid;
+      gap:11px;
+      margin-top:10px;
+    }
+
+    .plan-card{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      background:var(--surface);
+      border-radius:24px;
+      padding:15px;
+    }
+
+    .plan-card.recommended{
+      border-color:color-mix(in srgb,var(--purple) 42%,transparent);
+    }
+
+    .plan-card.current{
+      border-color:color-mix(in srgb,var(--green) 42%,transparent);
+    }
+
+    .plan-ribbon{
+      position:absolute;
+      top:11px;
+      right:11px;
+      border-radius:999px;
+      padding:5px 8px;
+      font-size:9.5px;
+      font-weight:1000;
+    }
+
+    .plan-ribbon.recommended{
+      color:var(--purple);
+      background:color-mix(in srgb,var(--purple) 10%,var(--surface));
+      border:1px solid color-mix(in srgb,var(--purple) 24%,transparent);
+    }
+
+    .plan-ribbon.current{
+      color:var(--green);
+      background:color-mix(in srgb,var(--green) 10%,var(--surface));
+      border:1px solid color-mix(in srgb,var(--green) 24%,transparent);
+    }
+
+    .plan-head{
+      padding-right:86px;
+    }
+
+    .plan-head h3{
+      margin:0;
+      font-size:20px;
+      letter-spacing:-.55px;
+    }
+
+    .plan-head p{
+      margin:5px 0 0;
+      color:var(--text-2);
+      font-size:12px;
+      line-height:1.4;
+    }
+
+    .price-row{
+      display:flex;
+      align-items:flex-end;
+      gap:6px;
+      margin-top:13px;
+    }
+
+    .price{
+      font-size:31px;
+      line-height:1;
+      font-weight:1000;
+      letter-spacing:-1.2px;
+    }
+
+    .price-unit{
+      padding-bottom:3px;
+      color:var(--text-2);
+      font-size:11.5px;
+      font-weight:850;
+    }
+
+    .yearly-note{
+      margin-top:5px;
+      color:var(--green);
+      font-size:10.8px;
+      font-weight:850;
+    }
+
+    .feature-list{
+      display:grid;
+      gap:8px;
+      margin-top:14px;
+    }
+
+    .feature{
+      display:grid;
+      grid-template-columns:18px 1fr;
+      gap:8px;
+      align-items:start;
+      font-size:12px;
+      line-height:1.38;
+    }
+
+    .feature-mark{
+      width:18px;
+      height:18px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:color-mix(in srgb,var(--green) 12%,var(--surface));
+      color:var(--green);
+      font-size:10px;
+      font-weight:1000;
+    }
+
+    .feature.muted{
+      color:var(--text-3);
+    }
+
+    .feature.muted .feature-mark{
+      background:var(--surface-2);
+      color:var(--text-3);
+    }
+
+    .plan-action{
+      margin-top:14px;
+    }
+
+    .plan-action .btn{
+      width:100%;
+    }
+
+    .compare-card{
+      border:1px solid var(--line);
+      background:var(--surface);
+      border-radius:24px;
+      overflow:hidden;
+    }
+
+    .compare-head{
+      padding:14px;
+      border-bottom:1px solid var(--line);
+    }
+
+    .compare-head h3{
+      margin:0;
+      font-size:18px;
+      letter-spacing:-.4px;
+    }
+
+    .compare-head p{
+      margin:5px 0 0;
+      color:var(--text-2);
+      font-size:11.8px;
+      line-height:1.4;
+    }
+
+    .compare-scroll{
+      overflow-x:auto;
+      -webkit-overflow-scrolling:touch;
+    }
+
+    .compare-table{
+      min-width:680px;
+      width:100%;
+      border-collapse:collapse;
+      font-size:11px;
+    }
+
+    .compare-table th,
+    .compare-table td{
+      padding:11px 9px;
+      border-bottom:1px solid var(--line);
+      text-align:center;
+      vertical-align:middle;
+    }
+
+    .compare-table th{
+      position:sticky;
+      top:0;
+      background:var(--surface);
+      font-size:11px;
+      font-weight:1000;
+    }
+
+    .compare-table th:first-child,
+    .compare-table td:first-child{
+      position:sticky;
+      left:0;
+      z-index:2;
+      width:180px;
+      text-align:left;
+      background:var(--surface);
+      color:var(--text-2);
+      font-weight:850;
+    }
+
+    .yes{
+      color:var(--green);
+      font-weight:1000;
+    }
+
+    .limited{
+      color:var(--amber);
+      font-weight:900;
+    }
+
+    .no{
+      color:var(--text-3);
+    }
+
+    .promo-card{
+      border:1px solid var(--line);
+      background:var(--surface);
+      border-radius:24px;
+      padding:14px;
+    }
+
+    .promo-card h3{
+      margin:0;
+      font-size:18px;
+      letter-spacing:-.4px;
+    }
+
+    .promo-card p{
+      margin:5px 0 0;
+      color:var(--text-2);
+      font-size:11.8px;
+      line-height:1.4;
+    }
+
+    .promo-row{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:8px;
+      align-items:end;
+      margin-top:12px;
+    }
+
+    .field label{
+      display:block;
+      margin:0 0 6px 3px;
+      color:var(--text-2);
+      font-size:11.5px;
+      font-weight:850;
+    }
+
+    .input{
+      width:100%;
+      min-height:47px;
+      padding:11px 12px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:var(--surface-2);
+      color:var(--text);
+      outline:none;
+      font-size:14px;
+      text-transform:uppercase;
+    }
+
+    .promo-msg{
+      margin-top:8px;
+      color:var(--text-3);
+      font-size:11.5px;
+      line-height:1.4;
+    }
+
+    .promo-msg.good{
+      color:var(--green);
+    }
+
+    .promo-msg.warn{
+      color:var(--amber);
+    }
+
+    .note-card{
+      margin-top:11px;
+      border:1px solid var(--line);
+      background:var(--surface);
+      border-radius:20px;
+      padding:12px;
+      color:var(--text-2);
+      font-size:11.4px;
+      line-height:1.48;
+    }
+
+    .loader{
+      min-height:180px;
+      display:grid;
+      place-items:center;
+      color:var(--text-2);
+      text-align:center;
+      font-size:12.5px;
+    }
+
+    .spin{
+      width:30px;
+      height:30px;
+      margin:0 auto 10px;
+      border-radius:50%;
+      border:3px solid var(--line-strong);
+      border-top-color:var(--green);
+      animation:spin .75s linear infinite;
+    }
+
+    @keyframes spin{
+      to{transform:rotate(360deg)}
+    }
+
+    .modal{
+      position:fixed;
+      inset:0;
+      z-index:90;
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      padding:14px;
+      background:rgba(0,0,0,.60);
+      backdrop-filter:blur(9px);
+      -webkit-backdrop-filter:blur(9px);
+    }
+
+    .modal.show{
+      display:flex;
+    }
+
+    .sheet{
+      width:100%;
+      max-width:var(--max);
+      max-height:88vh;
+      overflow:auto;
+      border:1px solid var(--line-strong);
+      border-radius:27px;
+      padding:14px;
+      background:var(--glass-strong);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(30px) saturate(180%);
+      -webkit-backdrop-filter:blur(30px) saturate(180%);
+    }
+
+    .sheet-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:12px;
+    }
+
+    .sheet-head h3{
+      margin:0;
+      font-size:21px;
+      letter-spacing:-.5px;
+    }
+
+    .sheet-head p{
+      margin:5px 0 0;
+      color:var(--text-2);
+      font-size:12px;
+      line-height:1.42;
+    }
+
+    .close-btn{
+      width:38px;
+      height:38px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:var(--surface-2);
+      color:var(--text);
+      font-size:20px;
+      font-weight:900;
+    }
+
+    .sheet-plan{
+      border:1px solid var(--line);
+      border-radius:19px;
+      padding:12px;
+      background:var(--surface);
+    }
+
+    .sheet-plan strong{
+      display:block;
+      font-size:16px;
+      letter-spacing:-.3px;
+    }
+
+    .sheet-plan span{
+      display:block;
+      margin-top:4px;
+      color:var(--text-2);
+      font-size:11.8px;
+      line-height:1.4;
+    }
+
+    .sheet-list{
+      display:grid;
+      gap:8px;
+      margin-top:12px;
+    }
+
+    .sheet-list div{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:9px;
+      background:var(--surface);
+      color:var(--text-2);
+      font-size:11.8px;
+      line-height:1.4;
+    }
+
+    .sheet-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin-top:12px;
+    }
+
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:18px;
+      transform:translateX(-50%) translateY(10px);
+      width:calc(100% - 28px);
+      max-width:452px;
+      z-index:110;
+      border:1px solid var(--line-strong);
+      border-radius:16px;
+      padding:12px;
+      background:var(--glass-strong);
+      color:var(--text);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(24px);
+      -webkit-backdrop-filter:blur(24px);
+      opacity:0;
+      pointer-events:none;
+      transition:.2s;
+      text-align:center;
+      font-size:12.5px;
+      line-height:1.35;
+    }
+
+    .toast.show{
+      opacity:1;
+      transform:translateX(-50%) translateY(0);
+    }
+
+    @media(max-width:390px){
+      .action-grid,
+      .sheet-actions{
+        grid-template-columns:1fr;
+      }
+
+      .promo-row{
+        grid-template-columns:1fr;
+      }
+
+      .promo-row .btn{
+        width:100%;
+      }
+
+      .hero h1{
+        font-size:28px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <main class="shell">
+      <header class="topbar">
+        <div class="toprow">
+          <button class="back-btn" id="backBtn" type="button">&lsaquo; Back</button>
+          <div class="top-title">Membership</div>
+          <div class="top-spacer"></div>
+        </div>
+      </header>
+
+      <section class="hero">
+        <h1>Choose your coaching level</h1>
+        <p>
+          Start free, get monthly guidance with Plus, deeper updates with Premium,
+          or weekly AI coaching with Coach.
+        </p>
+        <div class="hero-chips">
+          <span class="chip green">Cancel anytime after billing is connected</span>
+          <span class="chip purple">Promo codes supported now</span>
+        </div>
+      </section>
+
+      <div id="pageLoader" class="loader">
+        <div>
+          <div class="spin"></div>
+          <div>Loading your membership...</div>
+        </div>
+      </div>
+
+      <div id="membershipContent" hidden>
+        <div class="section-label">Your membership</div>
+
+        <section class="current-card">
+          <div class="current-top">
+            <div class="current-copy">
+              <h2 id="currentPlanName">ShapeCue Free</h2>
+              <p id="currentPlanDescription">Starter access</p>
+            </div>
+            <span class="current-pill" id="currentPlanPill">Current</span>
+          </div>
+
+          <div class="current-meta">
+            <div class="meta-row">
+              <span>AI plan updates</span>
+              <strong id="currentPlanCadence">Starter plan only</strong>
+            </div>
+            <div class="meta-row">
+              <span>Membership source</span>
+              <strong id="currentPlanSource">Profile</strong>
+            </div>
+            <div class="meta-row">
+              <span>Renews / expires</span>
+              <strong id="currentPlanExpiry">No expiry</strong>
+            </div>
+          </div>
+
+          <div class="action-grid" id="currentActions"></div>
+        </section>
+
+        <div class="section-label">Billing</div>
+
+        <div class="billing-toggle" id="billingToggle">
+          <button type="button" data-billing="monthly" class="active">Monthly</button>
+          <button type="button" data-billing="yearly">Yearly <span class="save-pill">Save</span></button>
+        </div>
+
+        <div class="section-label">Plans</div>
+
+        <section class="plans" id="plansList"></section>
+
+        <div class="section-label" id="compare">Compare everything</div>
+
+        <section class="compare-card">
+          <div class="compare-head">
+            <h3>Plan differences</h3>
+            <p>Swipe sideways to compare every plan.</p>
+          </div>
+
+          <div class="compare-scroll">
+            <table class="compare-table">
+              <thead>
+                <tr>
+                  <th>Feature</th>
+                  <th>Free</th>
+                  <th>Plus</th>
+                  <th>Premium</th>
+                  <th>Coach</th>
+                </tr>
+              </thead>
+              <tbody id="compareBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <div class="section-label">Promo code</div>
+
+        <section class="promo-card">
+          <h3>Unlock with a promo</h3>
+          <p>Promo codes created in the ShapeCue admin page work here now.</p>
+
+          <div class="promo-row">
+            <div class="field">
+              <label>Promo code</label>
+              <input class="input" id="promoCode" placeholder="EXAMPLE: PLUS30" autocomplete="off" />
+            </div>
+            <button class="btn primary" id="applyPromoBtn" type="button">Apply</button>
+          </div>
+
+          <div class="promo-msg" id="promoMsg">
+            Your current access will refresh immediately after a valid code is applied.
+          </div>
+        </section>
+
+        <div class="note-card">
+          ShapeCue currently supports real promo-based entitlements. Paid checkout,
+          App Store billing, Google Play billing, Stripe billing, automatic downgrade,
+          and cancellation need a billing provider before those actions can change a
+          real subscription.
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal" id="planModal">
+    <div class="sheet">
+      <div class="sheet-head">
+        <div>
+          <h3 id="planModalTitle">Change membership</h3>
+          <p id="planModalText">Review the selected plan.</p>
+        </div>
+        <button class="close-btn" type="button" data-close-modal="planModal">&times;</button>
+      </div>
+
+      <div class="sheet-plan">
+        <strong id="selectedPlanName">ShapeCue Plus</strong>
+        <span id="selectedPlanPrice">$5.99 monthly</span>
+      </div>
+
+      <div class="sheet-list" id="selectedPlanFeatures"></div>
+
+      <div class="sheet-actions">
+        <button class="btn primary" id="continuePlanBtn" type="button">Continue</button>
+        <button class="btn secondary" type="button" data-close-modal="planModal">Not now</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="manageModal">
+    <div class="sheet">
+      <div class="sheet-head">
+        <div>
+          <h3 id="manageTitle">Manage membership</h3>
+          <p id="manageText">Billing connection required.</p>
+        </div>
+        <button class="close-btn" type="button" data-close-modal="manageModal">&times;</button>
+      </div>
+
+      <div class="sheet-list" id="manageList"></div>
+
+      <div class="sheet-actions">
+        <button class="btn primary" id="managePromoBtn" type="button">Use promo code</button>
+        <button class="btn secondary" type="button" data-close-modal="manageModal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Saved</div>
+
+  <script>
+    const SUPABASE_URL = "https://qusmbveovroldkhbjudq.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_6zVS1VCVok16WmVWNPvTrw_vTiQvgX4";
+
+    const supabaseClient = supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY
+    );
+
+    const $ = selector => document.querySelector(selector);
+    const $$ = selector => Array.from(document.querySelectorAll(selector));
+
+    let currentUser = null;
+    let currentSession = null;
+    let currentProfile = null;
+    let currentEntitlement = null;
+    let billingPeriod = "monthly";
+    let selectedPlanCode = null;
+
+    const PLANS = {
+      free:{
+        code:"free",
+        name:"Free",
+        monthly:0,
+        yearly:0,
+        cadence:"Starter plan only",
+        description:"Try ShapeCue with a starter plan and essential daily guidance.",
+        features:[
+          "Starter plan",
+          "Today page",
+          "Basic exercise guide",
+          "Limited plan preview"
+        ],
+        excluded:[
+          "No ongoing AI plan updates",
+          "No full-week PDF export",
+          "No progress photo vault"
+        ]
+      },
+      plus:{
+        code:"plus",
+        name:"Plus",
+        monthly:5.99,
+        yearly:49.99,
+        cadence:"Monthly AI update",
+        description:"Full weekly planning for users who want simple monthly guidance.",
+        features:[
+          "Full 7-day meals and workouts",
+          "Monthly AI plan update",
+          "Basic grocery list and PDF",
+          "Exercise guide and media",
+          "Limited meal and exercise replacements"
+        ],
+        excluded:[
+          "No photo AI review",
+          "No advanced weekly review"
+        ]
+      },
+      premium:{
+        code:"premium",
+        name:"Premium",
+        monthly:9.99,
+        yearly:99,
+        cadence:"AI update every 14 days",
+        description:"More frequent coaching, deeper progress tools, and limited photo tracking.",
+        features:[
+          "Everything in Plus",
+          "AI update every 14 days",
+          "Detailed meals and workouts",
+          "Exercise photos and videos",
+          "Limited progress photos",
+          "Basic progress review",
+          "More smart replacements"
+        ],
+        excluded:[
+          "No weekly AI update",
+          "No advanced Coach review"
+        ]
+      },
+      coach:{
+        code:"coach",
+        name:"Coach",
+        monthly:14.99,
+        yearly:149,
+        cadence:"Weekly AI update",
+        description:"The complete ShapeCue experience with weekly AI coaching and deeper review.",
+        features:[
+          "Everything in Premium",
+          "Weekly AI plan update",
+          "Smart meal and exercise replacements",
+          "Progress photos and AI analysis",
+          "Progress Vault PIN",
+          "Advanced weekly review",
+          "Why your plan changed",
+          "Priority and deeper AI coaching"
+        ],
+        excluded:[]
+      }
+    };
+
+    const PLAN_ORDER = ["free","plus","premium","coach"];
+
+    const COMPARISON_ROWS = [
+      ["Starter plan", "Yes", "Yes", "Yes", "Yes"],
+      ["Full 7-day meal plan", "Today only", "Yes", "Yes", "Yes"],
+      ["Full workout plan", "Limited", "Yes", "Yes", "Yes"],
+      ["AI plan updates", "No", "Monthly", "Every 14 days", "Weekly"],
+      ["PDF export", "No", "Yes", "Yes", "Yes"],
+      ["Grocery list", "No", "Basic", "Detailed", "Detailed"],
+      ["Exercise media", "Basic guide", "Yes", "Yes", "Yes"],
+      ["Smart replacements", "No", "Limited", "More", "Full"],
+      ["Progress photos", "No", "No", "Limited", "Full"],
+      ["Photo AI review", "No", "No", "No", "Yes"],
+      ["Progress review", "No", "No", "Basic", "Advanced"],
+      ["Why plan changed", "No", "No", "No", "Yes"],
+      ["Progress Vault PIN", "No", "No", "No", "Yes"]
+    ];
+
+    function toast(message){
+      const box = $("#toast");
+      box.textContent = message;
+      box.classList.add("show");
+
+      clearTimeout(window.__shapeCueMembershipToast);
+      window.__shapeCueMembershipToast = setTimeout(() => {
+        box.classList.remove("show");
+      }, 1800);
+    }
+
+    function normalizePlanCode(code){
+      const value = String(code || "free").toLowerCase();
+
+      if([
+        "premium_plus",
+        "premium_plus_weekly",
+        "coach"
+      ].includes(value)){
+        return "coach";
+      }
+
+      if([
+        "premium",
+        "premium_biweekly"
+      ].includes(value)){
+        return "premium";
+      }
+
+      if([
+        "plus",
+        "premium_monthly"
+      ].includes(value)){
+        return "plus";
+      }
+
+      return "free";
+    }
+
+    function currentPlanCode(){
+      return normalizePlanCode(
+        currentEntitlement?.plan_code ||
+        currentProfile?.selected_plan_code ||
+        (currentProfile?.is_premium ? "premium" : "free")
+      );
+    }
+
+    function planRank(code){
+      return PLAN_ORDER.indexOf(normalizePlanCode(code));
+    }
+
+    function formatMoney(value){
+      return `$${Number(value).toFixed(
+        Number(value) % 1 === 0 ? 0 : 2
+      )}`;
+    }
+
+    function priceText(plan){
+      if(plan.code === "free"){
+        return {
+          price:"$0",
+          unit:"forever",
+          note:"No payment required"
+        };
+      }
+
+      if(billingPeriod === "yearly"){
+        const monthlyEquivalent = plan.yearly / 12;
+
+        return {
+          price:formatMoney(plan.yearly),
+          unit:"per year",
+          note:`About ${formatMoney(monthlyEquivalent)} per month`
+        };
+      }
+
+      return {
+        price:formatMoney(plan.monthly),
+        unit:"per month",
+        note:"Billed monthly"
+      };
+    }
+
+    function formatDate(value){
+      if(!value){
+        return "No expiry";
+      }
+
+      const date = new Date(value);
+
+      if(Number.isNaN(date.getTime())){
+        return "No expiry";
+      }
+
+      return date.toLocaleDateString([], {
+        year:"numeric",
+        month:"short",
+        day:"numeric"
+      });
+    }
+
+    function nice(value){
+      return value
+        ? String(value).replaceAll("_"," ")
+        : "profile";
+    }
+
+    function themePreference(){
+      return localStorage.getItem("shapecue.theme") || "system";
+    }
+
+    function resolvedTheme(){
+      const preference = themePreference();
+
+      if(preference === "light" || preference === "dark"){
+        return preference;
+      }
+
+      return window.matchMedia("(prefers-color-scheme: light)").matches
+        ? "light"
+        : "dark";
+    }
+
+    function applyTheme(){
+      document.documentElement.dataset.theme = resolvedTheme();
+    }
+
+    async function fetchEntitlement(){
+      if(!currentSession?.access_token){
+        return null;
+      }
+
+      const response = await fetch(
+        "/.netlify/functions/get-entitlement",
+        {
+          method:"GET",
+          headers:{
+            "Authorization":`Bearer ${currentSession.access_token}`
+          }
+        }
+      );
+
+      const result = await response
+        .json()
+        .catch(() => ({}));
+
+      if(!response.ok || !result.ok){
+        throw new Error(
+          result.error ||
+          "Could not load membership."
+        );
+      }
+
+      currentEntitlement = result.entitlement || null;
+      return currentEntitlement;
+    }
+
+    async function loadMembership(){
+      const { data: sessionData } = await supabaseClient
+        .auth
+        .getSession();
+
+      currentSession = sessionData?.session || null;
+      currentUser = currentSession?.user || null;
+
+      if(!currentUser){
+        location.href = "auth.html?mode=login";
+        return;
+      }
+
+      const { data: profile, error } = await supabaseClient
+        .from("profiles")
+        .select("*")
+        .eq("id", currentUser.id)
+        .maybeSingle();
+
+      if(error){
+        throw error;
+      }
+
+      currentProfile = profile || null;
+
+      if(!currentProfile?.onboarding_completed){
+        location.href = "onboarding.html";
+        return;
+      }
+
+      currentEntitlement = {
+        plan_code:
+          currentProfile.selected_plan_code ||
+          (currentProfile.is_premium ? "premium" : "free"),
+        source:"profile",
+        starts_at:null,
+        ends_at:null,
+        features:{}
+      };
+
+      try{
+        await fetchEntitlement();
+      }catch(error){
+        console.warn(
+          "Using profile membership fallback",
+          error
+        );
+      }
+
+      renderAll();
+
+      $("#pageLoader").hidden = true;
+      $("#membershipContent").hidden = false;
+    }
+
+    function renderAll(){
+      renderCurrentPlan();
+      renderPlans();
+      renderComparison();
+    }
+
+    function renderCurrentPlan(){
+      const code = currentPlanCode();
+      const plan = PLANS[code];
+
+      $("#currentPlanName").textContent =
+        `ShapeCue ${plan.name}`;
+
+      $("#currentPlanDescription").textContent =
+        plan.description;
+
+      $("#currentPlanCadence").textContent =
+        plan.cadence;
+
+      $("#currentPlanSource").textContent =
+        nice(currentEntitlement?.source);
+
+      $("#currentPlanExpiry").textContent =
+        formatDate(currentEntitlement?.ends_at);
+
+      $("#currentPlanPill").textContent =
+        code === "free" ? "Current free plan" : "Current plan";
+
+      const actions = [];
+
+      if(code !== "coach"){
+        actions.push(`
+          <button class="btn primary" type="button" data-open-plan="coach">
+            Upgrade
+          </button>
+        `);
+      }
+
+      actions.push(`
+        <button class="btn secondary" type="button" id="comparePlansBtn">
+          Compare plans
+        </button>
+      `);
+
+      if(code !== "free"){
+        actions.push(`
+          <button class="btn amber" type="button" data-manage-action="downgrade">
+            Downgrade
+          </button>
+        `);
+
+        actions.push(`
+          <button class="btn red" type="button" data-manage-action="cancel">
+            Cancel membership
+          </button>
+        `);
+      }
+
+      $("#currentActions").innerHTML =
+        actions.join("");
+
+      wireDynamicActions();
+    }
+
+    function renderPlans(){
+      const current = currentPlanCode();
+
+      $("#plansList").innerHTML = PLAN_ORDER
+        .map(code => {
+          const plan = PLANS[code];
+          const price = priceText(plan);
+          const isCurrent = code === current;
+          const isRecommended = code === "premium" && !isCurrent;
+          const relation =
+            planRank(code) > planRank(current)
+              ? "upgrade"
+              : planRank(code) < planRank(current)
+                ? "downgrade"
+                : "current";
+
+          let buttonText = "Current plan";
+          let buttonClass = "secondary";
+          let disabled = "disabled";
+
+          if(relation === "upgrade"){
+            buttonText = `Upgrade to ${plan.name}`;
+            buttonClass = "primary";
+            disabled = "";
+          }else if(relation === "downgrade"){
+            buttonText = `Downgrade to ${plan.name}`;
+            buttonClass = "amber";
+            disabled = "";
+          }
+
+          return `
+            <article class="plan-card ${isCurrent ? "current" : ""} ${isRecommended ? "recommended" : ""}">
+              ${isCurrent ? `<span class="plan-ribbon current">Current</span>` : ""}
+              ${isRecommended ? `<span class="plan-ribbon recommended">Popular</span>` : ""}
+
+              <div class="plan-head">
+                <h3>${plan.name}</h3>
+                <p>${plan.description}</p>
+              </div>
+
+              <div class="price-row">
+                <span class="price">${price.price}</span>
+                <span class="price-unit">${price.unit}</span>
+              </div>
+
+              <div class="yearly-note">${price.note}</div>
+
+              <div class="feature-list">
+                ${plan.features.map(item => `
+                  <div class="feature">
+                    <span class="feature-mark">&#10003;</span>
+                    <span>${item}</span>
+                  </div>
+                `).join("")}
+
+                ${plan.excluded.map(item => `
+                  <div class="feature muted">
+                    <span class="feature-mark">-</span>
+                    <span>${item}</span>
+                  </div>
+                `).join("")}
+              </div>
+
+              <div class="plan-action">
+                <button
+                  class="btn ${buttonClass}"
+                  type="button"
+                  data-open-plan="${code}"
+                  ${disabled}
+                >
+                  ${buttonText}
+                </button>
+              </div>
+            </article>
+          `;
+        })
+        .join("");
+
+      wireDynamicActions();
+    }
+
+    function comparisonClass(value){
+      const normalized = String(value).toLowerCase();
+
+      if(["yes","weekly","monthly","every 14 days","full","detailed","advanced"].includes(normalized)){
+        return "yes";
+      }
+
+      if(["limited","today only","basic","basic guide","more"].includes(normalized)){
+        return "limited";
+      }
+
+      return "no";
+    }
+
+    function renderComparison(){
+      $("#compareBody").innerHTML = COMPARISON_ROWS
+        .map(row => `
+          <tr>
+            <td>${row[0]}</td>
+            ${row.slice(1).map(value => `
+              <td class="${comparisonClass(value)}">${value}</td>
+            `).join("")}
+          </tr>
+        `)
+        .join("");
+    }
+
+    function openModal(id){
+      $("#" + id)?.classList.add("show");
+    }
+
+    function closeModal(id){
+      $("#" + id)?.classList.remove("show");
+    }
+
+    function openPlanModal(code){
+      const normalized = normalizePlanCode(code);
+      const current = currentPlanCode();
+
+      if(normalized === current){
+        return;
+      }
+
+      selectedPlanCode = normalized;
+
+      const plan = PLANS[normalized];
+      const price = priceText(plan);
+      const isUpgrade =
+        planRank(normalized) > planRank(current);
+
+      $("#planModalTitle").textContent =
+        isUpgrade
+          ? `Upgrade to ${plan.name}`
+          : `Downgrade to ${plan.name}`;
+
+      $("#planModalText").textContent =
+        isUpgrade
+          ? "Review what this plan unlocks."
+          : "Review what will change on the lower plan.";
+
+      $("#selectedPlanName").textContent =
+        `ShapeCue ${plan.name}`;
+
+      $("#selectedPlanPrice").textContent =
+        normalized === "free"
+          ? "$0 forever"
+          : `${price.price} ${price.unit}`;
+
+      $("#selectedPlanFeatures").innerHTML =
+        plan.features
+          .slice(0,6)
+          .map(item => `<div>&#10003; ${item}</div>`)
+          .join("");
+
+      $("#continuePlanBtn").textContent =
+        isUpgrade
+          ? "Continue to upgrade"
+          : "Continue to downgrade";
+
+      openModal("planModal");
+    }
+
+    function continueSelectedPlan(){
+      const plan = PLANS[selectedPlanCode];
+
+      closeModal("planModal");
+
+      $("#manageTitle").textContent =
+        `${plan.name} billing is not connected yet`;
+
+      $("#manageText").textContent =
+        "The membership page is ready, but a billing provider must securely create or change paid subscriptions.";
+
+      $("#manageList").innerHTML = `
+        <div>Promo-based access already works through the promo box on this page.</div>
+        <div>Stripe, Apple App Store, or Google Play billing can be connected next.</div>
+        <div>No fake subscription change has been saved to your account.</div>
+      `;
+
+      openModal("manageModal");
+    }
+
+    function openManageAction(action){
+      const code = currentPlanCode();
+      const plan = PLANS[code];
+
+      if(action === "cancel"){
+        $("#manageTitle").textContent =
+          "Cancel membership";
+
+        $("#manageText").textContent =
+          "Cancellation requires the billing provider that created the subscription.";
+
+        $("#manageList").innerHTML = `
+          <div>Your current plan is ShapeCue ${plan.name}.</div>
+          <div>No cancellation has been submitted from this page.</div>
+          <div>After billing is connected, this button should open the provider's secure subscription portal.</div>
+        `;
+      }else{
+        $("#manageTitle").textContent =
+          "Downgrade membership";
+
+        $("#manageText").textContent =
+          "A secure billing connection is needed before a downgrade can be scheduled.";
+
+        $("#manageList").innerHTML = `
+          <div>Your current plan remains active.</div>
+          <div>No entitlement or payment record has been changed.</div>
+          <div>Select a lower plan above to preview its features.</div>
+        `;
+      }
+
+      openModal("manageModal");
+    }
+
+    async function applyPromo(){
+      const code = ($("#promoCode").value || "").trim();
+
+      if(!code){
+        $("#promoMsg").textContent =
+          "Enter a promo code first.";
+
+        $("#promoMsg").className =
+          "promo-msg warn";
+
+        return;
+      }
+
+      if(!currentSession?.access_token){
+        location.href = "auth.html?mode=login";
+        return;
+      }
+
+      const button = $("#applyPromoBtn");
+      const original = button.textContent;
+
+      button.disabled = true;
+      button.textContent = "Applying...";
+
+      try{
+        const response = await fetch(
+          "/.netlify/functions/redeem-promo",
+          {
+            method:"POST",
+            headers:{
+              "Content-Type":"application/json",
+              "Authorization":`Bearer ${currentSession.access_token}`
+            },
+            body:JSON.stringify({ code })
+          }
+        );
+
+        const result = await response
+          .json()
+          .catch(() => ({}));
+
+        if(!response.ok || !result.ok){
+          throw new Error(
+            result.error ||
+            "Promo code could not be applied."
+          );
+        }
+
+        currentEntitlement =
+          result.entitlement ||
+          currentEntitlement;
+
+        if(currentProfile){
+          currentProfile.selected_plan_code =
+            currentEntitlement?.plan_code ||
+            currentProfile.selected_plan_code;
+        }
+
+        $("#promoMsg").textContent =
+          result.message ||
+          "Promo code applied.";
+
+        $("#promoMsg").className =
+          "promo-msg good";
+
+        $("#promoCode").value = "";
+
+        renderAll();
+        toast("Membership access updated");
+      }catch(error){
+        $("#promoMsg").textContent =
+          error.message ||
+          "Promo code could not be applied.";
+
+        $("#promoMsg").className =
+          "promo-msg warn";
+      }finally{
+        button.disabled = false;
+        button.textContent = original;
+      }
+    }
+
+    function wireDynamicActions(){
+      $$("[data-open-plan]").forEach(button => {
+        button.onclick = () => {
+          openPlanModal(button.dataset.openPlan);
+        };
+      });
+
+      $$("[data-manage-action]").forEach(button => {
+        button.onclick = () => {
+          openManageAction(
+            button.dataset.manageAction
+          );
+        };
+      });
+
+      $("#comparePlansBtn")?.addEventListener(
+        "click",
+        () => {
+          $("#compare").scrollIntoView({
+            behavior:"smooth",
+            block:"start"
+          });
+        },
+        { once:true }
+      );
+    }
+
+    function initEvents(){
+      $("#backBtn").addEventListener(
+        "click",
+        () => location.href = "settings.html"
+      );
+
+      $$("[data-billing]").forEach(button => {
+        button.addEventListener(
+          "click",
+          () => {
+            billingPeriod = button.dataset.billing;
+
+            $$("[data-billing]").forEach(item => {
+              item.classList.toggle(
+                "active",
+                item === button
+              );
+            });
+
+            renderPlans();
+          }
+        );
+      });
+
+      $("#applyPromoBtn").addEventListener(
+        "click",
+        applyPromo
+      );
+
+      $("#promoCode").addEventListener(
+        "keydown",
+        event => {
+          if(event.key === "Enter"){
+            applyPromo();
+          }
+        }
+      );
+
+      $("#continuePlanBtn").addEventListener(
+        "click",
+        continueSelectedPlan
+      );
+
+      $("#managePromoBtn").addEventListener(
+        "click",
+        () => {
+          closeModal("manageModal");
+
+          document.querySelector(".promo-card")
+            ?.scrollIntoView({
+              behavior:"smooth",
+              block:"center"
+            });
+
+          setTimeout(
+            () => $("#promoCode")?.focus(),
+            450
+          );
+        }
+      );
+
+      $$("[data-close-modal]").forEach(button => {
+        button.addEventListener(
+          "click",
+          () => closeModal(
+            button.dataset.closeModal
+          )
+        );
+      });
+
+      $$(".modal").forEach(modal => {
+        modal.addEventListener(
+          "click",
+          event => {
+            if(event.target === modal){
+              closeModal(modal.id);
+            }
+          }
+        );
+      });
+    }
+
+    applyTheme();
+    initEvents();
+
+    window
+      .matchMedia("(prefers-color-scheme: light)")
+      .addEventListener?.(
+        "change",
+        () => {
+          if(themePreference() === "system"){
+            applyTheme();
+          }
+        }
+      );
+
+    loadMembership().catch(error => {
+      console.error(error);
+
+      $("#pageLoader").innerHTML = `
+        <div>
+          <div style="color:var(--red);font-weight:900;margin-bottom:6px">
+            Could not load membership
+          </div>
+          <div>${String(error.message || error)}</div>
+        </div>
+      `;
+    });
+  </script>
+</body>
+</html>
