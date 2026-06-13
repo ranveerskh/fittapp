@@ -182,7 +182,7 @@
     .exercise-card.done{border-color:rgba(48,209,88,.32);background:var(--green-soft)}
     .exercise-art{width:58px;height:58px;border-radius:15px;background:var(--surface3);border:1px solid var(--line);display:grid;place-items:center;color:var(--green);overflow:hidden}
     .exercise-art svg{width:32px;height:32px;stroke:currentColor}
-    .exercise-art img{width:100%;height:100%;object-fit:cover}
+    .exercise-art img,.exercise-art video{width:100%;height:100%;object-fit:cover;display:block}
     .exercise-body b{display:block;font-size:13.5px;margin-bottom:3px}
     .exercise-body span{display:block;color:var(--muted);font-size:11.8px;line-height:1.35}
     .exercise-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}
@@ -1355,6 +1355,55 @@
         linear-gradient(145deg,#30323A,#111217);
     }
 
+    .visual-workout-preview{
+      grid-template-columns:76px minmax(0,1fr) !important;
+      align-items:center;
+      gap:11px !important;
+    }
+
+    .workout-preview-media{
+      position:relative;
+      width:76px;
+      height:76px;
+      overflow:hidden;
+      border:1px solid var(--app-line);
+      border-radius:16px;
+      background:var(--app-surface-3);
+    }
+
+    .workout-preview-media img{
+      width:100%;
+      height:100%;
+      display:block;
+      object-fit:cover;
+    }
+
+    .workout-preview-media span{
+      position:absolute;
+      left:5px;
+      right:5px;
+      bottom:5px;
+      overflow:hidden;
+      padding:4px 5px;
+      border:1px solid rgba(255,255,255,.15);
+      border-radius:999px;
+      background:rgba(5,6,8,.55);
+      color:rgba(255,255,255,.88);
+      font-size:6.8px;
+      font-weight:950;
+      text-align:center;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      backdrop-filter:blur(8px);
+      -webkit-backdrop-filter:blur(8px);
+    }
+
+    .workout-preview-copy{
+      min-width:0;
+      display:grid;
+      gap:7px;
+    }
+
     .pulse-strip{
       margin-bottom:10px;
       overflow:hidden;
@@ -1370,8 +1419,13 @@
       min-height:37px;
       display:flex;
       align-items:center;
-      animation:shapeCuePulse 28s linear infinite;
+      animation:none;
+      transform:translate3d(0,0,0);
       will-change:transform;
+    }
+
+    .pulse-track.is-running{
+      animation:shapeCuePulse var(--pulse-duration,28s) linear infinite;
     }
 
     .pulse-strip:active .pulse-track{
@@ -1399,7 +1453,8 @@
     }
 
     @keyframes shapeCuePulse{
-      to{transform:translateX(-50%)}
+      from{transform:translate3d(0,0,0)}
+      to{transform:translate3d(-50%,0,0)}
     }
 
     .visual-loading::after{
@@ -1801,7 +1856,7 @@ let progressPhotoLoading = false;
 
 const VISUAL_TEST_READ_ONLY = true;
 const VISUAL_STYLE_KEY = "shapecue.visual_test.style";
-const VISUAL_CACHE_PREFIX = "shapecue.visual_test.weekly.";
+const VISUAL_CACHE_PREFIX = "shapecue.visual_test.weekly.v2.";
 const visualState = {
   preference: localStorage.getItem(VISUAL_STYLE_KEY) || "auto",
   requestKey: "",
@@ -2200,6 +2255,9 @@ function switchTab(id){
   const labels = {todayScreen:"Today", weekScreen:"Meals", workoutScreen:"Train", progressScreen:"Progress", profileScreen:"Me"};
   $("#topPill").textContent = labels[id] || "ShapeCue";
   window.scrollTo({top:0,behavior:"smooth"});
+  if(id==="todayScreen"){
+    window.setTimeout(() => restartPulseStrip(true), 60);
+  }
   if(id==="workoutScreen") renderWorkout();
   if(id==="weekScreen") renderWeekPlan();
   if(id==="progressScreen") {
@@ -2327,19 +2385,38 @@ function applyPhotoToCover({
 
   if(!cover || !image || !credit) return;
 
-  cover.classList.remove("visual-loading");
+  cover.classList.remove("visual-ready");
 
   if(!visual?.image_url){
-    cover.classList.remove("visual-ready");
+    cover.classList.remove("visual-loading");
     image.removeAttribute("src");
     image.alt = "";
     credit.hidden = true;
+    if(coverId === "todayCoachCover") restartPulseStrip(true);
     return;
   }
 
-  image.src = visual.image_url;
+  const expectedSrc = visual.image_url;
+
+  const reveal = () => {
+    if(image.src !== expectedSrc && image.getAttribute("src") !== expectedSrc) return;
+    cover.classList.remove("visual-loading");
+    cover.classList.add("visual-ready");
+    if(coverId === "todayCoachCover") restartPulseStrip(true);
+  };
+
+  const fail = () => {
+    if(image.src !== expectedSrc && image.getAttribute("src") !== expectedSrc) return;
+    cover.classList.remove("visual-loading","visual-ready");
+    cover.classList.add("visual-minimal");
+    credit.hidden = true;
+    if(coverId === "todayCoachCover") restartPulseStrip(true);
+  };
+
+  image.onload = reveal;
+  image.onerror = fail;
   image.alt = alt || visual.alt || "";
-  cover.classList.add("visual-ready");
+  image.src = expectedSrc;
 
   credit.textContent =
     `Photo by ${visual.photographer_name || "Unsplash contributor"} on Unsplash`;
@@ -2350,6 +2427,10 @@ function applyPhotoToCover({
     "https://unsplash.com";
 
   credit.hidden = false;
+
+  if(image.complete && image.naturalWidth > 0){
+    requestAnimationFrame(reveal);
+  }
 }
 
 function applyMinimalVisualMode(){
@@ -2369,6 +2450,9 @@ function applyMinimalVisualMode(){
   ].forEach(credit => {
     if(credit) credit.hidden = true;
   });
+
+  renderWorkoutPreview();
+  restartPulseStrip(true);
 }
 
 function removeMinimalVisualMode(){
@@ -2396,6 +2480,55 @@ function currentWaterSummary(){
   };
 }
 
+let pulseRafOne = 0;
+let pulseRafTwo = 0;
+let pulseRestartTimer = 0;
+
+function restartPulseStrip(force = false){
+  const track = $("#pulseTrack");
+  const strip = track?.closest(".pulse-strip");
+
+  if(!track || !strip) return;
+
+  cancelAnimationFrame(pulseRafOne);
+  cancelAnimationFrame(pulseRafTwo);
+  clearTimeout(pulseRestartTimer);
+
+  track.classList.remove("is-running");
+  track.style.transform = "translate3d(0,0,0)";
+
+  if(window.matchMedia("(prefers-reduced-motion: reduce)").matches){
+    return;
+  }
+
+  if(!force && !$("#todayScreen")?.classList.contains("active")){
+    return;
+  }
+
+  pulseRafOne = requestAnimationFrame(() => {
+    pulseRafTwo = requestAnimationFrame(() => {
+      const loopWidth = track.scrollWidth / 2;
+      const viewportWidth = strip.clientWidth;
+
+      if(!loopWidth || loopWidth <= viewportWidth + 8){
+        return;
+      }
+
+      const duration = Math.max(20, Math.min(46, loopWidth / 34));
+      track.style.setProperty("--pulse-duration", `${duration.toFixed(1)}s`);
+      track.classList.add("is-running");
+    });
+  });
+
+  pulseRestartTimer = window.setTimeout(() => {
+    if($("#todayScreen")?.classList.contains("active")){
+      track.classList.remove("is-running");
+      void track.offsetWidth;
+      track.classList.add("is-running");
+    }
+  }, 900);
+}
+
 function renderPulseStrip(){
   const track = $("#pulseTrack");
   if(!track) return;
@@ -2420,6 +2553,8 @@ function renderPulseStrip(){
   track.innerHTML = repeated
     .map(item => `<span class="pulse-item">${esc(item)}</span>`)
     .join("");
+
+  restartPulseStrip(true);
 }
 
 function renderVisualCopy(){
@@ -2554,6 +2689,9 @@ function applyWeeklyVisuals(payload){
     visual:visuals.meals,
     alt:"Healthy meal preparation visual"
   });
+
+  renderWorkoutPreview();
+  restartPulseStrip(true);
 }
 
 async function loadWeeklyVisuals(force = false){
@@ -2601,7 +2739,9 @@ async function loadWeeklyVisuals(force = false){
   try{
     const params = new URLSearchParams({
       style,
-      workout
+      workout,
+      week:isoWeekKey(),
+      v:"2"
     });
 
     const response = await fetch(
@@ -2999,12 +3139,19 @@ function publicExerciseMediaUrl(url, path){
 function exerciseMediaHTML(ex, big=false){
   const video = publicExerciseMediaUrl(ex.video_url, ex.video_path);
   const image = publicExerciseMediaUrl(ex.image_url, ex.image_path);
+
   if(video){
-    return `<video src="${esc(video)}" controls playsinline></video>`;
+    if(big){
+      return `<video src="${esc(video)}" controls playsinline preload="metadata"></video>`;
+    }
+
+    return `<video src="${esc(video)}" muted autoplay loop playsinline preload="metadata" aria-label="${esc(ex.name)} exercise demonstration"></video>`;
   }
+
   if(image){
-    return `<img src="${esc(image)}" alt="${esc(ex.name)}">`;
+    return `<img src="${esc(image)}" alt="${esc(ex.name)}" loading="lazy">`;
   }
+
   return iconSvg;
 }
 
@@ -3082,6 +3229,51 @@ function updateWorkoutStatus(){
   $("#simpleWorkoutStatus").textContent = total ? `${done}/${total} done` : "Ready";
 }
 
+function workoutPreviewVisual(){
+  const exactExercise = workoutPlan.find(ex =>
+    publicExerciseMediaUrl(ex.image_url, ex.image_path)
+  );
+
+  if(exactExercise){
+    return {
+      src: publicExerciseMediaUrl(
+        exactExercise.image_url,
+        exactExercise.image_path
+      ),
+      label: exactExercise.name || "Exercise guide",
+      exact: true
+    };
+  }
+
+  const generic =
+    visualState.visuals?.train?.thumb_url ||
+    visualState.visuals?.train?.image_url ||
+    "";
+
+  return generic
+    ? {
+        src: generic,
+        label: "Workout visual",
+        exact: false
+      }
+    : null;
+}
+
+function workoutPreviewMediaHTML(){
+  const visual = workoutPreviewVisual();
+
+  if(!visual?.src){
+    return `<div class="workout-preview-media" aria-hidden="true">${iconSvg}</div>`;
+  }
+
+  return `
+    <div class="workout-preview-media">
+      <img src="${esc(visual.src)}" alt="${esc(visual.exact ? visual.label : "Decorative workout visual")}" loading="lazy">
+      <span>${esc(visual.label)}</span>
+    </div>
+  `;
+}
+
 function renderWorkoutPreview(){
   const type = todayWorkoutType();
   const main = workoutPlan.filter(e=>e.plan_section==="main");
@@ -3089,17 +3281,23 @@ function renderWorkoutPreview(){
   $("#workoutPreviewSub").textContent = "Compact preview. Full details are in Train.";
   $("#workoutStatusPill").textContent = activePlan ? "AI plan" : "Ready";
   $("#workoutPreview").innerHTML = list.length ? `
-    <div class="compact-workout">
-      <strong>${esc(nice(type))} today</strong>
-      <span>${esc(workoutPlan.length)} total items. Today only shows a preview so the full workout is not repeated twice.</span>
-      <div class="compact-list">
-        ${list.map(ex => `<div class="compact-chip">${esc(ex.name)}</div>`).join("")}
+    <div class="compact-workout visual-workout-preview">
+      ${workoutPreviewMediaHTML()}
+      <div class="workout-preview-copy">
+        <strong>${esc(nice(type))} today</strong>
+        <span>${esc(workoutPlan.length)} total items. Today only shows a preview so the full workout is not repeated twice.</span>
+        <div class="compact-list">
+          ${list.map(ex => `<div class="compact-chip">${esc(ex.name)}</div>`).join("")}
+        </div>
       </div>
     </div>
   ` : `
-    <div class="compact-workout">
-      <strong>Recovery today</strong>
-      <span>No full workout found. Follow meals, water, and mobility if listed.</span>
+    <div class="compact-workout visual-workout-preview">
+      ${workoutPreviewMediaHTML()}
+      <div class="workout-preview-copy">
+        <strong>Recovery today</strong>
+        <span>No full workout found. Follow meals, water, and mobility if listed.</span>
+      </div>
     </div>
   `;
   $("#workoutTitle").textContent = `${nice(type)} workout`;
@@ -4245,6 +4443,22 @@ function initSelectChips(){
 }
 
 function initEvents(){
+  window.addEventListener("load", () => restartPulseStrip(true));
+  window.addEventListener("resize", () => restartPulseStrip(true), { passive:true });
+  document.addEventListener("visibilitychange", () => {
+    if(!document.hidden) restartPulseStrip(true);
+  });
+  document.fonts?.ready?.then(() => restartPulseStrip(true));
+
+  if("ResizeObserver" in window){
+    const pulseStrip = document.querySelector(".pulse-strip");
+    if(pulseStrip){
+      new ResizeObserver(() => restartPulseStrip(true)).observe(pulseStrip);
+    }
+  }
+
+  $("#todayVisualImage")?.addEventListener("load", () => restartPulseStrip(true));
+
   $("#visualStyleSelect")?.addEventListener("change", event => {
     visualState.preference = event.target.value;
     localStorage.setItem(VISUAL_STYLE_KEY, visualState.preference);
