@@ -181,7 +181,7 @@
     .exercise-card.done{border-color:rgba(48,209,88,.32);background:var(--green-soft)}
     .exercise-art{width:58px;height:58px;border-radius:15px;background:var(--surface3);border:1px solid var(--line);display:grid;place-items:center;color:var(--green);overflow:hidden}
     .exercise-art svg{width:32px;height:32px;stroke:currentColor}
-    .exercise-art img{width:100%;height:100%;object-fit:cover}
+    .exercise-art img,.exercise-art video{width:100%;height:100%;object-fit:cover;display:block}
     .exercise-body b{display:block;font-size:13.5px;margin-bottom:3px}
     .exercise-body span{display:block;color:var(--muted);font-size:11.8px;line-height:1.35}
     .exercise-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}
@@ -1046,6 +1046,403 @@
 
     @media(max-width:390px){.bottom-tabs{width:calc(100% - 22px) !important}.profile-plan-badge{padding-left:8px;padding-right:8px}}
 
+
+    /* =========================================================
+       SHAPECUE WEEKLY VISUAL COACH V1
+       Weekly Unsplash covers + curated exercise media.
+    ========================================================= */
+    .coach-cover,
+    .section-visual-cover{
+      --cover-accent:var(--app-green);
+      --cover-soft:rgba(53,212,111,.24);
+      position:relative;
+      overflow:hidden;
+      isolation:isolate;
+      border:1px solid rgba(255,255,255,.12);
+      background:
+        radial-gradient(circle at 90% 10%,var(--cover-soft),transparent 42%),
+        linear-gradient(145deg,#17181D,#090A0D);
+      box-shadow:0 18px 40px rgba(0,0,0,.30);
+    }
+
+    html[data-theme="light"] .coach-cover,
+    html[data-theme="light"] .section-visual-cover{
+      border-color:rgba(255,255,255,.72);
+      background:
+        radial-gradient(circle at 90% 10%,var(--cover-soft),transparent 44%),
+        linear-gradient(145deg,#FFFFFF,#EDEEF3);
+      box-shadow:0 13px 31px rgba(45,45,60,.13);
+    }
+
+    .coach-cover{
+      min-height:220px;
+      margin-bottom:9px;
+      border-radius:25px;
+    }
+
+    .section-visual-cover{
+      min-height:150px;
+      margin-bottom:12px;
+      border-radius:21px;
+    }
+
+    .coach-cover.tone-push,
+    .section-visual-cover.tone-push{
+      --cover-accent:#58AAFF;
+      --cover-soft:rgba(88,170,255,.32);
+    }
+
+    .coach-cover.tone-pull,
+    .section-visual-cover.tone-pull{
+      --cover-accent:#35D46F;
+      --cover-soft:rgba(53,212,111,.28);
+    }
+
+    .coach-cover.tone-legs,
+    .section-visual-cover.tone-legs{
+      --cover-accent:#FF9F4A;
+      --cover-soft:rgba(255,159,74,.31);
+    }
+
+    .coach-cover.tone-mobility,
+    .coach-cover.tone-recovery,
+    .section-visual-cover.tone-mobility,
+    .section-visual-cover.tone-recovery{
+      --cover-accent:#BF7BFF;
+      --cover-soft:rgba(191,123,255,.29);
+    }
+
+    .section-visual-cover.meal-tone{
+      --cover-accent:#FFB340;
+      --cover-soft:rgba(255,179,64,.30);
+    }
+
+    .cover-photo{
+      position:absolute;
+      inset:0;
+      z-index:-3;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      opacity:0;
+      transform:scale(1.025);
+      transition:opacity .35s ease;
+    }
+
+    .visual-ready .cover-photo{
+      opacity:1;
+    }
+
+    .coach-cover.visual-ready .cover-photo{
+      animation:shapeCueCoverDrift 18s ease-in-out infinite alternate;
+    }
+
+    @keyframes shapeCueCoverDrift{
+      from{transform:scale(1.025) translate3d(0,0,0)}
+      to{transform:scale(1.085) translate3d(-1.5%,0,0)}
+    }
+
+    .cover-overlay{
+      position:absolute;
+      inset:0;
+      z-index:-2;
+      background:
+        linear-gradient(90deg,rgba(4,5,8,.94) 0%,rgba(4,5,8,.72) 56%,rgba(4,5,8,.20) 100%),
+        linear-gradient(0deg,rgba(4,5,8,.90),transparent 58%);
+    }
+
+    html[data-theme="light"] .cover-overlay{
+      background:
+        linear-gradient(90deg,rgba(10,12,18,.91) 0%,rgba(10,12,18,.68) 58%,rgba(10,12,18,.18) 100%),
+        linear-gradient(0deg,rgba(10,12,18,.84),transparent 58%);
+    }
+
+    .cover-content{
+      min-height:inherit;
+      padding:15px;
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-end;
+      color:#FFFFFF;
+    }
+
+    .cover-topline{
+      position:absolute;
+      left:14px;
+      right:14px;
+      top:13px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .cover-kicker,
+    .cover-plan-chip{
+      display:inline-flex;
+      align-items:center;
+      min-height:25px;
+      padding:5px 8px;
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:999px;
+      background:rgba(7,8,12,.42);
+      color:rgba(255,255,255,.91);
+      backdrop-filter:blur(14px);
+      -webkit-backdrop-filter:blur(14px);
+      font-size:8.8px;
+      font-weight:1000;
+      letter-spacing:.4px;
+      text-transform:uppercase;
+      white-space:nowrap;
+    }
+
+    .cover-plan-chip{
+      color:var(--cover-accent);
+      text-transform:none;
+      letter-spacing:0;
+    }
+
+    .cover-content h2{
+      max-width:315px;
+      margin:45px 0 0;
+      color:#FFFFFF;
+      font-size:24px;
+      line-height:1.02;
+      letter-spacing:-.95px;
+      text-shadow:0 2px 18px rgba(0,0,0,.42);
+    }
+
+    .section-visual-cover .cover-content h2{
+      font-size:20px;
+      max-width:290px;
+    }
+
+    .cover-copy{
+      max-width:330px;
+      margin:7px 0 0;
+      color:rgba(255,255,255,.78);
+      font-size:10.8px;
+      line-height:1.42;
+      text-shadow:0 1px 12px rgba(0,0,0,.38);
+    }
+
+    .cover-metrics{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin-top:10px;
+    }
+
+    .cover-metric{
+      min-height:27px;
+      display:inline-flex;
+      align-items:center;
+      gap:5px;
+      padding:5px 8px;
+      border:1px solid rgba(255,255,255,.16);
+      border-radius:999px;
+      background:rgba(7,8,12,.38);
+      color:rgba(255,255,255,.89);
+      backdrop-filter:blur(13px);
+      -webkit-backdrop-filter:blur(13px);
+      font-size:8.8px;
+      font-weight:900;
+    }
+
+    .cover-metric::before{
+      content:"";
+      width:5px;
+      height:5px;
+      border-radius:50%;
+      background:var(--cover-accent);
+      box-shadow:0 0 0 4px color-mix(in srgb,var(--cover-accent) 18%,transparent);
+    }
+
+    .cover-credit{
+      position:absolute;
+      right:10px;
+      bottom:9px;
+      z-index:3;
+      max-width:52%;
+      overflow:hidden;
+      padding:4px 6px;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:999px;
+      background:rgba(5,6,8,.42);
+      color:rgba(255,255,255,.72);
+      font-size:7.5px;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+    }
+
+    .cover-credit:hover{
+      color:#FFFFFF;
+    }
+
+    .visual-minimal .cover-photo,
+    .visual-minimal .cover-credit{
+      display:none !important;
+    }
+
+    .visual-minimal .cover-overlay{
+      background:
+        radial-gradient(circle at 88% 16%,var(--cover-soft),transparent 42%),
+        linear-gradient(145deg,#17181D,#090A0D);
+    }
+
+    html[data-theme="light"] .visual-minimal .cover-overlay{
+      background:
+        radial-gradient(circle at 88% 16%,var(--cover-soft),transparent 42%),
+        linear-gradient(145deg,#30323A,#111217);
+    }
+
+    .visual-workout-preview{
+      grid-template-columns:76px minmax(0,1fr) !important;
+      align-items:center;
+      gap:11px !important;
+    }
+
+    .workout-preview-media{
+      position:relative;
+      width:76px;
+      height:76px;
+      overflow:hidden;
+      border:1px solid var(--app-line);
+      border-radius:16px;
+      background:var(--app-surface-3);
+    }
+
+    .workout-preview-media img{
+      width:100%;
+      height:100%;
+      display:block;
+      object-fit:cover;
+    }
+
+    .workout-preview-media span{
+      position:absolute;
+      left:5px;
+      right:5px;
+      bottom:5px;
+      overflow:hidden;
+      padding:4px 5px;
+      border:1px solid rgba(255,255,255,.15);
+      border-radius:999px;
+      background:rgba(5,6,8,.55);
+      color:rgba(255,255,255,.88);
+      font-size:6.8px;
+      font-weight:950;
+      text-align:center;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      backdrop-filter:blur(8px);
+      -webkit-backdrop-filter:blur(8px);
+    }
+
+    .workout-preview-copy{
+      min-width:0;
+      display:grid;
+      gap:7px;
+    }
+
+    .pulse-strip{
+      margin-bottom:10px;
+      overflow:hidden;
+      border:1px solid var(--app-line);
+      border-radius:15px;
+      background:var(--app-surface);
+      -webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);
+      mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);
+    }
+
+    .pulse-track{
+      width:max-content;
+      min-height:37px;
+      display:flex;
+      align-items:center;
+      animation:none;
+      transform:translate3d(0,0,0);
+      will-change:transform;
+    }
+
+    .pulse-track.is-running{
+      animation:shapeCuePulse var(--pulse-duration,28s) linear infinite;
+    }
+
+    .pulse-strip:active .pulse-track{
+      animation-play-state:paused;
+    }
+
+    .pulse-item{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      padding:0 16px;
+      color:var(--app-muted);
+      font-size:9.5px;
+      font-weight:850;
+      white-space:nowrap;
+    }
+
+    .pulse-item::before{
+      content:"";
+      width:5px;
+      height:5px;
+      border-radius:50%;
+      background:var(--app-green);
+      box-shadow:0 0 0 4px var(--app-green-soft);
+    }
+
+    @keyframes shapeCuePulse{
+      from{transform:translate3d(0,0,0)}
+      to{transform:translate3d(-50%,0,0)}
+    }
+
+    .visual-loading::after{
+      content:"Loading weekly visual";
+      position:absolute;
+      right:12px;
+      bottom:10px;
+      z-index:4;
+      padding:5px 7px;
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:999px;
+      background:rgba(5,6,8,.44);
+      color:rgba(255,255,255,.66);
+      font-size:7.5px;
+      font-weight:850;
+      backdrop-filter:blur(12px);
+    }
+
+    @media(max-width:390px){
+      .coach-cover{
+        min-height:210px;
+      }
+
+      .cover-content h2{
+        max-width:285px;
+        font-size:22px;
+      }
+
+      .cover-credit{
+        max-width:58%;
+      }
+    }
+
+    @media(prefers-reduced-motion:reduce){
+      .coach-cover.visual-ready .cover-photo,
+      .pulse-track{
+        animation:none !important;
+      }
+
+      .pulse-track{
+        width:100%;
+        overflow-x:auto;
+      }
+    }
+
   </style>
 </head>
 
@@ -1076,6 +1473,25 @@
             <p>Meals, training, water, and the next useful action.</p>
           </div>
           <div class="head-actions"><span class="date-chip" id="todayPlanChip">Coach</span></div>
+        </div>
+
+        <section class="coach-cover tone-push visual-loading" id="todayCoachCover" aria-label="Weekly visual coach">
+          <img class="cover-photo" id="todayVisualImage" alt="" fetchpriority="high">
+          <div class="cover-overlay"></div>
+          <div class="cover-content">
+            <div class="cover-topline">
+              <span class="cover-kicker" id="todayCoverKicker">Today / Training</span>
+              <span class="cover-plan-chip" id="todayCoverPlan">Coach</span>
+            </div>
+            <h2 id="todayCoverTitle">Your plan, with a little more energy.</h2>
+            <p class="cover-copy" id="todayCoverCopy">Weekly imagery supports the plan without replacing accurate exercise guidance.</p>
+            <div class="cover-metrics" id="todayCoverMetrics"></div>
+            <a class="cover-credit" id="todayVisualCredit" href="#" target="_blank" rel="noopener" hidden></a>
+          </div>
+        </section>
+
+        <div class="pulse-strip" aria-label="Today progress highlights">
+          <div class="pulse-track" id="pulseTrack"></div>
         </div>
 
         <section class="focus-strip">
@@ -1137,6 +1553,20 @@
           <div class="head-actions"><span class="date-chip">Today</span></div>
         </div>
 
+        <section class="section-visual-cover tone-push visual-loading" id="trainVisualCover" aria-label="Workout visual">
+          <img class="cover-photo" id="trainVisualImage" alt="" loading="lazy">
+          <div class="cover-overlay"></div>
+          <div class="cover-content">
+            <div class="cover-topline">
+              <span class="cover-kicker" id="trainCoverKicker">Workout</span>
+              <span class="cover-plan-chip" id="trainCoverCount">0 exercises</span>
+            </div>
+            <h2 id="trainCoverTitle">Train with purpose.</h2>
+            <p class="cover-copy" id="trainCoverCopy">Use curated exercise guides for exact form and safety.</p>
+            <a class="cover-credit" id="trainVisualCredit" href="#" target="_blank" rel="noopener" hidden></a>
+          </div>
+        </section>
+
         <section class="summary-strip">
           <div class="summary-cell"><span>Plan</span><strong id="workoutPlanTag">Coach</strong></div>
           <div class="summary-cell"><span>Exercises</span><strong id="workoutCountTag">0</strong></div>
@@ -1166,6 +1596,20 @@
             </button>
           </div>
         </div>
+
+        <section class="section-visual-cover meal-tone visual-loading" id="mealsVisualCover" aria-label="Meal plan visual">
+          <img class="cover-photo" id="mealsVisualImage" alt="" loading="lazy">
+          <div class="cover-overlay"></div>
+          <div class="cover-content">
+            <div class="cover-topline">
+              <span class="cover-kicker">Meals</span>
+              <span class="cover-plan-chip" id="mealsCoverCount">Today</span>
+            </div>
+            <h2 id="mealsCoverTitle">Food that fits the real day.</h2>
+            <p class="cover-copy" id="mealsCoverCopy">Work-friendly timing, protein, replacements, and weekly preparation.</p>
+            <a class="cover-credit" id="mealsVisualCredit" href="#" target="_blank" rel="noopener" hidden></a>
+          </div>
+        </section>
 
         <div class="week-bar">
           <div class="week-copy">
@@ -1303,7 +1747,7 @@
 const SUPABASE_URL = "https://qusmbveovroldkhbjudq.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_6zVS1VCVok16WmVWNPvTrw_vTiQvgX4";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-document.documentElement.dataset.shapeCueUi = "approved-ios-theme-v2";
+document.documentElement.dataset.shapeCueUi = "approved-ios-visual-v1";
 
 const $ = q => document.querySelector(q);
 const $$ = q => Array.from(document.querySelectorAll(q));
@@ -1323,6 +1767,17 @@ let doneMap = new Set();
 let currentEntitlement = null;
 let isAppAdmin = false;
 let progressPhotoLoading = false;
+
+const VISUAL_STYLE_KEY = "shapecue.visual.style";
+const VISUAL_CACHE_PREFIX = "shapecue.visual.weekly.v6.";
+const visualState = {
+  preference:
+    localStorage.getItem(VISUAL_STYLE_KEY) ||
+    "auto",
+  requestKey:"",
+  loading:false,
+  visuals:null
+};
 
 const iconSvg = `<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg>`;
 const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
@@ -1715,6 +2170,7 @@ function switchTab(id){
   const labels = {todayScreen:"Today", weekScreen:"Meals", workoutScreen:"Train", progressScreen:"Progress", profileScreen:"Me"};
   $("#topPill").textContent = labels[id] || "ShapeCue";
   window.scrollTo({top:0,behavior:"smooth"});
+  if(id==="todayScreen") window.setTimeout(() => restartPulseStrip(true), 60);
   if(id==="workoutScreen") renderWorkout();
   if(id==="weekScreen") renderWeekPlan();
   if(id==="progressScreen") {
@@ -1759,6 +2215,533 @@ async function loadPlan(){
   activePlan = activeRow?.plan_json || null;
   if(activePlan && activePlanMeta) activePlan.__meta = activePlanMeta;
   return activePlan;
+}
+
+
+function isoWeekKey(date = new Date()){
+  const value = new Date(Date.UTC(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate()
+  ));
+  const day = value.getUTCDay() || 7;
+  value.setUTCDate(value.getUTCDate() + 4 - day);
+  const yearStart = new Date(Date.UTC(value.getUTCFullYear(),0,1));
+  const week = Math.ceil((((value - yearStart) / 86400000) + 1) / 7);
+  return `${value.getUTCFullYear()}-W${String(week).padStart(2,"0")}`;
+}
+
+function resolveVisualStyle(){
+  if(visualState.preference !== "auto"){
+    return visualState.preference;
+  }
+
+  const profileText = [
+    data.profile?.gender,
+    data.profile?.sex,
+    data.profile?.gender_identity
+  ].filter(Boolean).join(" ").toLowerCase();
+
+  if(
+    profileText.includes("woman") ||
+    profileText.includes("female")
+  ){
+    return "women";
+  }
+
+  if(
+    profileText.includes("man") ||
+    profileText.includes("male")
+  ){
+    return "men";
+  }
+
+  return "mixed";
+}
+
+function visualTone(type){
+  const normalized = String(type || "mobility")
+    .toLowerCase()
+    .replace(/[^a-z]+/g,"-");
+
+  if(["push","pull","legs","mobility","recovery"].includes(normalized)){
+    return normalized;
+  }
+
+  return "push";
+}
+
+function setCoverTone(element, type){
+  if(!element) return;
+
+  [
+    "tone-push",
+    "tone-pull",
+    "tone-legs",
+    "tone-mobility",
+    "tone-recovery"
+  ].forEach(className => element.classList.remove(className));
+
+  element.classList.add(`tone-${visualTone(type)}`);
+}
+
+function applyPhotoToCover({
+  coverId,
+  imageId,
+  creditId,
+  visual,
+  alt
+}){
+  const cover = $("#" + coverId);
+  const image = $("#" + imageId);
+  const credit = $("#" + creditId);
+
+  if(!cover || !image || !credit) return;
+
+  cover.classList.remove("visual-ready","visual-minimal");
+
+  if(!visual?.image_url){
+    cover.classList.remove("visual-loading");
+    image.removeAttribute("src");
+    image.alt = "";
+    credit.hidden = true;
+    if(coverId === "todayCoachCover") restartPulseStrip(true);
+    return;
+  }
+
+  const expectedSrc = String(visual.image_url);
+  const preload = new Image();
+
+  const reveal = () => {
+    image.src = expectedSrc;
+    image.alt = alt || visual.alt || "";
+    cover.classList.remove("visual-loading","visual-minimal");
+    cover.classList.add("visual-ready");
+
+    credit.textContent =
+      `Photo by ${visual.photographer_name || "Unsplash contributor"} on Unsplash`;
+
+    credit.href =
+      visual.photographer_url ||
+      visual.unsplash_url ||
+      "https://unsplash.com";
+
+    credit.hidden = false;
+
+    if(coverId === "todayCoachCover") restartPulseStrip(true);
+  };
+
+  const fail = () => {
+    console.error("ShapeCue visual image failed:", expectedSrc);
+    cover.classList.remove("visual-loading","visual-ready");
+    cover.classList.add("visual-minimal");
+    image.removeAttribute("src");
+    credit.hidden = true;
+    if(coverId === "todayCoachCover") restartPulseStrip(true);
+  };
+
+  preload.onload = reveal;
+  preload.onerror = fail;
+  preload.src = expectedSrc;
+
+  if(preload.complete && preload.naturalWidth > 0){
+    requestAnimationFrame(reveal);
+  }
+}
+
+function applyMinimalVisualMode(){
+  [
+    $("#todayCoachCover"),
+    $("#trainVisualCover"),
+    $("#mealsVisualCover")
+  ].forEach(cover => {
+    cover?.classList.add("visual-minimal");
+    cover?.classList.remove("visual-loading");
+  });
+
+  [
+    $("#todayVisualCredit"),
+    $("#trainVisualCredit"),
+    $("#mealsVisualCredit")
+  ].forEach(credit => {
+    if(credit) credit.hidden = true;
+  });
+
+  renderWorkoutPreview();
+  restartPulseStrip(true);
+}
+
+function removeMinimalVisualMode(){
+  [
+    $("#todayCoachCover"),
+    $("#trainVisualCover"),
+    $("#mealsVisualCover")
+  ].forEach(cover => cover?.classList.remove("visual-minimal"));
+}
+
+function currentWaterSummary(){
+  const water = data.waterLog || {};
+  const target = Number(water.target_liters || 2);
+  const bottle = Number(water.bottle_size_ml || 1000);
+  const needed = Math.max(
+    1,
+    Math.round((target * 1000 / bottle) * 10) / 10
+  );
+
+  return {
+    done:Number(water.bottles_done || 0),
+    needed,
+    target,
+    bottle
+  };
+}
+
+let pulseRafOne = 0;
+let pulseRafTwo = 0;
+let pulseRestartTimer = 0;
+
+function restartPulseStrip(force = false){
+  const track = $("#pulseTrack");
+  const strip = track?.closest(".pulse-strip");
+
+  if(!track || !strip) return;
+
+  cancelAnimationFrame(pulseRafOne);
+  cancelAnimationFrame(pulseRafTwo);
+  clearTimeout(pulseRestartTimer);
+
+  track.classList.remove("is-running");
+  track.style.transform = "translate3d(0,0,0)";
+
+  if(window.matchMedia("(prefers-reduced-motion: reduce)").matches){
+    return;
+  }
+
+  if(!force && !$("#todayScreen")?.classList.contains("active")){
+    return;
+  }
+
+  pulseRafOne = requestAnimationFrame(() => {
+    pulseRafTwo = requestAnimationFrame(() => {
+      const loopWidth = track.scrollWidth / 2;
+      const viewportWidth = strip.clientWidth;
+
+      if(!loopWidth || loopWidth <= viewportWidth + 8){
+        return;
+      }
+
+      const duration = Math.max(20, Math.min(46, loopWidth / 34));
+      track.style.setProperty("--pulse-duration", `${duration.toFixed(1)}s`);
+      track.classList.add("is-running");
+    });
+  });
+
+  pulseRestartTimer = window.setTimeout(() => {
+    if($("#todayScreen")?.classList.contains("active")){
+      track.classList.remove("is-running");
+      void track.offsetWidth;
+      track.classList.add("is-running");
+    }
+  }, 900);
+}
+
+function renderPulseStrip(){
+  const track = $("#pulseTrack");
+  if(!track) return;
+
+  const water = currentWaterSummary();
+  const workoutType = nice(todayWorkoutType());
+  const updated = activePlanMeta?.created_at
+    ? `AI updated ${relativeTime(activePlanMeta.created_at)}`
+    : "Starter plan active";
+
+  const items = [
+    `${todayMeals.length} meals planned`,
+    `${workoutType} workout`,
+    `${workoutPlan.length} exercises`,
+    `${water.done}/${water.needed} bottles`,
+    `${planName(currentPlanCode())} access`,
+    updated
+  ];
+
+  const repeated = [...items,...items];
+
+  track.innerHTML = repeated
+    .map(item => `<span class="pulse-item">${esc(item)}</span>`)
+    .join("");
+
+  restartPulseStrip(true);
+}
+
+function renderVisualCopy(){
+  const type = todayWorkoutType();
+  const typeLabel = nice(type);
+  const water = currentWaterSummary();
+  const firstName = (
+    data.profile?.full_name ||
+    "friend"
+  ).split(/\s+/)[0];
+
+  setCoverTone($("#todayCoachCover"),type);
+  setCoverTone($("#trainVisualCover"),type);
+
+  $("#todayCoverKicker").textContent =
+    `${dayName()} / ${typeLabel}`;
+
+  $("#todayCoverPlan").textContent =
+    planName(currentPlanCode());
+
+  $("#todayCoverTitle").textContent =
+    isWorkoutDay()
+      ? `${firstName}, today's ${typeLabel} session is ready.`
+      : `${firstName}, today is built for recovery.`;
+
+  $("#todayCoverCopy").textContent =
+    isWorkoutDay()
+      ? `Keep the plan practical: ${todayMeals.length} meals, ${workoutPlan.length} workout items, and a ${water.target} L water goal.`
+      : `Keep meals steady, finish the water goal, and use mobility without forcing a hard session.`;
+
+  $("#todayCoverMetrics").innerHTML = [
+    `${todayMeals.length} meals`,
+    `${workoutPlan.length} exercises`,
+    `${water.done}/${water.needed} bottles`
+  ].map(item => `<span class="cover-metric">${esc(item)}</span>`).join("");
+
+  $("#trainCoverKicker").textContent =
+    `${typeLabel} workout`;
+
+  $("#trainCoverCount").textContent =
+    `${workoutPlan.length} exercises`;
+
+  $("#trainCoverTitle").textContent =
+    isWorkoutDay()
+      ? `Build today's ${typeLabel} session.`
+      : "Move, recover, and stay consistent.";
+
+  $("#trainCoverCopy").textContent =
+    "The cover adds energy. Exact technique still comes from ShapeCue's curated exercise photos, videos, cues, and safety notes.";
+
+  $("#mealsCoverCount").textContent =
+    `${todayMeals.length} today`;
+
+  $("#mealsCoverTitle").textContent =
+    todayMeals.length
+      ? `${todayMeals.length} meals shaped around your day.`
+      : "Build meals around the real day.";
+
+  $("#mealsCoverCopy").textContent =
+    "Weekly food photography adds atmosphere while your actual meal timing, protein, swaps, and prep remain personalised.";
+
+  renderPulseStrip();
+}
+
+function visualCacheKey(style, workout){
+  return `${VISUAL_CACHE_PREFIX}${isoWeekKey()}.${style}.${workout}`;
+}
+
+function readVisualCache(key){
+  try{
+    const raw = localStorage.getItem(key);
+    if(!raw) return null;
+
+    const parsed = JSON.parse(raw);
+
+    const visuals = parsed?.visuals;
+    const valid =
+      parsed?.week_key &&
+      visuals?.today?.image_url &&
+      visuals?.train?.image_url &&
+      visuals?.meals?.image_url;
+
+    if(!valid){
+      localStorage.removeItem(key);
+      return null;
+    }
+
+    return parsed;
+  }catch{
+    return null;
+  }
+}
+
+function saveVisualCache(key, payload){
+  try{
+    localStorage.setItem(
+      key,
+      JSON.stringify(payload)
+    );
+  }catch(error){
+    console.warn(
+      "Weekly visual cache could not be saved.",
+      error
+    );
+  }
+}
+
+function applyWeeklyVisuals(payload){
+  visualState.visuals =
+    payload?.visuals ||
+    null;
+
+  const visuals =
+    visualState.visuals ||
+    {};
+
+  applyPhotoToCover({
+    coverId:"todayCoachCover",
+    imageId:"todayVisualImage",
+    creditId:"todayVisualCredit",
+    visual:visuals.today,
+    alt:"Fitness lifestyle visual for today's ShapeCue plan"
+  });
+
+  applyPhotoToCover({
+    coverId:"trainVisualCover",
+    imageId:"trainVisualImage",
+    creditId:"trainVisualCredit",
+    visual:visuals.train,
+    alt:"Workout visual for today's ShapeCue training plan"
+  });
+
+  applyPhotoToCover({
+    coverId:"mealsVisualCover",
+    imageId:"mealsVisualImage",
+    creditId:"mealsVisualCredit",
+    visual:visuals.meals,
+    alt:"Healthy meal preparation visual"
+  });
+
+  renderWorkoutPreview();
+  restartPulseStrip(true);
+}
+
+async function loadWeeklyVisuals(force = false){
+  const style = resolveVisualStyle();
+  const workout = todayWorkoutType();
+
+  if(style === "minimal"){
+    visualState.requestKey = `minimal.${isoWeekKey()}`;
+    visualState.visuals = null;
+    applyMinimalVisualMode();
+    return;
+  }
+
+  removeMinimalVisualMode();
+
+  const key = visualCacheKey(style,workout);
+
+  if(!force && visualState.requestKey === key){
+    return;
+  }
+
+  visualState.requestKey = key;
+
+  const cached = !force
+    ? readVisualCache(key)
+    : null;
+
+  if(cached){
+    applyWeeklyVisuals(cached);
+    return;
+  }
+
+  if(visualState.loading){
+    return;
+  }
+
+  visualState.loading = true;
+
+  [
+    $("#todayCoachCover"),
+    $("#trainVisualCover"),
+    $("#mealsVisualCover")
+  ].forEach(cover => cover?.classList.add("visual-loading"));
+
+  try{
+    const params = new URLSearchParams({
+      style,
+      workout,
+      week:isoWeekKey(),
+      v:"6"
+    });
+
+    if(force){
+      params.set("refresh", String(Date.now()));
+    }
+
+    const response = await fetch(
+      `/.netlify/functions/get-weekly-visual?${params.toString()}`,
+      {
+        method:"GET",
+        headers:{
+          "Accept":"application/json"
+        }
+      }
+    );
+
+    const responseText = await response.text();
+    let result = {};
+
+    try{
+      result = JSON.parse(responseText);
+    }catch{
+      throw new Error(
+        response.status === 404
+          ? "Netlify function was not found. Check netlify/functions/get-weekly-visual.js and redeploy."
+          : `Visual function returned non-JSON (${response.status}).`
+      );
+    }
+
+    if(!response.ok || result.ok === false){
+      throw new Error(
+        result.error ||
+        `Weekly visuals could not be loaded (${response.status}).`
+      );
+    }
+
+    if(
+      !result?.visuals?.today?.image_url ||
+      !result?.visuals?.train?.image_url ||
+      !result?.visuals?.meals?.image_url
+    ){
+      throw new Error("Visual function returned no image URLs.");
+    }
+
+    const visualIds = [
+      result.visuals.today.id,
+      result.visuals.train.id,
+      result.visuals.meals.id
+    ].filter(Boolean);
+
+    if(new Set(visualIds).size !== visualIds.length){
+      throw new Error("Visual function returned duplicate section photos.");
+    }
+
+    saveVisualCache(key,result);
+    applyWeeklyVisuals(result);
+  }catch(error){
+    console.warn(error);
+    visualState.requestKey = "";
+
+    [
+      $("#todayCoachCover"),
+      $("#trainVisualCover"),
+      $("#mealsVisualCover")
+    ].forEach(cover => {
+      cover?.classList.remove("visual-loading");
+      cover?.classList.add("visual-minimal");
+    });
+
+    console.warn("ShapeCue weekly visuals unavailable:", error);
+    toast("Weekly visuals unavailable. Using the simple view.");
+  }finally{
+    visualState.loading = false;
+  }
+}
+
+function renderVisualExperience(force = false){
+  renderVisualCopy();
+  loadWeeklyVisuals(force);
 }
 
 async function loadAll(){
@@ -2021,6 +3004,7 @@ function renderAll(){
   renderProfile();
   renderAiCoachStatusUI();
   updateEntitlementUI();
+  renderVisualExperience();
 }
 
 function mealHTML(m){
@@ -2055,12 +3039,18 @@ function publicExerciseMediaUrl(url, path){
 function exerciseMediaHTML(ex, big=false){
   const video = publicExerciseMediaUrl(ex.video_url, ex.video_path);
   const image = publicExerciseMediaUrl(ex.image_url, ex.image_path);
+
   if(video){
-    return `<video src="${esc(video)}" controls playsinline></video>`;
+    if(big){
+      return `<video src="${esc(video)}" controls playsinline preload="metadata"></video>`;
+    }
+    return `<video src="${esc(video)}" muted autoplay loop playsinline preload="metadata" aria-label="${esc(ex.name)} exercise demonstration"></video>`;
   }
+
   if(image){
-    return `<img src="${esc(image)}" alt="${esc(ex.name)}">`;
+    return `<img src="${esc(image)}" alt="${esc(ex.name)}" loading="lazy">`;
   }
+
   return iconSvg;
 }
 
@@ -2138,6 +3128,44 @@ function updateWorkoutStatus(){
   $("#simpleWorkoutStatus").textContent = total ? `${done}/${total} done` : "Ready";
 }
 
+function workoutPreviewVisual(){
+  const exactExercise = workoutPlan.find(ex =>
+    publicExerciseMediaUrl(ex.image_url, ex.image_path)
+  );
+
+  if(exactExercise){
+    return {
+      src:publicExerciseMediaUrl(exactExercise.image_url, exactExercise.image_path),
+      label:exactExercise.name || "Exercise guide",
+      exact:true
+    };
+  }
+
+  const generic =
+    visualState.visuals?.train?.thumb_url ||
+    visualState.visuals?.train?.image_url ||
+    "";
+
+  return generic
+    ? {src:generic,label:"Workout visual",exact:false}
+    : null;
+}
+
+function workoutPreviewMediaHTML(){
+  const visual = workoutPreviewVisual();
+
+  if(!visual?.src){
+    return `<div class="workout-preview-media" aria-hidden="true">${iconSvg}</div>`;
+  }
+
+  return `
+    <div class="workout-preview-media">
+      <img src="${esc(visual.src)}" alt="${esc(visual.exact ? visual.label : "Decorative workout visual")}" loading="lazy">
+      <span>${esc(visual.label)}</span>
+    </div>
+  `;
+}
+
 function renderWorkoutPreview(){
   const type = todayWorkoutType();
   const main = workoutPlan.filter(e=>e.plan_section==="main");
@@ -2145,17 +3173,23 @@ function renderWorkoutPreview(){
   $("#workoutPreviewSub").textContent = "Compact preview. Full details are in Train.";
   $("#workoutStatusPill").textContent = activePlan ? "AI plan" : "Ready";
   $("#workoutPreview").innerHTML = list.length ? `
-    <div class="compact-workout">
-      <strong>${esc(nice(type))} today</strong>
-      <span>${esc(workoutPlan.length)} total items. Today only shows a preview so the full workout is not repeated twice.</span>
-      <div class="compact-list">
-        ${list.map(ex => `<div class="compact-chip">${esc(ex.name)}</div>`).join("")}
+    <div class="compact-workout visual-workout-preview">
+      ${workoutPreviewMediaHTML()}
+      <div class="workout-preview-copy">
+        <strong>${esc(nice(type))} today</strong>
+        <span>${esc(workoutPlan.length)} total items. Today only shows a preview so the full workout is not repeated twice.</span>
+        <div class="compact-list">
+          ${list.map(ex => `<div class="compact-chip">${esc(ex.name)}</div>`).join("")}
+        </div>
       </div>
     </div>
   ` : `
-    <div class="compact-workout">
-      <strong>Recovery today</strong>
-      <span>No full workout found. Follow meals, water, and mobility if listed.</span>
+    <div class="compact-workout visual-workout-preview">
+      ${workoutPreviewMediaHTML()}
+      <div class="workout-preview-copy">
+        <strong>Recovery today</strong>
+        <span>No full workout found. Follow meals, water, and mobility if listed.</span>
+      </div>
     </div>
   `;
   $("#workoutTitle").textContent = `${nice(type)} workout`;
@@ -3301,6 +4335,22 @@ function initSelectChips(){
 }
 
 function initEvents(){
+  window.addEventListener("load", () => restartPulseStrip(true));
+  window.addEventListener("resize", () => restartPulseStrip(true), {passive:true});
+  document.addEventListener("visibilitychange", () => {
+    if(!document.hidden) restartPulseStrip(true);
+  });
+  document.fonts?.ready?.then(() => restartPulseStrip(true));
+
+  if("ResizeObserver" in window){
+    const pulseStrip = document.querySelector(".pulse-strip");
+    if(pulseStrip){
+      new ResizeObserver(() => restartPulseStrip(true)).observe(pulseStrip);
+    }
+  }
+
+  $("#todayVisualImage")?.addEventListener("load", () => restartPulseStrip(true));
+
   $$(".tab").forEach(btn=>btn.addEventListener("click",()=>switchTab(btn.dataset.tab)));
 
   $("#startWorkoutToday").onclick=()=>switchTab("workoutScreen");
