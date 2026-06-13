@@ -1,0 +1,1711 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark light" />
+  <title>ShapeCue - Settings</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root{
+      --page:#000000;
+      --surface:#111111;
+      --surface-2:#1A1A1A;
+      --surface-3:#242424;
+      --glass:rgba(24,24,24,.72);
+      --glass-strong:rgba(28,28,28,.84);
+
+      --text:#FFFFFF;
+      --text-2:#B7B7BC;
+      --text-3:#77777F;
+
+      --line:rgba(255,255,255,.09);
+      --line-strong:rgba(255,255,255,.16);
+
+      --green:#34D46F;
+      --green-ink:#04190B;
+      --blue:#2997FF;
+      --amber:#FF9F0A;
+      --red:#FF453A;
+      --purple:#BF5AF2;
+
+      --shadow:0 18px 48px rgba(0,0,0,.42);
+      --radius:22px;
+      --max:480px;
+    }
+
+    html[data-theme="light"]{
+      --page:#F5F5F7;
+      --surface:#FFFFFF;
+      --surface-2:#F0F0F3;
+      --surface-3:#E7E7EB;
+      --glass:rgba(255,255,255,.72);
+      --glass-strong:rgba(255,255,255,.86);
+
+      --text:#111111;
+      --text-2:#66666C;
+      --text-3:#8C8C94;
+
+      --line:rgba(0,0,0,.075);
+      --line-strong:rgba(0,0,0,.13);
+
+      --green:#22C55E;
+      --green-ink:#031608;
+      --blue:#007AFF;
+      --amber:#FF9500;
+      --red:#FF3B30;
+      --purple:#AF52DE;
+
+      --shadow:0 14px 36px rgba(0,0,0,.11);
+    }
+
+    *{
+      box-sizing:border-box;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    html{
+      scroll-behavior:smooth;
+    }
+
+    body{
+      margin:0;
+      min-height:100vh;
+      background:var(--page);
+      color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Arial,sans-serif;
+      overflow-x:hidden;
+    }
+
+    button,
+    input,
+    select,
+    textarea{
+      font:inherit;
+    }
+
+    button{
+      cursor:pointer;
+    }
+
+    a{
+      color:inherit;
+      text-decoration:none;
+    }
+
+    .page{
+      width:100%;
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+    }
+
+    .shell{
+      width:100%;
+      max-width:var(--max);
+      min-height:100vh;
+      padding:10px 14px calc(34px + env(safe-area-inset-bottom));
+    }
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:30;
+      margin:-10px -14px 8px;
+      padding:10px 14px 10px;
+      background:
+        linear-gradient(
+          180deg,
+          color-mix(in srgb,var(--page) 92%,transparent),
+          color-mix(in srgb,var(--page) 78%,transparent),
+          transparent
+        );
+      backdrop-filter:blur(28px) saturate(180%);
+      -webkit-backdrop-filter:blur(28px) saturate(180%);
+    }
+
+    .toprow{
+      min-height:42px;
+      display:grid;
+      grid-template-columns:72px 1fr 72px;
+      align-items:center;
+      gap:8px;
+    }
+
+    .back-btn{
+      justify-self:start;
+      border:0;
+      background:transparent;
+      color:var(--blue);
+      min-height:40px;
+      padding:6px 0;
+      display:inline-flex;
+      align-items:center;
+      gap:3px;
+      font-size:14px;
+      font-weight:900;
+    }
+
+    .top-title{
+      text-align:center;
+      font-size:16px;
+      font-weight:950;
+      letter-spacing:-.25px;
+    }
+
+    .top-spacer{
+      width:72px;
+    }
+
+    .page-head{
+      padding:10px 2px 14px;
+    }
+
+    .page-head h1{
+      margin:0;
+      font-size:32px;
+      line-height:1.02;
+      letter-spacing:-1.25px;
+    }
+
+    .page-head p{
+      margin:8px 0 0;
+      color:var(--text-2);
+      font-size:13px;
+      line-height:1.45;
+    }
+
+    .section-label{
+      margin:19px 4px 7px;
+      color:var(--text-3);
+      font-size:10.5px;
+      font-weight:950;
+      text-transform:uppercase;
+      letter-spacing:.75px;
+    }
+
+    .group{
+      border:1px solid var(--line);
+      background:var(--surface);
+      border-radius:21px;
+      overflow:hidden;
+    }
+
+    .row{
+      width:100%;
+      min-height:58px;
+      padding:11px 13px;
+      border:0;
+      border-bottom:1px solid var(--line);
+      background:transparent;
+      color:var(--text);
+      display:flex;
+      align-items:center;
+      gap:11px;
+      text-align:left;
+    }
+
+    .row:last-child{
+      border-bottom:0;
+    }
+
+    .row:active{
+      background:var(--surface-2);
+    }
+
+    .row-icon{
+      flex:0 0 auto;
+      width:32px;
+      height:32px;
+      border-radius:10px;
+      display:grid;
+      place-items:center;
+      border:1px solid var(--line);
+      background:var(--surface-2);
+      color:var(--text);
+      font-size:14px;
+      font-weight:950;
+    }
+
+    .row-icon.green{
+      color:var(--green);
+      background:color-mix(in srgb,var(--green) 11%,var(--surface-2));
+    }
+
+    .row-icon.blue{
+      color:var(--blue);
+      background:color-mix(in srgb,var(--blue) 11%,var(--surface-2));
+    }
+
+    .row-icon.purple{
+      color:var(--purple);
+      background:color-mix(in srgb,var(--purple) 11%,var(--surface-2));
+    }
+
+    .row-icon.amber{
+      color:var(--amber);
+      background:color-mix(in srgb,var(--amber) 11%,var(--surface-2));
+    }
+
+    .row-icon.red{
+      color:var(--red);
+      background:color-mix(in srgb,var(--red) 11%,var(--surface-2));
+    }
+
+    .row-main{
+      min-width:0;
+      flex:1;
+    }
+
+    .row-title{
+      font-size:13.5px;
+      font-weight:880;
+      letter-spacing:-.12px;
+    }
+
+    .row-sub{
+      margin-top:3px;
+      color:var(--text-2);
+      font-size:11.4px;
+      line-height:1.34;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .row-value{
+      max-width:145px;
+      color:var(--text-2);
+      font-size:11.5px;
+      font-weight:800;
+      text-align:right;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
+    .chevron{
+      color:var(--text-3);
+      font-size:20px;
+      line-height:1;
+      margin-left:1px;
+    }
+
+    .membership-card{
+      border:1px solid var(--line);
+      background:var(--surface);
+      border-radius:23px;
+      padding:14px;
+    }
+
+    .membership-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .membership-copy h2{
+      margin:0;
+      font-size:20px;
+      letter-spacing:-.55px;
+    }
+
+    .membership-copy p{
+      margin:5px 0 0;
+      color:var(--text-2);
+      font-size:12px;
+      line-height:1.4;
+    }
+
+    .plan-pill{
+      flex:0 0 auto;
+      border:1px solid color-mix(in srgb,var(--purple) 34%,transparent);
+      background:color-mix(in srgb,var(--purple) 11%,var(--surface));
+      color:var(--purple);
+      border-radius:999px;
+      padding:7px 10px;
+      font-size:11px;
+      font-weight:1000;
+    }
+
+    .membership-meta{
+      display:grid;
+      gap:8px;
+      margin-top:13px;
+    }
+
+    .meta-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      border-top:1px solid var(--line);
+      padding-top:8px;
+      font-size:12px;
+    }
+
+    .meta-row span{
+      color:var(--text-2);
+    }
+
+    .meta-row strong{
+      text-align:right;
+      font-size:12px;
+    }
+
+    .membership-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin-top:12px;
+    }
+
+    .btn{
+      min-height:44px;
+      border:1px solid transparent;
+      border-radius:15px;
+      padding:10px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:7px;
+      font-size:12.5px;
+      font-weight:950;
+    }
+
+    .btn.primary{
+      background:var(--green);
+      color:var(--green-ink);
+    }
+
+    .btn.secondary{
+      background:var(--surface-2);
+      border-color:var(--line);
+      color:var(--text);
+    }
+
+    .btn.red{
+      background:color-mix(in srgb,var(--red) 12%,var(--surface));
+      border-color:color-mix(in srgb,var(--red) 24%,transparent);
+      color:var(--red);
+    }
+
+    .seg-wrap{
+      padding:10px 13px 13px;
+      border-top:1px solid var(--line);
+    }
+
+    .segmented{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:5px;
+      padding:5px;
+      border-radius:13px;
+      background:var(--surface-2);
+    }
+
+    .segmented button{
+      min-height:36px;
+      border:0;
+      border-radius:9px;
+      background:transparent;
+      color:var(--text-2);
+      font-size:11.5px;
+      font-weight:900;
+    }
+
+    .segmented button.active{
+      background:var(--surface);
+      color:var(--text);
+      box-shadow:0 1px 6px rgba(0,0,0,.15);
+    }
+
+    .switch{
+      flex:0 0 auto;
+      width:49px;
+      height:29px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:2px;
+      background:var(--surface-2);
+      transition:.18s ease;
+    }
+
+    .switch-dot{
+      width:23px;
+      height:23px;
+      border-radius:50%;
+      background:#FFFFFF;
+      box-shadow:0 1px 5px rgba(0,0,0,.28);
+      transition:.18s ease;
+    }
+
+    .switch.on{
+      background:var(--green);
+      border-color:var(--green);
+    }
+
+    .switch.on .switch-dot{
+      transform:translateX(20px);
+    }
+
+    .faq{
+      border-bottom:1px solid var(--line);
+    }
+
+    .faq:last-child{
+      border-bottom:0;
+    }
+
+    .faq > summary{
+      list-style:none;
+      cursor:pointer;
+      padding:14px 13px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .faq > summary::-webkit-details-marker{
+      display:none;
+    }
+
+    .faq-question{
+      font-size:13px;
+      font-weight:880;
+      line-height:1.35;
+    }
+
+    .faq-arrow{
+      width:28px;
+      height:28px;
+      border-radius:999px;
+      display:grid;
+      place-items:center;
+      background:var(--surface-2);
+      border:1px solid var(--line);
+      color:var(--text-2);
+      transition:.18s ease;
+    }
+
+    .faq[open] .faq-arrow{
+      transform:rotate(180deg);
+    }
+
+    .faq-answer{
+      padding:0 13px 14px;
+      color:var(--text-2);
+      font-size:12px;
+      line-height:1.5;
+    }
+
+    .danger-text{
+      color:var(--red);
+    }
+
+    .small-note{
+      margin:10px 4px 0;
+      color:var(--text-3);
+      font-size:10.8px;
+      line-height:1.42;
+    }
+
+    .loader{
+      min-height:120px;
+      display:grid;
+      place-items:center;
+      color:var(--text-2);
+      text-align:center;
+      font-size:12.5px;
+    }
+
+    .spin{
+      width:28px;
+      height:28px;
+      margin:0 auto 10px;
+      border-radius:50%;
+      border:3px solid var(--line-strong);
+      border-top-color:var(--green);
+      animation:spin .75s linear infinite;
+    }
+
+    @keyframes spin{
+      to{transform:rotate(360deg)}
+    }
+
+    .modal{
+      position:fixed;
+      inset:0;
+      z-index:80;
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      padding:14px;
+      background:rgba(0,0,0,.58);
+      backdrop-filter:blur(8px);
+      -webkit-backdrop-filter:blur(8px);
+    }
+
+    .modal.show{
+      display:flex;
+    }
+
+    .sheet{
+      width:100%;
+      max-width:var(--max);
+      max-height:88vh;
+      overflow:auto;
+      border:1px solid var(--line-strong);
+      border-radius:26px;
+      padding:14px;
+      background:var(--glass-strong);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(30px) saturate(180%);
+      -webkit-backdrop-filter:blur(30px) saturate(180%);
+    }
+
+    .sheet-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:12px;
+    }
+
+    .sheet-head h3{
+      margin:0;
+      font-size:20px;
+      letter-spacing:-.45px;
+    }
+
+    .sheet-head p{
+      margin:5px 0 0;
+      color:var(--text-2);
+      font-size:12px;
+      line-height:1.4;
+    }
+
+    .close-btn{
+      width:38px;
+      height:38px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:var(--surface-2);
+      color:var(--text);
+      font-size:20px;
+      font-weight:900;
+    }
+
+    .field{
+      margin-top:10px;
+    }
+
+    .field label{
+      display:block;
+      margin:0 0 6px 3px;
+      color:var(--text-2);
+      font-size:11.5px;
+      font-weight:850;
+    }
+
+    .input,
+    .select,
+    .textarea{
+      width:100%;
+      min-height:47px;
+      padding:11px 12px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:var(--surface-2);
+      color:var(--text);
+      outline:none;
+      font-size:14px;
+    }
+
+    .textarea{
+      min-height:110px;
+      resize:vertical;
+      line-height:1.45;
+    }
+
+    .support-preview{
+      margin-top:10px;
+      padding:11px;
+      border:1px solid var(--line);
+      border-radius:15px;
+      background:var(--surface-2);
+      color:var(--text-2);
+      font-size:11.5px;
+      line-height:1.45;
+      white-space:pre-wrap;
+      word-break:break-word;
+    }
+
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:18px;
+      transform:translateX(-50%) translateY(10px);
+      width:calc(100% - 28px);
+      max-width:452px;
+      z-index:100;
+      border:1px solid var(--line-strong);
+      border-radius:16px;
+      padding:12px;
+      background:var(--glass-strong);
+      color:var(--text);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(24px);
+      -webkit-backdrop-filter:blur(24px);
+      opacity:0;
+      pointer-events:none;
+      transition:.2s;
+      text-align:center;
+      font-size:12.5px;
+      line-height:1.35;
+    }
+
+    .toast.show{
+      opacity:1;
+      transform:translateX(-50%) translateY(0);
+    }
+
+    @media(max-width:390px){
+      .membership-actions{
+        grid-template-columns:1fr;
+      }
+
+      .row-value{
+        max-width:105px;
+      }
+
+      .page-head h1{
+        font-size:29px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <main class="shell">
+      <header class="topbar">
+        <div class="toprow">
+          <button class="back-btn" id="backBtn" type="button">â¹ Back</button>
+          <div class="top-title">Settings</div>
+          <div class="top-spacer"></div>
+        </div>
+      </header>
+
+      <section class="page-head">
+        <h1>Settings</h1>
+        <p>Manage your account, membership, appearance, privacy, and support.</p>
+      </section>
+
+      <div id="pageLoader" class="loader">
+        <div>
+          <div class="spin"></div>
+          <div>Loading settings...</div>
+        </div>
+      </div>
+
+      <div id="settingsContent" hidden>
+        <div class="section-label">Membership</div>
+
+        <section class="membership-card">
+          <div class="membership-top">
+            <div class="membership-copy">
+              <h2 id="membershipName">ShapeCue Free</h2>
+              <p id="membershipDescription">Starter access</p>
+            </div>
+            <span class="plan-pill" id="membershipPill">Free</span>
+          </div>
+
+          <div class="membership-meta">
+            <div class="meta-row">
+              <span>AI plan updates</span>
+              <strong id="membershipCadence">Starter plan only</strong>
+            </div>
+            <div class="meta-row">
+              <span>Access source</span>
+              <strong id="membershipSource">Setup</strong>
+            </div>
+            <div class="meta-row">
+              <span>Renews / expires</span>
+              <strong id="membershipExpiry">No expiry</strong>
+            </div>
+          </div>
+
+          <div class="membership-actions">
+            <a class="btn primary" href="membership.html">Manage membership</a>
+            <a class="btn secondary" href="membership.html#compare">Compare plans</a>
+          </div>
+        </section>
+
+        <div class="section-label">Account</div>
+
+        <section class="group">
+          <button class="row" id="editProfileBtn" type="button">
+            <span class="row-icon blue">ð¤</span>
+            <span class="row-main">
+              <span class="row-title">Personal information</span>
+              <span class="row-sub" id="accountName">Name, age, height, and weight</span>
+            </span>
+            <span class="chevron">âº</span>
+          </button>
+
+          <button class="row" id="editSetupBtn" type="button">
+            <span class="row-icon green">â</span>
+            <span class="row-main">
+              <span class="row-title">Fitness and food setup</span>
+              <span class="row-sub">Goals, work schedule, food preferences, and workouts</span>
+            </span>
+            <span class="chevron">âº</span>
+          </button>
+
+          <div class="row">
+            <span class="row-icon purple">@</span>
+            <span class="row-main">
+              <span class="row-title">Email</span>
+              <span class="row-sub">Your ShapeCue sign-in email</span>
+            </span>
+            <span class="row-value" id="accountEmail">â</span>
+          </div>
+
+          <button class="row" id="adminBtn" type="button" hidden>
+            <span class="row-icon amber">A</span>
+            <span class="row-main">
+              <span class="row-title">Admin</span>
+              <span class="row-sub">Promo codes and exercise library</span>
+            </span>
+            <span class="chevron">âº</span>
+          </button>
+        </section>
+
+        <div class="section-label">Appearance</div>
+
+        <section class="group">
+          <div class="row">
+            <span class="row-icon blue">â</span>
+            <span class="row-main">
+              <span class="row-title">Theme</span>
+              <span class="row-sub">Follow your phone or choose manually</span>
+            </span>
+          </div>
+
+          <div class="seg-wrap">
+            <div class="segmented" id="themeControl">
+              <button type="button" data-theme-choice="system">System</button>
+              <button type="button" data-theme-choice="light">Light</button>
+              <button type="button" data-theme-choice="dark">Dark</button>
+            </div>
+          </div>
+        </section>
+
+        <div class="section-label">Notifications</div>
+
+        <section class="group">
+          <div class="row">
+            <span class="row-icon green">M</span>
+            <span class="row-main">
+              <span class="row-title">Meal reminders</span>
+              <span class="row-sub">Remind me around planned meal times</span>
+            </span>
+            <button class="switch" type="button" data-setting-key="meal_reminders" aria-label="Meal reminders">
+              <span class="switch-dot"></span>
+            </button>
+          </div>
+
+          <div class="row">
+            <span class="row-icon blue">W</span>
+            <span class="row-main">
+              <span class="row-title">Workout reminders</span>
+              <span class="row-sub">Remind me on scheduled training days</span>
+            </span>
+            <button class="switch" type="button" data-setting-key="workout_reminders" aria-label="Workout reminders">
+              <span class="switch-dot"></span>
+            </button>
+          </div>
+
+          <div class="row">
+            <span class="row-icon purple">C</span>
+            <span class="row-main">
+              <span class="row-title">Weekly check-in</span>
+              <span class="row-sub">Weight and progress reminder</span>
+            </span>
+            <button class="switch" type="button" data-setting-key="checkin_reminders" aria-label="Weekly check-in reminder">
+              <span class="switch-dot"></span>
+            </button>
+          </div>
+
+          <div class="row">
+            <span class="row-icon amber">AI</span>
+            <span class="row-main">
+              <span class="row-title">AI plan ready</span>
+              <span class="row-sub">Notify me when a background plan finishes</span>
+            </span>
+            <button class="switch" type="button" data-setting-key="plan_ready_notifications" aria-label="AI plan ready notification">
+              <span class="switch-dot"></span>
+            </button>
+          </div>
+        </section>
+
+        <div class="section-label">Privacy</div>
+
+        <section class="group">
+          <div class="row">
+            <span class="row-icon purple">ð</span>
+            <span class="row-main">
+              <span class="row-title">Use progress photos for AI review</span>
+              <span class="row-sub">Off by default. Photos remain private.</span>
+            </span>
+            <button class="switch" type="button" data-setting-key="allow_photo_ai_review" aria-label="Allow photo AI review">
+              <span class="switch-dot"></span>
+            </button>
+          </div>
+
+          <button class="row" id="photoPrivacyBtn" type="button">
+            <span class="row-icon blue">P</span>
+            <span class="row-main">
+              <span class="row-title">Progress photo privacy</span>
+              <span class="row-sub">How ShapeCue handles private body photos</span>
+            </span>
+            <span class="chevron">âº</span>
+          </button>
+
+          <button class="row" id="downloadDataBtn" type="button">
+            <span class="row-icon green">â</span>
+            <span class="row-main">
+              <span class="row-title">Download my data</span>
+              <span class="row-sub">Export is planned before public launch</span>
+            </span>
+            <span class="chevron">âº</span>
+          </button>
+        </section>
+
+        <div class="section-label">Help and support</div>
+
+        <section class="group">
+          <details class="faq">
+            <summary>
+              <span class="faq-question">How does ShapeCue update my plan?</span>
+              <span class="faq-arrow">â</span>
+            </summary>
+            <div class="faq-answer">
+              ShapeCue uses your onboarding details, completed meals and workouts, exercise reports, pain logs, measurements, and recent plan history. Your current plan remains active while a new plan is being generated.
+            </div>
+          </details>
+
+          <details class="faq">
+            <summary>
+              <span class="faq-question">What is the difference between Premium and Coach?</span>
+              <span class="faq-arrow">â</span>
+            </summary>
+            <div class="faq-answer">
+              Premium updates every 14 days and includes detailed meals, exercise media, limited progress photos, and a basic progress review. Coach updates weekly and adds full smart replacements, photo AI review, Progress Vault PIN, advanced weekly review, and explanations for why your plan changed.
+            </div>
+          </details>
+
+          <details class="faq">
+            <summary>
+              <span class="faq-question">Are my progress photos private?</span>
+              <span class="faq-arrow">â</span>
+            </summary>
+            <div class="faq-answer">
+              Progress photos are stored in a private Supabase bucket with per-user access rules. ShapeCue should only use them for AI review when you explicitly allow it. Avoid including your face.
+            </div>
+          </details>
+
+          <details class="faq">
+            <summary>
+              <span class="faq-question">Does ShapeCue replace medical advice?</span>
+              <span class="faq-arrow">â</span>
+            </summary>
+            <div class="faq-answer">
+              No. ShapeCue provides general fitness and wellness guidance. It does not diagnose conditions, prescribe treatment, or replace a doctor, physiotherapist, registered dietitian, or other qualified professional.
+            </div>
+          </details>
+
+          <button class="row" id="contactSupportBtn" type="button">
+            <span class="row-icon blue">?</span>
+            <span class="row-main">
+              <span class="row-title">Contact support</span>
+              <span class="row-sub">Account, membership, plan, or technical help</span>
+            </span>
+            <span class="chevron">âº</span>
+          </button>
+
+          <button class="row" id="reportProblemBtn" type="button">
+            <span class="row-icon amber">!</span>
+            <span class="row-main">
+              <span class="row-title">Report a problem</span>
+              <span class="row-sub">Meal, workout, AI plan, payment, or app issue</span>
+            </span>
+            <span class="chevron">âº</span>
+          </button>
+        </section>
+
+        <div class="section-label">Legal</div>
+
+        <section class="group">
+          <button class="row legal-btn" type="button" data-legal-page="privacy.html" data-legal-name="Privacy Policy">
+            <span class="row-main">
+              <span class="row-title">Privacy Policy</span>
+            </span>
+            <span class="chevron">âº</span>
+          </button>
+
+          <button class="row legal-btn" type="button" data-legal-page="terms.html" data-legal-name="Terms of Use">
+            <span class="row-main">
+              <span class="row-title">Terms of Use</span>
+            </span>
+            <span class="chevron">âº</span>
+          </button>
+
+          <button class="row legal-btn" type="button" data-legal-page="disclaimer.html" data-legal-name="Fitness Disclaimer">
+            <span class="row-main">
+              <span class="row-title">Fitness Disclaimer</span>
+            </span>
+            <span class="chevron">âº</span>
+          </button>
+        </section>
+
+        <div class="section-label">Account actions</div>
+
+        <section class="group">
+          <button class="row" id="logoutBtn" type="button">
+            <span class="row-icon red">âª</span>
+            <span class="row-main">
+              <span class="row-title danger-text">Log out</span>
+            </span>
+          </button>
+
+          <button class="row" id="deleteAccountBtn" type="button">
+            <span class="row-icon red">Ã</span>
+            <span class="row-main">
+              <span class="row-title danger-text">Delete account</span>
+              <span class="row-sub">Permanent deletion requires a verified server-side flow</span>
+            </span>
+            <span class="chevron">âº</span>
+          </button>
+        </section>
+
+        <p class="small-note">
+          ShapeCue is a wellness and fitness planning app. It does not provide medical diagnosis or emergency support.
+        </p>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal" id="privacyModal">
+    <div class="sheet">
+      <div class="sheet-head">
+        <div>
+          <h3>Progress photo privacy</h3>
+          <p>Your photos should stay private and under your control.</p>
+        </div>
+        <button class="close-btn" type="button" data-close-modal="privacyModal">Ã</button>
+      </div>
+
+      <div class="group">
+        <div class="row">
+          <span class="row-icon green">â</span>
+          <span class="row-main">
+            <span class="row-title">Private storage</span>
+            <span class="row-sub">Progress photos use a private storage bucket.</span>
+          </span>
+        </div>
+
+        <div class="row">
+          <span class="row-icon blue">AI</span>
+          <span class="row-main">
+            <span class="row-title">AI review is optional</span>
+            <span class="row-sub">The setting is off unless you enable it.</span>
+          </span>
+        </div>
+
+        <div class="row">
+          <span class="row-icon amber">!</span>
+          <span class="row-main">
+            <span class="row-title">Avoid including your face</span>
+            <span class="row-sub">Use front, side, and back photos from the neck down.</span>
+          </span>
+        </div>
+
+        <div class="row">
+          <span class="row-icon red">Ã</span>
+          <span class="row-main">
+            <span class="row-title">Delete anytime</span>
+            <span class="row-sub">You can remove individual progress photos from the Progress page.</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="supportModal">
+    <div class="sheet">
+      <div class="sheet-head">
+        <div>
+          <h3 id="supportTitle">Contact support</h3>
+          <p>Create a clear support request. You can copy it until a support backend is connected.</p>
+        </div>
+        <button class="close-btn" type="button" data-close-modal="supportModal">Ã</button>
+      </div>
+
+      <div class="field">
+        <label>Issue type</label>
+        <select class="select" id="supportType">
+          <option value="Account">Account</option>
+          <option value="Membership">Membership</option>
+          <option value="AI plan">AI plan</option>
+          <option value="Meals">Meals</option>
+          <option value="Workout">Workout</option>
+          <option value="Progress photos">Progress photos</option>
+          <option value="Technical problem">Technical problem</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>What happened?</label>
+        <textarea class="textarea" id="supportMessage" placeholder="Describe the issue and what you expected to happen."></textarea>
+      </div>
+
+      <div class="support-preview" id="supportPreview">Your support request will appear here.</div>
+
+      <div class="membership-actions">
+        <button class="btn primary" id="copySupportBtn" type="button">Copy request</button>
+        <button class="btn secondary" id="closeSupportBtn" type="button">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="deleteModal">
+    <div class="sheet">
+      <div class="sheet-head">
+        <div>
+          <h3>Delete account</h3>
+          <p>This action must be handled by a verified server-side account-deletion function.</p>
+        </div>
+        <button class="close-btn" type="button" data-close-modal="deleteModal">Ã</button>
+      </div>
+
+      <div class="group">
+        <div class="row">
+          <span class="row-icon red">!</span>
+          <span class="row-main">
+            <span class="row-title">Not connected yet</span>
+            <span class="row-sub">The UI is ready, but the secure deletion backend must be added before launch.</span>
+          </span>
+        </div>
+      </div>
+
+      <button class="btn secondary" id="closeDeleteBtn" type="button" style="width:100%;margin-top:12px">Close</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Saved</div>
+
+  <script>
+    const SUPABASE_URL = "https://qusmbveovroldkhbjudq.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_6zVS1VCVok16WmVWNPvTrw_vTiQvgX4";
+
+    const supabaseClient = supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY
+    );
+
+    const $ = selector => document.querySelector(selector);
+    const $$ = selector => Array.from(document.querySelectorAll(selector));
+
+    let currentUser = null;
+    let currentSession = null;
+    let currentProfile = null;
+    let currentEntitlement = null;
+    let isAppAdmin = false;
+
+    function toast(message){
+      const box = $("#toast");
+      box.textContent = message;
+      box.classList.add("show");
+
+      clearTimeout(window.__shapeCueToastTimer);
+      window.__shapeCueToastTimer = setTimeout(() => {
+        box.classList.remove("show");
+      }, 1800);
+    }
+
+    function normalizePlanCode(code){
+      const value = String(code || "free").toLowerCase();
+
+      if([
+        "premium_plus",
+        "premium_plus_weekly",
+        "coach"
+      ].includes(value)){
+        return "coach";
+      }
+
+      if([
+        "premium",
+        "premium_biweekly"
+      ].includes(value)){
+        return "premium";
+      }
+
+      if([
+        "plus",
+        "premium_monthly"
+      ].includes(value)){
+        return "plus";
+      }
+
+      return "free";
+    }
+
+    function planName(code){
+      const normalized = normalizePlanCode(code);
+
+      if(normalized === "coach") return "ShapeCue Coach";
+      if(normalized === "premium") return "ShapeCue Premium";
+      if(normalized === "plus") return "ShapeCue Plus";
+      return "ShapeCue Free";
+    }
+
+    function planShortName(code){
+      const normalized = normalizePlanCode(code);
+
+      if(normalized === "coach") return "Coach";
+      if(normalized === "premium") return "Premium";
+      if(normalized === "plus") return "Plus";
+      return "Free";
+    }
+
+    function planCadence(code){
+      const normalized = normalizePlanCode(code);
+
+      if(normalized === "coach") return "Weekly AI update";
+      if(normalized === "premium") return "AI update every 14 days";
+      if(normalized === "plus") return "Monthly AI update";
+      return "Starter plan only";
+    }
+
+    function planDescription(code){
+      const normalized = normalizePlanCode(code);
+
+      if(normalized === "coach"){
+        return "Weekly AI coaching, smart replacements, photo AI review, and advanced progress analysis.";
+      }
+
+      if(normalized === "premium"){
+        return "Detailed coaching with updates every 14 days, exercise media, and limited progress photos.";
+      }
+
+      if(normalized === "plus"){
+        return "Full weekly meals and workouts with a monthly AI update.";
+      }
+
+      return "Starter access with Today, a basic exercise guide, and limited plan previews.";
+    }
+
+    function currentPlanCode(){
+      return normalizePlanCode(
+        currentEntitlement?.plan_code ||
+        currentProfile?.selected_plan_code ||
+        (currentProfile?.is_premium ? "premium" : "free")
+      );
+    }
+
+    function formatExpiry(value){
+      if(!value) return "No expiry";
+
+      const date = new Date(value);
+
+      if(Number.isNaN(date.getTime())){
+        return "No expiry";
+      }
+
+      return date.toLocaleDateString([], {
+        year:"numeric",
+        month:"short",
+        day:"numeric"
+      });
+    }
+
+    function nice(value){
+      return value
+        ? String(value).replaceAll("_", " ")
+        : "setup";
+    }
+
+    function themePreference(){
+      return localStorage.getItem("shapecue.theme") || "system";
+    }
+
+    function resolvedTheme(){
+      const preference = themePreference();
+
+      if(preference === "light" || preference === "dark"){
+        return preference;
+      }
+
+      return window.matchMedia("(prefers-color-scheme: light)").matches
+        ? "light"
+        : "dark";
+    }
+
+    function applyTheme(){
+      document.documentElement.dataset.theme = resolvedTheme();
+
+      $$("[data-theme-choice]").forEach(button => {
+        button.classList.toggle(
+          "active",
+          button.dataset.themeChoice === themePreference()
+        );
+      });
+    }
+
+    function saveTheme(preference){
+      localStorage.setItem("shapecue.theme", preference);
+      applyTheme();
+      toast("Theme updated");
+    }
+
+    function settingStorageKey(name){
+      return `shapecue.setting.${name}`;
+    }
+
+    function settingValue(name, fallback = false){
+      const stored = localStorage.getItem(settingStorageKey(name));
+
+      if(stored === null){
+        return fallback;
+      }
+
+      return stored === "true";
+    }
+
+    function saveSetting(name, value){
+      localStorage.setItem(
+        settingStorageKey(name),
+        String(Boolean(value))
+      );
+    }
+
+    function applyStoredSwitches(){
+      $$("[data-setting-key]").forEach(button => {
+        const key = button.dataset.settingKey;
+        const enabled = settingValue(key, false);
+
+        button.classList.toggle("on", enabled);
+        button.setAttribute("aria-pressed", String(enabled));
+      });
+    }
+
+    function toggleSetting(button){
+      const key = button.dataset.settingKey;
+      const nextValue = !button.classList.contains("on");
+
+      button.classList.toggle("on", nextValue);
+      button.setAttribute("aria-pressed", String(nextValue));
+      saveSetting(key, nextValue);
+
+      toast("Setting saved");
+    }
+
+    async function fetchEntitlement(){
+      if(!currentSession?.access_token){
+        return null;
+      }
+
+      const response = await fetch(
+        "/.netlify/functions/get-entitlement",
+        {
+          method:"GET",
+          headers:{
+            "Authorization":`Bearer ${currentSession.access_token}`
+          }
+        }
+      );
+
+      const result = await response
+        .json()
+        .catch(() => ({}));
+
+      if(!response.ok || !result.ok){
+        throw new Error(
+          result.error ||
+          "Could not load membership."
+        );
+      }
+
+      currentEntitlement = result.entitlement || null;
+      return currentEntitlement;
+    }
+
+    async function loadAdminStatus(){
+      try{
+        const { data: adminRow } = await supabaseClient
+          .from("app_admins")
+          .select("user_id,role")
+          .eq("user_id", currentUser.id)
+          .maybeSingle();
+
+        isAppAdmin = Boolean(adminRow);
+      }catch(error){
+        console.warn(
+          "Could not check admin status",
+          error
+        );
+
+        isAppAdmin = false;
+      }
+    }
+
+    async function loadSettings(){
+      const { data: sessionData } = await supabaseClient
+        .auth
+        .getSession();
+
+      currentSession = sessionData?.session || null;
+      currentUser = currentSession?.user || null;
+
+      if(!currentUser){
+        location.href = "auth.html?mode=login";
+        return;
+      }
+
+      const { data: profile, error: profileError } = await supabaseClient
+        .from("profiles")
+        .select("*")
+        .eq("id", currentUser.id)
+        .maybeSingle();
+
+      if(profileError){
+        throw profileError;
+      }
+
+      currentProfile = profile || null;
+
+      if(!currentProfile?.onboarding_completed){
+        location.href = "onboarding.html";
+        return;
+      }
+
+      currentEntitlement = {
+        plan_code:
+          currentProfile.selected_plan_code ||
+          (currentProfile.is_premium ? "premium" : "free"),
+        source:"profile",
+        starts_at:null,
+        ends_at:null,
+        features:{}
+      };
+
+      try{
+        await fetchEntitlement();
+      }catch(error){
+        console.warn(
+          "Using profile membership fallback",
+          error
+        );
+      }
+
+      await loadAdminStatus();
+
+      renderAccount();
+      renderMembership();
+
+      $("#pageLoader").hidden = true;
+      $("#settingsContent").hidden = false;
+    }
+
+    function renderAccount(){
+      const fullName =
+        currentProfile?.full_name ||
+        "ShapeCue user";
+
+      $("#accountName").textContent =
+        `${fullName} â¢ Edit onboarding information`;
+
+      $("#accountEmail").textContent =
+        currentUser?.email ||
+        "No email";
+
+      $("#adminBtn").hidden = !isAppAdmin;
+    }
+
+    function renderMembership(){
+      const code = currentPlanCode();
+
+      $("#membershipName").textContent =
+        planName(code);
+
+      $("#membershipDescription").textContent =
+        planDescription(code);
+
+      $("#membershipPill").textContent =
+        planShortName(code);
+
+      $("#membershipCadence").textContent =
+        planCadence(code);
+
+      $("#membershipSource").textContent =
+        nice(currentEntitlement?.source);
+
+      $("#membershipExpiry").textContent =
+        formatExpiry(currentEntitlement?.ends_at);
+    }
+
+    function openModal(id){
+      const modal = $("#" + id);
+
+      if(modal){
+        modal.classList.add("show");
+      }
+    }
+
+    function closeModal(id){
+      const modal = $("#" + id);
+
+      if(modal){
+        modal.classList.remove("show");
+      }
+    }
+
+    function supportRequestText(){
+      const type =
+        $("#supportType")?.value ||
+        "Support";
+
+      const message =
+        $("#supportMessage")?.value.trim() ||
+        "No details entered.";
+
+      const email =
+        currentUser?.email ||
+        "Unknown";
+
+      const plan =
+        planName(currentPlanCode());
+
+      return [
+        "ShapeCue support request",
+        "",
+        `Issue type: ${type}`,
+        `Account: ${email}`,
+        `Plan: ${plan}`,
+        "",
+        "Details:",
+        message
+      ].join("\n");
+    }
+
+    function updateSupportPreview(){
+      $("#supportPreview").textContent =
+        supportRequestText();
+    }
+
+    async function copySupportRequest(){
+      const text = supportRequestText();
+
+      try{
+        await navigator.clipboard.writeText(text);
+        toast("Support request copied");
+      }catch(error){
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        textarea.remove();
+
+        toast("Support request copied");
+      }
+    }
+
+    function openLegalPage(button){
+      const page = button.dataset.legalPage;
+      const name = button.dataset.legalName || "Legal page";
+
+      fetch(page, { method:"HEAD" })
+        .then(response => {
+          if(response.ok){
+            location.href = page;
+          }else{
+            toast(`${name} page has not been added yet`);
+          }
+        })
+        .catch(() => {
+          toast(`${name} page has not been added yet`);
+        });
+    }
+
+    async function logout(){
+      await supabaseClient.auth.signOut();
+      location.href = "auth.html?mode=login";
+    }
+
+    function initEvents(){
+      $("#backBtn").addEventListener(
+        "click",
+        () => location.href = "app.html"
+      );
+
+      $("#editProfileBtn").addEventListener(
+        "click",
+        () => location.href = "onboarding.html"
+      );
+
+      $("#editSetupBtn").addEventListener(
+        "click",
+        () => location.href = "onboarding.html"
+      );
+
+      $("#adminBtn").addEventListener(
+        "click",
+        () => location.href = "admin.html"
+      );
+
+      $$("[data-theme-choice]").forEach(button => {
+        button.addEventListener(
+          "click",
+          () => saveTheme(button.dataset.themeChoice)
+        );
+      });
+
+      $$("[data-setting-key]").forEach(button => {
+        button.addEventListener(
+          "click",
+          () => toggleSetting(button)
+        );
+      });
+
+      $("#photoPrivacyBtn").addEventListener(
+        "click",
+        () => openModal("privacyModal")
+      );
+
+      $("#downloadDataBtn").addEventListener(
+        "click",
+        () => toast("Data export will be connected before launch")
+      );
+
+      $("#contactSupportBtn").addEventListener(
+        "click",
+        () => {
+          $("#supportTitle").textContent = "Contact support";
+          $("#supportType").value = "Account";
+          updateSupportPreview();
+          openModal("supportModal");
+        }
+      );
+
+      $("#reportProblemBtn").addEventListener(
+        "click",
+        () => {
+          $("#supportTitle").textContent = "Report a problem";
+          $("#supportType").value = "Technical problem";
+          updateSupportPreview();
+          openModal("supportModal");
+        }
+      );
+
+      $("#supportType").addEventListener(
+        "change",
+        updateSupportPreview
+      );
+
+      $("#supportMessage").addEventListener(
+        "input",
+        updateSupportPreview
+      );
+
+      $("#copySupportBtn").addEventListener(
+        "click",
+        copySupportRequest
+      );
+
+      $("#closeSupportBtn").addEventListener(
+        "click",
+        () => closeModal("supportModal")
+      );
+
+      $("#deleteAccountBtn").addEventListener(
+        "click",
+        () => openModal("deleteModal")
+      );
+
+      $("#closeDeleteBtn").addEventListener(
+        "click",
+        () => closeModal("deleteModal")
+      );
+
+      $("#logoutBtn").addEventListener(
+        "click",
+        logout
+      );
+
+      $$(".legal-btn").forEach(button => {
+        button.addEventListener(
+          "click",
+          () => openLegalPage(button)
+        );
+      });
+
+      $$("[data-close-modal]").forEach(button => {
+        button.addEventListener(
+          "click",
+          () => closeModal(button.dataset.closeModal)
+        );
+      });
+
+      $$(".modal").forEach(modal => {
+        modal.addEventListener(
+          "click",
+          event => {
+            if(event.target === modal){
+              closeModal(modal.id);
+            }
+          }
+        );
+      });
+    }
+
+    applyTheme();
+    applyStoredSwitches();
+    initEvents();
+
+    window
+      .matchMedia("(prefers-color-scheme: light)")
+      .addEventListener?.(
+        "change",
+        () => {
+          if(themePreference() === "system"){
+            applyTheme();
+          }
+        }
+      );
+
+    loadSettings().catch(error => {
+      console.error(error);
+
+      $("#pageLoader").innerHTML = `
+        <div>
+          <div style="color:var(--red);font-weight:900;margin-bottom:6px">
+            Could not load settings
+          </div>
+          <div>${String(error.message || error)}</div>
+        </div>
+      `;
+    });
+  </script>
+</body>
+</html>
