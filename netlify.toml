@@ -4,3 +4,8 @@
 
 [functions]
   node_bundler = "esbuild"
+# Add this block to your existing netlify.toml.
+# Do not erase your other Netlify settings.
+
+[functions."auto-plan-scheduler"]
+  schedule = "@hourly"
