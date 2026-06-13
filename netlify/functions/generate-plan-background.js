@@ -710,6 +710,17 @@ async function failAndRefund(db, requestId, userId, errorMessage, responsePayloa
   return data || null;
 }
 
+function trustedSchedulerRequest(event) {
+  const expected = String(process.env.SHAPECUE_SCHEDULER_SECRET || "");
+  const provided = String(
+    event.headers["x-shapecue-scheduler-secret"] ||
+    event.headers["X-ShapeCue-Scheduler-Secret"] ||
+    ""
+  );
+
+  return expected.length >= 24 && provided === expected;
+}
+
 export async function handler(event) {
   if (event.httpMethod === "OPTIONS") {
     return { statusCode: 200, headers: CORS_HEADERS, body: "" };
@@ -721,6 +732,7 @@ export async function handler(event) {
   let db = null;
   let requestId = null;
   let userId = null;
+  let requestSource = "";
 
   try {
     const openaiKey = process.env.OPENAI_API_KEY;
@@ -737,14 +749,10 @@ export async function handler(event) {
       auth: { persistSession: false, autoRefreshToken: false }
     });
 
-    const user = await getUserFromToken(db, event);
-    userId = user.id;
-
     const requestRes = await db
       .from("ai_requests")
       .select("*")
       .eq("id", requestId)
-      .eq("user_id", userId)
       .maybeSingle();
 
     if (requestRes.error) throw requestRes.error;
@@ -752,7 +760,25 @@ export async function handler(event) {
 
     const requestRow = requestRes.data;
     const access = requestRow.prompt_payload?.access || {};
-    const requestSource = String(access.request_source || "");
+    requestSource = String(access.request_source || "");
+
+    const internalScheduler = trustedSchedulerRequest(event);
+
+    if (internalScheduler) {
+      if (requestSource !== "scheduled_auto") {
+        const err = new Error("Scheduler authorization is valid only for scheduled membership updates.");
+        err.statusCode = 403;
+        throw err;
+      }
+      userId = requestRow.user_id;
+    } else {
+      const user = await getUserFromToken(db, event);
+      userId = user.id;
+
+      if (requestRow.user_id !== userId) {
+        return jsonResponse(404, { ok: false, error: "AI request not found." });
+      }
+    }
 
     if (!["first_plan", "admin_manual", "addon_credit", "scheduled_auto"].includes(requestSource)) {
       const err = new Error("This AI request was not authorized by ShapeCue.");
@@ -786,6 +812,36 @@ export async function handler(event) {
 
     const entitlement = await ensureEntitlement(db, userId);
     const tier = planTierInfo(entitlement);
+
+    if (requestSource === "scheduled_auto" && !["plus", "premium", "coach"].includes(tier.code)) {
+      await db
+        .from("profiles")
+        .update({
+          auto_plan_update_status: "not_included",
+          next_plan_update_at: null,
+          auto_plan_queued_at: null,
+          auto_plan_last_error: null,
+          auto_plan_retry_count: 0
+        })
+        .eq("id", userId);
+
+      const err = new Error("Automatic AI updates are no longer included in this membership.");
+      err.statusCode = 403;
+      err.disableAutoSchedule = true;
+      throw err;
+    }
+
+    if (requestSource === "scheduled_auto") {
+      await db
+        .from("profiles")
+        .update({
+          auto_plan_update_status: "processing",
+          auto_plan_queued_at: requestRow.created_at || new Date().toISOString(),
+          auto_plan_last_error: null
+        })
+        .eq("id", userId);
+    }
+
     const userData = await readUserData(db, userId);
 
     if (!userData.profile?.onboarding_completed) throw new Error("Onboarding is not completed.");
@@ -951,7 +1007,10 @@ export async function handler(event) {
       const now = new Date();
       const profileUpdate = {
         auto_plan_update_status: "not_included",
-        next_plan_update_at: null
+        next_plan_update_at: null,
+        auto_plan_queued_at: null,
+        auto_plan_retry_count: 0,
+        auto_plan_last_error: null
       };
 
       if (tier.code === "plus") {
@@ -1005,6 +1064,19 @@ export async function handler(event) {
           error.message || "Plan generation failed.",
           error.responsePayload || null
         );
+
+        if (requestSource === "scheduled_auto" && error.disableAutoSchedule) {
+          await db
+            .from("profiles")
+            .update({
+              auto_plan_update_status: "not_included",
+              next_plan_update_at: null,
+              auto_plan_queued_at: null,
+              auto_plan_retry_count: 0,
+              auto_plan_last_error: null
+            })
+            .eq("id", userId);
+        }
       } catch (refundError) {
         console.error("Could not record failure/refund:", refundError);
       }
