@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark" data-ui-version="approved-account-security-v1">
+<html lang="en" data-theme="dark" data-ui-version="approved-account-security-v2-data-export">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -17,6 +17,7 @@
     })();
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 
   <style>
     :root{
@@ -369,7 +370,7 @@
               <span class="row-icon green"><svg viewBox="0 0 24 24"><path d="M12 3v12M8 11l4 4 4-4"/><path d="M5 20h14"/></svg></span>
               <span class="row-main">
                 <span class="row-title">Download my data</span>
-                <span class="row-sub">Full ShapeCue export will be connected in Step 3</span>
+                <span class="row-sub">ZIP with your profile, plans, logs, settings and private progress photos</span>
               </span>
               <span class="chevron"></span>
             </button>
@@ -677,6 +678,300 @@
       }
     }
 
+
+    const EXPORT_TABLES = [
+      { key:"profile", table:"profiles", ownerColumn:"id", single:true },
+      { key:"food_preferences", table:"food_preferences", ownerColumn:"user_id", single:true },
+      { key:"work_schedules", table:"work_schedules", ownerColumn:"user_id", single:true },
+      { key:"workout_availability", table:"workout_availability", ownerColumn:"user_id", single:true },
+      { key:"water_settings", table:"water_settings", ownerColumn:"user_id", single:true },
+      { key:"measurements", table:"measurements", ownerColumn:"user_id" },
+      { key:"daily_logs", table:"daily_logs", ownerColumn:"user_id" },
+      { key:"water_logs", table:"water_logs", ownerColumn:"user_id" },
+      { key:"workout_sessions", table:"workout_sessions", ownerColumn:"user_id" },
+      { key:"exercise_logs", table:"exercise_logs", ownerColumn:"user_id" },
+      { key:"pain_logs", table:"pain_logs", ownerColumn:"user_id" },
+      { key:"weekly_plans", table:"weekly_plans", ownerColumn:"user_id" },
+      { key:"progress_photos", table:"progress_photos", ownerColumn:"user_id" },
+      { key:"user_entitlements", table:"user_entitlements", ownerColumn:"user_id", optional:true },
+      { key:"promo_redemptions", table:"promo_redemptions", ownerColumn:"user_id", optional:true },
+      { key:"admin_roles", table:"app_admins", ownerColumn:"user_id", optional:true }
+    ];
+
+    function safeUserForExport(user){
+      if(!user) return null;
+      return {
+        id:user.id || null,
+        email:user.email || null,
+        phone:user.phone || null,
+        created_at:user.created_at || null,
+        updated_at:user.updated_at || null,
+        email_confirmed_at:user.email_confirmed_at || user.confirmed_at || null,
+        phone_confirmed_at:user.phone_confirmed_at || null,
+        last_sign_in_at:user.last_sign_in_at || null,
+        app_metadata:user.app_metadata || {},
+        user_metadata:user.user_metadata || {},
+        identities:(user.identities || []).map(identity => ({
+          id:identity.id || null,
+          provider:identity.provider || null,
+          created_at:identity.created_at || null,
+          updated_at:identity.updated_at || null,
+          identity_data:identity.identity_data || {}
+        }))
+      };
+    }
+
+    function safeLocalShapeCueData(){
+      const output = {};
+      const blocked = /(token|session|secret|password|supabase|auth)/i;
+
+      for(let index = 0; index < localStorage.length; index += 1){
+        const key = localStorage.key(index);
+        if(!key || !key.startsWith("shapecue.") || blocked.test(key)) continue;
+
+        const raw = localStorage.getItem(key);
+        try{
+          output[key] = JSON.parse(raw);
+        }catch{
+          output[key] = raw;
+        }
+      }
+
+      return output;
+    }
+
+    async function exportTable(definition){
+      let query = supabaseClient
+        .from(definition.table)
+        .select("*")
+        .eq(definition.ownerColumn, currentUser.id);
+
+      const { data, error } = await query;
+      if(error) throw error;
+
+      if(definition.single){
+        return Array.isArray(data) ? (data[0] || null) : (data || null);
+      }
+
+      return Array.isArray(data) ? data : [];
+    }
+
+    async function exportMembership(){
+      if(!currentSession?.access_token) return null;
+
+      const response = await fetch("/.netlify/functions/get-entitlement", {
+        method:"GET",
+        headers:{ "Authorization":`Bearer ${currentSession.access_token}` }
+      });
+
+      const result = await response.json().catch(() => ({}));
+      if(!response.ok || !result.ok){
+        throw new Error(result.error || "Could not export membership details.");
+      }
+
+      return result.entitlement || null;
+    }
+
+    function cleanFileName(value){
+      return String(value || "file")
+        .replace(/[^a-z0-9._-]+/gi, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "") || "file";
+    }
+
+    function downloadBlob(blob, filename){
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = filename;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1500);
+    }
+
+    async function addProgressPhotosToZip(zip, rows, button, errors){
+      const photos = Array.isArray(rows) ? rows : [];
+      if(!photos.length) return 0;
+
+      let added = 0;
+      const folder = zip.folder("progress-photos");
+
+      for(let index = 0; index < photos.length; index += 1){
+        const photo = photos[index];
+        if(!photo?.image_path) continue;
+
+        button.textContent = `Adding photos ${index + 1}/${photos.length}…`;
+
+        try{
+          const { data, error } = await supabaseClient.storage
+            .from("progress-photos")
+            .createSignedUrl(photo.image_path, 300);
+
+          if(error) throw error;
+          if(!data?.signedUrl) throw new Error("No signed photo URL returned.");
+
+          const response = await fetch(data.signedUrl);
+          if(!response.ok) throw new Error(`Photo download failed (${response.status}).`);
+
+          const blob = await response.blob();
+          const originalName = photo.image_path.split("/").pop() || `photo-${index + 1}.jpg`;
+          const datePrefix = cleanFileName(photo.taken_date || photo.created_at || `photo-${index + 1}`);
+          const filename = `${String(index + 1).padStart(2, "0")}-${datePrefix}-${cleanFileName(originalName)}`;
+          folder.file(filename, blob);
+          added += 1;
+        }catch(error){
+          errors.push({
+            source:`progress-photo:${photo.id || photo.image_path}`,
+            message:String(error?.message || error)
+          });
+        }
+      }
+
+      return added;
+    }
+
+    function addLocalProfilePhotoToZip(zip, localData, errors){
+      const key = Object.keys(localData || {}).find(item =>
+        item === `shapecue.profile_photo.${currentUser.id}`
+      );
+      const dataUrl = key ? localData[key] : null;
+
+      if(typeof dataUrl !== "string" || !dataUrl.startsWith("data:image/")){
+        return false;
+      }
+
+      try{
+        const match = dataUrl.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
+        if(!match) return false;
+
+        const mime = match[1].toLowerCase();
+        const extension = mime.includes("png") ? "png" : mime.includes("webp") ? "webp" : "jpg";
+        zip.folder("profile").file(`profile-photo.${extension}`, match[2], { base64:true });
+        return true;
+      }catch(error){
+        errors.push({ source:"local-profile-photo", message:String(error?.message || error) });
+        return false;
+      }
+    }
+
+    async function buildShapeCueExport(button){
+      const errors = [];
+      const tables = {};
+
+      for(let index = 0; index < EXPORT_TABLES.length; index += 1){
+        const definition = EXPORT_TABLES[index];
+        button.textContent = `Collecting data ${index + 1}/${EXPORT_TABLES.length}…`;
+
+        try{
+          tables[definition.key] = await exportTable(definition);
+        }catch(error){
+          tables[definition.key] = definition.single ? null : [];
+          errors.push({
+            source:definition.table,
+            optional:Boolean(definition.optional),
+            message:String(error?.message || error)
+          });
+        }
+      }
+
+      let membership = null;
+      try{
+        membership = await exportMembership();
+      }catch(error){
+        errors.push({ source:"get-entitlement", optional:true, message:String(error?.message || error) });
+      }
+
+      const localPreferences = safeLocalShapeCueData();
+
+      return {
+        export_info:{
+          product:"ShapeCue",
+          format_version:1,
+          generated_at:new Date().toISOString(),
+          generated_from:location.origin,
+          user_id:currentUser.id,
+          includes_private_progress_photo_files:true,
+          note:"This archive contains personal fitness information. Store it securely."
+        },
+        account:safeUserForExport(currentUser),
+        membership,
+        data:tables,
+        local_preferences:localPreferences,
+        export_warnings:errors
+      };
+    }
+
+    async function downloadMyData(){
+      const button = $("#downloadDataBtn");
+      if(!button || button.disabled) return;
+
+      setBusy(button, true, "Preparing export…");
+
+      try{
+        const exportData = await buildShapeCueExport(button);
+        const datePart = new Date().toISOString().slice(0, 10);
+        const baseName = `shapecue-data-${datePart}`;
+
+        if(typeof JSZip === "undefined"){
+          const jsonBlob = new Blob(
+            [JSON.stringify(exportData, null, 2)],
+            { type:"application/json;charset=utf-8" }
+          );
+          downloadBlob(jsonBlob, `${baseName}.json`);
+          toast("Data downloaded as JSON");
+          return;
+        }
+
+        const zip = new JSZip();
+        zip.file("shapecue-data.json", JSON.stringify(exportData, null, 2));
+
+        const readme = [
+          "ShapeCue personal data export",
+          "",
+          `Created: ${exportData.export_info.generated_at}`,
+          `Account: ${currentUser.email || currentUser.id}`,
+          "",
+          "shapecue-data.json contains your account details, profile, setup, plans, measurements, meal/workout logs, pain logs, membership details and local ShapeCue preferences.",
+          "progress-photos/ contains private progress-photo files that could be downloaded successfully.",
+          "profile/ may contain the profile image saved on this device.",
+          "",
+          "This archive contains sensitive health and fitness information. Keep it private and delete copies you no longer need.",
+          "",
+          exportData.export_warnings.length
+            ? `Warnings: ${exportData.export_warnings.length}. See export_warnings in shapecue-data.json.`
+            : "No export warnings were recorded."
+        ].join("\n");
+        zip.file("README.txt", readme);
+
+        addLocalProfilePhotoToZip(zip, exportData.local_preferences, exportData.export_warnings);
+        const photoCount = await addProgressPhotosToZip(
+          zip,
+          exportData.data.progress_photos,
+          button,
+          exportData.export_warnings
+        );
+
+        // Re-write JSON after media collection so photo errors are included.
+        zip.file("shapecue-data.json", JSON.stringify(exportData, null, 2));
+
+        button.textContent = "Creating ZIP…";
+        const blob = await zip.generateAsync({
+          type:"blob",
+          compression:"DEFLATE",
+          compressionOptions:{ level:6 }
+        });
+
+        downloadBlob(blob, `${baseName}.zip`);
+        toast(photoCount ? `Export ready with ${photoCount} photo${photoCount === 1 ? "" : "s"}` : "Export ready");
+      }catch(error){
+        console.error(error);
+        toast(friendlyError(error, "Could not create the data export."));
+      }finally{
+        setBusy(button, false);
+      }
+    }
+
     function initEvents(){
       $("#backBtn").addEventListener("click", () => location.href = "settings.html");
       $("#changeEmailBtn").addEventListener("click", () => openModal("emailModal"));
@@ -687,7 +982,7 @@
       $("#logoutLocalBtn").addEventListener("click", signOutLocal);
       $("#logoutGlobalBtn").addEventListener("click", () => openModal("globalLogoutModal"));
       $("#confirmGlobalLogoutBtn").addEventListener("click", signOutGlobal);
-      $("#downloadDataBtn").addEventListener("click", () => toast("Full data export is Step 3"));
+      $("#downloadDataBtn").addEventListener("click", downloadMyData);
       $("#deleteAccountBtn").addEventListener("click", () => openModal("deleteModal"));
 
       $$('[data-close-modal]').forEach(button => {
