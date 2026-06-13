@@ -1,45 +1,124 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark" data-ui-version="approved-onboarding-v1">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>FitApp - Setup</title>
+  <meta name="color-scheme" content="dark light" />
+  <title>ShapeCue - Setup</title>
+
+  <script>
+    (() => {
+      const saved = localStorage.getItem("shapecue.theme") || "system";
+      const resolved = saved === "system"
+        ? (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark")
+        : saved;
+      document.documentElement.dataset.theme = resolved;
+    })();
+  </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root{
-      --bg:#070A0F;
-      --bg2:#0B1220;
-      --line:rgba(255,255,255,.13);
-      --text:#F8FAFC;
-      --muted:#94A3B8;
-      --green:#22C55E;
-      --blue:#38BDF8;
-      --amber:#F59E0B;
-      --red:#EF4444;
-      --shadow:0 24px 70px rgba(0,0,0,.38);
-      --radius:26px;
-      --max:480px;
+      --bg:#050506;
+      --bg-top:#0A0A0C;
+      --surface:#111114;
+      --surface-2:#18181C;
+      --surface-3:#222228;
+      --glass:rgba(28,28,32,.72);
+      --glass-strong:rgba(28,28,32,.90);
+      --text:#F8F8FA;
+      --muted:#A5A5AD;
+      --muted-2:#72727B;
+      --line:rgba(255,255,255,.085);
+      --line-strong:rgba(255,255,255,.15);
+      --green:#35D46F;
+      --green-soft:rgba(53,212,111,.12);
+      --blue:#5AAEFF;
+      --blue-soft:rgba(90,174,255,.11);
+      --amber:#FFB340;
+      --amber-soft:rgba(255,179,64,.12);
+      --red:#FF6259;
+      --red-soft:rgba(255,98,89,.11);
+      --purple:#BF5AF2;
+      --purple-soft:rgba(191,90,242,.11);
+      --shadow:0 18px 46px rgba(0,0,0,.42);
+      --max:430px;
     }
 
-    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    html{scroll-behavior:smooth}
+    html[data-theme="light"]{
+      --bg:#F2F2F5;
+      --bg-top:#F8F8FA;
+      --surface:#FFFFFF;
+      --surface-2:#F2F2F5;
+      --surface-3:#E8E8ED;
+      --glass:rgba(255,255,255,.64);
+      --glass-strong:rgba(255,255,255,.90);
+      --text:#111114;
+      --muted:#66666E;
+      --muted-2:#8D8D95;
+      --line:rgba(0,0,0,.075);
+      --line-strong:rgba(0,0,0,.13);
+      --green:#20B95A;
+      --green-soft:rgba(32,185,90,.10);
+      --blue:#007AFF;
+      --blue-soft:rgba(0,122,255,.09);
+      --amber:#E98600;
+      --amber-soft:rgba(233,134,0,.10);
+      --red:#FF3B30;
+      --red-soft:rgba(255,59,48,.09);
+      --purple:#AF52DE;
+      --purple-soft:rgba(175,82,222,.09);
+      --shadow:0 14px 38px rgba(0,0,0,.11);
+    }
+
+    *{
+      box-sizing:border-box;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    [hidden]{
+      display:none !important;
+    }
+
+    html{
+      scroll-behavior:smooth;
+    }
+
     body{
       margin:0;
       min-height:100vh;
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;
-      background:
-        radial-gradient(circle at top left, rgba(34,197,94,.24), transparent 34%),
-        radial-gradient(circle at top right, rgba(56,189,248,.18), transparent 32%),
-        linear-gradient(180deg,var(--bg),var(--bg2));
       color:var(--text);
+      background:
+        radial-gradient(circle at 50% -14%,rgba(255,255,255,.07),transparent 30%),
+        linear-gradient(180deg,var(--bg-top),var(--bg) 24%,var(--bg));
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,Arial,sans-serif;
       overflow-x:hidden;
+      padding-bottom:calc(76px + env(safe-area-inset-bottom));
     }
 
-    button,input,select,textarea{font:inherit}
-    button{cursor:pointer}
-    a{color:inherit;text-decoration:none}
+    html[data-theme="light"] body{
+      background:
+        radial-gradient(circle at 50% -12%,rgba(255,255,255,.96),transparent 31%),
+        linear-gradient(180deg,var(--bg-top),var(--bg) 24%,var(--bg));
+    }
+
+    button,
+    input,
+    select,
+    textarea{
+      font:inherit;
+    }
+
+    button{
+      color:inherit;
+      cursor:pointer;
+    }
+
+    a{
+      color:inherit;
+      text-decoration:none;
+    }
 
     .page{
       width:100%;
@@ -52,21 +131,29 @@
       width:100%;
       max-width:var(--max);
       min-height:100vh;
-      position:relative;
-      padding:16px 14px 104px;
+      padding:0 16px 28px;
     }
 
     .topbar{
       position:sticky;
       top:0;
-      z-index:20;
-      margin:-16px -14px 14px;
-      padding:14px 14px 10px;
-      background:linear-gradient(180deg,rgba(7,10,15,.97),rgba(7,10,15,.84),rgba(7,10,15,0));
-      backdrop-filter:blur(18px);
+      z-index:30;
+      height:84px;
+      margin:0 -16px 10px;
+      padding:7px 16px 8px;
+      background:linear-gradient(180deg,rgba(5,5,6,.96),rgba(5,5,6,.83));
+      border-bottom:1px solid rgba(255,255,255,.045);
+      backdrop-filter:blur(22px) saturate(150%);
+      -webkit-backdrop-filter:blur(22px) saturate(150%);
+    }
+
+    html[data-theme="light"] .topbar{
+      background:linear-gradient(180deg,rgba(248,248,250,.96),rgba(248,248,250,.84));
+      border-bottom-color:rgba(0,0,0,.045);
     }
 
     .toprow{
+      min-height:40px;
       display:flex;
       align-items:center;
       justify-content:space-between;
@@ -76,585 +163,648 @@
     .brand{
       display:flex;
       align-items:center;
-      gap:10px;
+      gap:9px;
       min-width:0;
     }
 
     .logo{
-      width:42px;
-      height:42px;
-      border-radius:16px;
+      width:32px;
+      height:32px;
+      min-width:32px;
+      border-radius:10px;
       display:grid;
       place-items:center;
-      background:linear-gradient(145deg,rgba(34,197,94,.95),rgba(56,189,248,.72));
-      color:#03100A;
+      background:var(--text);
+      color:var(--bg);
+      border:1px solid var(--line-strong);
+      font-size:10px;
       font-weight:1000;
-      box-shadow:0 14px 35px rgba(34,197,94,.22);
-      flex:0 0 auto;
+      letter-spacing:-.2px;
+    }
+
+    .brand-copy{
+      min-width:0;
     }
 
     .brand h1{
       margin:0;
-      font-size:17px;
-      letter-spacing:-.4px;
-      line-height:1.05;
+      font-size:14px;
+      line-height:1;
+      letter-spacing:-.3px;
     }
 
     .brand span{
       display:block;
       margin-top:3px;
-      font-size:12px;
-      color:var(--muted);
-      white-space:nowrap;
+      max-width:225px;
       overflow:hidden;
+      color:var(--muted-2);
+      font-size:10px;
+      line-height:1;
       text-overflow:ellipsis;
-      max-width:240px;
+      white-space:nowrap;
     }
 
     .logout{
+      min-height:32px;
+      padding:6px 9px;
       border:1px solid var(--line);
-      background:rgba(255,255,255,.07);
-      color:var(--text);
-      padding:8px 11px;
       border-radius:999px;
-      font-size:12px;
-      font-weight:850;
-      white-space:nowrap;
+      background:var(--surface);
+      color:var(--muted);
+      font-size:9.5px;
+      font-weight:900;
     }
 
-    .progress-wrap{margin-top:12px}
+    .progress-wrap{
+      margin-top:5px;
+    }
+
     .progress-row{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:10px;
-      margin-bottom:7px;
+      margin-bottom:5px;
     }
 
     .progress-row span{
-      font-size:12px;
-      color:var(--muted);
-      font-weight:800;
+      color:var(--muted-2);
+      font-size:9px;
+      font-weight:900;
     }
 
     .bar{
-      height:8px;
-      background:rgba(255,255,255,.09);
-      border:1px solid rgba(255,255,255,.08);
-      border-radius:999px;
+      height:5px;
       overflow:hidden;
+      border-radius:999px;
+      background:var(--surface-3);
     }
 
     .bar div{
-      height:100%;
       width:0;
-      background:linear-gradient(90deg,var(--green),#86EFAC);
-      border-radius:999px;
-      transition:.25s;
+      height:100%;
+      border-radius:inherit;
+      background:var(--green);
+      transition:width .24s ease;
     }
 
     .screen{
       display:none;
-      position:relative;
-      z-index:2;
-      animation:fade .18s ease;
+      animation:screen-in .18s ease;
     }
 
-    .screen.active{display:block}
+    .screen.active{
+      display:block;
+    }
 
-    @keyframes fade{
-      from{opacity:.45;transform:translateY(4px)}
-      to{opacity:1;transform:none}
+    @keyframes screen-in{
+      from{
+        opacity:.45;
+        transform:translateY(4px);
+      }
+      to{
+        opacity:1;
+        transform:none;
+      }
     }
 
     .hero{
-      padding:4px 2px 8px;
+      padding:13px 2px 8px;
     }
 
     .kicker{
       display:inline-flex;
       align-items:center;
-      gap:8px;
-      padding:7px 10px;
+      gap:7px;
+      margin-bottom:9px;
+      padding:5px 8px;
+      border:1px solid color-mix(in srgb,var(--green) 24%,transparent);
       border-radius:999px;
-      border:1px solid rgba(34,197,94,.28);
-      background:rgba(34,197,94,.10);
-      color:#BBF7D0;
-      font-size:12px;
-      font-weight:850;
-      margin-bottom:12px;
+      background:var(--green-soft);
+      color:var(--green);
+      font-size:9px;
+      font-weight:950;
+      letter-spacing:.25px;
+      text-transform:uppercase;
     }
 
     .pulse{
-      width:8px;
-      height:8px;
+      width:6px;
+      height:6px;
       border-radius:50%;
-      background:var(--green);
-      box-shadow:0 0 0 6px rgba(34,197,94,.13);
+      background:currentColor;
+      box-shadow:0 0 0 4px color-mix(in srgb,var(--green) 14%,transparent);
     }
 
     h2{
       margin:0;
-      font-size:31px;
-      line-height:1.03;
-      letter-spacing:-1.2px;
+      font-size:29px;
+      line-height:1.04;
+      letter-spacing:-1.05px;
     }
 
     .hero p{
-      margin:10px 0 0;
-      color:#CBD5E1;
-      font-size:14px;
-      line-height:1.48;
+      margin:6px 0 0;
+      max-width:360px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.42;
     }
 
     .card{
-      border:1px solid var(--line);
-      background:linear-gradient(180deg,rgba(255,255,255,.105),rgba(255,255,255,.055));
-      box-shadow:var(--shadow);
-      border-radius:var(--radius);
-      padding:14px;
-      backdrop-filter:blur(22px);
-      margin-top:13px;
+      margin-top:9px;
       overflow:hidden;
-      position:relative;
-    }
-
-    .card:before{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:radial-gradient(circle at top right,rgba(255,255,255,.11),transparent 38%);
-      pointer-events:none;
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:var(--surface);
     }
 
     .card-inner{
-      position:relative;
-      z-index:1;
+      padding:12px;
     }
 
     .grid2{
       display:grid;
       grid-template-columns:1fr;
-      gap:10px;
+      gap:9px;
     }
 
     .field{
-      margin-top:11px;
       min-width:0;
+      margin-top:10px;
+    }
+
+    .field:first-child{
+      margin-top:0;
     }
 
     .field label{
       display:block;
-      font-size:12px;
-      color:#CBD5E1;
+      margin:0 0 5px 2px;
+      color:var(--muted);
+      font-size:10px;
       font-weight:850;
-      margin:0 0 6px 3px;
     }
 
-    .input,.select,.textarea{
+    .input,
+    .select,
+    .textarea{
       width:100%;
       min-width:0;
-      max-width:100%;
-      border:1px solid rgba(255,255,255,.13);
-      background:rgba(0,0,0,.20);
+      min-height:44px;
+      padding:9px 11px;
+      border:1px solid var(--line);
+      border-radius:13px;
+      background:var(--surface-2);
       color:var(--text);
       outline:none;
-      border-radius:17px;
-      min-height:50px;
-      padding:12px 13px;
-      font-size:15px;
+      font-size:12px;
     }
 
     .textarea{
-      min-height:82px;
+      min-height:74px;
       resize:vertical;
       line-height:1.4;
     }
 
-    .input:focus,.select:focus,.textarea:focus{
-      border-color:rgba(34,197,94,.55);
-      background:rgba(0,0,0,.28);
+    .input:focus,
+    .select:focus,
+    .textarea:focus{
+      border-color:color-mix(in srgb,var(--green) 48%,var(--line));
+      background:var(--surface);
     }
 
-    .input::placeholder,.textarea::placeholder{
-      color:#64748B;
+    .input::placeholder,
+    .textarea::placeholder{
+      color:var(--muted-2);
     }
 
     .section-title{
-      margin:14px 3px 8px;
       display:flex;
+      align-items:center;
       justify-content:space-between;
       gap:10px;
-      align-items:center;
+      margin:15px 2px 7px;
+    }
+
+    .section-title:first-child{
+      margin-top:0;
     }
 
     .section-title h3{
       margin:0;
-      font-size:14px;
+      font-size:12.5px;
       letter-spacing:-.15px;
     }
 
     .section-title span{
-      font-size:11.5px;
-      color:var(--muted);
-      font-weight:800;
+      color:var(--muted-2);
+      font-size:9.5px;
+      font-weight:850;
       text-align:right;
     }
 
     .chips{
       display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:8px;
-      margin-top:9px;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:7px;
     }
 
     .chips.three{
-      grid-template-columns:repeat(3,1fr);
+      grid-template-columns:repeat(3,minmax(0,1fr));
     }
 
     .chipbtn{
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.06);
-      color:#E2E8F0;
-      border-radius:16px;
-      min-height:47px;
-      padding:9px 8px;
-      font-size:12.5px;
+      min-width:0;
+      min-height:39px;
+      padding:7px 6px;
+      border:1px solid var(--line);
+      border-radius:13px;
+      background:var(--surface-2);
+      color:var(--muted);
+      font-size:10.5px;
       font-weight:850;
-      line-height:1.15;
+      line-height:1.2;
       text-align:center;
     }
 
     .chipbtn.active{
-      background:rgba(34,197,94,.14);
-      border-color:rgba(34,197,94,.42);
-      color:#BBF7D0;
-      box-shadow:0 12px 25px rgba(34,197,94,.08);
-    }
-
-    .pain-grid{
-      display:grid;
-      grid-template-columns:1fr;
-      gap:10px;
-      margin-top:9px;
-    }
-
-    .pain-card{
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(0,0,0,.16);
-      border-radius:18px;
-      padding:10px;
-    }
-
-    .pain-card strong{
-      display:block;
-      font-size:13px;
-      margin-bottom:8px;
+      border-color:color-mix(in srgb,var(--green) 34%,var(--line));
+      background:var(--green-soft);
+      color:var(--green);
+      box-shadow:inset 0 1px 0 color-mix(in srgb,var(--green) 12%,transparent);
     }
 
     .break-row{
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(0,0,0,.16);
-      border-radius:18px;
+      margin-top:8px;
       padding:10px;
-      margin-top:9px;
-      position:relative;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:var(--surface-2);
+    }
+
+    .break-row .section-title{
+      margin-top:0;
     }
 
     .mini-btn{
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.07);
-      color:#E2E8F0;
+      min-height:29px;
+      padding:5px 8px;
+      border:1px solid var(--line);
       border-radius:999px;
-      padding:8px 10px;
-      font-size:12px;
+      background:var(--surface);
+      color:var(--muted);
+      font-size:9px;
       font-weight:900;
     }
 
     .mini-btn.red{
-      border-color:rgba(239,68,68,.22);
-      background:rgba(239,68,68,.10);
-      color:#FECACA;
+      border-color:color-mix(in srgb,var(--red) 20%,var(--line));
+      background:var(--red-soft);
+      color:var(--red);
     }
 
     .safe-note{
-      border:1px solid rgba(245,158,11,.18);
-      background:rgba(245,158,11,.08);
-      color:#FDE68A;
-      border-radius:17px;
-      padding:11px;
-      font-size:12px;
-      line-height:1.4;
-      margin-top:11px;
+      margin-top:10px;
+      padding:10px;
+      border:1px solid color-mix(in srgb,var(--amber) 18%,var(--line));
+      border-radius:14px;
+      background:var(--amber-soft);
+      color:var(--amber);
+      font-size:10.2px;
+      line-height:1.42;
     }
 
     .summary-card{
-      border:1px solid rgba(34,197,94,.22);
-      background:rgba(34,197,94,.08);
-      border-radius:21px;
-      padding:13px;
       margin-top:10px;
+      padding:11px;
+      border:1px solid color-mix(in srgb,var(--green) 20%,var(--line));
+      border-radius:17px;
+      background:var(--green-soft);
     }
 
     .summary-grid{
       display:grid;
-      gap:8px;
+      gap:7px;
     }
 
     .summary-line{
       display:flex;
+      align-items:flex-start;
       justify-content:space-between;
       gap:12px;
-      border-bottom:1px solid rgba(255,255,255,.08);
-      padding-bottom:8px;
+      padding-bottom:7px;
+      border-bottom:1px solid var(--line);
     }
 
     .summary-line:last-child{
-      border-bottom:0;
       padding-bottom:0;
+      border-bottom:0;
     }
 
     .summary-line span{
-      font-size:12px;
       color:var(--muted);
+      font-size:10.3px;
     }
 
     .summary-line strong{
-      font-size:12.5px;
+      max-width:66%;
+      color:var(--text);
+      font-size:10.5px;
+      line-height:1.35;
       text-align:right;
-      color:#E2E8F0;
     }
 
     .status{
       display:none;
-      margin-top:12px;
-      border-radius:16px;
-      padding:11px;
-      font-size:12.5px;
+      margin-top:10px;
+      padding:10px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:var(--surface-2);
+      color:var(--muted);
+      font-size:10.5px;
       line-height:1.4;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.06);
-      color:#E2E8F0;
     }
 
-    .status.show{display:block}
-    .status.good{border-color:rgba(34,197,94,.24);background:rgba(34,197,94,.09);color:#BBF7D0}
-    .status.bad{border-color:rgba(239,68,68,.25);background:rgba(239,68,68,.08);color:#FECACA}
+    .status.show{
+      display:block;
+    }
+
+    .status.good{
+      border-color:color-mix(in srgb,var(--green) 24%,var(--line));
+      background:var(--green-soft);
+      color:var(--green);
+    }
+
+    .status.bad{
+      border-color:color-mix(in srgb,var(--red) 24%,var(--line));
+      background:var(--red-soft);
+      color:var(--red);
+    }
 
     .btnbar{
       position:fixed;
       left:50%;
-      bottom:0;
+      bottom:calc(8px + env(safe-area-inset-bottom));
+      z-index:50;
+      width:calc(100% - 28px);
+      max-width:398px;
+      height:58px;
+      padding:5px 6px;
       transform:translateX(-50%);
-      width:100%;
-      max-width:var(--max);
-      z-index:30;
       display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-      padding:10px 14px calc(10px + env(safe-area-inset-bottom));
-      background:rgba(7,10,15,.88);
-      border-top:1px solid rgba(255,255,255,.10);
-      backdrop-filter:blur(18px);
+      grid-template-columns:104px 1fr;
+      gap:6px;
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:29px;
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.035)),
+        var(--glass);
+      box-shadow:
+        0 16px 40px rgba(0,0,0,.42),
+        inset 0 1px 0 rgba(255,255,255,.21);
+      backdrop-filter:blur(28px) saturate(180%);
+      -webkit-backdrop-filter:blur(28px) saturate(180%);
+    }
+
+    html[data-theme="light"] .btnbar{
+      border-color:rgba(255,255,255,.72);
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.50),rgba(248,248,252,.34)),
+        var(--glass);
+      box-shadow:
+        0 11px 28px rgba(55,55,70,.13),
+        inset 0 1px 0 rgba(255,255,255,.86);
     }
 
     .btn{
-      border:0;
-      border-radius:18px;
-      min-height:53px;
+      min-width:0;
+      min-height:48px;
+      padding:8px 11px;
+      border:1px solid transparent;
+      border-radius:24px;
       display:flex;
       align-items:center;
       justify-content:center;
-      gap:8px;
-      padding:13px 14px;
+      gap:7px;
+      font-size:11px;
       font-weight:950;
       transition:transform .16s ease,opacity .16s ease;
-      user-select:none;
     }
 
-    .btn:active{transform:scale(.985)}
-    .btn.primary{background:linear-gradient(135deg,var(--green),#86EFAC);color:#03100A;box-shadow:0 18px 40px rgba(34,197,94,.24)}
-    .btn.secondary{background:rgba(255,255,255,.08);border:1px solid var(--line);color:var(--text)}
-    .btn:disabled{opacity:.48;cursor:not-allowed;transform:none;box-shadow:none}
+    .btn:active{
+      transform:scale(.985);
+    }
+
+    .btn.primary{
+      background:var(--green);
+      color:#04170A;
+      box-shadow:0 7px 17px color-mix(in srgb,var(--green) 22%,transparent);
+    }
+
+    .btn.secondary{
+      border-color:var(--line);
+      background:var(--surface-2);
+      color:var(--text);
+    }
+
+    .btn:disabled{
+      opacity:.48;
+      cursor:not-allowed;
+      transform:none;
+      box-shadow:none;
+    }
 
     .loader{
-      width:16px;
-      height:16px;
-      border-radius:50%;
-      border:2px solid rgba(3,16,10,.30);
-      border-top-color:#03100A;
       display:none;
+      width:15px;
+      height:15px;
+      border:2px solid rgba(4,23,10,.28);
+      border-top-color:#04170A;
+      border-radius:50%;
       animation:spin .75s linear infinite;
     }
 
-    .btn.loading .loader{display:inline-block}
-
-    @keyframes spin{to{transform:rotate(360deg)}}
-
-    @media(min-width:520px){
-      .grid2{
-        grid-template-columns:1fr 1fr;
-      }
-      .pain-grid{
-        grid-template-columns:1fr 1fr;
-      }
+    .btn.loading .loader{
+      display:inline-block;
     }
 
+    @keyframes spin{
+      to{transform:rotate(360deg)}
+    }
 
-
-    /* ==============================
-       Plan selection + promo unlock
-       ============================== */
     .plan-grid{
       display:grid;
-      gap:10px;
-      margin-top:12px;
+      gap:8px;
+      margin-top:9px;
     }
 
     .plan-card{
       width:100%;
-      border:1px solid rgba(255,255,255,.12);
-      background:
-        radial-gradient(circle at top right,rgba(255,255,255,.12),transparent 38%),
-        rgba(255,255,255,.055);
+      padding:11px;
+      border:1px solid var(--line);
+      border-radius:17px;
+      background:var(--surface-2);
       color:var(--text);
-      border-radius:22px;
-      padding:13px;
       text-align:left;
-      box-shadow:0 16px 42px rgba(0,0,0,.18);
-      backdrop-filter:blur(22px) saturate(160%);
-      cursor:pointer;
     }
 
     .plan-card.active{
-      border-color:rgba(34,197,94,.46);
+      border-color:color-mix(in srgb,var(--green) 36%,var(--line));
       background:
-        radial-gradient(circle at top right,rgba(34,197,94,.18),transparent 40%),
-        rgba(34,197,94,.09);
-      box-shadow:0 18px 48px rgba(34,197,94,.11);
+        linear-gradient(90deg,var(--green-soft),transparent 56%),
+        var(--surface-2);
     }
 
     .plan-top{
       display:flex;
-      justify-content:space-between;
       align-items:flex-start;
+      justify-content:space-between;
       gap:10px;
     }
 
     .plan-top h3{
       margin:0;
-      font-size:17px;
-      letter-spacing:-.35px;
+      font-size:14px;
+      letter-spacing:-.28px;
     }
 
     .plan-price{
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(0,0,0,.18);
+      flex:0 0 auto;
+      padding:5px 7px;
+      border:1px solid var(--line);
       border-radius:999px;
-      padding:6px 9px;
-      font-size:11.5px;
+      background:var(--surface);
+      color:var(--text);
+      font-size:9.2px;
       font-weight:950;
       white-space:nowrap;
     }
 
     .plan-card p{
-      margin:7px 0 0;
-      color:#CBD5E1;
-      font-size:12.5px;
-      line-height:1.38;
+      margin:5px 0 0;
+      color:var(--muted);
+      font-size:10.2px;
+      line-height:1.35;
     }
 
     .plan-features{
       display:grid;
-      gap:6px;
-      margin-top:10px;
+      gap:4px;
+      margin-top:8px;
     }
 
     .plan-features span{
-      display:block;
-      color:#E2E8F0;
-      font-size:12px;
+      color:var(--muted);
+      font-size:9.8px;
       line-height:1.25;
     }
 
     .plan-badge{
       display:inline-flex;
-      width:max-content;
-      margin-top:10px;
+      margin-top:8px;
+      padding:4px 7px;
+      border:1px solid color-mix(in srgb,var(--blue) 22%,var(--line));
       border-radius:999px;
-      padding:6px 9px;
-      font-size:11px;
+      background:var(--blue-soft);
+      color:var(--blue);
+      font-size:8.5px;
       font-weight:950;
-      border:1px solid rgba(56,189,248,.22);
-      background:rgba(56,189,248,.10);
-      color:#BAE6FD;
     }
 
     .plan-badge.green{
-      border-color:rgba(34,197,94,.28);
-      background:rgba(34,197,94,.10);
-      color:#BBF7D0;
+      border-color:color-mix(in srgb,var(--green) 24%,var(--line));
+      background:var(--green-soft);
+      color:var(--green);
     }
 
     .plan-badge.amber{
-      border-color:rgba(245,158,11,.28);
-      background:rgba(245,158,11,.10);
-      color:#FDE68A;
+      border-color:color-mix(in srgb,var(--amber) 24%,var(--line));
+      background:var(--amber-soft);
+      color:var(--amber);
+    }
+
+    .plan-badge.purple{
+      border-color:color-mix(in srgb,var(--purple) 24%,var(--line));
+      background:var(--purple-soft);
+      color:var(--purple);
     }
 
     .promo-box{
-      margin-top:12px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(0,0,0,.16);
-      border-radius:20px;
-      padding:11px;
+      margin-top:10px;
+      padding:10px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:var(--surface-2);
     }
 
     .promo-row{
       display:grid;
       grid-template-columns:1fr auto;
-      gap:8px;
+      gap:7px;
       align-items:end;
     }
 
     .promo-row .btn{
-      min-height:50px;
-      margin-top:0;
-      white-space:nowrap;
+      min-height:42px;
+      border-radius:13px;
+      padding:7px 10px;
     }
 
     .entitlement-msg{
-      margin-top:9px;
-      border-radius:15px;
-      padding:10px;
-      font-size:12px;
+      margin-top:7px;
+      padding:9px;
+      border:1px solid var(--line);
+      border-radius:13px;
+      background:var(--surface);
+      color:var(--muted);
+      font-size:9.8px;
       line-height:1.38;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.06);
-      color:#E2E8F0;
     }
 
     .entitlement-msg.good{
-      border-color:rgba(34,197,94,.26);
-      background:rgba(34,197,94,.09);
-      color:#BBF7D0;
+      border-color:color-mix(in srgb,var(--green) 24%,var(--line));
+      background:var(--green-soft);
+      color:var(--green);
     }
 
     .entitlement-msg.warn{
-      border-color:rgba(245,158,11,.26);
-      background:rgba(245,158,11,.09);
-      color:#FDE68A;
+      border-color:color-mix(in srgb,var(--amber) 24%,var(--line));
+      background:var(--amber-soft);
+      color:var(--amber);
+    }
+
+    @media(min-width:520px){
+      .grid2{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+      }
     }
 
     @media(max-width:390px){
+      .app-shell{
+        padding-left:13px;
+        padding-right:13px;
+      }
+
+      .topbar{
+        margin-left:-13px;
+        margin-right:-13px;
+        padding-left:13px;
+        padding-right:13px;
+      }
+
       .chips.three{
-        grid-template-columns:1fr 1fr;
+        grid-template-columns:repeat(2,minmax(0,1fr));
       }
+
       h2{
-        font-size:28px;
+        font-size:27px;
       }
+
       .brand span{
-        max-width:200px;
+        max-width:185px;
       }
     }
   </style>
@@ -666,12 +816,13 @@
       <header class="topbar">
         <div class="toprow">
           <a href="index.html" class="brand">
-            <div class="logo">FA</div>
-            <div>
-              <h1>FitApp Setup</h1>
+            <div class="logo">SC</div>
+            <div class="brand-copy">
+              <h1>ShapeCue Setup</h1>
               <span id="topSub">Fitness that fits your day</span>
             </div>
           </a>
+
           <button class="logout" id="logoutBtn" type="button">Logout</button>
         </div>
 
@@ -688,7 +839,7 @@
         <div class="hero">
           <div class="kicker"><span class="pulse"></span><span>Basic profile</span></div>
           <h2>Start with your basics.</h2>
-          <p>Date of birth lets FitApp calculate age automatically every year.</p>
+          <p>Your date of birth lets ShapeCue calculate your age automatically.</p>
         </div>
 
         <div class="card">
@@ -703,6 +854,7 @@
                 <label>Date of birth</label>
                 <input class="input" id="dateOfBirth" type="date" />
               </div>
+
               <div class="field">
                 <label>Gender</label>
                 <select class="select" id="gender">
@@ -719,6 +871,7 @@
                 <label>Height cm</label>
                 <input class="input" id="heightCm" type="number" step="0.1" placeholder="175" />
               </div>
+
               <div class="field">
                 <label>Current weight</label>
                 <input class="input" id="startingWeight" type="number" step="0.1" placeholder="70" />
@@ -740,7 +893,7 @@
         <div class="hero">
           <div class="kicker"><span class="pulse"></span><span>Measurements</span></div>
           <h2>Set your baseline.</h2>
-          <p>These help the AI coach track changes properly.</p>
+          <p>These measurements help your AI coach track meaningful changes.</p>
         </div>
 
         <div class="card">
@@ -769,7 +922,7 @@
         <div class="hero">
           <div class="kicker"><span class="pulse"></span><span>Goals</span></div>
           <h2>Choose your goals.</h2>
-          <p>Pick more than one. The AI coach will prioritize them.</p>
+          <p>Select everything that matters. ShapeCue will prioritize the full picture.</p>
         </div>
 
         <div class="card">
@@ -783,7 +936,7 @@
               <button class="chipbtn" data-value="improve_strength">Improve strength</button>
               <button class="chipbtn" data-value="improve_posture">Improve posture</button>
               <button class="chipbtn" data-value="improve_stamina">Improve stamina</button>
-              <button class="chipbtn" data-value="glutes_legs_shape">Glutes/legs shape</button>
+              <button class="chipbtn" data-value="glutes_legs_shape">Glutes / legs shape</button>
               <button class="chipbtn" data-value="reduce_bloating">Reduce bloating</button>
             </div>
 
@@ -800,7 +953,7 @@
 
             <div class="field" id="bodyCustomWrap" style="display:none">
               <label>Describe body type</label>
-              <input class="input" id="bodyTypeCustom" placeholder="Example: skinny arms but belly, weak posture..." />
+              <input class="input" id="bodyTypeCustom" placeholder="Example: skinny arms but belly, weak posture" />
             </div>
           </div>
         </div>
@@ -810,7 +963,7 @@
         <div class="hero">
           <div class="kicker"><span class="pulse"></span><span>Workout</span></div>
           <h2>When can you train?</h2>
-          <p>Workout days come before work schedule because some people train on workdays too.</p>
+          <p>Choose the schedule and equipment that fit your real week.</p>
         </div>
 
         <div class="card">
@@ -840,7 +993,11 @@
             </div>
 
             <div class="grid2">
-              <div class="field"><label>Preferred workout time</label><input class="input" id="preferredTime" type="time" /></div>
+              <div class="field">
+                <label>Preferred workout time</label>
+                <input class="input" id="preferredTime" type="time" />
+              </div>
+
               <div class="field">
                 <label>Time available</label>
                 <select class="select" id="maxMinutes">
@@ -886,17 +1043,17 @@
 
             <div class="field">
               <label>Favourite exercises</label>
-              <textarea class="textarea" id="favouriteExercises" placeholder="Example: chest press, leg press, lat pulldown, hip thrust..."></textarea>
+              <textarea class="textarea" id="favouriteExercises" placeholder="Example: chest press, leg press, lat pulldown"></textarea>
             </div>
 
             <div class="field">
               <label>Exercises you dislike</label>
-              <textarea class="textarea" id="dislikedExercises" placeholder="Example: running, burpees, heavy squats..."></textarea>
+              <textarea class="textarea" id="dislikedExercises" placeholder="Example: running, burpees, heavy squats"></textarea>
             </div>
 
             <div class="field">
               <label>Exercises to avoid</label>
-              <textarea class="textarea" id="exercisesToAvoid" placeholder="Example: deadlift, back extension, jumping, heavy bending..."></textarea>
+              <textarea class="textarea" id="exercisesToAvoid" placeholder="Example: deadlift, back extension, jumping"></textarea>
             </div>
           </div>
         </div>
@@ -906,12 +1063,12 @@
         <div class="hero">
           <div class="kicker"><span class="pulse"></span><span>Pain safety</span></div>
           <h2>Tell us pain areas.</h2>
-          <p>The AI coach should reduce or avoid risky exercises.</p>
+          <p>Your plan will reduce or avoid risky exercises.</p>
         </div>
 
         <div class="card">
           <div class="card-inner">
-            <div class="section-title"><h3>Pain / injury areas</h3><span>Pick any</span></div>
+            <div class="section-title"><h3>Pain or injury areas</h3><span>Pick any</span></div>
             <div class="chips three" data-multi="painAreas">
               <button class="chipbtn" data-value="none">None</button>
               <button class="chipbtn" data-value="lower_back">Lower back</button>
@@ -929,18 +1086,18 @@
                 <option value="">Select pain level</option>
                 <option value="0">0 - No pain</option>
                 <option value="1-2">1-2 - Mild, manageable</option>
-                <option value="3-4">3-4 - Careful, reduce intensity</option>
+                <option value="3-4">3-4 - Reduce intensity</option>
                 <option value="5+">5+ - Avoid risky movements</option>
               </select>
             </div>
 
             <div class="field">
               <label>Pain notes</label>
-              <textarea class="textarea" id="injuryNotes" placeholder="Example: lower back pain after bending, knee pain on lunges..."></textarea>
+              <textarea class="textarea" id="injuryNotes" placeholder="Example: lower back pain after bending"></textarea>
             </div>
 
             <div class="safe-note">
-              If pain is sharp, spreading down leg/arm, numbness, weakness, or bowel/bladder issue, user should get medical help. FitApp is not medical advice.
+              Sharp pain, spreading pain, numbness, weakness, or bowel or bladder changes need medical attention. ShapeCue is not medical advice.
             </div>
           </div>
         </div>
@@ -984,17 +1141,19 @@
             </div>
 
             <div class="section-title">
-              <h3>Breaks / snack times</h3>
+              <h3>Breaks and snack times</h3>
               <span>Unlimited</span>
             </div>
 
             <div id="breakList"></div>
 
-            <button class="btn secondary" id="addBreakBtn" type="button" style="width:100%;margin-top:10px">+ Add another break</button>
+            <button class="btn secondary" id="addBreakBtn" type="button" style="width:100%;min-height:42px;border-radius:13px;margin-top:9px">
+              Add another break
+            </button>
 
             <div class="field">
               <label>Work notes</label>
-              <textarea class="textarea" id="workNotes" placeholder="Example: I can eat full meal only at lunch, small snacks during short breaks."></textarea>
+              <textarea class="textarea" id="workNotes" placeholder="Example: full meal only at lunch, small snacks during short breaks"></textarea>
             </div>
           </div>
         </div>
@@ -1004,13 +1163,25 @@
         <div class="hero">
           <div class="kicker"><span class="pulse"></span><span>Food preferences</span></div>
           <h2>Foods you actually eat.</h2>
-          <p>This is where the AI coach becomes personal.</p>
+          <p>Choose diet type first, then add cuisine and food preferences.</p>
         </div>
 
         <div class="card">
           <div class="card-inner">
-            <div class="section-title"><h3>Food styles</h3><span>Pick any</span></div>
+            <div class="section-title"><h3>Diet type</h3><span>Pick one</span></div>
+            <div class="chips" data-single="dietType">
+              <button class="chipbtn" data-value="vegetarian">Vegetarian</button>
+              <button class="chipbtn" data-value="eggs_ok">Vegetarian + eggs</button>
+              <button class="chipbtn" data-value="chicken_ok">Chicken allowed</button>
+              <button class="chipbtn" data-value="no_restriction">No restriction</button>
+            </div>
+
+            <div class="section-title"><h3>Cuisine preferences</h3><span>Pick any</span></div>
             <div class="chips" data-multi="foodStyles">
+              <button class="chipbtn" data-value="simple_home_food">Simple home food</button>
+              <button class="chipbtn" data-value="mixed">Mixed</button>
+              <button class="chipbtn" data-value="western_gym_food">Western gym food</button>
+              <button class="chipbtn" data-value="mediterranean">Mediterranean</button>
               <button class="chipbtn" data-value="punjabi">Punjabi</button>
               <button class="chipbtn" data-value="indian">Indian</button>
               <button class="chipbtn" data-value="gujarati">Gujarati</button>
@@ -1019,24 +1190,12 @@
               <button class="chipbtn" data-value="chinese">Chinese</button>
               <button class="chipbtn" data-value="mexican">Mexican</button>
               <button class="chipbtn" data-value="spanish">Spanish</button>
-              <button class="chipbtn" data-value="mediterranean">Mediterranean</button>
-              <button class="chipbtn" data-value="western_gym_food">Western gym food</button>
-              <button class="chipbtn" data-value="simple_home_food">Simple home food</button>
-              <button class="chipbtn" data-value="mixed">Mixed</button>
               <button class="chipbtn" data-value="custom">Other</button>
             </div>
 
             <div class="field" id="foodCustomWrap" style="display:none">
               <label>Custom food style</label>
-              <input class="input" id="foodStyleCustom" placeholder="Example: Punjabi + Canadian simple meals" />
-            </div>
-
-            <div class="section-title"><h3>Diet type</h3><span>Pick one</span></div>
-            <div class="chips" data-single="dietType">
-              <button class="chipbtn" data-value="vegetarian">Vegetarian</button>
-              <button class="chipbtn" data-value="eggs_ok">Eggs ok</button>
-              <button class="chipbtn" data-value="chicken_ok">Chicken ok</button>
-              <button class="chipbtn" data-value="no_restriction">No restriction</button>
+              <input class="input" id="foodStyleCustom" placeholder="Example: Punjabi and simple Canadian meals" />
             </div>
 
             <div class="section-title"><h3>Protein preferences</h3><span>Pick any</span></div>
@@ -1048,7 +1207,7 @@
               <button class="chipbtn" data-value="tofu">Tofu</button>
               <button class="chipbtn" data-value="soya">Soya chunks</button>
               <button class="chipbtn" data-value="dal">Dal</button>
-              <button class="chipbtn" data-value="chana_rajma">Chana/Rajma</button>
+              <button class="chipbtn" data-value="chana_rajma">Chana / Rajma</button>
               <button class="chipbtn" data-value="greek_yogurt">Greek yogurt</button>
               <button class="chipbtn" data-value="homemade_curd">Homemade curd</button>
               <button class="chipbtn" data-value="milk">Milk</button>
@@ -1072,29 +1231,29 @@
               <button class="chipbtn" data-value="false">No smoothies</button>
             </div>
 
-            <div class="chips" data-single="usesWheyProtein">
+            <div class="chips" data-single="usesWheyProtein" style="margin-top:7px">
               <button class="chipbtn" data-value="true">I use whey</button>
               <button class="chipbtn" data-value="false">No whey</button>
             </div>
 
             <div class="field">
               <label>Smoothie details</label>
-              <textarea class="textarea" id="smoothieDetails" placeholder="Example: milk, banana, whey, oats, peanut butter, berries, dates..."></textarea>
+              <textarea class="textarea" id="smoothieDetails" placeholder="Example: milk, banana, whey, oats, peanut butter"></textarea>
             </div>
 
             <div class="field">
               <label>Usual foods</label>
-              <textarea class="textarea" id="usualFoods" placeholder="Example: roti, dal, sabji, curd, oats, eggs, paneer, tofu, chicken..."></textarea>
+              <textarea class="textarea" id="usualFoods" placeholder="Example: roti, dal, sabji, curd, oats, eggs"></textarea>
             </div>
 
             <div class="field">
               <label>Favourite foods</label>
-              <textarea class="textarea" id="favouriteFoods" placeholder="Foods you like and want AI to use often."></textarea>
+              <textarea class="textarea" id="favouriteFoods" placeholder="Foods you want ShapeCue to use often"></textarea>
             </div>
 
             <div class="field">
               <label>Disliked foods</label>
-              <textarea class="textarea" id="dislikedFoods" placeholder="Foods you do not like. AI should avoid them."></textarea>
+              <textarea class="textarea" id="dislikedFoods" placeholder="Foods ShapeCue should avoid"></textarea>
             </div>
 
             <div class="section-title"><h3>Allergies</h3><span>Hard block</span></div>
@@ -1112,7 +1271,7 @@
 
             <div class="field">
               <label>Other foods to avoid</label>
-              <textarea class="textarea" id="avoidFoods" placeholder="Example: mushrooms, onion, garlic, peanuts, lactose..."></textarea>
+              <textarea class="textarea" id="avoidFoods" placeholder="Example: mushrooms, onion, garlic, lactose"></textarea>
             </div>
 
             <div class="section-title"><h3>Bloating triggers</h3><span>Pick any</span></div>
@@ -1121,7 +1280,7 @@
               <button class="chipbtn" data-value="cola">Cola</button>
               <button class="chipbtn" data-value="late_heavy_dinner">Late heavy dinner</button>
               <button class="chipbtn" data-value="too_much_dairy">Too much dairy</button>
-              <button class="chipbtn" data-value="beans_chana_rajma">Beans/Chana/Rajma</button>
+              <button class="chipbtn" data-value="beans_chana_rajma">Beans / Chana / Rajma</button>
               <button class="chipbtn" data-value="spicy_food">Spicy food</button>
               <button class="chipbtn" data-value="unknown">Not sure</button>
             </div>
@@ -1136,12 +1295,12 @@
 
             <div class="field">
               <label>Snack preferences</label>
-              <textarea class="textarea" id="snackPreferences" placeholder="Example: banana, roasted chana, eggs, yogurt, protein bar, whey..."></textarea>
+              <textarea class="textarea" id="snackPreferences" placeholder="Example: banana, roasted chana, yogurt, whey"></textarea>
             </div>
 
             <div class="field">
               <label>Dinner preference</label>
-              <textarea class="textarea" id="dinnerPreference" placeholder="Example: 2 roti + protein + sabji, lighter dinner, no rice at night..."></textarea>
+              <textarea class="textarea" id="dinnerPreference" placeholder="Example: lighter dinner, two roti, no rice at night"></textarea>
             </div>
           </div>
         </div>
@@ -1151,7 +1310,7 @@
         <div class="hero">
           <div class="kicker"><span class="pulse"></span><span>Water and review</span></div>
           <h2>Review your setup.</h2>
-          <p>Set water tracking by bottle. Then save and open your dashboard.</p>
+          <p>Choose water tracking and the coaching level you want to preview.</p>
         </div>
 
         <div class="card">
@@ -1166,6 +1325,7 @@
                   <option value="1500">1.5 L</option>
                 </select>
               </div>
+
               <div class="field">
                 <label>Daily water target</label>
                 <select class="select" id="dailyTargetLiters">
@@ -1179,78 +1339,86 @@
               </div>
             </div>
 
-
             <div class="section-title">
               <h3>Choose your plan</h3>
-              <span>Payment later</span>
+              <span>Promo access works now</span>
             </div>
 
             <div class="plan-grid" id="planGrid">
               <button class="plan-card active" type="button" data-plan-card="free">
                 <div class="plan-top">
-                  <h3>Free User</h3>
+                  <h3>Free</h3>
                   <span class="plan-price">$0</span>
                 </div>
-                <p>Best for trying FitApp before upgrading.</p>
+                <p>Try ShapeCue with essential daily guidance.</p>
                 <div class="plan-features">
-                  <span>✓ Starter plan</span>
-                  <span>✓ Today meals + workout view</span>
-                  <span>✓ Basic exercise guide</span>
-                  <span>✕ No progress photos</span>
-                  <span>✕ No PDF export</span>
+                  <span>Starter plan and Today page</span>
+                  <span>Basic exercise guide</span>
+                  <span>No ongoing AI updates</span>
                 </div>
                 <span class="plan-badge green">Selected</span>
+              </button>
+
+              <button class="plan-card" type="button" data-plan-card="plus">
+                <div class="plan-top">
+                  <h3>Plus</h3>
+                  <span class="plan-price">$5.99 / month</span>
+                </div>
+                <p>Full weekly planning with a monthly AI update.</p>
+                <div class="plan-features">
+                  <span>Full 7-day meals and workouts</span>
+                  <span>Basic grocery list and PDF</span>
+                  <span>Limited replacements</span>
+                </div>
+                <span class="plan-badge amber">Promo required</span>
               </button>
 
               <button class="plan-card" type="button" data-plan-card="premium">
                 <div class="plan-top">
                   <h3>Premium</h3>
-                  <span class="plan-price">$6.99/mo</span>
+                  <span class="plan-price">$9.99 / month</span>
                 </div>
-                <p>Full weekly plan for consistent users.</p>
+                <p>More frequent coaching and deeper progress tools.</p>
                 <div class="plan-features">
-                  <span>✓ Full week meals + workouts</span>
-                  <span>✓ Grocery list + PDF export</span>
-                  <span>✓ Exercise photos/videos</span>
-                  <span>✓ Limited progress photos</span>
-                  <span>✓ Biweekly AI update</span>
+                  <span>AI update every 14 days</span>
+                  <span>Exercise media and progress review</span>
+                  <span>Limited progress photos</span>
                 </div>
-                <span class="plan-badge amber">Use promo for now</span>
+                <span class="plan-badge amber">Promo required</span>
               </button>
 
-              <button class="plan-card" type="button" data-plan-card="premium_plus">
+              <button class="plan-card" type="button" data-plan-card="coach">
                 <div class="plan-top">
-                  <h3>Premium Plus</h3>
-                  <span class="plan-price">$9.99/mo</span>
+                  <h3>Coach</h3>
+                  <span class="plan-price">$14.99 / month</span>
                 </div>
-                <p>Best AI coach version with weekly updates.</p>
+                <p>Weekly AI coaching and the full ShapeCue experience.</p>
                 <div class="plan-features">
-                  <span>✓ Weekly AI plan update</span>
-                  <span>✓ Smart meal replacements</span>
-                  <span>✓ Smart workout replacements</span>
-                  <span>✓ Progress photos</span>
-                  <span>✓ Advanced weekly review</span>
+                  <span>Weekly AI plan update</span>
+                  <span>Smart replacements and photo analysis</span>
+                  <span>Advanced review and plan-change reasons</span>
                 </div>
-                <span class="plan-badge">Best plan</span>
+                <span class="plan-badge purple">Best coaching</span>
               </button>
             </div>
 
             <div class="promo-box">
               <div class="section-title" style="margin-top:0">
                 <h3>Have a promo code?</h3>
-                <span>Unlock paid plan free</span>
+                <span>Unlock paid access</span>
               </div>
 
               <div class="promo-row">
                 <div class="field" style="margin-top:0">
                   <label>Promo code</label>
-                  <input class="input" id="promoCodeInput" placeholder="Example: FITPLUS30" />
+                  <input class="input" id="promoCodeInput" placeholder="Example: COACH30" />
                 </div>
+
                 <button class="btn secondary" id="applyPromoBtn" type="button">Apply</button>
               </div>
 
               <div class="entitlement-msg" id="entitlementMsg">
-                Free User selected. Premium payment will be added later. Promo code can unlock Premium or Premium Plus now.
+                Free is active. Paid checkout will be connected later; promo codes can unlock paid plans now.
               </div>
             </div>
 
@@ -1259,8 +1427,7 @@
             </div>
 
             <div class="safe-note">
-              FitApp gives general fitness and nutrition guidance only. It is not medical advice.
-              Allergy settings are treated as hard blocks.
+              ShapeCue provides general fitness and nutrition guidance. It is not medical advice. Allergy settings are treated as hard blocks.
             </div>
 
             <div class="status" id="statusBox"></div>
@@ -1278,827 +1445,1616 @@
     </main>
   </div>
 
-<script>
-  const SUPABASE_URL = "https://qusmbveovroldkhbjudq.supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_6zVS1VCVok16WmVWNPvTrw_vTiQvgX4";
+  <script>
+    const SUPABASE_URL = "https://qusmbveovroldkhbjudq.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_6zVS1VCVok16WmVWNPvTrw_vTiQvgX4";
 
-  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  const $ = q => document.querySelector(q);
-  const $$ = q => Array.from(document.querySelectorAll(q));
-
-  let currentStep = 0;
-  const totalSteps = 8;
-  let currentUser = null;
-  let saving = false;
-  let breaksData = [];
-  let selectedPlanCode = "free";
-  let currentEntitlement = null;
-
-  function calculateAge(dob){
-    if(!dob) return null;
-    const birth = new Date(dob);
-    const today = new Date();
-    let age = today.getFullYear() - birth.getFullYear();
-    const m = today.getMonth() - birth.getMonth();
-    if(m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-    return age;
-  }
-
-  function showStatus(message, type){
-    const box = $("#statusBox");
-    if(!box) return;
-    box.textContent = message || "";
-    box.className = "status";
-    if(message){
-      box.classList.add("show");
-      if(type) box.classList.add(type);
-    }
-  }
-
-  function setLoading(isLoading){
-    saving = isLoading;
-    $("#nextBtn").disabled = isLoading;
-    $("#nextBtn").classList.toggle("loading", isLoading);
-    $("#backBtn").disabled = isLoading;
-  }
-
-
-  async function getAccessToken(){
-    const { data } = await supabaseClient.auth.getSession();
-    return data?.session?.access_token || "";
-  }
-
-  function planName(code){
-    if(code === "premium_plus") return "Premium Plus";
-    if(code === "premium") return "Premium";
-    return "Free User";
-  }
-
-  function setEntitlementMessage(message, type = ""){
-    const box = $("#entitlementMsg");
-    if(!box) return;
-
-    box.textContent = message || "";
-    box.className = "entitlement-msg";
-
-    if(type){
-      box.classList.add(type);
-    }
-  }
-
-  function renderPlanSelection(){
-    $$("[data-plan-card]").forEach(card => {
-      const active = card.dataset.planCard === selectedPlanCode;
-      card.classList.toggle("active", active);
-
-      const badge = card.querySelector(".plan-badge");
-      if(!badge) return;
-
-      badge.classList.remove("green", "amber");
-
-      if(active){
-        badge.textContent = currentEntitlement?.plan_code === card.dataset.planCard && card.dataset.planCard !== "free"
-          ? "Unlocked"
-          : "Selected";
-        badge.classList.add("green");
-        return;
-      }
-
-      if(card.dataset.planCard === "premium"){
-        badge.textContent = "Use promo for now";
-        badge.classList.add("amber");
-      }else if(card.dataset.planCard === "premium_plus"){
-        badge.textContent = "Best plan";
-      }else{
-        badge.textContent = "Starter";
-      }
-    });
-  }
-
-  async function fetchEntitlement(){
-    const token = await getAccessToken();
-
-    if(!token){
-      throw new Error("Login session expired. Please login again.");
-    }
-
-    const res = await fetch("/.netlify/functions/get-entitlement", {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
-    });
-
-    const result = await res.json();
-
-    if(!res.ok || !result.ok){
-      throw new Error(result.error || "Could not check plan.");
-    }
-
-    currentEntitlement = result.entitlement || null;
-    selectedPlanCode = currentEntitlement?.plan_code || "free";
-
-    setEntitlementMessage(
-      `${planName(selectedPlanCode)} is active for this account.`,
-      selectedPlanCode === "free" ? "" : "good"
+    const supabaseClient = supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY
     );
 
-    renderPlanSelection();
-    return currentEntitlement;
-  }
+    const $ = selector => document.querySelector(selector);
+    const $$ = selector => Array.from(document.querySelectorAll(selector));
 
-  async function redeemPromoCode(){
-    const code = ($("#promoCodeInput")?.value || "").trim();
+    let currentStep = 0;
+    const totalSteps = 8;
+    let currentUser = null;
+    let saving = false;
+    let breaksData = [];
+    let selectedPlanCode = "free";
+    let currentEntitlement = null;
 
-    if(!code){
-      setEntitlementMessage("Enter a promo code first.", "warn");
-      return;
-    }
+    function calculateAge(dob){
+      if(!dob) return null;
 
-    const token = await getAccessToken();
+      const birth = new Date(dob);
+      const today = new Date();
+      let age = today.getFullYear() - birth.getFullYear();
+      const monthDifference = today.getMonth() - birth.getMonth();
 
-    if(!token){
-      throw new Error("Login session expired. Please login again.");
-    }
-
-    const applyBtn = $("#applyPromoBtn");
-    applyBtn.disabled = true;
-    applyBtn.textContent = "Applying...";
-
-    try{
-      const res = await fetch("/.netlify/functions/redeem-promo", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({ code })
-      });
-
-      const result = await res.json();
-
-      if(!res.ok || !result.ok){
-        throw new Error(result.error || "Promo code failed.");
+      if(
+        monthDifference < 0 ||
+        (
+          monthDifference === 0 &&
+          today.getDate() < birth.getDate()
+        )
+      ){
+        age--;
       }
 
-      currentEntitlement = result.entitlement || null;
-      selectedPlanCode = currentEntitlement?.plan_code || "free";
-
-      setEntitlementMessage(
-        result.message || `${planName(selectedPlanCode)} unlocked.`,
-        "good"
-      );
-
-      renderPlanSelection();
-    }catch(err){
-      setEntitlementMessage(err.message || "Could not apply promo code.", "warn");
-    }finally{
-      applyBtn.disabled = false;
-      applyBtn.textContent = "Apply";
-    }
-  }
-
-  async function ensurePlanBeforeSave(){
-    if(currentEntitlement?.plan_code && currentEntitlement.plan_code !== "free"){
-      selectedPlanCode = currentEntitlement.plan_code;
-      return currentEntitlement;
+      return age;
     }
 
-    const entitlement = await fetchEntitlement();
-    selectedPlanCode = entitlement?.plan_code || "free";
-    return entitlement;
-  }
+    function normalizePlanCode(code){
+      const value = String(code || "free").toLowerCase();
 
-  function initPlanPicker(){
-    $$("[data-plan-card]").forEach(card => {
-      card.addEventListener("click", () => {
-        const plan = card.dataset.planCard;
+      if([
+        "premium_plus",
+        "premium_plus_weekly",
+        "coach"
+      ].includes(value)){
+        return "coach";
+      }
 
-        if(plan === "free"){
-          selectedPlanCode = "free";
-          setEntitlementMessage("Free User selected. You can upgrade later or use promo code now.");
-        }else{
-          selectedPlanCode = plan;
-          setEntitlementMessage(`${planName(plan)} selected. Payment is not connected yet, so use a promo code to unlock it now or continue with Free.`, "warn");
+      if([
+        "premium",
+        "premium_biweekly"
+      ].includes(value)){
+        return "premium";
+      }
+
+      if([
+        "plus",
+        "premium_monthly"
+      ].includes(value)){
+        return "plus";
+      }
+
+      return "free";
+    }
+
+    function planName(code){
+      const normalized = normalizePlanCode(code);
+
+      if(normalized === "coach") return "Coach";
+      if(normalized === "premium") return "Premium";
+      if(normalized === "plus") return "Plus";
+      return "Free";
+    }
+
+    function showStatus(message, type){
+      const box = $("#statusBox");
+
+      if(!box) return;
+
+      box.textContent = message || "";
+      box.className = "status";
+
+      if(message){
+        box.classList.add("show");
+
+        if(type){
+          box.classList.add(type);
         }
-
-        renderPlanSelection();
-      });
-    });
-
-    $("#applyPromoBtn")?.addEventListener("click", redeemPromoCode);
-    $("#promoCodeInput")?.addEventListener("keydown", e => {
-      if(e.key === "Enter") redeemPromoCode();
-    });
-  }
-
-  function selectedSingle(name){
-    const active = $(`[data-single="${name}"] .chipbtn.active`);
-    return active ? active.dataset.value : "";
-  }
-
-  function selectedMulti(name){
-    const arr = $$(`[data-multi="${name}"] .chipbtn.active`).map(b => b.dataset.value);
-    if(arr.includes("none") && arr.length > 1) return arr.filter(x => x !== "none");
-    return arr;
-  }
-
-  function boolSingle(name){
-    return selectedSingle(name) === "true";
-  }
-
-  function setSingle(name, value){
-    $$(`[data-single="${name}"] .chipbtn`).forEach(b => {
-      b.classList.toggle("active", b.dataset.value === String(value));
-    });
-    handleCustomVisibility();
-  }
-
-  function setMulti(name, values){
-    const set = new Set(values || []);
-    $$(`[data-multi="${name}"] .chipbtn`).forEach(b => {
-      b.classList.toggle("active", set.has(b.dataset.value));
-    });
-    handleCustomVisibility();
-  }
-
-  function textListToArray(value){
-    return String(value || "")
-      .split(/,|\n/)
-      .map(x => x.trim())
-      .filter(Boolean);
-  }
-
-  function handleCustomVisibility(){
-    $("#bodyCustomWrap").style.display = selectedSingle("bodyType") === "custom" ? "block" : "none";
-    $("#foodCustomWrap").style.display = selectedMulti("foodStyles").includes("custom") ? "block" : "none";
-  }
-
-  function renderBreaks(){
-    const list = $("#breakList");
-
-    if(!breaksData.length){
-      list.innerHTML = `<div class="safe-note">No break added yet. Add work snacks, lunch, coffee, or any small eating window.</div>`;
-      return;
-    }
-
-    list.innerHTML = breaksData.map((b, i) => `
-      <div class="break-row" data-break-index="${i}">
-        <div class="section-title" style="margin-top:0">
-          <h3>Break ${i + 1}</h3>
-          <button class="mini-btn red" type="button" data-remove-break="${i}">Remove</button>
-        </div>
-
-        <div class="grid2">
-          <div class="field">
-            <label>Break time</label>
-            <input class="input break-time" type="time" value="${b.time || ""}">
-          </div>
-          <div class="field">
-            <label>Duration</label>
-            <select class="select break-duration">
-              <option value="3" ${b.duration == 3 ? "selected" : ""}>3 min</option>
-              <option value="5" ${b.duration == 5 ? "selected" : ""}>5 min</option>
-              <option value="10" ${b.duration == 10 ? "selected" : ""}>10 min</option>
-              <option value="15" ${b.duration == 15 ? "selected" : ""}>15 min</option>
-              <option value="30" ${b.duration == 30 ? "selected" : ""}>30 min</option>
-              <option value="45" ${b.duration == 45 ? "selected" : ""}>45 min</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="grid2">
-          <div class="field">
-            <label>Break type</label>
-            <select class="select break-type">
-              <option value="small_snack" ${b.type === "small_snack" ? "selected" : ""}>Small snack</option>
-              <option value="meal" ${b.type === "meal" ? "selected" : ""}>Meal</option>
-              <option value="coffee" ${b.type === "coffee" ? "selected" : ""}>Coffee</option>
-              <option value="lunch" ${b.type === "lunch" ? "selected" : ""}>Lunch</option>
-              <option value="dinner" ${b.type === "dinner" ? "selected" : ""}>Dinner</option>
-              <option value="custom" ${b.type === "custom" ? "selected" : ""}>Custom</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Full meal possible?</label>
-            <select class="select break-full-meal">
-              <option value="false" ${!b.full_meal ? "selected" : ""}>No</option>
-              <option value="true" ${b.full_meal ? "selected" : ""}>Yes</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="field">
-          <label>Break note</label>
-          <input class="input break-note" value="${b.note || ""}" placeholder="Example: only banana possible, or full lunch box">
-        </div>
-      </div>
-    `).join("");
-
-    $$("[data-remove-break]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        syncBreakInputs();
-        breaksData.splice(Number(btn.dataset.removeBreak), 1);
-        renderBreaks();
-      });
-    });
-
-    $$(".break-row input, .break-row select").forEach(el => {
-      el.addEventListener("input", syncBreakInputs);
-      el.addEventListener("change", syncBreakInputs);
-    });
-  }
-
-  function syncBreakInputs(){
-    $$(".break-row").forEach(row => {
-      const i = Number(row.dataset.breakIndex);
-      breaksData[i] = {
-        time: row.querySelector(".break-time").value || "",
-        duration: Number(row.querySelector(".break-duration").value || 10),
-        type: row.querySelector(".break-type").value || "small_snack",
-        full_meal: row.querySelector(".break-full-meal").value === "true",
-        note: row.querySelector(".break-note").value.trim()
-      };
-    });
-  }
-
-  function getBreaks(){
-    syncBreakInputs();
-    return breaksData.filter(b => b.time);
-  }
-
-  function userData(){
-    const dob = $("#dateOfBirth").value || null;
-    const mainGoals = selectedMulti("mainGoals");
-    const foodStyles = selectedMulti("foodStyles");
-    const preferredProteins = selectedMulti("preferredProteins");
-    const preferredCarbs = selectedMulti("preferredCarbs");
-
-    return {
-      profile: {
-        full_name: $("#fullName").value.trim(),
-        date_of_birth: dob,
-        age: calculateAge(dob),
-        gender: $("#gender").value,
-        height_cm: $("#heightCm").value ? Number($("#heightCm").value) : null,
-        starting_weight: $("#startingWeight").value ? Number($("#startingWeight").value) : null,
-        weight_unit: $("#weightUnit").value,
-        main_goals: mainGoals,
-        main_goal: mainGoals[0] || "",
-        body_type: selectedSingle("bodyType"),
-        body_type_custom: $("#bodyTypeCustom").value.trim()
-      },
-      measurement: {
-        entry_date: new Date().toISOString().slice(0,10),
-        weight: $("#startingWeight").value ? Number($("#startingWeight").value) : null,
-        waist: $("#waist").value ? Number($("#waist").value) : null,
-        chest: $("#chest").value ? Number($("#chest").value) : null,
-        hips: $("#hips").value ? Number($("#hips").value) : null,
-        thigh: $("#thigh").value ? Number($("#thigh").value) : null,
-        biceps: $("#biceps").value ? Number($("#biceps").value) : null,
-        neck: $("#neck").value ? Number($("#neck").value) : null,
-        unit: $("#measureUnit").value,
-        notes: "Onboarding baseline"
-      },
-      workout: {
-        workout_place: selectedSingle("workoutPlace"),
-        workout_days: selectedMulti("workoutDays"),
-        workout_on_work_days: selectedSingle("workoutOnWorkDays") === "true",
-        preferred_time: $("#preferredTime").value || null,
-        max_minutes: $("#maxMinutes").value ? Number($("#maxMinutes").value) : null,
-        preferred_split: selectedSingle("preferredSplit"),
-        experience_level: $("#experienceLevel").value,
-        equipment: selectedMulti("equipment"),
-        pain_areas: selectedMulti("painAreas"),
-        pain_rating: $("#painRating").value,
-        injury_notes: $("#injuryNotes").value.trim(),
-        favourite_exercises: $("#favouriteExercises").value.trim(),
-        disliked_exercises: $("#dislikedExercises").value.trim(),
-        exercises_to_avoid: $("#exercisesToAvoid").value.trim(),
-        machine_preference: selectedMulti("equipment").includes("machines"),
-        dumbbell_preference: selectedMulti("equipment").includes("dumbbells"),
-        barbell_preference: selectedMulti("equipment").includes("barbell"),
-        cable_preference: selectedMulti("equipment").includes("cables"),
-        bodyweight_preference: selectedMulti("equipment").includes("bodyweight"),
-        wants_exercise_photos: true,
-        rest_timer_preference: 90,
-        workout_intensity_preference: "controlled_progression",
-        progression_preference: "increase only if pain low and reps clean"
-      },
-      work: {
-        work_days: selectedMulti("workDays"),
-        work_start: $("#workStart").value || null,
-        work_end: $("#workEnd").value || null,
-        job_activity: $("#jobActivity").value,
-        breaks: getBreaks(),
-        small_snack_available: getBreaks().some(b => b.type === "small_snack"),
-        notes: $("#workNotes").value.trim()
-      },
-      food: {
-        food_styles: foodStyles,
-        food_style: foodStyles[0] || "",
-        food_style_custom: $("#foodStyleCustom").value.trim(),
-        diet_type: selectedSingle("dietType"),
-        allergies: selectedMulti("allergies"),
-        avoid_foods: textListToArray($("#avoidFoods").value),
-        preferred_proteins: preferredProteins,
-        preferred_carbs: preferredCarbs,
-        likes_smoothies: boolSingle("likesSmoothies"),
-        uses_whey_protein: boolSingle("usesWheyProtein"),
-        whey_preference: preferredProteins.includes("whey") ? "allowed" : "not_selected",
-        eats_eggs: preferredProteins.includes("eggs"),
-        eats_chicken: preferredProteins.includes("chicken"),
-        eats_paneer: preferredProteins.includes("paneer"),
-        eats_tofu: preferredProteins.includes("tofu"),
-        eats_soya: preferredProteins.includes("soya"),
-        greek_yogurt_ok: preferredProteins.includes("greek_yogurt"),
-        homemade_curd_ok: preferredProteins.includes("homemade_curd"),
-        milk_ok: preferredProteins.includes("milk"),
-        usual_foods: $("#usualFoods").value.trim(),
-        favourite_foods: $("#favouriteFoods").value.trim(),
-        disliked_foods: $("#dislikedFoods").value.trim(),
-        bloating_triggers: selectedMulti("bloatingTriggers"),
-        meal_prep_style: selectedSingle("mealPrepStyle"),
-        fridge_freezer_ok: selectedSingle("mealPrepStyle") === "fridge_freezer",
-        quick_meal_preference: $("#snackPreferences").value.trim(),
-        dinner_preference: $("#dinnerPreference").value.trim(),
-        smoothie_details: $("#smoothieDetails").value.trim(),
-        snack_preferences: $("#snackPreferences").value.trim(),
-        meal_notes: $("#dinnerPreference").value.trim()
-      },
-      water: {
-        bottle_size_ml: Number($("#bottleSizeMl").value || 1000),
-        daily_target_liters: Number($("#dailyTargetLiters").value || 2)
-      }
-    };
-  }
-
-  function validateStep(){
-    const d = userData();
-
-    if(currentStep === 0){
-      if(!d.profile.full_name) return "Enter your name.";
-      if(!d.profile.date_of_birth) return "Enter your date of birth.";
-      if(!d.profile.height_cm) return "Enter your height.";
-      if(!d.profile.starting_weight) return "Enter your current weight.";
-    }
-
-    if(currentStep === 2){
-      if(!d.profile.main_goals.length) return "Select at least one goal.";
-      if(!d.profile.body_type) return "Select your body type.";
-      if(d.profile.body_type === "custom" && !d.profile.body_type_custom) return "Describe your body type.";
-    }
-
-    if(currentStep === 3){
-      if(!d.workout.workout_place) return "Select workout place.";
-      if(!d.workout.workout_days.length) return "Select at least one workout day.";
-      if(!selectedSingle("workoutOnWorkDays")) return "Select if you workout on workdays.";
-      if(!d.workout.max_minutes) return "Select workout time available.";
-      if(!d.workout.preferred_split) return "Select training split or AI choose.";
-    }
-
-    if(currentStep === 6){
-      if(!d.food.food_styles.length) return "Select at least one food style.";
-      if(d.food.food_styles.includes("custom") && !d.food.food_style_custom) return "Enter custom food style.";
-      if(!d.food.diet_type) return "Select your diet type.";
-    }
-
-    return "";
-  }
-
-  function renderStep(){
-    $$(".screen").forEach((s,i) => s.classList.toggle("active", i === currentStep));
-
-    const pct = Math.round(((currentStep + 1) / totalSteps) * 100);
-    $("#stepText").textContent = `Step ${currentStep + 1} of ${totalSteps}`;
-    $("#progressText").textContent = pct + "%";
-    $("#progressBar").style.width = pct + "%";
-
-    $("#backBtn").textContent = currentStep === 0 ? "Home" : "Back";
-    $("#nextText").textContent = currentStep === totalSteps - 1 ? "Save setup" : "Next";
-
-    if(currentStep === totalSteps - 1) renderSummary();
-    window.scrollTo({top:0, behavior:"smooth"});
-  }
-
-  function nice(value){
-    if(!value) return "-";
-    return String(value).replaceAll("_", " ");
-  }
-
-  function renderSummary(){
-    const d = userData();
-    const bottles = d.water.daily_target_liters && d.water.bottle_size_ml
-      ? Math.round((d.water.daily_target_liters * 1000) / d.water.bottle_size_ml * 10) / 10
-      : "-";
-
-    $("#summaryBox").innerHTML = `
-      <div class="summary-line"><span>Goals</span><strong>${d.profile.main_goals.length ? d.profile.main_goals.map(nice).join(", ") : "-"}</strong></div>
-      <div class="summary-line"><span>Workout</span><strong>${nice(d.workout.workout_place)} / ${d.workout.max_minutes || "-"} min</strong></div>
-      <div class="summary-line"><span>Workout days</span><strong>${d.workout.workout_days.length ? d.workout.workout_days.join(", ") : "-"}</strong></div>
-      <div class="summary-line"><span>Food</span><strong>${d.food.food_styles.length ? d.food.food_styles.map(nice).join(", ") : "-"}</strong></div>
-      <div class="summary-line"><span>Proteins</span><strong>${d.food.preferred_proteins.length ? d.food.preferred_proteins.map(nice).join(", ") : "-"}</strong></div>
-      <div class="summary-line"><span>Smoothie/Whey</span><strong>${d.food.likes_smoothies ? "Smoothie yes" : "No smoothie"} / ${d.food.uses_whey_protein ? "Whey yes" : "No whey"}</strong></div>
-      <div class="summary-line"><span>Breaks</span><strong>${d.work.breaks.length ? d.work.breaks.map(b => b.time).join(", ") : "none added"}</strong></div>
-      <div class="summary-line"><span>Water</span><strong>${d.water.daily_target_liters} L / about ${bottles} bottles</strong></div>
-      <div class="summary-line"><span>Plan</span><strong>${planName(currentEntitlement?.plan_code || selectedPlanCode || "free")}</strong></div>
-    `;
-  }
-
-  async function saveSetup(){
-    const d = userData();
-    const userId = currentUser.id;
-
-    await ensurePlanBeforeSave();
-
-    const savedPlanCode = currentEntitlement?.plan_code && currentEntitlement.plan_code !== "free"
-      ? currentEntitlement.plan_code
-      : "free";
-
-    const profilePayload = {
-      id: userId,
-      email: currentUser.email,
-      ...d.profile,
-      onboarding_completed: true,
-      onboarding_plan_selected: true,
-      selected_plan_code: savedPlanCode,
-      is_premium: savedPlanCode !== "free",
-      updated_at: new Date().toISOString()
-    };
-
-    const { error: profileError } = await supabaseClient
-      .from("profiles")
-      .upsert(profilePayload, { onConflict: "id" });
-    if(profileError) throw profileError;
-
-    const measurementHasData = Object.entries(d.measurement)
-      .some(([k,v]) => !["entry_date","unit","notes"].includes(k) && v !== null && v !== "");
-
-    if(measurementHasData){
-      const today = new Date().toISOString().slice(0,10);
-      const { data: existing } = await supabaseClient
-        .from("measurements")
-        .select("id")
-        .eq("user_id", userId)
-        .eq("entry_date", today)
-        .order("created_at", { ascending:false })
-        .limit(1);
-
-      if(existing && existing.length){
-        const { error } = await supabaseClient
-          .from("measurements")
-          .update({ ...d.measurement, updated_at: new Date().toISOString() })
-          .eq("id", existing[0].id);
-        if(error) throw error;
-      }else{
-        const { error } = await supabaseClient
-          .from("measurements")
-          .insert({ user_id: userId, ...d.measurement });
-        if(error) throw error;
       }
     }
 
-    const { error: workoutError } = await supabaseClient
-      .from("workout_availability")
-      .upsert({ user_id: userId, ...d.workout }, { onConflict: "user_id" });
-    if(workoutError) throw workoutError;
+    function setLoading(isLoading){
+      saving = isLoading;
+      $("#nextBtn").disabled = isLoading;
+      $("#nextBtn").classList.toggle("loading", isLoading);
+      $("#backBtn").disabled = isLoading;
+    }
 
-    const { error: workError } = await supabaseClient
-      .from("work_schedules")
-      .upsert({ user_id: userId, ...d.work }, { onConflict: "user_id" });
-    if(workError) throw workError;
+    async function getAccessToken(){
+      const { data } = await supabaseClient
+        .auth
+        .getSession();
 
-    const { error: foodError } = await supabaseClient
-      .from("food_preferences")
-      .upsert({ user_id: userId, ...d.food }, { onConflict: "user_id" });
-    if(foodError) throw foodError;
+      return data?.session?.access_token || "";
+    }
 
-    const { error: waterError } = await supabaseClient
-      .from("water_settings")
-      .upsert({ user_id: userId, ...d.water }, { onConflict: "user_id" });
-    if(waterError) throw waterError;
-  }
+    function setEntitlementMessage(message, type = ""){
+      const box = $("#entitlementMsg");
 
-  async function loadExisting(){
-    const userId = currentUser.id;
+      if(!box) return;
 
-    const { data: p } = await supabaseClient.from("profiles").select("*").eq("id", userId).maybeSingle();
-    if(p){
-      $("#fullName").value = p.full_name || "";
-      $("#dateOfBirth").value = p.date_of_birth || "";
-      $("#gender").value = p.gender || "";
-      $("#heightCm").value = p.height_cm || "";
-      $("#startingWeight").value = p.starting_weight || "";
-      $("#weightUnit").value = p.weight_unit || "kg";
-      setMulti("mainGoals", p.main_goals || (p.main_goal ? [p.main_goal] : []));
-      setSingle("bodyType", p.body_type || "");
-      $("#bodyTypeCustom").value = p.body_type_custom || "";
+      box.textContent = message || "";
+      box.className = "entitlement-msg";
 
-      if(p.selected_plan_code){
-        selectedPlanCode = p.selected_plan_code;
-        renderPlanSelection();
+      if(type){
+        box.classList.add(type);
       }
     }
 
-    const { data: m } = await supabaseClient
-      .from("measurements")
-      .select("*")
-      .eq("user_id", userId)
-      .order("entry_date", { ascending:false })
-      .limit(1)
-      .maybeSingle();
+    function renderPlanSelection(){
+      $$("[data-plan-card]").forEach(card => {
+        const cardCode = normalizePlanCode(card.dataset.planCard);
+        const active = cardCode === normalizePlanCode(selectedPlanCode);
+        const unlocked = (
+          normalizePlanCode(currentEntitlement?.plan_code) === cardCode &&
+          cardCode !== "free"
+        );
 
-    if(m){
-      $("#measureUnit").value = m.unit || "inch";
-      $("#waist").value = m.waist || "";
-      $("#chest").value = m.chest || "";
-      $("#hips").value = m.hips || "";
-      $("#thigh").value = m.thigh || "";
-      $("#biceps").value = m.biceps || "";
-      $("#neck").value = m.neck || "";
-    }
+        card.classList.toggle("active", active);
 
-    const { data: wa } = await supabaseClient.from("workout_availability").select("*").eq("user_id", userId).maybeSingle();
-    if(wa){
-      setSingle("workoutPlace", wa.workout_place || "");
-      setMulti("workoutDays", wa.workout_days || []);
-      setSingle("workoutOnWorkDays", String(!!wa.workout_on_work_days));
-      $("#preferredTime").value = wa.preferred_time || "";
-      $("#maxMinutes").value = wa.max_minutes || "";
-      setSingle("preferredSplit", wa.preferred_split || "");
-      $("#experienceLevel").value = wa.experience_level || "";
-      setMulti("equipment", wa.equipment || []);
-      setMulti("painAreas", wa.pain_areas || []);
-      $("#painRating").value = wa.pain_rating || "";
-      $("#injuryNotes").value = wa.injury_notes || "";
-      $("#favouriteExercises").value = wa.favourite_exercises || "";
-      $("#dislikedExercises").value = wa.disliked_exercises || "";
-      $("#exercisesToAvoid").value = wa.exercises_to_avoid || "";
-    }
+        const badge = card.querySelector(".plan-badge");
 
-    const { data: w } = await supabaseClient.from("work_schedules").select("*").eq("user_id", userId).maybeSingle();
-    if(w){
-      setMulti("workDays", w.work_days || []);
-      $("#workStart").value = w.work_start || "";
-      $("#workEnd").value = w.work_end || "";
-      $("#jobActivity").value = w.job_activity || "";
-      $("#workNotes").value = w.notes || "";
-      breaksData = Array.isArray(w.breaks) ? w.breaks : [];
-      renderBreaks();
-    }
+        if(!badge) return;
 
-    const { data: f } = await supabaseClient.from("food_preferences").select("*").eq("user_id", userId).maybeSingle();
-    if(f){
-      setMulti("foodStyles", f.food_styles || (f.food_style ? [f.food_style] : []));
-      $("#foodStyleCustom").value = f.food_style_custom || "";
-      setSingle("dietType", f.diet_type || "");
-      setMulti("preferredProteins", f.preferred_proteins || []);
-      setMulti("preferredCarbs", f.preferred_carbs || []);
-      setSingle("likesSmoothies", String(!!f.likes_smoothies));
-      setSingle("usesWheyProtein", String(!!f.uses_whey_protein));
-      $("#smoothieDetails").value = f.smoothie_details || "";
-      $("#usualFoods").value = f.usual_foods || "";
-      $("#favouriteFoods").value = f.favourite_foods || "";
-      $("#dislikedFoods").value = f.disliked_foods || "";
-      setMulti("allergies", f.allergies || []);
-      $("#avoidFoods").value = (f.avoid_foods || []).join(", ");
-      setMulti("bloatingTriggers", f.bloating_triggers || []);
-      setSingle("mealPrepStyle", f.meal_prep_style || "");
-      $("#snackPreferences").value = f.snack_preferences || "";
-      $("#dinnerPreference").value = f.dinner_preference || "";
-    }
+        badge.classList.remove("green", "amber", "purple");
 
-    const { data: ws } = await supabaseClient.from("water_settings").select("*").eq("user_id", userId).maybeSingle();
-    if(ws){
-      $("#bottleSizeMl").value = ws.bottle_size_ml || 1000;
-      $("#dailyTargetLiters").value = ws.daily_target_liters || 2.0;
-    }
-
-    handleCustomVisibility();
-
-    try{
-      await fetchEntitlement();
-    }catch(err){
-      console.warn("Could not fetch entitlement", err);
-      renderPlanSelection();
-    }
-  }
-
-  function initChips(){
-    $$("[data-single] .chipbtn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const wrap = btn.closest("[data-single]");
-        $$(`[data-single="${wrap.dataset.single}"] .chipbtn`).forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        handleCustomVisibility();
-      });
-    });
-
-    $$("[data-multi] .chipbtn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const wrap = btn.closest("[data-multi]");
-        const group = wrap.dataset.multi;
-
-        if(btn.dataset.value === "none"){
-          $$(`[data-multi="${group}"] .chipbtn`).forEach(b => b.classList.remove("active"));
-          btn.classList.add("active");
-          handleCustomVisibility();
+        if(unlocked){
+          badge.textContent = "Unlocked";
+          badge.classList.add("green");
           return;
         }
 
-        const noneBtn = $(`[data-multi="${group}"] .chipbtn[data-value="none"]`);
-        if(noneBtn) noneBtn.classList.remove("active");
-        btn.classList.toggle("active");
-        handleCustomVisibility();
+        if(active && cardCode === "free"){
+          badge.textContent = "Selected";
+          badge.classList.add("green");
+          return;
+        }
+
+        if(active && cardCode !== "free"){
+          badge.textContent = "Promo required";
+          badge.classList.add("amber");
+          return;
+        }
+
+        if(cardCode === "coach"){
+          badge.textContent = "Best coaching";
+          badge.classList.add("purple");
+        }else if(cardCode === "free"){
+          badge.textContent = "Starter";
+        }else{
+          badge.textContent = "Promo required";
+          badge.classList.add("amber");
+        }
       });
-    });
-  }
+    }
 
-  function initNav(){
-    $("#addBreakBtn").addEventListener("click", () => {
-      syncBreakInputs();
-      breaksData.push({ time:"", duration:10, type:"small_snack", full_meal:false, note:"" });
-      renderBreaks();
-      setTimeout(() => {
-        const rows = $$(".break-row");
-        if(rows.length) rows[rows.length - 1].scrollIntoView({ behavior:"smooth", block:"center" });
-      }, 50);
-    });
+    async function fetchEntitlement(){
+      const token = await getAccessToken();
 
-    $("#backBtn").addEventListener("click", () => {
-      if(saving) return;
-      if(currentStep === 0){
-        location.href = "index.html";
-        return;
-      }
-      currentStep--;
-      renderStep();
-    });
-
-    $("#nextBtn").addEventListener("click", async () => {
-      if(saving) return;
-
-      const error = validateStep();
-      if(error){
-        showStatus(error, "bad");
-        alert(error);
-        return;
+      if(!token){
+        throw new Error(
+          "Login session expired. Please login again."
+        );
       }
 
-      if(currentStep < totalSteps - 1){
-        currentStep++;
-        renderStep();
+      const response = await fetch(
+        "/.netlify/functions/get-entitlement",
+        {
+          method:"GET",
+          headers:{
+            "Authorization":`Bearer ${token}`
+          }
+        }
+      );
+
+      const result = await response
+        .json()
+        .catch(() => ({}));
+
+      if(!response.ok || !result.ok){
+        throw new Error(
+          result.error ||
+          "Could not check plan."
+        );
+      }
+
+      currentEntitlement = result.entitlement || null;
+      selectedPlanCode = normalizePlanCode(
+        currentEntitlement?.plan_code ||
+        "free"
+      );
+
+      setEntitlementMessage(
+        `${planName(selectedPlanCode)} is active for this account.`,
+        selectedPlanCode === "free" ? "" : "good"
+      );
+
+      renderPlanSelection();
+      return currentEntitlement;
+    }
+
+    async function redeemPromoCode(){
+      const code = (
+        $("#promoCodeInput")?.value ||
+        ""
+      ).trim();
+
+      if(!code){
+        setEntitlementMessage(
+          "Enter a promo code first.",
+          "warn"
+        );
         return;
       }
+
+      const token = await getAccessToken();
+
+      if(!token){
+        throw new Error(
+          "Login session expired. Please login again."
+        );
+      }
+
+      const applyButton = $("#applyPromoBtn");
+      applyButton.disabled = true;
+      applyButton.textContent = "Applying...";
 
       try{
-        setLoading(true);
-        showStatus("Saving your setup...", "");
-        await saveSetup();
-        showStatus("Setup saved. Opening dashboard...", "good");
-        location.href = "app.html";
-      }catch(err){
-        console.error(err);
-        showStatus(err.message || "Could not save setup. Please try again.", "bad");
-        setLoading(false);
+        const response = await fetch(
+          "/.netlify/functions/redeem-promo",
+          {
+            method:"POST",
+            headers:{
+              "Content-Type":"application/json",
+              "Authorization":`Bearer ${token}`
+            },
+            body:JSON.stringify({ code })
+          }
+        );
+
+        const result = await response
+          .json()
+          .catch(() => ({}));
+
+        if(!response.ok || !result.ok){
+          throw new Error(
+            result.error ||
+            "Promo code failed."
+          );
+        }
+
+        currentEntitlement =
+          result.entitlement ||
+          null;
+
+        selectedPlanCode = normalizePlanCode(
+          currentEntitlement?.plan_code ||
+          "free"
+        );
+
+        setEntitlementMessage(
+          result.message ||
+          `${planName(selectedPlanCode)} unlocked.`,
+          "good"
+        );
+
+        renderPlanSelection();
+        renderSummary();
+      }catch(error){
+        setEntitlementMessage(
+          error.message ||
+          "Could not apply promo code.",
+          "warn"
+        );
+      }finally{
+        applyButton.disabled = false;
+        applyButton.textContent = "Apply";
       }
-    });
-
-    $("#logoutBtn").addEventListener("click", async () => {
-      await supabaseClient.auth.signOut();
-      location.href = "auth.html?mode=login";
-    });
-  }
-
-  async function boot(){
-    const { data } = await supabaseClient.auth.getSession();
-
-    if(!data || !data.session || !data.session.user){
-      location.href = "auth.html?mode=login";
-      return;
     }
 
-    currentUser = data.session.user;
-    $("#topSub").textContent = currentUser.email || "Fitness that fits your day";
+    async function ensurePlanBeforeSave(){
+      if(
+        currentEntitlement?.plan_code &&
+        normalizePlanCode(
+          currentEntitlement.plan_code
+        ) !== "free"
+      ){
+        selectedPlanCode = normalizePlanCode(
+          currentEntitlement.plan_code
+        );
 
-    breaksData = [];
-    renderBreaks();
+        return currentEntitlement;
+      }
 
-    initChips();
-    initPlanPicker();
-    initNav();
+      const entitlement = await fetchEntitlement();
 
-    try{
-      await loadExisting();
-    }catch(err){
-      console.warn("Could not load existing setup", err);
+      selectedPlanCode = normalizePlanCode(
+        entitlement?.plan_code ||
+        "free"
+      );
+
+      return entitlement;
     }
 
-    renderStep();
-  }
+    function initPlanPicker(){
+      $$("[data-plan-card]").forEach(card => {
+        card.addEventListener("click", () => {
+          const plan = normalizePlanCode(
+            card.dataset.planCard
+          );
 
-  boot();
-</script>
+          selectedPlanCode = plan;
+
+          if(plan === "free"){
+            setEntitlementMessage(
+              "Free selected. You can upgrade later or use a promo code now."
+            );
+          }else if(
+            normalizePlanCode(
+              currentEntitlement?.plan_code
+            ) === plan
+          ){
+            setEntitlementMessage(
+              `${planName(plan)} is already unlocked.`,
+              "good"
+            );
+          }else{
+            setEntitlementMessage(
+              `${planName(plan)} selected for preview. Use a promo code to unlock it now; otherwise your account will save as Free.`,
+              "warn"
+            );
+          }
+
+          renderPlanSelection();
+          renderSummary();
+        });
+      });
+
+      $("#applyPromoBtn")?.addEventListener(
+        "click",
+        redeemPromoCode
+      );
+
+      $("#promoCodeInput")?.addEventListener(
+        "keydown",
+        event => {
+          if(event.key === "Enter"){
+            redeemPromoCode();
+          }
+        }
+      );
+    }
+
+    function selectedSingle(name){
+      const active = $(
+        `[data-single="${name}"] .chipbtn.active`
+      );
+
+      return active
+        ? active.dataset.value
+        : "";
+    }
+
+    function selectedMulti(name){
+      const values = $$(
+        `[data-multi="${name}"] .chipbtn.active`
+      ).map(button => button.dataset.value);
+
+      if(
+        values.includes("none") &&
+        values.length > 1
+      ){
+        return values.filter(
+          value => value !== "none"
+        );
+      }
+
+      return values;
+    }
+
+    function boolSingle(name){
+      return selectedSingle(name) === "true";
+    }
+
+    function setSingle(name, value){
+      $$(`[data-single="${name}"] .chipbtn`)
+        .forEach(button => {
+          button.classList.toggle(
+            "active",
+            button.dataset.value === String(value)
+          );
+        });
+
+      handleCustomVisibility();
+    }
+
+    function setMulti(name, values){
+      const selected = new Set(values || []);
+
+      $$(`[data-multi="${name}"] .chipbtn`)
+        .forEach(button => {
+          button.classList.toggle(
+            "active",
+            selected.has(button.dataset.value)
+          );
+        });
+
+      handleCustomVisibility();
+    }
+
+    function textListToArray(value){
+      return String(value || "")
+        .split(/,|\n/)
+        .map(item => item.trim())
+        .filter(Boolean);
+    }
+
+    function handleCustomVisibility(){
+      $("#bodyCustomWrap").style.display =
+        selectedSingle("bodyType") === "custom"
+          ? "block"
+          : "none";
+
+      $("#foodCustomWrap").style.display =
+        selectedMulti("foodStyles").includes("custom")
+          ? "block"
+          : "none";
+    }
+
+    function renderBreaks(){
+      const list = $("#breakList");
+
+      if(!breaksData.length){
+        list.innerHTML = `
+          <div class="safe-note">
+            No break added yet. Add work snacks, lunch, coffee, or any small eating window.
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = breaksData.map(
+        (breakItem, index) => `
+          <div class="break-row" data-break-index="${index}">
+            <div class="section-title">
+              <h3>Break ${index + 1}</h3>
+              <button
+                class="mini-btn red"
+                type="button"
+                data-remove-break="${index}"
+              >
+                Remove
+              </button>
+            </div>
+
+            <div class="grid2">
+              <div class="field">
+                <label>Break time</label>
+                <input
+                  class="input break-time"
+                  type="time"
+                  value="${breakItem.time || ""}"
+                />
+              </div>
+
+              <div class="field">
+                <label>Duration</label>
+                <select class="select break-duration">
+                  <option value="3" ${breakItem.duration == 3 ? "selected" : ""}>3 min</option>
+                  <option value="5" ${breakItem.duration == 5 ? "selected" : ""}>5 min</option>
+                  <option value="10" ${breakItem.duration == 10 ? "selected" : ""}>10 min</option>
+                  <option value="15" ${breakItem.duration == 15 ? "selected" : ""}>15 min</option>
+                  <option value="30" ${breakItem.duration == 30 ? "selected" : ""}>30 min</option>
+                  <option value="45" ${breakItem.duration == 45 ? "selected" : ""}>45 min</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid2">
+              <div class="field">
+                <label>Break type</label>
+                <select class="select break-type">
+                  <option value="small_snack" ${breakItem.type === "small_snack" ? "selected" : ""}>Small snack</option>
+                  <option value="meal" ${breakItem.type === "meal" ? "selected" : ""}>Meal</option>
+                  <option value="coffee" ${breakItem.type === "coffee" ? "selected" : ""}>Coffee</option>
+                  <option value="lunch" ${breakItem.type === "lunch" ? "selected" : ""}>Lunch</option>
+                  <option value="dinner" ${breakItem.type === "dinner" ? "selected" : ""}>Dinner</option>
+                  <option value="custom" ${breakItem.type === "custom" ? "selected" : ""}>Custom</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label>Full meal possible?</label>
+                <select class="select break-full-meal">
+                  <option value="false" ${!breakItem.full_meal ? "selected" : ""}>No</option>
+                  <option value="true" ${breakItem.full_meal ? "selected" : ""}>Yes</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Break note</label>
+              <input
+                class="input break-note"
+                value="${breakItem.note || ""}"
+                placeholder="Example: only banana possible"
+              />
+            </div>
+          </div>
+        `
+      ).join("");
+
+      $$("[data-remove-break]").forEach(button => {
+        button.addEventListener("click", () => {
+          syncBreakInputs();
+          breaksData.splice(
+            Number(button.dataset.removeBreak),
+            1
+          );
+          renderBreaks();
+        });
+      });
+
+      $$(".break-row input, .break-row select")
+        .forEach(element => {
+          element.addEventListener(
+            "input",
+            syncBreakInputs
+          );
+
+          element.addEventListener(
+            "change",
+            syncBreakInputs
+          );
+        });
+    }
+
+    function syncBreakInputs(){
+      $$(".break-row").forEach(row => {
+        const index = Number(
+          row.dataset.breakIndex
+        );
+
+        breaksData[index] = {
+          time:
+            row.querySelector(".break-time").value ||
+            "",
+          duration:Number(
+            row.querySelector(".break-duration").value ||
+            10
+          ),
+          type:
+            row.querySelector(".break-type").value ||
+            "small_snack",
+          full_meal:
+            row.querySelector(".break-full-meal").value ===
+            "true",
+          note:
+            row.querySelector(".break-note").value.trim()
+        };
+      });
+    }
+
+    function getBreaks(){
+      syncBreakInputs();
+
+      return breaksData.filter(
+        breakItem => breakItem.time
+      );
+    }
+
+    function userData(){
+      const dob = $("#dateOfBirth").value || null;
+      const mainGoals = selectedMulti("mainGoals");
+      const foodStyles = selectedMulti("foodStyles");
+      const preferredProteins = selectedMulti(
+        "preferredProteins"
+      );
+      const preferredCarbs = selectedMulti(
+        "preferredCarbs"
+      );
+
+      return {
+        profile:{
+          full_name:$("#fullName").value.trim(),
+          date_of_birth:dob,
+          age:calculateAge(dob),
+          gender:$("#gender").value,
+          height_cm:$("#heightCm").value
+            ? Number($("#heightCm").value)
+            : null,
+          starting_weight:$("#startingWeight").value
+            ? Number($("#startingWeight").value)
+            : null,
+          weight_unit:$("#weightUnit").value,
+          main_goals:mainGoals,
+          main_goal:mainGoals[0] || "",
+          body_type:selectedSingle("bodyType"),
+          body_type_custom:
+            $("#bodyTypeCustom").value.trim()
+        },
+
+        measurement:{
+          entry_date:new Date()
+            .toISOString()
+            .slice(0,10),
+          weight:$("#startingWeight").value
+            ? Number($("#startingWeight").value)
+            : null,
+          waist:$("#waist").value
+            ? Number($("#waist").value)
+            : null,
+          chest:$("#chest").value
+            ? Number($("#chest").value)
+            : null,
+          hips:$("#hips").value
+            ? Number($("#hips").value)
+            : null,
+          thigh:$("#thigh").value
+            ? Number($("#thigh").value)
+            : null,
+          biceps:$("#biceps").value
+            ? Number($("#biceps").value)
+            : null,
+          neck:$("#neck").value
+            ? Number($("#neck").value)
+            : null,
+          unit:$("#measureUnit").value,
+          notes:"Onboarding baseline"
+        },
+
+        workout:{
+          workout_place:selectedSingle("workoutPlace"),
+          workout_days:selectedMulti("workoutDays"),
+          workout_on_work_days:
+            selectedSingle("workoutOnWorkDays") === "true",
+          preferred_time:
+            $("#preferredTime").value ||
+            null,
+          max_minutes:$("#maxMinutes").value
+            ? Number($("#maxMinutes").value)
+            : null,
+          preferred_split:
+            selectedSingle("preferredSplit"),
+          experience_level:
+            $("#experienceLevel").value,
+          equipment:selectedMulti("equipment"),
+          pain_areas:selectedMulti("painAreas"),
+          pain_rating:$("#painRating").value,
+          injury_notes:
+            $("#injuryNotes").value.trim(),
+          favourite_exercises:
+            $("#favouriteExercises").value.trim(),
+          disliked_exercises:
+            $("#dislikedExercises").value.trim(),
+          exercises_to_avoid:
+            $("#exercisesToAvoid").value.trim(),
+          machine_preference:
+            selectedMulti("equipment").includes("machines"),
+          dumbbell_preference:
+            selectedMulti("equipment").includes("dumbbells"),
+          barbell_preference:
+            selectedMulti("equipment").includes("barbell"),
+          cable_preference:
+            selectedMulti("equipment").includes("cables"),
+          bodyweight_preference:
+            selectedMulti("equipment").includes("bodyweight"),
+          wants_exercise_photos:true,
+          rest_timer_preference:90,
+          workout_intensity_preference:
+            "controlled_progression",
+          progression_preference:
+            "increase only if pain low and reps clean"
+        },
+
+        work:{
+          work_days:selectedMulti("workDays"),
+          work_start:$("#workStart").value || null,
+          work_end:$("#workEnd").value || null,
+          job_activity:$("#jobActivity").value,
+          breaks:getBreaks(),
+          small_snack_available:getBreaks().some(
+            breakItem =>
+              breakItem.type === "small_snack"
+          ),
+          notes:$("#workNotes").value.trim()
+        },
+
+        food:{
+          food_styles:foodStyles,
+          food_style:foodStyles[0] || "",
+          food_style_custom:
+            $("#foodStyleCustom").value.trim(),
+          diet_type:selectedSingle("dietType"),
+          allergies:selectedMulti("allergies"),
+          avoid_foods:textListToArray(
+            $("#avoidFoods").value
+          ),
+          preferred_proteins:preferredProteins,
+          preferred_carbs:preferredCarbs,
+          likes_smoothies:boolSingle("likesSmoothies"),
+          uses_whey_protein:
+            boolSingle("usesWheyProtein"),
+          whey_preference:
+            preferredProteins.includes("whey")
+              ? "allowed"
+              : "not_selected",
+          eats_eggs:
+            preferredProteins.includes("eggs"),
+          eats_chicken:
+            preferredProteins.includes("chicken"),
+          eats_paneer:
+            preferredProteins.includes("paneer"),
+          eats_tofu:
+            preferredProteins.includes("tofu"),
+          eats_soya:
+            preferredProteins.includes("soya"),
+          greek_yogurt_ok:
+            preferredProteins.includes("greek_yogurt"),
+          homemade_curd_ok:
+            preferredProteins.includes("homemade_curd"),
+          milk_ok:
+            preferredProteins.includes("milk"),
+          usual_foods:
+            $("#usualFoods").value.trim(),
+          favourite_foods:
+            $("#favouriteFoods").value.trim(),
+          disliked_foods:
+            $("#dislikedFoods").value.trim(),
+          bloating_triggers:
+            selectedMulti("bloatingTriggers"),
+          meal_prep_style:
+            selectedSingle("mealPrepStyle"),
+          fridge_freezer_ok:
+            selectedSingle("mealPrepStyle") ===
+            "fridge_freezer",
+          quick_meal_preference:
+            $("#snackPreferences").value.trim(),
+          dinner_preference:
+            $("#dinnerPreference").value.trim(),
+          smoothie_details:
+            $("#smoothieDetails").value.trim(),
+          snack_preferences:
+            $("#snackPreferences").value.trim(),
+          meal_notes:
+            $("#dinnerPreference").value.trim()
+        },
+
+        water:{
+          bottle_size_ml:Number(
+            $("#bottleSizeMl").value ||
+            1000
+          ),
+          daily_target_liters:Number(
+            $("#dailyTargetLiters").value ||
+            2
+          )
+        }
+      };
+    }
+
+    function validateStep(){
+      const setup = userData();
+
+      if(currentStep === 0){
+        if(!setup.profile.full_name){
+          return "Enter your name.";
+        }
+
+        if(!setup.profile.date_of_birth){
+          return "Enter your date of birth.";
+        }
+
+        if(!setup.profile.height_cm){
+          return "Enter your height.";
+        }
+
+        if(!setup.profile.starting_weight){
+          return "Enter your current weight.";
+        }
+      }
+
+      if(currentStep === 2){
+        if(!setup.profile.main_goals.length){
+          return "Select at least one goal.";
+        }
+
+        if(!setup.profile.body_type){
+          return "Select your body type.";
+        }
+
+        if(
+          setup.profile.body_type === "custom" &&
+          !setup.profile.body_type_custom
+        ){
+          return "Describe your body type.";
+        }
+      }
+
+      if(currentStep === 3){
+        if(!setup.workout.workout_place){
+          return "Select workout place.";
+        }
+
+        if(!setup.workout.workout_days.length){
+          return "Select at least one workout day.";
+        }
+
+        if(!selectedSingle("workoutOnWorkDays")){
+          return "Select if you work out on workdays.";
+        }
+
+        if(!setup.workout.max_minutes){
+          return "Select workout time available.";
+        }
+
+        if(!setup.workout.preferred_split){
+          return "Select training split or AI choose.";
+        }
+      }
+
+      if(currentStep === 6){
+        if(!setup.food.diet_type){
+          return "Select your diet type.";
+        }
+
+        if(!setup.food.food_styles.length){
+          return "Select at least one cuisine preference.";
+        }
+
+        if(
+          setup.food.food_styles.includes("custom") &&
+          !setup.food.food_style_custom
+        ){
+          return "Enter your custom food style.";
+        }
+      }
+
+      return "";
+    }
+
+    function renderStep(){
+      $$(".screen").forEach(
+        (screen, index) => {
+          screen.classList.toggle(
+            "active",
+            index === currentStep
+          );
+        }
+      );
+
+      const percent = Math.round(
+        ((currentStep + 1) / totalSteps) * 100
+      );
+
+      $("#stepText").textContent =
+        `Step ${currentStep + 1} of ${totalSteps}`;
+
+      $("#progressText").textContent =
+        `${percent}%`;
+
+      $("#progressBar").style.width =
+        `${percent}%`;
+
+      $("#backBtn").textContent =
+        currentStep === 0
+          ? "Home"
+          : "Back";
+
+      $("#nextText").textContent =
+        currentStep === totalSteps - 1
+          ? "Save setup"
+          : "Next";
+
+      if(currentStep === totalSteps - 1){
+        renderSummary();
+      }
+
+      window.scrollTo({
+        top:0,
+        behavior:"smooth"
+      });
+    }
+
+    function nice(value){
+      if(!value) return "-";
+
+      return String(value)
+        .replaceAll("_"," ");
+    }
+
+    function activeSavedPlanCode(){
+      const entitlementPlan = normalizePlanCode(
+        currentEntitlement?.plan_code ||
+        "free"
+      );
+
+      return entitlementPlan !== "free"
+        ? entitlementPlan
+        : "free";
+    }
+
+    function renderSummary(){
+      const setup = userData();
+
+      const bottles = (
+        setup.water.daily_target_liters &&
+        setup.water.bottle_size_ml
+      )
+        ? Math.round(
+            (
+              setup.water.daily_target_liters *
+              1000 /
+              setup.water.bottle_size_ml
+            ) * 10
+          ) / 10
+        : "-";
+
+      const savedPlan = activeSavedPlanCode();
+      const previewPlan = normalizePlanCode(
+        selectedPlanCode
+      );
+
+      const planText = (
+        previewPlan !== "free" &&
+        savedPlan === "free"
+      )
+        ? `${planName(previewPlan)} preview / Free until unlocked`
+        : planName(savedPlan);
+
+      $("#summaryBox").innerHTML = `
+        <div class="summary-line">
+          <span>Goals</span>
+          <strong>${setup.profile.main_goals.length ? setup.profile.main_goals.map(nice).join(", ") : "-"}</strong>
+        </div>
+
+        <div class="summary-line">
+          <span>Workout</span>
+          <strong>${nice(setup.workout.workout_place)} / ${setup.workout.max_minutes || "-"} min</strong>
+        </div>
+
+        <div class="summary-line">
+          <span>Workout days</span>
+          <strong>${setup.workout.workout_days.length ? setup.workout.workout_days.join(", ") : "-"}</strong>
+        </div>
+
+        <div class="summary-line">
+          <span>Diet type</span>
+          <strong>${nice(setup.food.diet_type)}</strong>
+        </div>
+
+        <div class="summary-line">
+          <span>Cuisine</span>
+          <strong>${setup.food.food_styles.length ? setup.food.food_styles.map(nice).join(", ") : "-"}</strong>
+        </div>
+
+        <div class="summary-line">
+          <span>Proteins</span>
+          <strong>${setup.food.preferred_proteins.length ? setup.food.preferred_proteins.map(nice).join(", ") : "-"}</strong>
+        </div>
+
+        <div class="summary-line">
+          <span>Smoothie / whey</span>
+          <strong>${setup.food.likes_smoothies ? "Smoothie yes" : "No smoothie"} / ${setup.food.uses_whey_protein ? "Whey yes" : "No whey"}</strong>
+        </div>
+
+        <div class="summary-line">
+          <span>Breaks</span>
+          <strong>${setup.work.breaks.length ? setup.work.breaks.map(item => item.time).join(", ") : "none added"}</strong>
+        </div>
+
+        <div class="summary-line">
+          <span>Water</span>
+          <strong>${setup.water.daily_target_liters} L / about ${bottles} bottles</strong>
+        </div>
+
+        <div class="summary-line">
+          <span>Plan</span>
+          <strong>${planText}</strong>
+        </div>
+      `;
+    }
+
+    async function saveSetup(){
+      const setup = userData();
+      const userId = currentUser.id;
+
+      await ensurePlanBeforeSave();
+
+      const savedPlanCode = (
+        currentEntitlement?.plan_code &&
+        normalizePlanCode(
+          currentEntitlement.plan_code
+        ) !== "free"
+      )
+        ? normalizePlanCode(
+            currentEntitlement.plan_code
+          )
+        : "free";
+
+      const profilePayload = {
+        id:userId,
+        email:currentUser.email,
+        ...setup.profile,
+        onboarding_completed:true,
+        onboarding_plan_selected:true,
+        selected_plan_code:savedPlanCode,
+        is_premium:savedPlanCode !== "free",
+        updated_at:new Date().toISOString()
+      };
+
+      const { error:profileError } =
+        await supabaseClient
+          .from("profiles")
+          .upsert(
+            profilePayload,
+            { onConflict:"id" }
+          );
+
+      if(profileError) throw profileError;
+
+      const measurementHasData = Object
+        .entries(setup.measurement)
+        .some(([key,value]) => (
+          ![
+            "entry_date",
+            "unit",
+            "notes"
+          ].includes(key) &&
+          value !== null &&
+          value !== ""
+        ));
+
+      if(measurementHasData){
+        const today = new Date()
+          .toISOString()
+          .slice(0,10);
+
+        const { data:existing } =
+          await supabaseClient
+            .from("measurements")
+            .select("id")
+            .eq("user_id",userId)
+            .eq("entry_date",today)
+            .order("created_at",{ascending:false})
+            .limit(1);
+
+        if(existing?.length){
+          const { error } =
+            await supabaseClient
+              .from("measurements")
+              .update({
+                ...setup.measurement,
+                updated_at:new Date().toISOString()
+              })
+              .eq("id",existing[0].id);
+
+          if(error) throw error;
+        }else{
+          const { error } =
+            await supabaseClient
+              .from("measurements")
+              .insert({
+                user_id:userId,
+                ...setup.measurement
+              });
+
+          if(error) throw error;
+        }
+      }
+
+      const { error:workoutError } =
+        await supabaseClient
+          .from("workout_availability")
+          .upsert(
+            {
+              user_id:userId,
+              ...setup.workout
+            },
+            { onConflict:"user_id" }
+          );
+
+      if(workoutError) throw workoutError;
+
+      const { error:workError } =
+        await supabaseClient
+          .from("work_schedules")
+          .upsert(
+            {
+              user_id:userId,
+              ...setup.work
+            },
+            { onConflict:"user_id" }
+          );
+
+      if(workError) throw workError;
+
+      const { error:foodError } =
+        await supabaseClient
+          .from("food_preferences")
+          .upsert(
+            {
+              user_id:userId,
+              ...setup.food
+            },
+            { onConflict:"user_id" }
+          );
+
+      if(foodError) throw foodError;
+
+      const { error:waterError } =
+        await supabaseClient
+          .from("water_settings")
+          .upsert(
+            {
+              user_id:userId,
+              ...setup.water
+            },
+            { onConflict:"user_id" }
+          );
+
+      if(waterError) throw waterError;
+    }
+
+    async function loadExisting(){
+      const userId = currentUser.id;
+
+      const { data:profile } =
+        await supabaseClient
+          .from("profiles")
+          .select("*")
+          .eq("id",userId)
+          .maybeSingle();
+
+      if(profile){
+        $("#fullName").value =
+          profile.full_name || "";
+
+        $("#dateOfBirth").value =
+          profile.date_of_birth || "";
+
+        $("#gender").value =
+          profile.gender || "";
+
+        $("#heightCm").value =
+          profile.height_cm || "";
+
+        $("#startingWeight").value =
+          profile.starting_weight || "";
+
+        $("#weightUnit").value =
+          profile.weight_unit || "kg";
+
+        setMulti(
+          "mainGoals",
+          profile.main_goals ||
+          (
+            profile.main_goal
+              ? [profile.main_goal]
+              : []
+          )
+        );
+
+        setSingle(
+          "bodyType",
+          profile.body_type || ""
+        );
+
+        $("#bodyTypeCustom").value =
+          profile.body_type_custom || "";
+
+        if(profile.selected_plan_code){
+          selectedPlanCode = normalizePlanCode(
+            profile.selected_plan_code
+          );
+          renderPlanSelection();
+        }
+      }
+
+      const { data:measurement } =
+        await supabaseClient
+          .from("measurements")
+          .select("*")
+          .eq("user_id",userId)
+          .order("entry_date",{ascending:false})
+          .limit(1)
+          .maybeSingle();
+
+      if(measurement){
+        $("#measureUnit").value =
+          measurement.unit || "inch";
+        $("#waist").value =
+          measurement.waist || "";
+        $("#chest").value =
+          measurement.chest || "";
+        $("#hips").value =
+          measurement.hips || "";
+        $("#thigh").value =
+          measurement.thigh || "";
+        $("#biceps").value =
+          measurement.biceps || "";
+        $("#neck").value =
+          measurement.neck || "";
+      }
+
+      const { data:workout } =
+        await supabaseClient
+          .from("workout_availability")
+          .select("*")
+          .eq("user_id",userId)
+          .maybeSingle();
+
+      if(workout){
+        setSingle(
+          "workoutPlace",
+          workout.workout_place || ""
+        );
+
+        setMulti(
+          "workoutDays",
+          workout.workout_days || []
+        );
+
+        setSingle(
+          "workoutOnWorkDays",
+          String(!!workout.workout_on_work_days)
+        );
+
+        $("#preferredTime").value =
+          workout.preferred_time || "";
+
+        $("#maxMinutes").value =
+          workout.max_minutes || "";
+
+        setSingle(
+          "preferredSplit",
+          workout.preferred_split || ""
+        );
+
+        $("#experienceLevel").value =
+          workout.experience_level || "";
+
+        setMulti(
+          "equipment",
+          workout.equipment || []
+        );
+
+        setMulti(
+          "painAreas",
+          workout.pain_areas || []
+        );
+
+        $("#painRating").value =
+          workout.pain_rating || "";
+
+        $("#injuryNotes").value =
+          workout.injury_notes || "";
+
+        $("#favouriteExercises").value =
+          workout.favourite_exercises || "";
+
+        $("#dislikedExercises").value =
+          workout.disliked_exercises || "";
+
+        $("#exercisesToAvoid").value =
+          workout.exercises_to_avoid || "";
+      }
+
+      const { data:work } =
+        await supabaseClient
+          .from("work_schedules")
+          .select("*")
+          .eq("user_id",userId)
+          .maybeSingle();
+
+      if(work){
+        setMulti(
+          "workDays",
+          work.work_days || []
+        );
+
+        $("#workStart").value =
+          work.work_start || "";
+
+        $("#workEnd").value =
+          work.work_end || "";
+
+        $("#jobActivity").value =
+          work.job_activity || "";
+
+        $("#workNotes").value =
+          work.notes || "";
+
+        breaksData = Array.isArray(work.breaks)
+          ? work.breaks
+          : [];
+
+        renderBreaks();
+      }
+
+      const { data:food } =
+        await supabaseClient
+          .from("food_preferences")
+          .select("*")
+          .eq("user_id",userId)
+          .maybeSingle();
+
+      if(food){
+        setMulti(
+          "foodStyles",
+          food.food_styles ||
+          (
+            food.food_style
+              ? [food.food_style]
+              : []
+          )
+        );
+
+        $("#foodStyleCustom").value =
+          food.food_style_custom || "";
+
+        setSingle(
+          "dietType",
+          food.diet_type || ""
+        );
+
+        setMulti(
+          "preferredProteins",
+          food.preferred_proteins || []
+        );
+
+        setMulti(
+          "preferredCarbs",
+          food.preferred_carbs || []
+        );
+
+        setSingle(
+          "likesSmoothies",
+          String(!!food.likes_smoothies)
+        );
+
+        setSingle(
+          "usesWheyProtein",
+          String(!!food.uses_whey_protein)
+        );
+
+        $("#smoothieDetails").value =
+          food.smoothie_details || "";
+
+        $("#usualFoods").value =
+          food.usual_foods || "";
+
+        $("#favouriteFoods").value =
+          food.favourite_foods || "";
+
+        $("#dislikedFoods").value =
+          food.disliked_foods || "";
+
+        setMulti(
+          "allergies",
+          food.allergies || []
+        );
+
+        $("#avoidFoods").value =
+          (food.avoid_foods || []).join(", ");
+
+        setMulti(
+          "bloatingTriggers",
+          food.bloating_triggers || []
+        );
+
+        setSingle(
+          "mealPrepStyle",
+          food.meal_prep_style || ""
+        );
+
+        $("#snackPreferences").value =
+          food.snack_preferences || "";
+
+        $("#dinnerPreference").value =
+          food.dinner_preference || "";
+      }
+
+      const { data:water } =
+        await supabaseClient
+          .from("water_settings")
+          .select("*")
+          .eq("user_id",userId)
+          .maybeSingle();
+
+      if(water){
+        $("#bottleSizeMl").value =
+          water.bottle_size_ml || 1000;
+
+        $("#dailyTargetLiters").value =
+          water.daily_target_liters || 2;
+      }
+
+      handleCustomVisibility();
+
+      try{
+        await fetchEntitlement();
+      }catch(error){
+        console.warn(
+          "Could not fetch entitlement",
+          error
+        );
+        renderPlanSelection();
+      }
+    }
+
+    function initChips(){
+      $$("[data-single] .chipbtn")
+        .forEach(button => {
+          button.addEventListener("click", () => {
+            const group = button
+              .closest("[data-single]")
+              .dataset.single;
+
+            $$(`[data-single="${group}"] .chipbtn`)
+              .forEach(item => {
+                item.classList.remove("active");
+              });
+
+            button.classList.add("active");
+            handleCustomVisibility();
+          });
+        });
+
+      $$("[data-multi] .chipbtn")
+        .forEach(button => {
+          button.addEventListener("click", () => {
+            const group = button
+              .closest("[data-multi]")
+              .dataset.multi;
+
+            if(button.dataset.value === "none"){
+              $$(`[data-multi="${group}"] .chipbtn`)
+                .forEach(item => {
+                  item.classList.remove("active");
+                });
+
+              button.classList.add("active");
+              handleCustomVisibility();
+              return;
+            }
+
+            const noneButton = $(
+              `[data-multi="${group}"] .chipbtn[data-value="none"]`
+            );
+
+            noneButton?.classList.remove("active");
+            button.classList.toggle("active");
+            handleCustomVisibility();
+          });
+        });
+    }
+
+    function initNavigation(){
+      $("#addBreakBtn").addEventListener(
+        "click",
+        () => {
+          syncBreakInputs();
+
+          breaksData.push({
+            time:"",
+            duration:10,
+            type:"small_snack",
+            full_meal:false,
+            note:""
+          });
+
+          renderBreaks();
+
+          setTimeout(() => {
+            const rows = $$(".break-row");
+
+            rows.at(-1)?.scrollIntoView({
+              behavior:"smooth",
+              block:"center"
+            });
+          },50);
+        }
+      );
+
+      $("#backBtn").addEventListener(
+        "click",
+        () => {
+          if(saving) return;
+
+          if(currentStep === 0){
+            location.href = "index.html";
+            return;
+          }
+
+          currentStep--;
+          renderStep();
+        }
+      );
+
+      $("#nextBtn").addEventListener(
+        "click",
+        async () => {
+          if(saving) return;
+
+          const validationError = validateStep();
+
+          if(validationError){
+            showStatus(
+              validationError,
+              "bad"
+            );
+            alert(validationError);
+            return;
+          }
+
+          if(currentStep < totalSteps - 1){
+            currentStep++;
+            renderStep();
+            return;
+          }
+
+          try{
+            setLoading(true);
+            showStatus(
+              "Saving your setup...",
+              ""
+            );
+
+            await saveSetup();
+
+            showStatus(
+              "Setup saved. Opening ShapeCue...",
+              "good"
+            );
+
+            location.href = "app.html";
+          }catch(error){
+            console.error(error);
+
+            showStatus(
+              error.message ||
+              "Could not save setup. Please try again.",
+              "bad"
+            );
+
+            setLoading(false);
+          }
+        }
+      );
+
+      $("#logoutBtn").addEventListener(
+        "click",
+        async () => {
+          await supabaseClient.auth.signOut();
+          location.href = "auth.html?mode=login";
+        }
+      );
+    }
+
+    async function boot(){
+      const { data } =
+        await supabaseClient
+          .auth
+          .getSession();
+
+      if(!data?.session?.user){
+        location.href = "auth.html?mode=login";
+        return;
+      }
+
+      currentUser = data.session.user;
+
+      $("#topSub").textContent =
+        currentUser.email ||
+        "Fitness that fits your day";
+
+      breaksData = [];
+      renderBreaks();
+      initChips();
+      initPlanPicker();
+      initNavigation();
+
+      try{
+        await loadExisting();
+      }catch(error){
+        console.warn(
+          "Could not load existing setup",
+          error
+        );
+      }
+
+      renderStep();
+    }
+
+    boot();
+  </script>
 </body>
 </html>
