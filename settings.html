@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark" data-ui-version="approved-settings-v2-loader-fix">
+<html lang="en" data-theme="dark" data-ui-version="approved-settings-v3-split-edit">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -1158,7 +1158,7 @@
             <span class="row-icon blue"><svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21c1.5-4 14.5-4 16 0"/></svg></span>
             <span class="row-main">
               <span class="row-title">Personal information</span>
-              <span class="row-sub" id="accountName">Name, age, height, and weight</span>
+              <span class="row-sub" id="accountName">Name, birthday, gender, height, weight, and measurements</span>
             </span>
             <span class="chevron" aria-hidden="true"></span>
           </button>
@@ -1167,7 +1167,7 @@
             <span class="row-icon green"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></span>
             <span class="row-main">
               <span class="row-title">Fitness and food setup</span>
-              <span class="row-sub">Goals, work schedule, food preferences, and workouts</span>
+              <span class="row-sub">Goals, training, pain safety, work schedule, food, and water</span>
             </span>
             <span class="chevron" aria-hidden="true"></span>
           </button>
@@ -1973,12 +1973,12 @@
 
       $("#editProfileBtn").addEventListener(
         "click",
-        () => location.href = "onboarding.html"
+        () => location.href = "onboarding.html?edit=personal&return=settings.html"
       );
 
       $("#editSetupBtn").addEventListener(
         "click",
-        () => location.href = "onboarding.html"
+        () => location.href = "onboarding.html?edit=fitness&return=settings.html"
       );
 
       $("#adminBtn").addEventListener(
