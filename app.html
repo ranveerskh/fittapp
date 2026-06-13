@@ -346,6 +346,279 @@
       #printArea .print-card{border:1px solid #ddd;border-radius:10px;padding:10px;margin:8px 0;break-inside:avoid}
       #printArea .small{color:#555;font-size:11px}
     }
+  
+    /* SHAPECUE INSTAGRAM REFERENCE NAV V4 */
+
+    body{
+      background:#000 !important;
+      padding-bottom:calc(126px + env(safe-area-inset-bottom)) !important;
+    }
+
+    html[data-theme="light"] body{
+      background:#F5F5F7 !important;
+    }
+
+    .app-shell{
+      padding-bottom:calc(46px + env(safe-area-inset-bottom)) !important;
+    }
+
+    /* Neutral header so amber content never bleeds into it. */
+    .topbar{
+      background:rgba(4,4,5,.975) !important;
+      border-bottom:1px solid rgba(255,255,255,.065) !important;
+      box-shadow:0 10px 28px rgba(0,0,0,.22) !important;
+      backdrop-filter:blur(20px) saturate(120%) !important;
+      -webkit-backdrop-filter:blur(20px) saturate(120%) !important;
+    }
+
+    html[data-theme="light"] .topbar{
+      background:rgba(245,245,247,.975) !important;
+      border-bottom-color:rgba(0,0,0,.06) !important;
+      box-shadow:0 8px 24px rgba(0,0,0,.06) !important;
+    }
+
+    /* CSS-only chevron. */
+    .fold-arrow{
+      position:relative !important;
+      width:30px !important;
+      height:30px !important;
+      min-width:30px !important;
+      font-size:0 !important;
+      color:var(--muted) !important;
+      background:var(--surface2) !important;
+      border:1px solid var(--line) !important;
+      border-radius:999px !important;
+    }
+
+    .fold-arrow::before{
+      content:"" !important;
+      position:absolute !important;
+      left:50% !important;
+      top:46% !important;
+      width:8px !important;
+      height:8px !important;
+      border-right:2px solid currentColor !important;
+      border-bottom:2px solid currentColor !important;
+      transform:translate(-50%,-55%) rotate(45deg) !important;
+    }
+
+    .fold-card[open] .fold-arrow{
+      transform:rotate(180deg) !important;
+    }
+
+    /* Floating icon-only capsule based on the supplied Instagram reference. */
+    nav.bottom-tabs{
+      position:fixed !important;
+      left:50% !important;
+      right:auto !important;
+      bottom:calc(12px + env(safe-area-inset-bottom)) !important;
+      transform:translateX(-50%) translateZ(0) !important;
+
+      width:calc(100% - 40px) !important;
+      max-width:410px !important;
+      height:72px !important;
+      min-height:72px !important;
+
+      display:grid !important;
+      grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+      align-items:center !important;
+      gap:5px !important;
+
+      padding:7px 8px !important;
+      margin:0 !important;
+
+      border-radius:36px !important;
+      border:1px solid rgba(255,255,255,.18) !important;
+
+      background:
+        linear-gradient(
+          180deg,
+          rgba(49,49,55,.74) 0%,
+          rgba(29,29,34,.70) 48%,
+          rgba(17,17,21,.76) 100%
+        ) !important;
+
+      box-shadow:
+        0 20px 50px rgba(0,0,0,.54),
+        inset 0 1px 0 rgba(255,255,255,.20),
+        inset 0 -1px 0 rgba(255,255,255,.045) !important;
+
+      backdrop-filter:blur(30px) saturate(180%) !important;
+      -webkit-backdrop-filter:blur(30px) saturate(180%) !important;
+
+      overflow:hidden !important;
+      isolation:isolate !important;
+      z-index:9999 !important;
+    }
+
+    nav.bottom-tabs::before{
+      content:"" !important;
+      position:absolute !important;
+      z-index:-1 !important;
+      top:1px !important;
+      left:16px !important;
+      right:16px !important;
+      height:42% !important;
+      border-radius:999px !important;
+      background:
+        linear-gradient(
+          180deg,
+          rgba(255,255,255,.15),
+          rgba(255,255,255,.018)
+        ) !important;
+      pointer-events:none !important;
+    }
+
+    nav.bottom-tabs::after{
+      content:"" !important;
+      position:absolute !important;
+      z-index:-2 !important;
+      inset:-28px !important;
+      background:
+        radial-gradient(circle at 22% 14%,rgba(255,255,255,.10),transparent 27%),
+        radial-gradient(circle at 75% 88%,rgba(255,255,255,.045),transparent 34%) !important;
+      filter:blur(16px) !important;
+      pointer-events:none !important;
+    }
+
+    html[data-theme="light"] nav.bottom-tabs{
+      border-color:rgba(255,255,255,.92) !important;
+      background:
+        linear-gradient(
+          180deg,
+          rgba(255,255,255,.84) 0%,
+          rgba(250,250,252,.70) 50%,
+          rgba(240,240,244,.66) 100%
+        ) !important;
+      box-shadow:
+        0 16px 42px rgba(0,0,0,.15),
+        inset 0 1px 0 rgba(255,255,255,1),
+        inset 0 -1px 0 rgba(255,255,255,.30) !important;
+    }
+
+    nav.bottom-tabs .tab{
+      position:relative !important;
+      z-index:2 !important;
+
+      width:100% !important;
+      min-width:0 !important;
+      height:56px !important;
+      min-height:56px !important;
+
+      padding:0 !important;
+      margin:0 !important;
+
+      display:grid !important;
+      place-items:center !important;
+
+      border-radius:29px !important;
+      border:1px solid transparent !important;
+
+      background:transparent !important;
+      color:rgba(240,240,245,.66) !important;
+
+      box-shadow:none !important;
+      overflow:visible !important;
+      transition:
+        background .18s ease,
+        border-color .18s ease,
+        color .18s ease,
+        transform .18s ease !important;
+    }
+
+    html[data-theme="light"] nav.bottom-tabs .tab{
+      color:rgba(48,48,54,.58) !important;
+    }
+
+    /* Keep text for accessibility, but visually match the icon-only reference. */
+    nav.bottom-tabs .tab span{
+      position:absolute !important;
+      width:1px !important;
+      height:1px !important;
+      margin:-1px !important;
+      padding:0 !important;
+      overflow:hidden !important;
+      clip:rect(0 0 0 0) !important;
+      clip-path:inset(50%) !important;
+      white-space:nowrap !important;
+      border:0 !important;
+    }
+
+    nav.bottom-tabs .tab svg{
+      width:26px !important;
+      height:26px !important;
+      stroke:currentColor !important;
+      stroke-width:2 !important;
+      filter:none !important;
+    }
+
+    nav.bottom-tabs .tab.active{
+      color:#FFF !important;
+      background:
+        linear-gradient(
+          180deg,
+          rgba(255,255,255,.21),
+          rgba(255,255,255,.105)
+        ) !important;
+      border-color:rgba(255,255,255,.13) !important;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.17),
+        0 7px 18px rgba(0,0,0,.22) !important;
+    }
+
+    nav.bottom-tabs .tab.active svg{
+      color:inherit !important;
+      stroke:currentColor !important;
+    }
+
+    html[data-theme="light"] nav.bottom-tabs .tab.active{
+      color:#111 !important;
+      background:
+        linear-gradient(
+          180deg,
+          rgba(255,255,255,.98),
+          rgba(255,255,255,.68)
+        ) !important;
+      border-color:rgba(255,255,255,.98) !important;
+      box-shadow:
+        inset 0 1px 0 #FFF,
+        0 5px 16px rgba(0,0,0,.10) !important;
+    }
+
+    .toast{
+      bottom:calc(92px + env(safe-area-inset-bottom)) !important;
+    }
+
+    @supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
+      nav.bottom-tabs{
+        background:rgba(25,25,30,.97) !important;
+      }
+
+      html[data-theme="light"] nav.bottom-tabs{
+        background:rgba(255,255,255,.97) !important;
+      }
+    }
+
+    @media(max-width:390px){
+      nav.bottom-tabs{
+        width:calc(100% - 28px) !important;
+        height:68px !important;
+        min-height:68px !important;
+      }
+
+      nav.bottom-tabs .tab{
+        height:52px !important;
+        min-height:52px !important;
+      }
+
+      nav.bottom-tabs .tab svg{
+        width:24px !important;
+        height:24px !important;
+      }
+    }
+
+    /* END SHAPECUE INSTAGRAM REFERENCE NAV V4 */
+
   </style>
 </head>
 
@@ -469,7 +742,7 @@
         </div>
 
         <details class="fold-card" open>
-          <summary><div class="fold-title"><b>Quick summary</b><span>Meals, water, workout, latest weight.</span></div><div class="fold-arrow">â</div></summary>
+          <summary><div class="fold-title"><b>Quick summary</b><span>Meals, water, workout, latest weight.</span></div><div class="fold-arrow"></div></summary>
           <div class="fold-content">
             <div class="stats-grid">
               <div class="stat"><span>Meals</span><strong id="statMeals">-</strong></div>
@@ -486,7 +759,7 @@
         </details>
 
         <details class="fold-card" id="measureFold">
-          <summary><div class="fold-title"><b>Progress check-in</b><span>Weight weekly, full measurements every 2 weeks.</span></div><div class="fold-arrow">â</div></summary>
+          <summary><div class="fold-title"><b>Progress check-in</b><span>Weight weekly, full measurements every 2 weeks.</span></div><div class="fold-arrow"></div></summary>
           <div class="fold-content" id="measureCard">
             <div class="grid2">
               <div class="field"><label>Weight</label><input class="input" id="mWeight" type="number" step="0.1"></div>
@@ -502,7 +775,7 @@
         </details>
 
         <details class="fold-card" id="progressPhotosFold">
-          <summary><div class="fold-title"><b>Progress photos</b><span>Private vault. DP/profile photo is separate.</span></div><div class="fold-arrow">â</div></summary>
+          <summary><div class="fold-title"><b>Progress photos</b><span>Private vault. DP/profile photo is separate.</span></div><div class="fold-arrow"></div></summary>
           <div class="fold-content"><div id="progressPhotosCard"><div id="progressPhotosContent"></div></div></div>
         </details>
       </section>
@@ -512,7 +785,7 @@
         <div class="profile-card">
           <div class="profile-top">
             <div class="profile-avatar" id="profileAvatar">SC</div>
-            <div class="profile-info"><h3 id="profileNameTitle">Ranveer</h3><p id="profileMiniLine">Coach plan â¢ Last AI update</p></div>
+            <div class="profile-info"><h3 id="profileNameTitle">Ranveer</h3><p id="profileMiniLine">Coach plan / Last AI update</p></div>
           </div>
           <input id="profileDpFile" type="file" accept="image/jpeg,image/png,image/webp" style="display:none">
           <div class="profile-actions">
@@ -521,7 +794,7 @@
           </div>
         </div>
         <details class="fold-card" open>
-          <summary><div class="fold-title"><b>Fitness profile</b><span>Goals, food style, and training setup.</span></div><div class="fold-arrow">â</div></summary>
+          <summary><div class="fold-title"><b>Fitness profile</b><span>Goals, food style, and training setup.</span></div><div class="fold-arrow"></div></summary>
           <div class="fold-content"><div class="summary-list" id="profileSummary"></div></div>
         </details>
       </section>
@@ -531,22 +804,22 @@
   </div>
 
   <nav class="bottom-tabs" aria-label="ShapeCue tabs">
-    <button class="tab active" data-tab="todayScreen" type="button"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-9.5Z"/></svg><span>Today</span></button>
-    <button class="tab" data-tab="weekScreen" type="button"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 7h14M7 4v6M17 4v6M5 7v12h14V7"/><path d="M8 12h4M8 16h7"/></svg><span>Meals</span></button>
-    <button class="tab" data-tab="workoutScreen" type="button"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg><span>Train</span></button>
-    <button class="tab" data-tab="progressScreen" type="button"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 19V5M4 19h16M8 16v-5M12 16V8M16 16v-9"/></svg><span>Progress</span></button>
-    <button class="tab" data-tab="profileScreen" type="button"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21c1.5-4 14.5-4 16 0"/></svg><span>Me</span></button>
+    <button class="tab active" data-tab="todayScreen" type="button" aria-label="Today"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-9.5Z"/></svg><span>Today</span></button>
+    <button class="tab" data-tab="weekScreen" type="button" aria-label="Meals"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 7h14M7 4v6M17 4v6M5 7v12h14V7"/><path d="M8 12h4M8 16h7"/></svg><span>Meals</span></button>
+    <button class="tab" data-tab="workoutScreen" type="button" aria-label="Train"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg><span>Train</span></button>
+    <button class="tab" data-tab="progressScreen" type="button" aria-label="Progress"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 19V5M4 19h16M8 16v-5M12 16V8M16 16v-9"/></svg><span>Progress</span></button>
+    <button class="tab" data-tab="profileScreen" type="button" aria-label="Me"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21c1.5-4 14.5-4 16 0"/></svg><span>Me</span></button>
   </nav>
 
   <div class="modal" id="detailModal"><div class="sheet">
-    <div class="sheet-head"><div><h3 id="detailTitle">Exercise</h3><div class="tag green" id="detailTag" style="display:inline-flex;margin-top:7px">Details</div></div><button class="close-btn" data-close-modal="detailModal">Ã</button></div>
+    <div class="sheet-head"><div><h3 id="detailTitle">Exercise</h3><div class="tag green" id="detailTag" style="display:inline-flex;margin-top:7px">Details</div></div><button class="close-btn" data-close-modal="detailModal">&times;</button></div>
     <div class="media-box" id="detailMedia"></div>
     <div class="summary-list" id="detailInfo"></div>
     <div class="btn-row"><button class="btn primary" id="detailDoneBtn">Done</button><button class="btn amber" id="detailReportBtn">Report</button></div>
   </div></div>
 
   <div class="modal" id="reportModal"><div class="sheet">
-    <div class="sheet-head"><div><h3 id="reportTitle">Report exercise</h3><div class="tag amber" style="display:inline-flex;margin-top:7px">Optional details</div></div><button class="close-btn" data-close-modal="reportModal">Ã</button></div>
+    <div class="sheet-head"><div><h3 id="reportTitle">Report exercise</h3><div class="tag amber" style="display:inline-flex;margin-top:7px">Optional details</div></div><button class="close-btn" data-close-modal="reportModal">&times;</button></div>
     <div class="grid2">
       <div class="field"><label>Weight used</label><input class="input" id="reportWeight" type="number" step="0.5" placeholder="Optional"></div>
       <div class="field"><label>Best reps</label><input class="input" id="reportReps" type="number" step="1" placeholder="Optional"></div>
@@ -559,9 +832,9 @@
   </div></div>
 
   <div class="modal" id="upgradeModal"><div class="sheet">
-    <div class="sheet-head"><div><h3 id="upgradeTitle">Unlock Premium</h3><div class="tag amber" style="display:inline-flex;margin-top:7px">Premium feature</div></div><button class="close-btn" data-close-modal="upgradeModal">Ã</button></div>
+    <div class="sheet-head"><div><h3 id="upgradeTitle">Unlock Premium</h3><div class="tag amber" style="display:inline-flex;margin-top:7px">Premium feature</div></div><button class="close-btn" data-close-modal="upgradeModal">&times;</button></div>
     <p id="upgradeText" style="font-size:13px;line-height:1.45;margin:0">Use a promo code now. Payments can be connected later.</p>
-    <div class="upgrade-list"><div>â Full weekly meal + workout plan</div><div>â PDF export and grocery list</div><div>â Exercise photos/videos and smart replacements</div><div>â Progress photos for paid users only</div></div>
+    <div class="upgrade-list"><div>&#10003; Full weekly meal + workout plan</div><div>&#10003; PDF export and grocery list</div><div>&#10003; Exercise photos/videos and smart replacements</div><div>&#10003; Progress photos for paid users only</div></div>
     <div class="promo-inline">
       <div class="promo-row"><div class="field" style="margin-top:0"><label>Promo code</label><input class="input" id="upgradePromoCode" placeholder="Example: PLUS30"></div><button class="btn primary" id="upgradeApplyBtn" type="button">Apply</button></div>
       <div class="promo-msg" id="upgradeMsg">Admin can create codes from admin.html.</div>
@@ -574,6 +847,7 @@
 const SUPABASE_URL = "https://qusmbveovroldkhbjudq.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_6zVS1VCVok16WmVWNPvTrw_vTiQvgX4";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+document.documentElement.dataset.shapeCueUi = "instagram-reference-v4";
 
 const $ = q => document.querySelector(q);
 const $$ = q => Array.from(document.querySelectorAll(q));
@@ -797,7 +1071,7 @@ async function applyPromoFromApp(){
 }
 
 function featureMini(label, ok){
-  return `<div class="feature-mini ${ok ? "good" : "locked"}">${ok ? "â" : "â"} ${esc(label)}</div>`;
+  return `<div class="feature-mini ${ok ? "good" : "locked"}">${ok ? "&#10003;" : "&#10005;"} ${esc(label)}</div>`;
 }
 
 function renderPlanAccessBox(){
@@ -814,7 +1088,7 @@ function renderPlanAccessBox(){
       <div class="plan-access-top">
         <div>
           <h3>Plan access</h3>
-          <p>${esc(source)} â¢ ${esc(end)}</p>
+          <p>${esc(source)} / ${esc(end)}</p>
         </div>
         <span class="plan-chip ${isFree ? "free" : ""}">${esc(planName(code))}</span>
       </div>
@@ -1262,7 +1536,7 @@ function buildWorkoutPlan(){
 function renderAll(){
   const name = data.profile?.full_name || "User";
 
-  $("#topSub").textContent = `${name} â¢ ${planName(currentPlanCode())}`;
+  $("#topSub").textContent = `${name} / ${planName(currentPlanCode())}`;
   $("#todayTitle").textContent = `Today, ${name.split(" ")[0] || "friend"}`;
   const pendingAi = readPendingPlanData();
   $("#todaySubtitle").textContent = pendingAi
@@ -1334,9 +1608,9 @@ function exerciseCardHTML(ex, index){
     <div class="exercise-card ${done ? "done" : ""}" data-exercise-index="${index}">
       <div class="exercise-art">${exerciseMediaHTML(ex)}</div>
       <div class="exercise-body">
-        <b>${esc(ex.name)} ${done ? "â" : ""}</b>
-        <span>${esc(ex.sets)} â¢ Rest ${esc(ex.rest_seconds)} sec</span>
-        <span>${esc(ex.target_muscle || "Body")} â¢ ${esc(ex.cue || "")}</span>
+        <b>${esc(ex.name)} ${done ? "&#10003;" : ""}</b>
+        <span>${esc(ex.sets)} / Rest ${esc(ex.rest_seconds)} sec</span>
+        <span>${esc(ex.target_muscle || "Body")} / ${esc(ex.cue || "")}</span>
         ${ex.coach_note ? `<div class="coach-note">${esc(ex.coach_note)}</div>` : ""}
         <div class="exercise-actions">
           <button class="btn primary exercise-done" data-done-index="${index}">Done</button>
@@ -1432,7 +1706,7 @@ function renderWater(){
   const done = Number(wl.bottles_done || 0);
   const pct = Math.min(100, Math.round(done/need*100));
   $("#waterMain").textContent = `${done} / ${need}`;
-  $("#waterSub").textContent = `${target} L goal â¢ ${bottle} ml bottle`;
+  $("#waterSub").textContent = `${target} L goal / ${bottle} ml bottle`;
   $("#waterBar").style.width = pct + "%";
   $("#waterStatusPill").textContent = wl.status==="done" ? "Done" : `${pct}%`;
 }
@@ -1441,7 +1715,7 @@ function scheduleItemMiniHTML(item){
   const reps = Array.isArray(item.replacement_options) ? item.replacement_options.slice(0,2) : [];
   return `
     <div class="mini-item">
-      <b>${esc(displayTime(item.time))} â¢ ${esc(item.title || nice(item.type))}</b>
+      <b>${esc(displayTime(item.time))} / ${esc(item.title || nice(item.type))}</b>
       <div>${esc(item.text || "")}</div>
       ${reps.length ? `<div class="small" style="margin-top:5px;color:var(--blue)">${reps.map(r=>"Swap: "+esc(r)).join("<br>")}</div>` : ""}
     </div>
@@ -1455,7 +1729,7 @@ function renderWeekPlan(){
       <details class="fold-card" open>
         <summary>
           <div class="fold-title"><b>No active AI plan yet</b><span>Go to Progress and tap Update next plan.</span></div>
-          <div class="fold-arrow">â</div>
+          <div class="fold-arrow"></div>
         </summary>
         <div class="fold-content">
           <button class="btn primary" onclick="switchTab('progressScreen')" type="button" style="width:100%">Go to Progress</button>
@@ -1473,7 +1747,7 @@ function renderWeekPlan(){
     <details class="fold-card" open>
       <summary>
         <div class="fold-title"><b>${esc(activePlan.title || activePlanMeta?.title || "ShapeCue Coach Plan")}</b><span>${esc(activePlan.summary || "Your active coach plan.")}</span></div>
-        <div class="fold-arrow">â</div>
+        <div class="fold-arrow"></div>
       </summary>
       <div class="fold-content">
         ${activePlan.coach_reasoning ? `<div class="coach-note">${esc(activePlan.coach_reasoning)}</div>` : ""}
@@ -1492,8 +1766,8 @@ function renderWeekPlan(){
     html += `
       <details class="fold-card" ${open}>
         <summary>
-          <div class="fold-title"><b>${esc(day)}</b><span>${items.length || 0} items â¢ ${foodCount} meals${gymCount ? ` â¢ ${gymCount} workout` : ""}</span></div>
-          <div class="fold-arrow">â</div>
+          <div class="fold-title"><b>${esc(day)}</b><span>${items.length || 0} items / ${foodCount} meals${gymCount ? ` / ${gymCount} workout` : ""}</span></div>
+          <div class="fold-arrow"></div>
         </summary>
         <div class="fold-content">
           <div class="mini-list">
@@ -1532,7 +1806,7 @@ function arraySectionHTML(title, arr, open=false){
     <details class="fold-card" ${open ? "open" : ""}>
       <summary>
         <div class="fold-title"><b>${esc(title)}</b><span>${arr.length} item${arr.length === 1 ? "" : "s"}</span></div>
-        <div class="fold-arrow">â</div>
+        <div class="fold-arrow"></div>
       </summary>
       <div class="fold-content">
         <div class="mini-list">
@@ -1559,7 +1833,7 @@ function infoSectionHTML(title, obj, open=false){
     <details class="fold-card" ${open ? "open" : ""}>
       <summary>
         <div class="fold-title"><b>${esc(title)}</b><span>${parts.length} section${parts.length === 1 ? "" : "s"}</span></div>
-        <div class="fold-arrow">â</div>
+        <div class="fold-arrow"></div>
       </summary>
       <div class="fold-content"><div class="mini-list">${parts.join("")}</div></div>
     </details>
@@ -1766,7 +2040,7 @@ function progressPhotoCardHTML(photo){
         ${photo.signed_url ? `<img src="${esc(photo.signed_url)}" alt="${esc(photoTypeLabel(photo.photo_type))} progress photo">` : `<span>Photo</span>`}
       </div>
       <div class="photo-info">
-        <strong>${esc(photoTypeLabel(photo.photo_type))} â¢ ${esc(dateText)}</strong>
+        <strong>${esc(photoTypeLabel(photo.photo_type))} / ${esc(dateText)}</strong>
         <span>${esc(weightText)}</span>
         ${noteText}
       </div>
@@ -1978,7 +2252,7 @@ function renderProfile(){
   const allergies = data.food?.allergies?.length ? data.food.allergies.map(nice).join(", ") : "None selected";
 
   if($("#profileNameTitle")) $("#profileNameTitle").textContent = data.profile?.full_name || "ShapeCue user";
-  if($("#profileMiniLine")) $("#profileMiniLine").textContent = `${planName(currentPlanCode())} â¢ Last AI update ${activePlanMeta?.created_at ? relativeTime(activePlanMeta.created_at) : "not yet"}`;
+  if($("#profileMiniLine")) $("#profileMiniLine").textContent = `${planName(currentPlanCode())} / Last AI update ${activePlanMeta?.created_at ? relativeTime(activePlanMeta.created_at) : "not yet"}`;
   if($("#settingsAccountLine")) $("#settingsAccountLine").textContent = user?.email ? `Signed in as ${user.email}` : "Signed in";
   updateProfileAvatar();
 
@@ -1988,7 +2262,7 @@ function renderProfile(){
     <div class="summary-line"><span>Age</span><strong>${calculateAge(data.profile?.date_of_birth) || "-"}</strong></div>
     <div class="summary-line"><span>Food style</span><strong>${esc(niceList(foodStyles))}</strong></div>
     <div class="summary-line"><span>Allergies / avoid</span><strong>${esc(allergies)}</strong></div>
-    <div class="summary-line"><span>Workout</span><strong>${esc(nice(data.workout?.workout_place))} â¢ ${data.workout?.max_minutes || "-"} min</strong></div>
+    <div class="summary-line"><span>Workout</span><strong>${esc(nice(data.workout?.workout_place))} / ${data.workout?.max_minutes || "-"} min</strong></div>
     <div class="summary-line"><span>Active plan</span><strong>${readPendingPlanData() ? "Generating new plan" : (activePlan ? "AI coach plan" : "Starter plan")}</strong></div>
     <div class="summary-line"><span>Last AI update</span><strong>${esc(lastAiUpdateText())}</strong></div>
   `;
@@ -2137,7 +2411,7 @@ function renderAiCoachStatusUI(){
       </div>
       <div class="ai-status-meta">
         <div class="ai-status-row"><span>Plan</span><strong>${esc(activePlanMeta.title || activePlan?.title || "AI coach plan")}</strong></div>
-        <div class="ai-status-row"><span>Week</span><strong>${esc((activePlanMeta.week_start || activePlan?.start_date || "") + " â " + (activePlanMeta.week_end || activePlan?.end_date || ""))}</strong></div>
+        <div class="ai-status-row"><span>Week</span><strong>${esc((activePlanMeta.week_start || activePlan?.start_date || "") + " -> " + (activePlanMeta.week_end || activePlan?.end_date || ""))}</strong></div>
         <div class="ai-status-row"><span>Access</span><strong>${esc(plan)}</strong></div>
       </div>
     `;
@@ -2397,7 +2671,7 @@ function buildPrintHTML(){
       html += `
         <div class="print-card">
           <strong>${esc(ex.name || "Exercise")}</strong>
-          <p>${esc(ex.section || "")} â¢ ${esc(ex.sets || "")} â¢ Rest ${esc(ex.rest_seconds || "")} sec</p>
+          <p>${esc(ex.section || "")} / ${esc(ex.sets || "")} / Rest ${esc(ex.rest_seconds || "")} sec</p>
           <p>${esc(ex.cue || "")}</p>
           ${ex.coach_note ? `<p class="small"><strong>Coach note:</strong> ${esc(ex.coach_note)}</p>` : ""}
         </div>
@@ -2406,7 +2680,7 @@ function buildPrintHTML(){
   });
 
   if(activePlan.water_goal){
-    html += `<h2>Water Goal</h2><div class="print-card"><p>${esc(activePlan.water_goal.target_liters || "")} L daily â¢ ${esc(activePlan.water_goal.bottles_per_day || "")} bottles</p><p>${esc(activePlan.water_goal.note || "")}</p></div>`;
+    html += `<h2>Water Goal</h2><div class="print-card"><p>${esc(activePlan.water_goal.target_liters || "")} L daily / ${esc(activePlan.water_goal.bottles_per_day || "")} bottles</p><p>${esc(activePlan.water_goal.note || "")}</p></div>`;
   }
 
   if(activePlan.meal_prep_plan){
