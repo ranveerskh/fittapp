@@ -43,7 +43,7 @@ function json(statusCode, body, extraHeaders = {}) {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "GET,OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
-      "X-ShapeCue-Visual-Version": "5",
+      "X-ShapeCue-Visual-Version": "6",
       ...extraHeaders
     },
     body: JSON.stringify(body)
@@ -140,11 +140,11 @@ function buildSlotConfig(style, workout) {
     },
     meals: {
       searchQueries: [
-        "healthy high protein meal",
-        "healthy meal prep",
-        "healthy food"
+        "healthy high protein meal prep bowl",
+        "healthy meal prep food",
+        "healthy protein food"
       ],
-      randomQuery: "healthy food"
+      randomQuery: "healthy meal prep food"
     }
   };
 }
@@ -187,7 +187,7 @@ function scorePhoto(photo, slot, workout) {
   let score = 0;
 
   const slotWords = slot === "meals"
-    ? ["food", "meal", "protein", "healthy", "prep", "vegetable"]
+    ? ["food", "meal", "protein", "healthy", "prep", "vegetable", "bowl", "plate"]
     : ["gym", "fitness", "training", "workout", "strength", "weights"];
 
   const workoutWords = {
@@ -211,6 +211,10 @@ function scorePhoto(photo, slot, workout) {
 
     for (const word of NEGATIVE_WORDS) {
       if (text.includes(word)) score -= 12;
+    }
+  } else {
+    for (const word of ["gym", "workout", "athlete", "man", "woman", "portrait"]) {
+      if (text.includes(word)) score -= 8;
     }
   }
 
@@ -324,61 +328,95 @@ async function choosePhoto({
   weekKey,
   style,
   workout,
-  accessKey
+  accessKey,
+  excludedIds = new Set()
 }) {
   const seed = hashString(`${weekKey}.${slot}.${style}.${workout}`);
-  let photos = [];
-  let queryUsed = "";
-  let fallbackUsed = "none";
 
-  for (const query of config.searchQueries) {
-    photos = await searchPhotos(query, accessKey);
+  function selectUnique(photos, queryUsed, fallbackUsed) {
+    const ranked = photos
+      .map(photo => ({
+        photo,
+        score: scorePhoto(photo, slot, workout)
+      }))
+      .filter(item =>
+        buildImageUrl(item.photo) &&
+        item.photo?.id &&
+        !excludedIds.has(item.photo.id)
+      )
+      .sort((a, b) => b.score - a.score);
 
-    if (photos.length) {
-      queryUsed = query;
-      fallbackUsed = query === config.searchQueries[0] ? "none" : "simpler-search";
-      break;
+    if (!ranked.length) return null;
+
+    const bestScore = ranked[0].score;
+    const shortlist = ranked
+      .filter(item => item.score >= bestScore - 3)
+      .slice(0, 8);
+
+    const selected = shortlist[seed % shortlist.length]?.photo || ranked[0].photo;
+
+    return {
+      selected,
+      queryUsed,
+      fallbackUsed
+    };
+  }
+
+  for (let index = 0; index < config.searchQueries.length; index += 1) {
+    const query = config.searchQueries[index];
+    const photos = await searchPhotos(query, accessKey);
+    const result = selectUnique(
+      photos,
+      query,
+      index === 0 ? "none" : "simpler-search"
+    );
+
+    if (result) {
+      await triggerDownload(result.selected, accessKey);
+      return serializePhoto(
+        result.selected,
+        slot,
+        result.queryUsed,
+        result.fallbackUsed
+      );
     }
   }
 
-  if (!photos.length) {
-    photos = await randomPhotos(config.randomQuery, accessKey);
-    queryUsed = config.randomQuery;
-    fallbackUsed = "random-query";
+  const randomCandidates = await randomPhotos(config.randomQuery, accessKey);
+  const randomResult = selectUnique(
+    randomCandidates,
+    config.randomQuery,
+    "random-query"
+  );
+
+  if (randomResult) {
+    await triggerDownload(randomResult.selected, accessKey);
+    return serializePhoto(
+      randomResult.selected,
+      slot,
+      randomResult.queryUsed,
+      randomResult.fallbackUsed
+    );
   }
 
-  if (!photos.length) {
-    photos = await getFallbackLandscapePhotos(accessKey);
-    queryUsed = "random landscape";
-    fallbackUsed = "random-landscape";
+  const landscapeCandidates = await getFallbackLandscapePhotos(accessKey);
+  const landscapeResult = selectUnique(
+    landscapeCandidates,
+    "random landscape",
+    "random-landscape"
+  );
+
+  if (landscapeResult) {
+    await triggerDownload(landscapeResult.selected, accessKey);
+    return serializePhoto(
+      landscapeResult.selected,
+      slot,
+      landscapeResult.queryUsed,
+      landscapeResult.fallbackUsed
+    );
   }
 
-  if (!photos.length) {
-    throw new Error(`Unsplash returned no usable photo for ${slot}.`);
-  }
-
-  const ranked = photos
-    .map(photo => ({
-      photo,
-      score: scorePhoto(photo, slot, workout)
-    }))
-    .filter(item => buildImageUrl(item.photo))
-    .sort((a, b) => b.score - a.score);
-
-  if (!ranked.length) {
-    throw new Error(`Unsplash returned photos without image URLs for ${slot}.`);
-  }
-
-  const bestScore = ranked[0].score;
-  const shortlist = ranked
-    .filter(item => item.score >= bestScore - 3)
-    .slice(0, 8);
-
-  const selected = shortlist[seed % shortlist.length]?.photo || ranked[0].photo;
-
-  await triggerDownload(selected, accessKey);
-
-  return serializePhoto(selected, slot, queryUsed, fallbackUsed);
+  throw new Error(`Unsplash returned no unique usable photo for ${slot}.`);
 }
 
 exports.handler = async function handler(event) {
@@ -409,61 +447,44 @@ exports.handler = async function handler(event) {
   const slotConfig = buildSlotConfig(style, workout);
 
   try {
-    const settled = await Promise.allSettled(
-      Object.entries(slotConfig).map(async ([slot, config]) => [
-        slot,
-        await choosePhoto({
-          slot,
-          config,
-          weekKey,
-          style,
-          workout,
-          accessKey
-        })
-      ])
-    );
-
     const visuals = {};
-    const slotErrors = {};
+    const selectedIds = new Set();
 
-    settled.forEach((result, index) => {
-      const slot = Object.keys(slotConfig)[index];
+    // Resolve sequentially so a photo selected for one slot cannot be reused.
+    for (const slot of ["today", "train", "meals"]) {
+      const photo = await choosePhoto({
+        slot,
+        config: slotConfig[slot],
+        weekKey,
+        style,
+        workout,
+        accessKey,
+        excludedIds: selectedIds
+      });
 
-      if (result.status === "fulfilled") {
-        const [resolvedSlot, photo] = result.value;
-        visuals[resolvedSlot] = photo;
-      } else {
-        slotErrors[slot] = result.reason?.message || `Could not load ${slot} visual.`;
-      }
-    });
+      visuals[slot] = photo;
+      selectedIds.add(photo.id);
+    }
 
-    // Keep the page usable when only one fitness slot fails.
-    if (!visuals.today && visuals.train) visuals.today = visuals.train;
-    if (!visuals.train && visuals.today) visuals.train = visuals.today;
-
-    const missing = ["today", "train", "meals"].filter(slot => !visuals[slot]);
-
-    if (missing.length) {
-      throw new Error(
-        `Missing visual slots: ${missing.join(", ")}. ${JSON.stringify(slotErrors)}`
-      );
+    const ids = Object.values(visuals).map(photo => photo.id);
+    if (new Set(ids).size !== ids.length) {
+      throw new Error("Duplicate Unsplash photos were selected for different slots.");
     }
 
     return json(200, {
       ok: true,
-      version: 5,
+      version: 6,
       week_key: weekKey,
       style,
       workout,
-      visuals,
-      warnings: slotErrors
+      visuals
     });
   } catch (error) {
     console.error("Weekly visual generation failed:", error);
 
     return json(502, {
       ok: false,
-      version: 5,
+      version: 6,
       error: error.message || "Weekly visuals could not be loaded."
     });
   }
