@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="color-scheme" content="dark light" />
-  <title>ShapeCue - AI Fitness and Diet Coach</title>
+  <title>ShapeCue - Dashboard</title>
 
   <script>
     (() => {
@@ -181,7 +181,7 @@
     .exercise-card.done{border-color:rgba(48,209,88,.32);background:var(--green-soft)}
     .exercise-art{width:58px;height:58px;border-radius:15px;background:var(--surface3);border:1px solid var(--line);display:grid;place-items:center;color:var(--green);overflow:hidden}
     .exercise-art svg{width:32px;height:32px;stroke:currentColor}
-    .exercise-art img,.exercise-art video{width:100%;height:100%;object-fit:cover;display:block}
+    .exercise-art img{width:100%;height:100%;object-fit:cover}
     .exercise-body b{display:block;font-size:13.5px;margin-bottom:3px}
     .exercise-body span{display:block;color:var(--muted);font-size:11.8px;line-height:1.35}
     .exercise-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}
@@ -347,1103 +347,18 @@
       #printArea .small{color:#555;font-size:11px}
     }
   
-    /* SHAPECUE INSTAGRAM REFERENCE NAV V4 */
 
-    body{
-      background:#000 !important;
-      padding-bottom:calc(126px + env(safe-area-inset-bottom)) !important;
-    }
+.launch-focus{
+  animation:launchFocus 1.15s ease 2;
+  box-shadow:0 0 0 4px rgba(139,92,246,.20), 0 16px 36px rgba(0,0,0,.16) !important;
+}
 
-    html[data-theme="light"] body{
-      background:#F5F5F7 !important;
-    }
+@keyframes launchFocus{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-2px)}
+}
 
-    .app-shell{
-      padding-bottom:calc(46px + env(safe-area-inset-bottom)) !important;
-    }
-
-    /* Neutral header so amber content never bleeds into it. */
-    .topbar{
-      background:rgba(4,4,5,.975) !important;
-      border-bottom:1px solid rgba(255,255,255,.065) !important;
-      box-shadow:0 10px 28px rgba(0,0,0,.22) !important;
-      backdrop-filter:blur(20px) saturate(120%) !important;
-      -webkit-backdrop-filter:blur(20px) saturate(120%) !important;
-    }
-
-    html[data-theme="light"] .topbar{
-      background:rgba(245,245,247,.975) !important;
-      border-bottom-color:rgba(0,0,0,.06) !important;
-      box-shadow:0 8px 24px rgba(0,0,0,.06) !important;
-    }
-
-    /* CSS-only chevron. */
-    .fold-arrow{
-      position:relative !important;
-      width:30px !important;
-      height:30px !important;
-      min-width:30px !important;
-      font-size:0 !important;
-      color:var(--muted) !important;
-      background:var(--surface2) !important;
-      border:1px solid var(--line) !important;
-      border-radius:999px !important;
-    }
-
-    .fold-arrow::before{
-      content:"" !important;
-      position:absolute !important;
-      left:50% !important;
-      top:46% !important;
-      width:8px !important;
-      height:8px !important;
-      border-right:2px solid currentColor !important;
-      border-bottom:2px solid currentColor !important;
-      transform:translate(-50%,-55%) rotate(45deg) !important;
-    }
-
-    .fold-card[open] .fold-arrow{
-      transform:rotate(180deg) !important;
-    }
-
-    /* Floating icon-only capsule based on the supplied Instagram reference. */
-    nav.bottom-tabs{
-      position:fixed !important;
-      left:50% !important;
-      right:auto !important;
-      bottom:calc(12px + env(safe-area-inset-bottom)) !important;
-      transform:translateX(-50%) translateZ(0) !important;
-
-      width:calc(100% - 40px) !important;
-      max-width:410px !important;
-      height:72px !important;
-      min-height:72px !important;
-
-      display:grid !important;
-      grid-template-columns:repeat(5,minmax(0,1fr)) !important;
-      align-items:center !important;
-      gap:5px !important;
-
-      padding:7px 8px !important;
-      margin:0 !important;
-
-      border-radius:36px !important;
-      border:1px solid rgba(255,255,255,.18) !important;
-
-      background:
-        linear-gradient(
-          180deg,
-          rgba(49,49,55,.74) 0%,
-          rgba(29,29,34,.70) 48%,
-          rgba(17,17,21,.76) 100%
-        ) !important;
-
-      box-shadow:
-        0 20px 50px rgba(0,0,0,.54),
-        inset 0 1px 0 rgba(255,255,255,.20),
-        inset 0 -1px 0 rgba(255,255,255,.045) !important;
-
-      backdrop-filter:blur(30px) saturate(180%) !important;
-      -webkit-backdrop-filter:blur(30px) saturate(180%) !important;
-
-      overflow:hidden !important;
-      isolation:isolate !important;
-      z-index:9999 !important;
-    }
-
-    nav.bottom-tabs::before{
-      content:"" !important;
-      position:absolute !important;
-      z-index:-1 !important;
-      top:1px !important;
-      left:16px !important;
-      right:16px !important;
-      height:42% !important;
-      border-radius:999px !important;
-      background:
-        linear-gradient(
-          180deg,
-          rgba(255,255,255,.15),
-          rgba(255,255,255,.018)
-        ) !important;
-      pointer-events:none !important;
-    }
-
-    nav.bottom-tabs::after{
-      content:"" !important;
-      position:absolute !important;
-      z-index:-2 !important;
-      inset:-28px !important;
-      background:
-        radial-gradient(circle at 22% 14%,rgba(255,255,255,.10),transparent 27%),
-        radial-gradient(circle at 75% 88%,rgba(255,255,255,.045),transparent 34%) !important;
-      filter:blur(16px) !important;
-      pointer-events:none !important;
-    }
-
-    html[data-theme="light"] nav.bottom-tabs{
-      border-color:rgba(255,255,255,.92) !important;
-      background:
-        linear-gradient(
-          180deg,
-          rgba(255,255,255,.84) 0%,
-          rgba(250,250,252,.70) 50%,
-          rgba(240,240,244,.66) 100%
-        ) !important;
-      box-shadow:
-        0 16px 42px rgba(0,0,0,.15),
-        inset 0 1px 0 rgba(255,255,255,1),
-        inset 0 -1px 0 rgba(255,255,255,.30) !important;
-    }
-
-    nav.bottom-tabs .tab{
-      position:relative !important;
-      z-index:2 !important;
-
-      width:100% !important;
-      min-width:0 !important;
-      height:56px !important;
-      min-height:56px !important;
-
-      padding:0 !important;
-      margin:0 !important;
-
-      display:grid !important;
-      place-items:center !important;
-
-      border-radius:29px !important;
-      border:1px solid transparent !important;
-
-      background:transparent !important;
-      color:rgba(240,240,245,.66) !important;
-
-      box-shadow:none !important;
-      overflow:visible !important;
-      transition:
-        background .18s ease,
-        border-color .18s ease,
-        color .18s ease,
-        transform .18s ease !important;
-    }
-
-    html[data-theme="light"] nav.bottom-tabs .tab{
-      color:rgba(48,48,54,.58) !important;
-    }
-
-    /* Keep text for accessibility, but visually match the icon-only reference. */
-    nav.bottom-tabs .tab span{
-      position:absolute !important;
-      width:1px !important;
-      height:1px !important;
-      margin:-1px !important;
-      padding:0 !important;
-      overflow:hidden !important;
-      clip:rect(0 0 0 0) !important;
-      clip-path:inset(50%) !important;
-      white-space:nowrap !important;
-      border:0 !important;
-    }
-
-    nav.bottom-tabs .tab svg{
-      width:26px !important;
-      height:26px !important;
-      stroke:currentColor !important;
-      stroke-width:2 !important;
-      filter:none !important;
-    }
-
-    nav.bottom-tabs .tab.active{
-      color:#FFF !important;
-      background:
-        linear-gradient(
-          180deg,
-          rgba(255,255,255,.21),
-          rgba(255,255,255,.105)
-        ) !important;
-      border-color:rgba(255,255,255,.13) !important;
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.17),
-        0 7px 18px rgba(0,0,0,.22) !important;
-    }
-
-    nav.bottom-tabs .tab.active svg{
-      color:inherit !important;
-      stroke:currentColor !important;
-    }
-
-    html[data-theme="light"] nav.bottom-tabs .tab.active{
-      color:#111 !important;
-      background:
-        linear-gradient(
-          180deg,
-          rgba(255,255,255,.98),
-          rgba(255,255,255,.68)
-        ) !important;
-      border-color:rgba(255,255,255,.98) !important;
-      box-shadow:
-        inset 0 1px 0 #FFF,
-        0 5px 16px rgba(0,0,0,.10) !important;
-    }
-
-    .toast{
-      bottom:calc(92px + env(safe-area-inset-bottom)) !important;
-    }
-
-    @supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
-      nav.bottom-tabs{
-        background:rgba(25,25,30,.97) !important;
-      }
-
-      html[data-theme="light"] nav.bottom-tabs{
-        background:rgba(255,255,255,.97) !important;
-      }
-    }
-
-    @media(max-width:390px){
-      nav.bottom-tabs{
-        width:calc(100% - 28px) !important;
-        height:68px !important;
-        min-height:68px !important;
-      }
-
-      nav.bottom-tabs .tab{
-        height:52px !important;
-        min-height:52px !important;
-      }
-
-      nav.bottom-tabs .tab svg{
-        width:24px !important;
-        height:24px !important;
-      }
-    }
-
-    /* END SHAPECUE INSTAGRAM REFERENCE NAV V4 */
-
-  
-
-    /* =========================================================
-       SHAPECUE APPROVED IOS UI V1
-       Dark mode approved. Light nav uses the approved milky glass recipe.
-    ========================================================= */
-
-    :root{
-      --app-bg:#050506;
-      --app-top:#09090B;
-      --app-surface:#111114;
-      --app-surface-2:#18181C;
-      --app-surface-3:#222228;
-      --app-text:#F8F8FA;
-      --app-muted:#A1A1AA;
-      --app-muted-2:#73737C;
-      --app-line:rgba(255,255,255,.085);
-      --app-line-2:rgba(255,255,255,.16);
-      --app-glass:rgba(28,28,33,.64);
-      --app-active:rgba(255,255,255,.13);
-      --app-green:#35D46F;
-      --app-green-soft:rgba(53,212,111,.12);
-      --app-blue:#58AAFF;
-      --app-blue-soft:rgba(88,170,255,.11);
-      --app-amber:#FFB340;
-      --app-amber-soft:rgba(255,179,64,.11);
-      --app-red:#FF6259;
-      --app-red-soft:rgba(255,98,89,.11);
-      --app-purple:#BF5AF2;
-      --app-shadow:0 18px 48px rgba(0,0,0,.46);
-      --app-max:430px;
-    }
-
-    html[data-theme="light"]{
-      --app-bg:#F2F2F5;
-      --app-top:#F8F8FA;
-      --app-surface:#FFFFFF;
-      --app-surface-2:#F2F2F5;
-      --app-surface-3:#E8E8ED;
-      --app-text:#111114;
-      --app-muted:#66666E;
-      --app-muted-2:#8C8C95;
-      --app-line:rgba(0,0,0,.075);
-      --app-line-2:rgba(0,0,0,.13);
-      --app-glass:rgba(255,255,255,.68);
-      --app-active:rgba(255,255,255,.88);
-      --app-green:#20B95A;
-      --app-green-soft:rgba(32,185,90,.11);
-      --app-blue:#007AFF;
-      --app-blue-soft:rgba(0,122,255,.09);
-      --app-amber:#E98600;
-      --app-amber-soft:rgba(233,134,0,.10);
-      --app-red:#FF3B30;
-      --app-red-soft:rgba(255,59,48,.09);
-      --app-shadow:0 16px 40px rgba(0,0,0,.12);
-    }
-
-    body{
-      background:
-        radial-gradient(circle at 50% -14%,rgba(255,255,255,.07),transparent 32%),
-        linear-gradient(180deg,var(--app-top),var(--app-bg) 28%,var(--app-bg)) !important;
-      color:var(--app-text) !important;
-      padding-bottom:calc(92px + env(safe-area-inset-bottom)) !important;
-    }
-
-    html[data-theme="light"] body{
-      background:
-        radial-gradient(circle at 50% -12%,#FFFFFF,transparent 34%),
-        linear-gradient(180deg,#FAFAFD,var(--app-bg) 26%,var(--app-bg)) !important;
-    }
-
-    .page{display:block !important}
-    .app-shell{
-      width:100% !important;
-      max-width:var(--app-max) !important;
-      min-height:100vh !important;
-      margin:0 auto !important;
-      padding:0 16px 28px !important;
-    }
-
-    .topbar{
-      position:sticky !important;
-      top:0 !important;
-      z-index:30 !important;
-      height:54px !important;
-      margin:0 -16px !important;
-      padding:7px 16px !important;
-      display:flex !important;
-      align-items:center !important;
-      background:linear-gradient(180deg,rgba(5,5,6,.94),rgba(5,5,6,.78)) !important;
-      border-bottom:1px solid rgba(255,255,255,.045) !important;
-      box-shadow:none !important;
-      backdrop-filter:blur(22px) saturate(150%) !important;
-      -webkit-backdrop-filter:blur(22px) saturate(150%) !important;
-    }
-
-    html[data-theme="light"] .topbar{
-      background:linear-gradient(180deg,rgba(248,248,250,.95),rgba(248,248,250,.80)) !important;
-      border-bottom-color:rgba(0,0,0,.045) !important;
-    }
-
-    .toprow{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px}
-    .brand{gap:9px !important}
-    .logo{
-      width:31px !important;
-      height:31px !important;
-      border-radius:10px !important;
-      border:0 !important;
-      background:var(--app-text) !important;
-      color:var(--app-bg) !important;
-      font-size:10px !important;
-      font-weight:1000 !important;
-    }
-    .brand h1{font-size:14px !important;line-height:1 !important;letter-spacing:-.3px !important}
-    .brand span{margin-top:3px !important;color:var(--app-muted-2) !important;font-size:10.5px !important;max-width:250px !important}
-    .top-pill{
-      min-height:32px !important;
-      padding:7px 10px !important;
-      border-radius:999px !important;
-      border:1px solid var(--app-line) !important;
-      background:var(--app-surface) !important;
-      color:var(--app-muted) !important;
-      font-size:10.5px !important;
-      font-weight:850 !important;
-    }
-
-    .screen{padding-bottom:8px !important;animation:approvedIn .20s ease !important}
-    @keyframes approvedIn{from{opacity:.5;transform:translateY(4px)}to{opacity:1;transform:none}}
-
-    .page-head{
-      padding:20px 2px 14px;
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:14px;
-    }
-    .page-head h1{margin:0;font-size:29px;line-height:1.03;letter-spacing:-1.1px}
-    .page-head p{margin:6px 0 0;color:var(--app-muted);font-size:12.5px;line-height:1.4}
-    .head-actions{display:flex;align-items:center;gap:8px;padding-top:1px}
-    .date-chip{
-      min-height:32px;padding:7px 10px;border-radius:999px;border:1px solid var(--app-line);
-      background:var(--app-surface);color:var(--app-muted);font-size:10.5px;font-weight:850;white-space:nowrap
-    }
-
-    .focus-strip{
-      position:relative;min-height:68px;padding:13px 14px 13px 17px;border:1px solid var(--app-line);
-      border-radius:20px;background:var(--app-surface);overflow:hidden
-    }
-    .focus-strip::before{content:"";position:absolute;left:0;top:13px;bottom:13px;width:3px;border-radius:99px;background:var(--app-green)}
-    .focus-kicker{display:block;color:var(--app-green);font-size:10px;font-weight:1000;text-transform:uppercase;letter-spacing:.7px}
-    .focus-strip strong{display:block;margin-top:5px;font-size:14px;letter-spacing:-.25px}
-    .focus-strip p{margin:4px 0 0;color:var(--app-muted);font-size:11.5px;line-height:1.38}
-    .chips-row.compact{margin-top:9px !important;gap:5px !important}
-    .chips-row.compact .tag{padding:4px 7px !important;font-size:9px !important}
-
-    .section-head{margin:20px 2px 8px;display:flex;align-items:center;justify-content:space-between;gap:10px}
-    .section-head h2{margin:0;font-size:15px;letter-spacing:-.3px}
-    .section-head>span{color:var(--app-muted-2);font-size:10.5px;font-weight:800}
-
-    .content-group,.profile-summary-group,.menu-group{
-      overflow:hidden;border:1px solid var(--app-line);border-radius:20px;background:var(--app-surface)
-    }
-    .group-note{margin:0;padding:11px 13px 0;color:var(--app-muted);font-size:10.8px;line-height:1.35}
-
-    .timeline{display:grid !important;gap:0 !important}
-    .today-meals-group .meal{
-      margin:0 !important;border:0 !important;border-bottom:1px solid var(--app-line) !important;
-      border-radius:0 !important;background:transparent !important;padding:11px 13px !important;
-      grid-template-columns:48px 1fr !important;gap:10px !important;min-height:68px
-    }
-    .today-meals-group .meal:last-child{border-bottom:0 !important}
-    .today-meals-group .meal-time{
-      min-height:auto !important;padding:0 !important;border:0 !important;border-radius:0 !important;
-      background:transparent !important;color:var(--app-muted-2) !important;font-size:10.5px !important;
-      font-weight:900 !important;display:block !important;text-align:left !important
-    }
-    .today-meals-group .meal b{font-size:13px !important;letter-spacing:-.18px !important;margin-bottom:4px !important}
-    .today-meals-group .meal span{color:var(--app-muted) !important;font-size:11.2px !important;line-height:1.35 !important}
-    .replacement,.coach-note{font-size:10.2px !important;line-height:1.35 !important;padding:7px 8px !important;border-radius:11px !important}
-
-    .compact-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:10px 12px;border-top:1px solid var(--app-line)}
-    .compact-actions.three{grid-template-columns:repeat(3,1fr)}
-    .btn{
-      min-height:38px !important;border-radius:12px !important;padding:8px 10px !important;
-      font-size:10.8px !important;font-weight:950 !important;box-shadow:none !important
-    }
-    .btn.primary{background:var(--app-green) !important;color:#06170C !important}
-    .btn.secondary{background:var(--app-surface-2) !important;border-color:var(--app-line) !important;color:var(--app-text) !important}
-    .btn.blue{background:var(--app-blue-soft) !important;color:var(--app-blue) !important;border-color:rgba(88,170,255,.18) !important}
-    .btn.amber{background:var(--app-amber-soft) !important;color:var(--app-amber) !important;border-color:rgba(255,179,64,.18) !important}
-    .btn.red{background:var(--app-red-soft) !important;color:var(--app-red) !important;border-color:rgba(255,98,89,.18) !important}
-    .full-width{width:100%;margin-top:10px}
-
-    .compact-workout{
-      border:0 !important;border-radius:0 !important;background:transparent !important;padding:12px 13px !important;gap:7px !important
-    }
-    .compact-workout strong{font-size:13px !important}
-    .compact-workout span{font-size:11px !important;color:var(--app-muted) !important}
-    .compact-chip{background:var(--app-surface-2) !important;border:1px solid var(--app-line) !important;color:var(--app-muted) !important;font-size:9.5px !important;padding:5px 7px !important}
-
-    .water-compact{padding:13px;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center}
-    .water-copy strong{display:block;font-size:19px;letter-spacing:-.5px}
-    .water-copy span{display:block;margin-top:4px;color:var(--app-muted);font-size:10.8px}
-    .progress-mini{height:6px !important;margin-top:10px;background:var(--app-surface-3) !important}
-    .progress-mini div{background:var(--app-blue) !important}
-    .water-actions{display:grid;gap:6px;min-width:83px}
-    .water-add,.water-done{min-height:31px;padding:6px 8px;border-radius:999px;border:1px solid var(--app-line);font-size:9.5px;font-weight:950}
-    .water-add{background:var(--app-blue-soft);color:var(--app-blue)}
-    .water-done{background:var(--app-green-soft);color:var(--app-green)}
-
-    .tag,.status-pill{
-      border:1px solid var(--app-line) !important;background:var(--app-surface-2) !important;color:var(--app-muted) !important;
-      border-radius:999px !important;padding:5px 8px !important;font-size:9.5px !important;font-weight:900 !important
-    }
-    .tag.green,.status-pill.green{background:var(--app-green-soft) !important;color:var(--app-green) !important;border-color:rgba(53,212,111,.20) !important}
-    .tag.blue,.status-pill.blue{background:var(--app-blue-soft) !important;color:var(--app-blue) !important;border-color:rgba(88,170,255,.18) !important}
-    .tag.amber,.status-pill.amber{background:var(--app-amber-soft) !important;color:var(--app-amber) !important;border-color:rgba(255,179,64,.18) !important}
-    .tag.red,.status-pill.red{background:var(--app-red-soft) !important;color:var(--app-red) !important;border-color:rgba(255,98,89,.18) !important}
-
-    .summary-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
-    .summary-cell{min-height:58px;padding:9px 10px;border:1px solid var(--app-line);border-radius:16px;background:var(--app-surface)}
-    .summary-cell span{display:block;color:var(--app-muted-2);font-size:9px;font-weight:850}
-    .summary-cell strong{display:block;margin-top:7px;font-size:13px;letter-spacing:-.28px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
-    #workoutSections .section-block{margin-top:10px !important}
-    #workoutSections .section-title{margin:16px 2px 8px !important}
-    #workoutSections .section-title h3{font-size:15px !important}
-    #workoutSections .section-title span{font-size:10px !important;color:var(--app-muted-2) !important}
-    .exercise-card{
-      min-height:68px !important;margin:0 !important;padding:10px 12px !important;border:1px solid var(--app-line) !important;
-      border-bottom:0 !important;border-radius:0 !important;background:var(--app-surface) !important;
-      grid-template-columns:44px 1fr !important;gap:10px !important
-    }
-    #workoutSections .section-block .exercise-card:first-of-type{border-radius:20px 20px 0 0 !important}
-    #workoutSections .section-block .exercise-card:last-child{border-bottom:1px solid var(--app-line) !important;border-radius:0 0 20px 20px !important}
-    #workoutSections .section-block .exercise-card:only-of-type{border-radius:20px !important}
-    .exercise-card.done{background:linear-gradient(90deg,var(--app-green-soft),var(--app-surface) 58%) !important;border-color:rgba(53,212,111,.18) !important}
-    .exercise-art{width:44px !important;height:44px !important;border-radius:13px !important;background:var(--app-surface-2) !important;border-color:var(--app-line) !important}
-    .exercise-art svg{width:23px !important;height:23px !important}
-    .exercise-body b{font-size:13px !important;margin-bottom:4px !important}
-    .exercise-body span{font-size:10.5px !important;color:var(--app-muted) !important;line-height:1.35 !important}
-    .exercise-actions{display:flex !important;gap:6px !important;margin-top:7px !important}
-    .exercise-actions .btn{min-height:29px !important;padding:5px 9px !important;border-radius:999px !important;font-size:9px !important;flex:0 0 auto}
-
-    .primary-bar{
-      position:sticky;bottom:74px;z-index:10;margin-top:14px;padding:7px;border:1px solid var(--app-line);
-      border-radius:18px;background:var(--app-glass);backdrop-filter:blur(22px) saturate(160%);
-      -webkit-backdrop-filter:blur(22px) saturate(160%);box-shadow:var(--app-shadow);display:grid;grid-template-columns:1fr auto;gap:7px
-    }
-    .finish-main{min-height:42px;border:0;border-radius:13px;background:var(--app-green);color:#06170C;font-size:11px;font-weight:1000;padding:8px 12px}
-    .reset-link{min-height:42px;border:1px solid var(--app-line);border-radius:13px;background:var(--app-surface-2);color:var(--app-muted);font-size:10px;font-weight:900;padding:8px 10px}
-
-    .circle-action{
-      width:36px;height:36px;border-radius:50%;border:1px solid var(--app-line);background:var(--app-surface);display:grid;place-items:center
-    }
-    .circle-action svg,.menu-icon svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-    .week-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
-    .week-copy strong{display:block;font-size:13px;letter-spacing:-.2px}
-    .week-copy span{display:block;margin-top:3px;color:var(--app-muted);font-size:10.5px}
-
-    .day-strip{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:12px}
-    .day-btn{min-width:0;min-height:52px;padding:7px 3px;border:1px solid var(--app-line);border-radius:15px;background:var(--app-surface);color:var(--app-muted);text-align:center}
-    .day-btn span{display:block;font-size:8.8px;font-weight:900;text-transform:uppercase;letter-spacing:.35px}
-    .day-btn strong{display:block;margin-top:5px;font-size:12px}
-    .day-btn.active{background:var(--app-text);color:var(--app-bg);border-color:var(--app-text);box-shadow:0 7px 18px rgba(0,0,0,.16)}
-    html[data-theme="light"] .day-btn.active{background:#111114;color:#FFFFFF;border-color:#111114}
-
-    .fold-card{
-      margin-top:10px !important;border:1px solid var(--app-line) !important;border-radius:18px !important;background:var(--app-surface) !important;box-shadow:none !important;overflow:hidden !important
-    }
-    .fold-card>summary{min-height:57px !important;padding:12px 13px !important}
-    .fold-title{gap:0 !important}
-    .fold-title b{font-size:12.5px !important;letter-spacing:-.16px !important}
-    .fold-title span{margin-top:4px !important;color:var(--app-muted) !important;font-size:10.5px !important;line-height:1.35 !important}
-    .fold-arrow{width:26px !important;height:26px !important;min-width:26px !important;background:var(--app-surface-2) !important;border-color:var(--app-line) !important;color:var(--app-muted-2) !important}
-    .fold-arrow::before{width:7px !important;height:7px !important;border-width:0 1.7px 1.7px 0 !important;left:8px !important;top:7px !important;transform:rotate(45deg) !important}
-    .fold-content{padding:0 13px 13px !important;color:var(--app-muted) !important;font-size:10.8px !important;line-height:1.46 !important}
-    .mini-list{gap:7px !important}
-    .mini-item{padding:9px 10px !important;border-radius:13px !important;background:var(--app-surface-2) !important;border:1px solid var(--app-line) !important;font-size:10.8px !important}
-
-    .metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    .metric{min-height:80px;padding:11px;border:1px solid var(--app-line);border-radius:18px;background:var(--app-surface)}
-    .metric span{display:block;color:var(--app-muted-2);font-size:9.5px;font-weight:850}
-    .metric strong{display:block;margin-top:11px;font-size:17px;letter-spacing:-.55px;text-transform:capitalize}
-    .ai-status-box{margin-top:0 !important;border:1px solid var(--app-line) !important;border-radius:18px !important;padding:12px !important;background:var(--app-surface) !important}
-    .ai-status-top h4{font-size:13px !important}
-    .ai-status-top p{font-size:10.8px !important;color:var(--app-muted) !important}
-    .ai-status-row{font-size:10.5px !important;border-color:var(--app-line) !important}
-    .ai-status-row span{color:var(--app-muted) !important}
-
-    .grid2{gap:8px !important}
-    .field{margin-top:9px !important}
-    .field label{font-size:10.5px !important;color:var(--app-muted) !important}
-    .input,.select,.textarea{border-color:var(--app-line) !important;background:var(--app-surface-2) !important;color:var(--app-text) !important;border-radius:13px !important;min-height:43px !important;padding:10px 11px !important;font-size:13px !important}
-
-    .photo-upload-box{background:var(--app-surface-2) !important;border-color:var(--app-line) !important;border-radius:16px !important;padding:10px !important}
-    .photo-grid{gap:8px !important}
-    .photo-card{background:var(--app-surface-2) !important;border-color:var(--app-line) !important;border-radius:16px !important}
-    .photo-info{padding:8px !important}
-    .photo-info strong{font-size:10.8px !important}
-    .photo-info span{font-size:9.8px !important;color:var(--app-muted) !important}
-    .tiny-btn{min-height:31px !important;border-radius:10px !important;background:var(--app-surface-3) !important;border-color:var(--app-line) !important;font-size:9.5px !important}
-
-    .profile-head-new{padding:20px 2px 14px;display:flex;align-items:center;gap:12px}
-    .profile-avatar{width:58px !important;height:58px !important;border-radius:19px !important;background:linear-gradient(145deg,var(--app-surface-3),var(--app-surface)) !important;border:1px solid var(--app-line) !important;color:var(--app-text) !important;font-size:18px !important}
-    .profile-copy-new{min-width:0;flex:1}
-    .profile-copy-new h1{margin:0;font-size:23px;line-height:1.05;letter-spacing:-.8px}
-    .profile-copy-new p{margin:5px 0 0;color:var(--app-muted);font-size:11.5px}
-    .profile-edit{min-width:46px;min-height:31px;padding:6px 9px;border:1px solid var(--app-line);border-radius:999px;background:var(--app-surface);color:var(--app-blue);font-size:9.5px;font-weight:950}
-    .profile-summary-group .summary-line{min-height:55px;padding:10px 12px !important;margin:0 !important;border-bottom:1px solid var(--app-line) !important;align-items:center;font-size:11px !important}
-    .profile-summary-group .summary-line:last-child{border-bottom:0 !important}
-    .profile-summary-group .summary-line span{color:var(--app-muted) !important}
-    .profile-summary-group .summary-line strong{max-width:62%;font-size:10.8px !important}
-
-    .menu-group{border-radius:20px}
-    .menu-row{width:100%;min-height:58px;padding:10px 12px;border:0;background:transparent;display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;text-align:left}
-    .menu-row:active{background:var(--app-surface-2)}
-    .menu-icon{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:var(--app-surface-2);border:1px solid var(--app-line)}
-    .menu-copy strong{display:block;font-size:12.5px;letter-spacing:-.15px}
-    .menu-copy span{display:block;margin-top:4px;color:var(--app-muted);font-size:10.5px;line-height:1.3}
-    .chevron{position:relative;width:16px;height:16px;color:var(--app-muted-2)}
-    .chevron::before{content:"";position:absolute;left:3px;top:3px;width:7px;height:7px;border-top:1.7px solid currentColor;border-right:1.7px solid currentColor;transform:rotate(45deg)}
-
-    .feature-lock-card,.plan-access-card,.premium-lock{background:var(--app-surface) !important;border-color:var(--app-line) !important;border-radius:18px !important}
-    .feature-mini,.upgrade-list div,.promo-inline{background:var(--app-surface-2) !important;border-color:var(--app-line) !important}
-
-    .modal{background:rgba(0,0,0,.58) !important;backdrop-filter:blur(8px) !important;-webkit-backdrop-filter:blur(8px) !important}
-    .sheet{max-width:var(--app-max) !important;border-color:var(--app-line-2) !important;background:rgba(24,24,27,.92) !important;border-radius:25px !important;box-shadow:var(--app-shadow) !important;backdrop-filter:blur(30px) saturate(180%) !important;-webkit-backdrop-filter:blur(30px) saturate(180%) !important}
-    html[data-theme="light"] .sheet{background:rgba(255,255,255,.93) !important}
-    .media-box{background:var(--app-surface-2) !important;border-color:var(--app-line) !important}
-    .select-chip{background:var(--app-surface-2) !important;border-color:var(--app-line) !important;color:var(--app-text) !important}
-    .select-chip.active{background:var(--app-green-soft) !important;border-color:rgba(53,212,111,.35) !important;color:var(--app-green) !important}
-
-    .bottom-tabs{
-      position:fixed !important;left:50% !important;right:auto !important;bottom:calc(8px + env(safe-area-inset-bottom)) !important;
-      transform:translateX(-50%) !important;z-index:100 !important;width:calc(100% - 28px) !important;max-width:398px !important;
-      height:58px !important;min-height:58px !important;display:grid !important;grid-template-columns:repeat(5,1fr) !important;
-      align-items:center !important;gap:3px !important;padding:5px 6px !important;margin:0 !important;border-radius:29px !important;
-      border:1px solid rgba(255,255,255,.18) !important;
-      background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.035)),var(--app-glass) !important;
-      box-shadow:0 16px 40px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.21) !important;
-      backdrop-filter:blur(28px) saturate(180%) !important;-webkit-backdrop-filter:blur(28px) saturate(180%) !important;
-      overflow:hidden !important;isolation:isolate !important
-    }
-    .bottom-tabs::before{content:"" !important;position:absolute !important;top:1px !important;left:18px !important;right:18px !important;height:40% !important;border-radius:999px !important;background:linear-gradient(180deg,rgba(255,255,255,.14),transparent) !important;z-index:-1 !important}
-    .bottom-tabs::after{display:none !important}
-    .bottom-tabs .tab{position:relative !important;height:48px !important;min-height:48px !important;padding:0 !important;margin:0 !important;border:1px solid transparent !important;border-radius:24px !important;background:transparent !important;display:grid !important;place-items:center !important;color:rgba(238,238,243,.58) !important;box-shadow:none !important}
-    .bottom-tabs .tab svg{width:23px !important;height:23px !important;stroke:currentColor !important;stroke-width:1.9 !important;fill:none !important}
-    .bottom-tabs .tab span{position:absolute !important;width:1px !important;height:1px !important;margin:-1px !important;overflow:hidden !important;clip:rect(0 0 0 0) !important;clip-path:inset(50%) !important;white-space:nowrap !important}
-    .bottom-tabs .tab.active{color:#FFFFFF !important;border-color:rgba(255,255,255,.12) !important;background:var(--app-active) !important;box-shadow:inset 0 1px 0 rgba(255,255,255,.15),0 5px 14px rgba(0,0,0,.18) !important}
-
-    html[data-theme="light"] .bottom-tabs{
-      border-color:rgba(255,255,255,.72) !important;
-      background:linear-gradient(180deg,rgba(255,255,255,.50) 0%,rgba(248,248,252,.37) 48%,rgba(232,232,239,.28) 100%) !important;
-      box-shadow:0 11px 28px rgba(55,55,70,.13),0 2px 7px rgba(55,55,70,.05),inset 0 1px 0 rgba(255,255,255,.86),inset 0 -1px 0 rgba(255,255,255,.16) !important;
-      backdrop-filter:blur(30px) saturate(165%) brightness(1.03) !important;-webkit-backdrop-filter:blur(30px) saturate(165%) brightness(1.03) !important
-    }
-    html[data-theme="light"] .bottom-tabs::before{left:20px !important;right:20px !important;height:35% !important;background:linear-gradient(180deg,rgba(255,255,255,.62),rgba(255,255,255,.06)) !important;opacity:.68 !important}
-    html[data-theme="light"] .bottom-tabs::after{content:"" !important;display:block !important;position:absolute !important;inset:-18px !important;z-index:-2 !important;background:radial-gradient(circle at 18% 20%,rgba(255,255,255,.30),transparent 30%),radial-gradient(circle at 82% 78%,rgba(180,195,220,.14),transparent 36%) !important;filter:blur(14px) !important;pointer-events:none !important}
-    html[data-theme="light"] .bottom-tabs .tab{color:rgba(68,68,76,.60) !important}
-    html[data-theme="light"] .bottom-tabs .tab.active{color:#151519 !important;border-color:rgba(255,255,255,.62) !important;background:linear-gradient(180deg,rgba(255,255,255,.48),rgba(255,255,255,.23)) !important;box-shadow:0 4px 12px rgba(70,70,85,.08),inset 0 1px 0 rgba(255,255,255,.78),inset 0 -1px 0 rgba(255,255,255,.08) !important}
-
-    .toast{bottom:calc(76px + env(safe-area-inset-bottom)) !important;max-width:390px !important;background:rgba(24,24,27,.92) !important;border-color:var(--app-line-2) !important;border-radius:15px !important;color:#FFFFFF !important;font-size:11.5px !important}
-    html[data-theme="light"] .toast{background:rgba(255,255,255,.94) !important;color:#111114 !important}
-
-    @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
-      .bottom-tabs{background:rgba(24,24,28,.96) !important}
-      html[data-theme="light"] .bottom-tabs{background:rgba(255,255,255,.96) !important}
-    }
-
-    @media(max-width:390px){
-      .app-shell{padding-left:13px !important;padding-right:13px !important}
-      .topbar{margin-left:-13px !important;margin-right:-13px !important;padding-left:13px !important;padding-right:13px !important}
-      .page-head h1{font-size:26px}
-      .day-strip{gap:4px}
-      .bottom-tabs{width:calc(100% - 20px) !important}
-      .grid2{grid-template-columns:1fr !important}
-      .photo-grid{grid-template-columns:1fr !important}
-    }
-
-    @media print{
-      body{background:#FFFFFF !important;color:#111111 !important;padding:0 !important}
-      .topbar,.bottom-tabs,.toast,.modal,.no-print{display:none !important}
-      .app-shell{max-width:none !important;padding:0 !important}
-    }
-
-  
-
-    /* =========================================================
-       SHAPECUE POLISH FIX V2
-    ========================================================= */
-    .page-head > div:first-child{min-width:0;flex:1 1 auto}
-    .head-actions{flex:0 0 auto !important;align-self:flex-start}
-    .circle-action{width:34px !important;height:34px !important;min-width:34px !important;flex:0 0 34px !important;padding:0 !important;overflow:hidden !important;color:var(--app-blue) !important;line-height:0 !important}
-    .circle-action svg{display:block !important;width:16px !important;height:16px !important;flex:0 0 auto !important}
-    .circle-action.locked-action{color:var(--app-amber) !important;background:var(--app-amber-soft) !important;border-color:rgba(255,179,64,.18) !important}
-
-    #workoutScreen{padding-bottom:18px !important}
-    .primary-bar{position:relative !important;bottom:auto !important;z-index:2 !important;margin:16px 0 8px !important;box-shadow:none !important;background:var(--app-surface) !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important}
-
-    .bottom-tabs{width:calc(100% - 30px) !important;max-width:394px !important;height:54px !important;min-height:54px !important;padding:4px 6px !important;border-radius:27px !important}
-    .bottom-tabs .tab{height:44px !important;min-height:44px !important;border-radius:22px !important}
-    .bottom-tabs .tab svg{width:22px !important;height:22px !important}
-    .toast{bottom:calc(70px + env(safe-area-inset-bottom)) !important}
-
-    body.profile-tab-active .topbar{display:none !important}
-    body.profile-tab-active #profileScreen{padding-top:10px !important}
-    .profile-avatar-button{position:relative !important;padding:0 !important;cursor:pointer !important;appearance:none !important;-webkit-appearance:none !important;box-shadow:none !important}
-    .profile-avatar-button::after{content:"";position:absolute;right:-2px;bottom:-2px;width:17px;height:17px;border-radius:50%;border:2px solid var(--app-bg);background:radial-gradient(circle at 50% 50%,var(--app-text) 0 2px,transparent 2.5px),var(--app-blue);box-shadow:0 2px 8px rgba(0,0,0,.22)}
-    .profile-plan-badge{flex:0 0 auto;min-height:31px;display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;border:1px solid var(--app-line);border-radius:999px;background:var(--app-surface);color:var(--app-muted);font-size:9.5px;font-weight:1000;white-space:nowrap}
-    .profile-plan-badge.plus{color:var(--app-blue);background:var(--app-blue-soft);border-color:rgba(88,170,255,.18)}
-    .profile-plan-badge.premium{color:var(--app-purple);background:rgba(191,90,242,.11);border-color:rgba(191,90,242,.18)}
-    .profile-plan-badge.coach{color:var(--app-green);background:var(--app-green-soft);border-color:rgba(53,212,111,.20)}
-
-    body.modal-open{overflow:hidden !important}
-    body.modal-open .bottom-tabs{opacity:0 !important;pointer-events:none !important;transform:translateX(-50%) translateY(18px) !important;transition:opacity .16s ease,transform .2s ease !important}
-    .modal{z-index:300 !important;align-items:flex-end !important;overflow:hidden !important;padding:max(8px,env(safe-area-inset-top)) 10px 0 !important}
-    .sheet{width:100% !important;max-width:var(--app-max) !important;max-height:calc(100dvh - max(10px,env(safe-area-inset-top))) !important;overflow-y:auto !important;overflow-x:hidden !important;overscroll-behavior-y:contain !important;-webkit-overflow-scrolling:touch !important;padding:0 14px calc(16px + env(safe-area-inset-bottom)) !important;border-radius:26px 26px 0 0 !important;will-change:transform !important;touch-action:pan-y !important}
-    .sheet-handle{position:sticky;top:0;z-index:8;width:40px;height:5px;margin:8px auto 6px;border-radius:999px;background:rgba(255,255,255,.24)}
-    html[data-theme="light"] .sheet-handle{background:rgba(0,0,0,.18)}
-    .sheet-head{position:sticky !important;top:0 !important;z-index:7 !important;margin:0 -14px 10px !important;padding:8px 14px 10px !important;background:linear-gradient(180deg,rgba(24,24,27,.98),rgba(24,24,27,.94)) !important;border-bottom:1px solid var(--app-line) !important}
-    html[data-theme="light"] .sheet-head{background:linear-gradient(180deg,rgba(255,255,255,.99),rgba(255,255,255,.95)) !important}
-    #detailModal .media-box{min-height:150px !important;height:min(34dvh,220px) !important}
-    #detailModal .summary-list{padding-bottom:4px}
-
-    @media(max-width:390px){.bottom-tabs{width:calc(100% - 22px) !important}.profile-plan-badge{padding-left:8px;padding-right:8px}}
-
-
-    /* =========================================================
-       SHAPECUE WEEKLY VISUAL COACH V1
-       Weekly Unsplash covers + curated exercise media.
-    ========================================================= */
-    .coach-cover,
-    .section-visual-cover{
-      --cover-accent:var(--app-green);
-      --cover-soft:rgba(53,212,111,.24);
-      position:relative;
-      overflow:hidden;
-      isolation:isolate;
-      border:1px solid rgba(255,255,255,.12);
-      background:
-        radial-gradient(circle at 90% 10%,var(--cover-soft),transparent 42%),
-        linear-gradient(145deg,#17181D,#090A0D);
-      box-shadow:0 18px 40px rgba(0,0,0,.30);
-    }
-
-    html[data-theme="light"] .coach-cover,
-    html[data-theme="light"] .section-visual-cover{
-      border-color:rgba(255,255,255,.72);
-      background:
-        radial-gradient(circle at 90% 10%,var(--cover-soft),transparent 44%),
-        linear-gradient(145deg,#FFFFFF,#EDEEF3);
-      box-shadow:0 13px 31px rgba(45,45,60,.13);
-    }
-
-    .coach-cover{
-      min-height:220px;
-      margin-bottom:9px;
-      border-radius:25px;
-    }
-
-    .section-visual-cover{
-      min-height:150px;
-      margin-bottom:12px;
-      border-radius:21px;
-    }
-
-    .coach-cover.tone-push,
-    .section-visual-cover.tone-push{
-      --cover-accent:#58AAFF;
-      --cover-soft:rgba(88,170,255,.32);
-    }
-
-    .coach-cover.tone-pull,
-    .section-visual-cover.tone-pull{
-      --cover-accent:#35D46F;
-      --cover-soft:rgba(53,212,111,.28);
-    }
-
-    .coach-cover.tone-legs,
-    .section-visual-cover.tone-legs{
-      --cover-accent:#FF9F4A;
-      --cover-soft:rgba(255,159,74,.31);
-    }
-
-    .coach-cover.tone-mobility,
-    .coach-cover.tone-recovery,
-    .section-visual-cover.tone-mobility,
-    .section-visual-cover.tone-recovery{
-      --cover-accent:#BF7BFF;
-      --cover-soft:rgba(191,123,255,.29);
-    }
-
-    .section-visual-cover.meal-tone{
-      --cover-accent:#FFB340;
-      --cover-soft:rgba(255,179,64,.30);
-    }
-
-    .cover-photo{
-      position:absolute;
-      inset:0;
-      z-index:-3;
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      opacity:0;
-      transform:scale(1.025);
-      transition:opacity .35s ease;
-    }
-
-    .visual-ready .cover-photo{
-      opacity:1;
-    }
-
-    .coach-cover.visual-ready .cover-photo{
-      animation:shapeCueCoverDrift 18s ease-in-out infinite alternate;
-    }
-
-    @keyframes shapeCueCoverDrift{
-      from{transform:scale(1.025) translate3d(0,0,0)}
-      to{transform:scale(1.085) translate3d(-1.5%,0,0)}
-    }
-
-    .cover-overlay{
-      position:absolute;
-      inset:0;
-      z-index:-2;
-      background:
-        linear-gradient(90deg,rgba(4,5,8,.94) 0%,rgba(4,5,8,.72) 56%,rgba(4,5,8,.20) 100%),
-        linear-gradient(0deg,rgba(4,5,8,.90),transparent 58%);
-    }
-
-    html[data-theme="light"] .cover-overlay{
-      background:
-        linear-gradient(90deg,rgba(10,12,18,.91) 0%,rgba(10,12,18,.68) 58%,rgba(10,12,18,.18) 100%),
-        linear-gradient(0deg,rgba(10,12,18,.84),transparent 58%);
-    }
-
-    .cover-content{
-      min-height:inherit;
-      padding:15px;
-      display:flex;
-      flex-direction:column;
-      justify-content:flex-end;
-      color:#FFFFFF;
-    }
-
-    .cover-topline{
-      position:absolute;
-      left:14px;
-      right:14px;
-      top:13px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-    }
-
-    .cover-kicker,
-    .cover-plan-chip{
-      display:inline-flex;
-      align-items:center;
-      min-height:25px;
-      padding:5px 8px;
-      border:1px solid rgba(255,255,255,.18);
-      border-radius:999px;
-      background:rgba(7,8,12,.42);
-      color:rgba(255,255,255,.91);
-      backdrop-filter:blur(14px);
-      -webkit-backdrop-filter:blur(14px);
-      font-size:8.8px;
-      font-weight:1000;
-      letter-spacing:.4px;
-      text-transform:uppercase;
-      white-space:nowrap;
-    }
-
-    .cover-plan-chip{
-      color:var(--cover-accent);
-      text-transform:none;
-      letter-spacing:0;
-    }
-
-    .cover-content h2{
-      max-width:315px;
-      margin:45px 0 0;
-      color:#FFFFFF;
-      font-size:24px;
-      line-height:1.02;
-      letter-spacing:-.95px;
-      text-shadow:0 2px 18px rgba(0,0,0,.42);
-    }
-
-    .section-visual-cover .cover-content h2{
-      font-size:20px;
-      max-width:290px;
-    }
-
-    .cover-copy{
-      max-width:330px;
-      margin:7px 0 0;
-      color:rgba(255,255,255,.78);
-      font-size:10.8px;
-      line-height:1.42;
-      text-shadow:0 1px 12px rgba(0,0,0,.38);
-    }
-
-    .cover-metrics{
-      display:flex;
-      flex-wrap:wrap;
-      gap:6px;
-      margin-top:10px;
-    }
-
-    .cover-metric{
-      min-height:27px;
-      display:inline-flex;
-      align-items:center;
-      gap:5px;
-      padding:5px 8px;
-      border:1px solid rgba(255,255,255,.16);
-      border-radius:999px;
-      background:rgba(7,8,12,.38);
-      color:rgba(255,255,255,.89);
-      backdrop-filter:blur(13px);
-      -webkit-backdrop-filter:blur(13px);
-      font-size:8.8px;
-      font-weight:900;
-    }
-
-    .cover-metric::before{
-      content:"";
-      width:5px;
-      height:5px;
-      border-radius:50%;
-      background:var(--cover-accent);
-      box-shadow:0 0 0 4px color-mix(in srgb,var(--cover-accent) 18%,transparent);
-    }
-
-    .cover-credit{
-      position:absolute;
-      right:10px;
-      bottom:9px;
-      z-index:3;
-      max-width:52%;
-      overflow:hidden;
-      padding:4px 6px;
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:999px;
-      background:rgba(5,6,8,.42);
-      color:rgba(255,255,255,.72);
-      font-size:7.5px;
-      text-overflow:ellipsis;
-      white-space:nowrap;
-      backdrop-filter:blur(10px);
-      -webkit-backdrop-filter:blur(10px);
-    }
-
-    .cover-credit:hover{
-      color:#FFFFFF;
-    }
-
-    .visual-minimal .cover-photo,
-    .visual-minimal .cover-credit{
-      display:none !important;
-    }
-
-    .visual-minimal .cover-overlay{
-      background:
-        radial-gradient(circle at 88% 16%,var(--cover-soft),transparent 42%),
-        linear-gradient(145deg,#17181D,#090A0D);
-    }
-
-    html[data-theme="light"] .visual-minimal .cover-overlay{
-      background:
-        radial-gradient(circle at 88% 16%,var(--cover-soft),transparent 42%),
-        linear-gradient(145deg,#30323A,#111217);
-    }
-
-    .visual-workout-preview{
-      grid-template-columns:76px minmax(0,1fr) !important;
-      align-items:center;
-      gap:11px !important;
-    }
-
-    .workout-preview-media{
-      position:relative;
-      width:76px;
-      height:76px;
-      overflow:hidden;
-      border:1px solid var(--app-line);
-      border-radius:16px;
-      background:var(--app-surface-3);
-    }
-
-    .workout-preview-media img{
-      width:100%;
-      height:100%;
-      display:block;
-      object-fit:cover;
-    }
-
-    .workout-preview-media span{
-      position:absolute;
-      left:5px;
-      right:5px;
-      bottom:5px;
-      overflow:hidden;
-      padding:4px 5px;
-      border:1px solid rgba(255,255,255,.15);
-      border-radius:999px;
-      background:rgba(5,6,8,.55);
-      color:rgba(255,255,255,.88);
-      font-size:6.8px;
-      font-weight:950;
-      text-align:center;
-      text-overflow:ellipsis;
-      white-space:nowrap;
-      backdrop-filter:blur(8px);
-      -webkit-backdrop-filter:blur(8px);
-    }
-
-    .workout-preview-copy{
-      min-width:0;
-      display:grid;
-      gap:7px;
-    }
-
-    .pulse-strip{
-      margin-bottom:10px;
-      overflow:hidden;
-      border:1px solid var(--app-line);
-      border-radius:15px;
-      background:var(--app-surface);
-      -webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);
-      mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);
-    }
-
-    .pulse-track{
-      width:max-content;
-      min-height:37px;
-      display:flex;
-      align-items:center;
-      animation:none;
-      transform:translate3d(0,0,0);
-      will-change:transform;
-    }
-
-    .pulse-track.is-running{
-      animation:shapeCuePulse var(--pulse-duration,28s) linear infinite;
-    }
-
-    .pulse-strip:active .pulse-track{
-      animation-play-state:paused;
-    }
-
-    .pulse-item{
-      display:inline-flex;
-      align-items:center;
-      gap:7px;
-      padding:0 16px;
-      color:var(--app-muted);
-      font-size:9.5px;
-      font-weight:850;
-      white-space:nowrap;
-    }
-
-    .pulse-item::before{
-      content:"";
-      width:5px;
-      height:5px;
-      border-radius:50%;
-      background:var(--app-green);
-      box-shadow:0 0 0 4px var(--app-green-soft);
-    }
-
-    @keyframes shapeCuePulse{
-      from{transform:translate3d(0,0,0)}
-      to{transform:translate3d(-50%,0,0)}
-    }
-
-    .visual-loading::after{
-      content:"Loading weekly visual";
-      position:absolute;
-      right:12px;
-      bottom:10px;
-      z-index:4;
-      padding:5px 7px;
-      border:1px solid rgba(255,255,255,.14);
-      border-radius:999px;
-      background:rgba(5,6,8,.44);
-      color:rgba(255,255,255,.66);
-      font-size:7.5px;
-      font-weight:850;
-      backdrop-filter:blur(12px);
-    }
-
-    @media(max-width:390px){
-      .coach-cover{
-        min-height:210px;
-      }
-
-      .cover-content h2{
-        max-width:285px;
-        font-size:22px;
-      }
-
-      .cover-credit{
-        max-width:58%;
-      }
-    }
-
-    @media(prefers-reduced-motion:reduce){
-      .coach-cover.visual-ready .cover-photo,
-      .pulse-track{
-        animation:none !important;
-      }
-
-      .pulse-track{
-        width:100%;
-        overflow-x:auto;
-      }
-    }
-
-  </style>
+</style>
 </head>
 
 <body>
@@ -1467,189 +382,123 @@
       </div>
 
       <section class="screen active" id="todayScreen">
-        <div class="page-head">
-          <div>
-            <h1 id="todayTitle">Today</h1>
-            <p>Meals, training, water, and the next useful action.</p>
-          </div>
-          <div class="head-actions"><span class="date-chip" id="todayPlanChip">Coach</span></div>
-        </div>
-
-        <section class="coach-cover tone-push visual-loading" id="todayCoachCover" aria-label="Weekly visual coach">
-          <img class="cover-photo" id="todayVisualImage" alt="" fetchpriority="high">
-          <div class="cover-overlay"></div>
-          <div class="cover-content">
-            <div class="cover-topline">
-              <span class="cover-kicker" id="todayCoverKicker">Today / Training</span>
-              <span class="cover-plan-chip" id="todayCoverPlan">Coach</span>
-            </div>
-            <h2 id="todayCoverTitle">Your plan, with a little more energy.</h2>
-            <p class="cover-copy" id="todayCoverCopy">Weekly imagery supports the plan without replacing accurate exercise guidance.</p>
-            <div class="cover-metrics" id="todayCoverMetrics"></div>
-            <a class="cover-credit" id="todayVisualCredit" href="#" target="_blank" rel="noopener" hidden></a>
-          </div>
-        </section>
-
-        <div class="pulse-strip" aria-label="Today progress highlights">
-          <div class="pulse-track" id="pulseTrack"></div>
-        </div>
-
-        <section class="focus-strip">
-          <span class="focus-kicker">Today cue</span>
-          <strong>Follow the plan without overthinking it.</strong>
+        <div class="hero">
+          <h2 id="todayTitle">Today</h2>
           <p id="todaySubtitle">Your exact meals, workout, water, and progress for today.</p>
-          <div class="chips-row compact" id="todayTags"></div>
-        </section>
-
-        <div class="section-head">
-          <h2>Next meals</h2>
-          <span class="status-pill" id="mealStatusPill">Pending</span>
+          <div class="chips-row" id="todayTags"></div>
         </div>
-        <section class="content-group today-meals-group">
-          <div class="timeline" id="todayMeals"></div>
-          <div class="compact-actions three">
-            <button class="btn primary" data-meal-status="done">Done</button>
-            <button class="btn amber" data-meal-status="still_hungry">Hungry</button>
-            <button class="btn secondary" data-meal-status="skipped">Skipped</button>
-          </div>
-        </section>
 
-        <div class="section-head">
-          <h2>Workout</h2>
-          <span class="status-pill blue" id="workoutStatusPill">Ready</span>
-        </div>
-        <section class="content-group">
-          <p class="group-note" id="workoutPreviewSub">Workout preview</p>
-          <div id="workoutPreview"></div>
-          <div class="compact-actions">
-            <button class="btn primary" id="startWorkoutToday">Open workout</button>
-            <button class="btn secondary" id="tooBusyBtn">Short version</button>
+        <div class="card">
+          <div class="card-inner">
+            <div class="card-head">
+              <div><h3>Today meals</h3><p>Exact foods with replacements.</p></div>
+              <span class="status-pill" id="mealStatusPill">Pending</span>
+            </div>
+            <div class="timeline" id="todayMeals"></div>
+            <div class="btn-row three">
+              <button class="btn primary" data-meal-status="done">Done</button>
+              <button class="btn amber" data-meal-status="still_hungry">Hungry</button>
+              <button class="btn secondary" data-meal-status="skipped">Skipped</button>
+            </div>
           </div>
-        </section>
+        </div>
 
-        <div class="section-head">
-          <h2>Water</h2>
-          <span class="status-pill blue" id="waterStatusPill">Pending</span>
+        <div class="card">
+          <div class="card-inner">
+            <div class="card-head">
+              <div><h3>Today workout</h3><p id="workoutPreviewSub">Workout preview</p></div>
+              <span class="status-pill blue" id="workoutStatusPill">Ready</span>
+            </div>
+            <div id="workoutPreview"></div>
+            <div class="btn-row">
+              <button class="btn primary" id="startWorkoutToday">Open workout</button>
+              <button class="btn secondary" id="tooBusyBtn">Short version</button>
+            </div>
+          </div>
         </div>
-        <section class="content-group water-compact">
-          <div class="water-copy">
-            <strong id="waterMain">0 / 2</strong>
-            <span id="waterSub">bottles</span>
-            <div class="progress-mini"><div id="waterBar"></div></div>
+
+        <div class="card">
+          <div class="card-inner">
+            <div class="card-head">
+              <div><h3>Water</h3><p>Track by bottle.</p></div>
+              <span class="status-pill blue" id="waterStatusPill">Pending</span>
+            </div>
+            <div class="water-grid">
+              <div class="water-big"><span>Today</span><strong id="waterMain">0 / 2</strong><span id="waterSub">bottles</span></div>
+              <div>
+                <div style="margin-bottom:9px"><div class="progress-mini"><div id="waterBar"></div></div></div>
+                <button class="btn blue" id="addBottleBtn" style="width:100%;margin-bottom:8px">+ Bottle</button>
+                <button class="btn primary" id="waterDoneBtn" style="width:100%">Goal done</button>
+              </div>
+            </div>
           </div>
-          <div class="water-actions">
-            <button class="water-add" id="addBottleBtn" type="button">+ Bottle</button>
-            <button class="water-done" id="waterDoneBtn" type="button">Goal done</button>
-          </div>
-        </section>
+        </div>
       </section>
 
       <section class="screen" id="workoutScreen">
-        <div class="page-head">
-          <div>
-            <h1 id="workoutTitle">Train</h1>
-            <p>Tap an exercise for its photo, video, form guide, and alternatives.</p>
+        <div class="hero">
+          <h2 id="workoutTitle">Workout</h2>
+          <p>Simple coach cards. Tap exercise for details. Use Report only when something important changes.</p>
+          <div class="chips-row">
+            <span class="tag green" id="workoutPlanTag">Coach plan</span>
+            <span class="tag blue" id="workoutCountTag">0 exercises</span>
           </div>
-          <div class="head-actions"><span class="date-chip">Today</span></div>
         </div>
 
-        <section class="section-visual-cover tone-push visual-loading" id="trainVisualCover" aria-label="Workout visual">
-          <img class="cover-photo" id="trainVisualImage" alt="" loading="lazy">
-          <div class="cover-overlay"></div>
-          <div class="cover-content">
-            <div class="cover-topline">
-              <span class="cover-kicker" id="trainCoverKicker">Workout</span>
-              <span class="cover-plan-chip" id="trainCoverCount">0 exercises</span>
+        <div class="card">
+          <div class="card-inner">
+            <div class="card-head">
+              <div><h3>Today workout</h3><p>One tap Done. Report only for pain, hard/easy, or weight/reps.</p></div>
+              <span class="status-pill blue" id="simpleWorkoutStatus">Ready</span>
             </div>
-            <h2 id="trainCoverTitle">Train with purpose.</h2>
-            <p class="cover-copy" id="trainCoverCopy">Use curated exercise guides for exact form and safety.</p>
-            <a class="cover-credit" id="trainVisualCredit" href="#" target="_blank" rel="noopener" hidden></a>
+            <div id="workoutSections"></div>
+            <div class="btn-row">
+              <button class="btn primary" id="finishWorkoutBtn">Finish workout</button>
+              <button class="btn secondary" id="resetWorkoutBtn">Reset today</button>
+            </div>
           </div>
-        </section>
-
-        <section class="summary-strip">
-          <div class="summary-cell"><span>Plan</span><strong id="workoutPlanTag">Coach</strong></div>
-          <div class="summary-cell"><span>Exercises</span><strong id="workoutCountTag">0</strong></div>
-          <div class="summary-cell"><span>Status</span><strong id="simpleWorkoutStatus">Ready</strong></div>
-        </section>
-
-        <div id="workoutSections"></div>
-
-        <div class="primary-bar">
-          <button class="finish-main" id="finishWorkoutBtn" type="button">Finish workout</button>
-          <button class="reset-link" id="resetWorkoutBtn" type="button">Reset today</button>
         </div>
       </section>
 
       <section class="screen" id="weekScreen">
-        <div class="page-head">
-          <div>
-            <h1>Meals</h1>
-            <p>One day at a time. Expand only what you need.</p>
-          </div>
-          <div class="head-actions">
-            <button class="circle-action" id="exportPdfBtn" type="button" aria-label="Export weekly PDF">
-              <svg viewBox="0 0 24 24"><path d="M12 3v12M8 11l4 4 4-4M5 19h14"/></svg>
-            </button>
-            <button class="circle-action" id="refreshWeekBtn" type="button" aria-label="Refresh meal plan">
-              <svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0 2 5M20 4v7h-7"/></svg>
-            </button>
+        <div class="hero">
+          <h2>Meals</h2>
+          <p>Collapsed weekly plan. Expand only the day or section you need.</p>
+          <div class="chips-row">
+            <span class="tag green" id="weekPlanTag">Active plan</span>
+            <button class="mini-action" id="exportPdfBtn" type="button">Export PDF</button>
+            <button class="mini-action" id="refreshWeekBtn" type="button">Refresh</button>
           </div>
         </div>
-
-        <section class="section-visual-cover meal-tone visual-loading" id="mealsVisualCover" aria-label="Meal plan visual">
-          <img class="cover-photo" id="mealsVisualImage" alt="" loading="lazy">
-          <div class="cover-overlay"></div>
-          <div class="cover-content">
-            <div class="cover-topline">
-              <span class="cover-kicker">Meals</span>
-              <span class="cover-plan-chip" id="mealsCoverCount">Today</span>
-            </div>
-            <h2 id="mealsCoverTitle">Food that fits the real day.</h2>
-            <p class="cover-copy" id="mealsCoverCopy">Work-friendly timing, protein, replacements, and weekly preparation.</p>
-            <a class="cover-credit" id="mealsVisualCredit" href="#" target="_blank" rel="noopener" hidden></a>
-          </div>
-        </section>
-
-        <div class="week-bar">
-          <div class="week-copy">
-            <strong id="weekPlanTag">Active plan</strong>
-            <span id="weekDateLine">Your current weekly plan</span>
-          </div>
-        </div>
-
         <div id="fullWeekPlan"></div>
       </section>
 
       <section class="screen" id="progressScreen">
-        <div class="page-head">
-          <div>
-            <h1>Progress</h1>
-            <p>See the signal, then update the plan when it matters.</p>
-          </div>
-          <div class="head-actions">
-            <button class="circle-action" id="openMeasureBtn" type="button" aria-label="Add check-in">
-              <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-            </button>
-          </div>
+        <div class="hero">
+          <h2>Progress</h2>
+          <p>Collapsed check-ins, photos, and AI plan updates. Open only what you need.</p>
+          <div class="chips-row"><span class="tag green">Weekly check-in</span><span class="tag blue">AI coach</span></div>
         </div>
 
-        <section class="metric-grid">
-          <div class="metric"><span>Meals</span><strong id="statMeals">-</strong></div>
-          <div class="metric"><span>Water</span><strong id="statWater">-</strong></div>
-          <div class="metric"><span>Workout</span><strong id="statWorkout">-</strong></div>
-          <div class="metric"><span>Latest weight</span><strong id="statWeight">-</strong></div>
-        </section>
-
-        <div class="section-head"><h2>AI coach</h2><span>Plan status</span></div>
-        <div id="aiCoachStatusBox" class="ai-status-box"></div>
-        <button class="btn primary full-width" id="updatePlanBtn" type="button">Update next plan</button>
+        <details class="fold-card" open>
+          <summary><div class="fold-title"><b>Quick summary</b><span>Meals, water, workout, latest weight.</span></div><div class="fold-arrow">⌄</div></summary>
+          <div class="fold-content">
+            <div class="stats-grid">
+              <div class="stat"><span>Meals</span><strong id="statMeals">-</strong></div>
+              <div class="stat"><span>Water</span><strong id="statWater">-</strong></div>
+              <div class="stat"><span>Workout</span><strong id="statWorkout">-</strong></div>
+              <div class="stat"><span>Latest weight</span><strong id="statWeight">-</strong></div>
+            </div>
+            <div id="aiCoachStatusBox" class="ai-status-box"></div>
+            <div class="btn-row">
+              <button class="btn primary" id="updatePlanBtn">Update next plan</button>
+              <button class="btn secondary" id="openMeasureBtn">Add check-in</button>
+            </div>
+          </div>
+        </details>
 
         <details class="fold-card" id="measureFold">
-          <summary>
-            <div class="fold-title"><b>Progress check-in</b><span>Weight weekly, full measurements every 2 weeks.</span></div>
-            <div class="fold-arrow"></div>
-          </summary>
+          <summary><div class="fold-title"><b>Progress check-in</b><span>Weight weekly, full measurements every 2 weeks.</span></div><div class="fold-arrow">⌄</div></summary>
           <div class="fold-content" id="measureCard">
             <div class="grid2">
               <div class="field"><label>Weight</label><input class="input" id="mWeight" type="number" step="0.1"></div>
@@ -1660,43 +509,33 @@
               <div class="field"><label>Thigh</label><input class="input" id="mThigh" type="number" step="0.1"></div>
             </div>
             <div class="field"><label>Notes</label><textarea class="textarea" id="mNotes"></textarea></div>
-            <button class="btn primary full-width" id="saveMeasureBtn" type="button">Save check-in</button>
+            <button class="btn primary" id="saveMeasureBtn" style="width:100%;margin-top:10px">Save check-in</button>
           </div>
         </details>
 
         <details class="fold-card" id="progressPhotosFold">
-          <summary>
-            <div class="fold-title"><b>Progress photos</b><span>Private front, side, and back tracking.</span></div>
-            <div class="fold-arrow"></div>
-          </summary>
+          <summary><div class="fold-title"><b>Progress photos</b><span>Private vault. DP/profile photo is separate.</span></div><div class="fold-arrow">⌄</div></summary>
           <div class="fold-content"><div id="progressPhotosCard"><div id="progressPhotosContent"></div></div></div>
         </details>
       </section>
 
       <section class="screen" id="profileScreen">
-        <div class="profile-head-new">
-          <button class="profile-avatar profile-avatar-button" id="profileAvatar" type="button" aria-label="Change profile photo">SC</button>
-          <div class="profile-copy-new">
-            <h1 id="profileNameTitle">ShapeCue user</h1>
-            <p id="profileMiniLine">Coach plan / Last AI update</p>
+        <div class="hero"><h2>Profile</h2><p>Clean profile only. Account and membership live in Settings.</p></div>
+        <div class="profile-card">
+          <div class="profile-top">
+            <div class="profile-avatar" id="profileAvatar">SC</div>
+            <div class="profile-info"><h3 id="profileNameTitle">Ranveer</h3><p id="profileMiniLine">Coach plan • Last AI update</p></div>
           </div>
-          <span class="profile-plan-badge coach" id="profilePlanBadge">Coach</span>
+          <input id="profileDpFile" type="file" accept="image/jpeg,image/png,image/webp" style="display:none">
+          <div class="profile-actions">
+            <button class="btn secondary" id="changeDpBtn" type="button">Profile photo</button>
+            <button class="btn primary" id="openSettingsBtn" type="button">Settings</button>
+          </div>
         </div>
-        <input id="profileDpFile" type="file" accept="image/jpeg,image/png,image/webp" style="display:none">
-
-        <div class="section-head"><h2>Fitness profile</h2><span>Used by your AI plan</span></div>
-        <section class="profile-summary-group"><div class="summary-list" id="profileSummary"></div></section>
-
-        <div class="section-head"><h2>App</h2><span></span></div>
-        <section class="menu-group">
-          <button class="menu-row" id="openSettingsBtn" type="button">
-            <span class="menu-icon">
-              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3A1.7 1.7 0 0 0 10 3V2.8h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9A1.7 1.7 0 0 0 21 10h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg>
-            </span>
-            <span class="menu-copy"><strong>Settings</strong><span>Theme, account, membership, privacy, notifications</span></span>
-            <span class="chevron"></span>
-          </button>
-        </section>
+        <details class="fold-card" open>
+          <summary><div class="fold-title"><b>Fitness profile</b><span>Goals, food style, and training setup.</span></div><div class="fold-arrow">⌄</div></summary>
+          <div class="fold-content"><div class="summary-list" id="profileSummary"></div></div>
+        </details>
       </section>
 
       <div id="printArea" class="print-only"></div>
@@ -1704,22 +543,22 @@
   </div>
 
   <nav class="bottom-tabs" aria-label="ShapeCue tabs">
-    <button class="tab active" data-tab="todayScreen" type="button" aria-label="Today"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-9.5Z"/></svg><span>Today</span></button>
-    <button class="tab" data-tab="weekScreen" type="button" aria-label="Meals"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 7h14M7 4v6M17 4v6M5 7v12h14V7"/><path d="M8 12h4M8 16h7"/></svg><span>Meals</span></button>
-    <button class="tab" data-tab="workoutScreen" type="button" aria-label="Train"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg><span>Train</span></button>
-    <button class="tab" data-tab="progressScreen" type="button" aria-label="Progress"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 19V5M4 19h16M8 16v-5M12 16V8M16 16v-9"/></svg><span>Progress</span></button>
-    <button class="tab" data-tab="profileScreen" type="button" aria-label="Me"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21c1.5-4 14.5-4 16 0"/></svg><span>Me</span></button>
+    <button class="tab active" data-tab="todayScreen" type="button"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-9.5Z"/></svg><span>Today</span></button>
+    <button class="tab" data-tab="weekScreen" type="button"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 7h14M7 4v6M17 4v6M5 7v12h14V7"/><path d="M8 12h4M8 16h7"/></svg><span>Meals</span></button>
+    <button class="tab" data-tab="workoutScreen" type="button"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg><span>Train</span></button>
+    <button class="tab" data-tab="progressScreen" type="button"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 19V5M4 19h16M8 16v-5M12 16V8M16 16v-9"/></svg><span>Progress</span></button>
+    <button class="tab" data-tab="profileScreen" type="button"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21c1.5-4 14.5-4 16 0"/></svg><span>Me</span></button>
   </nav>
 
-  <div class="modal" id="detailModal" aria-hidden="true"><div class="sheet"><div class="sheet-handle" aria-hidden="true"></div>
-    <div class="sheet-head"><div><h3 id="detailTitle">Exercise</h3><div class="tag green" id="detailTag" style="display:inline-flex;margin-top:7px">Details</div></div><button class="close-btn" data-close-modal="detailModal">&times;</button></div>
+  <div class="modal" id="detailModal"><div class="sheet">
+    <div class="sheet-head"><div><h3 id="detailTitle">Exercise</h3><div class="tag green" id="detailTag" style="display:inline-flex;margin-top:7px">Details</div></div><button class="close-btn" data-close-modal="detailModal">×</button></div>
     <div class="media-box" id="detailMedia"></div>
     <div class="summary-list" id="detailInfo"></div>
     <div class="btn-row"><button class="btn primary" id="detailDoneBtn">Done</button><button class="btn amber" id="detailReportBtn">Report</button></div>
   </div></div>
 
-  <div class="modal" id="reportModal" aria-hidden="true"><div class="sheet"><div class="sheet-handle" aria-hidden="true"></div>
-    <div class="sheet-head"><div><h3 id="reportTitle">Report exercise</h3><div class="tag amber" style="display:inline-flex;margin-top:7px">Optional details</div></div><button class="close-btn" data-close-modal="reportModal">&times;</button></div>
+  <div class="modal" id="reportModal"><div class="sheet">
+    <div class="sheet-head"><div><h3 id="reportTitle">Report exercise</h3><div class="tag amber" style="display:inline-flex;margin-top:7px">Optional details</div></div><button class="close-btn" data-close-modal="reportModal">×</button></div>
     <div class="grid2">
       <div class="field"><label>Weight used</label><input class="input" id="reportWeight" type="number" step="0.5" placeholder="Optional"></div>
       <div class="field"><label>Best reps</label><input class="input" id="reportReps" type="number" step="1" placeholder="Optional"></div>
@@ -1731,10 +570,10 @@
     <button class="btn primary" id="saveReportBtn" style="width:100%;margin-top:12px">Save report</button>
   </div></div>
 
-  <div class="modal" id="upgradeModal" aria-hidden="true"><div class="sheet"><div class="sheet-handle" aria-hidden="true"></div>
-    <div class="sheet-head"><div><h3 id="upgradeTitle">Unlock Premium</h3><div class="tag amber" style="display:inline-flex;margin-top:7px">Premium feature</div></div><button class="close-btn" data-close-modal="upgradeModal">&times;</button></div>
+  <div class="modal" id="upgradeModal"><div class="sheet">
+    <div class="sheet-head"><div><h3 id="upgradeTitle">Unlock Premium</h3><div class="tag amber" style="display:inline-flex;margin-top:7px">Premium feature</div></div><button class="close-btn" data-close-modal="upgradeModal">×</button></div>
     <p id="upgradeText" style="font-size:13px;line-height:1.45;margin:0">Use a promo code now. Payments can be connected later.</p>
-    <div class="upgrade-list"><div>&#10003; Full weekly meal + workout plan</div><div>&#10003; PDF export and grocery list</div><div>&#10003; Exercise photos/videos and smart replacements</div><div>&#10003; Progress photos for paid users only</div></div>
+    <div class="upgrade-list"><div>✓ Full weekly meal + workout plan</div><div>✓ PDF export and grocery list</div><div>✓ Exercise photos/videos and smart replacements</div><div>✓ Progress photos for paid users only</div></div>
     <div class="promo-inline">
       <div class="promo-row"><div class="field" style="margin-top:0"><label>Promo code</label><input class="input" id="upgradePromoCode" placeholder="Example: PLUS30"></div><button class="btn primary" id="upgradeApplyBtn" type="button">Apply</button></div>
       <div class="promo-msg" id="upgradeMsg">Admin can create codes from admin.html.</div>
@@ -1747,7 +586,6 @@
 const SUPABASE_URL = "https://qusmbveovroldkhbjudq.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_6zVS1VCVok16WmVWNPvTrw_vTiQvgX4";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-document.documentElement.dataset.shapeCueUi = "approved-ios-visual-v1";
 
 const $ = q => document.querySelector(q);
 const $$ = q => Array.from(document.querySelectorAll(q));
@@ -1767,17 +605,6 @@ let doneMap = new Set();
 let currentEntitlement = null;
 let isAppAdmin = false;
 let progressPhotoLoading = false;
-
-const VISUAL_STYLE_KEY = "shapecue.visual.style";
-const VISUAL_CACHE_PREFIX = "shapecue.visual.weekly.v6.";
-const visualState = {
-  preference:
-    localStorage.getItem(VISUAL_STYLE_KEY) ||
-    "auto",
-  requestKey:"",
-  loading:false,
-  visuals:null
-};
 
 const iconSvg = `<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg>`;
 const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
@@ -1927,7 +754,7 @@ function showUpgrade(title="Unlock Premium", text="This feature is included in P
   $("#upgradeText").textContent = text;
   $("#upgradeMsg").textContent = "Enter a promo code to unlock Plus, Premium, or Coach.";
   $("#upgradeMsg").className = "promo-msg";
-  openModal("upgradeModal");
+  $("#upgradeModal").classList.add("show");
 }
 
 async function applyPromoFromApp(){
@@ -1982,7 +809,7 @@ async function applyPromoFromApp(){
 }
 
 function featureMini(label, ok){
-  return `<div class="feature-mini ${ok ? "good" : "locked"}">${ok ? "&#10003;" : "&#10005;"} ${esc(label)}</div>`;
+  return `<div class="feature-mini ${ok ? "good" : "locked"}">${ok ? "✓" : "✕"} ${esc(label)}</div>`;
 }
 
 function renderPlanAccessBox(){
@@ -1999,7 +826,7 @@ function renderPlanAccessBox(){
       <div class="plan-access-top">
         <div>
           <h3>Plan access</h3>
-          <p>${esc(source)} / ${esc(end)}</p>
+          <p>${esc(source)} • ${esc(end)}</p>
         </div>
         <span class="plan-chip ${isFree ? "free" : ""}">${esc(planName(code))}</span>
       </div>
@@ -2122,11 +949,7 @@ function updateEntitlementUI(){
   }
 
   if($("#exportPdfBtn")){
-    const exportButton = $("#exportPdfBtn");
-    const exportLabel = hasFeature("pdf_export") ? "Export weekly PDF" : "Unlock weekly PDF export";
-    exportButton.setAttribute("aria-label", exportLabel);
-    exportButton.setAttribute("title", exportLabel);
-    exportButton.classList.toggle("locked-action", !hasFeature("pdf_export"));
+    $("#exportPdfBtn").textContent = hasFeature("pdf_export") ? "Export Week PDF" : "Premium PDF";
   }
 
   renderPlanAccessBox();
@@ -2163,14 +986,11 @@ function exerciseDoneKey(index, ex){
 }
 
 function switchTab(id){
-  closeAllModals();
-  document.body.classList.toggle("profile-tab-active", id === "profileScreen");
   $$(".screen").forEach(s=>s.classList.toggle("active",s.id===id));
   $$(".tab").forEach(t=>t.classList.toggle("active",t.dataset.tab===id));
   const labels = {todayScreen:"Today", weekScreen:"Meals", workoutScreen:"Train", progressScreen:"Progress", profileScreen:"Me"};
   $("#topPill").textContent = labels[id] || "ShapeCue";
   window.scrollTo({top:0,behavior:"smooth"});
-  if(id==="todayScreen") window.setTimeout(() => restartPulseStrip(true), 60);
   if(id==="workoutScreen") renderWorkout();
   if(id==="weekScreen") renderWeekPlan();
   if(id==="progressScreen") {
@@ -2218,530 +1038,32 @@ async function loadPlan(){
 }
 
 
-function isoWeekKey(date = new Date()){
-  const value = new Date(Date.UTC(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate()
-  ));
-  const day = value.getUTCDay() || 7;
-  value.setUTCDate(value.getUTCDate() + 4 - day);
-  const yearStart = new Date(Date.UTC(value.getUTCFullYear(),0,1));
-  const week = Math.ceil((((value - yearStart) / 86400000) + 1) / 7);
-  return `${value.getUTCFullYear()}-W${String(week).padStart(2,"0")}`;
-}
+function applyLaunchIntent(){
+  const params = new URLSearchParams(location.search);
+  const open = params.get("open");
+  const focus = params.get("focus");
 
-function resolveVisualStyle(){
-  if(visualState.preference !== "auto"){
-    return visualState.preference;
+  if(open === "progress"){
+    switchTab("progressScreen");
   }
 
-  const profileText = [
-    data.profile?.gender,
-    data.profile?.sex,
-    data.profile?.gender_identity
-  ].filter(Boolean).join(" ").toLowerCase();
+  if(focus === "ai-update"){
+    requestAnimationFrame(() => {
+      const target = $("#aiCoachStatusBox") || $("#updatePlanBtn");
+      const button = $("#updatePlanBtn");
 
-  if(
-    profileText.includes("woman") ||
-    profileText.includes("female")
-  ){
-    return "women";
-  }
+      target?.scrollIntoView({ behavior:"smooth", block:"center" });
+      button?.classList.add("launch-focus");
+      button?.focus({ preventScroll:true });
 
-  if(
-    profileText.includes("man") ||
-    profileText.includes("male")
-  ){
-    return "men";
-  }
-
-  return "mixed";
-}
-
-function visualTone(type){
-  const normalized = String(type || "mobility")
-    .toLowerCase()
-    .replace(/[^a-z]+/g,"-");
-
-  if(["push","pull","legs","mobility","recovery"].includes(normalized)){
-    return normalized;
-  }
-
-  return "push";
-}
-
-function setCoverTone(element, type){
-  if(!element) return;
-
-  [
-    "tone-push",
-    "tone-pull",
-    "tone-legs",
-    "tone-mobility",
-    "tone-recovery"
-  ].forEach(className => element.classList.remove(className));
-
-  element.classList.add(`tone-${visualTone(type)}`);
-}
-
-function applyPhotoToCover({
-  coverId,
-  imageId,
-  creditId,
-  visual,
-  alt
-}){
-  const cover = $("#" + coverId);
-  const image = $("#" + imageId);
-  const credit = $("#" + creditId);
-
-  if(!cover || !image || !credit) return;
-
-  cover.classList.remove("visual-ready","visual-minimal");
-
-  if(!visual?.image_url){
-    cover.classList.remove("visual-loading");
-    image.removeAttribute("src");
-    image.alt = "";
-    credit.hidden = true;
-    if(coverId === "todayCoachCover") restartPulseStrip(true);
-    return;
-  }
-
-  const expectedSrc = String(visual.image_url);
-  const preload = new Image();
-
-  const reveal = () => {
-    image.src = expectedSrc;
-    image.alt = alt || visual.alt || "";
-    cover.classList.remove("visual-loading","visual-minimal");
-    cover.classList.add("visual-ready");
-
-    credit.textContent =
-      `Photo by ${visual.photographer_name || "Unsplash contributor"} on Unsplash`;
-
-    credit.href =
-      visual.photographer_url ||
-      visual.unsplash_url ||
-      "https://unsplash.com";
-
-    credit.hidden = false;
-
-    if(coverId === "todayCoachCover") restartPulseStrip(true);
-  };
-
-  const fail = () => {
-    console.error("ShapeCue visual image failed:", expectedSrc);
-    cover.classList.remove("visual-loading","visual-ready");
-    cover.classList.add("visual-minimal");
-    image.removeAttribute("src");
-    credit.hidden = true;
-    if(coverId === "todayCoachCover") restartPulseStrip(true);
-  };
-
-  preload.onload = reveal;
-  preload.onerror = fail;
-  preload.src = expectedSrc;
-
-  if(preload.complete && preload.naturalWidth > 0){
-    requestAnimationFrame(reveal);
-  }
-}
-
-function applyMinimalVisualMode(){
-  [
-    $("#todayCoachCover"),
-    $("#trainVisualCover"),
-    $("#mealsVisualCover")
-  ].forEach(cover => {
-    cover?.classList.add("visual-minimal");
-    cover?.classList.remove("visual-loading");
-  });
-
-  [
-    $("#todayVisualCredit"),
-    $("#trainVisualCredit"),
-    $("#mealsVisualCredit")
-  ].forEach(credit => {
-    if(credit) credit.hidden = true;
-  });
-
-  renderWorkoutPreview();
-  restartPulseStrip(true);
-}
-
-function removeMinimalVisualMode(){
-  [
-    $("#todayCoachCover"),
-    $("#trainVisualCover"),
-    $("#mealsVisualCover")
-  ].forEach(cover => cover?.classList.remove("visual-minimal"));
-}
-
-function currentWaterSummary(){
-  const water = data.waterLog || {};
-  const target = Number(water.target_liters || 2);
-  const bottle = Number(water.bottle_size_ml || 1000);
-  const needed = Math.max(
-    1,
-    Math.round((target * 1000 / bottle) * 10) / 10
-  );
-
-  return {
-    done:Number(water.bottles_done || 0),
-    needed,
-    target,
-    bottle
-  };
-}
-
-let pulseRafOne = 0;
-let pulseRafTwo = 0;
-let pulseRestartTimer = 0;
-
-function restartPulseStrip(force = false){
-  const track = $("#pulseTrack");
-  const strip = track?.closest(".pulse-strip");
-
-  if(!track || !strip) return;
-
-  cancelAnimationFrame(pulseRafOne);
-  cancelAnimationFrame(pulseRafTwo);
-  clearTimeout(pulseRestartTimer);
-
-  track.classList.remove("is-running");
-  track.style.transform = "translate3d(0,0,0)";
-
-  if(window.matchMedia("(prefers-reduced-motion: reduce)").matches){
-    return;
-  }
-
-  if(!force && !$("#todayScreen")?.classList.contains("active")){
-    return;
-  }
-
-  pulseRafOne = requestAnimationFrame(() => {
-    pulseRafTwo = requestAnimationFrame(() => {
-      const loopWidth = track.scrollWidth / 2;
-      const viewportWidth = strip.clientWidth;
-
-      if(!loopWidth || loopWidth <= viewportWidth + 8){
-        return;
-      }
-
-      const duration = Math.max(20, Math.min(46, loopWidth / 34));
-      track.style.setProperty("--pulse-duration", `${duration.toFixed(1)}s`);
-      track.classList.add("is-running");
+      setTimeout(() => button?.classList.remove("launch-focus"), 2600);
+      toast("Review your latest logs, then update your plan");
     });
-  });
-
-  pulseRestartTimer = window.setTimeout(() => {
-    if($("#todayScreen")?.classList.contains("active")){
-      track.classList.remove("is-running");
-      void track.offsetWidth;
-      track.classList.add("is-running");
-    }
-  }, 900);
-}
-
-function renderPulseStrip(){
-  const track = $("#pulseTrack");
-  if(!track) return;
-
-  const water = currentWaterSummary();
-  const workoutType = nice(todayWorkoutType());
-  const updated = activePlanMeta?.created_at
-    ? `AI updated ${relativeTime(activePlanMeta.created_at)}`
-    : "Starter plan active";
-
-  const items = [
-    `${todayMeals.length} meals planned`,
-    `${workoutType} workout`,
-    `${workoutPlan.length} exercises`,
-    `${water.done}/${water.needed} bottles`,
-    `${planName(currentPlanCode())} access`,
-    updated
-  ];
-
-  const repeated = [...items,...items];
-
-  track.innerHTML = repeated
-    .map(item => `<span class="pulse-item">${esc(item)}</span>`)
-    .join("");
-
-  restartPulseStrip(true);
-}
-
-function renderVisualCopy(){
-  const type = todayWorkoutType();
-  const typeLabel = nice(type);
-  const water = currentWaterSummary();
-  const firstName = (
-    data.profile?.full_name ||
-    "friend"
-  ).split(/\s+/)[0];
-
-  setCoverTone($("#todayCoachCover"),type);
-  setCoverTone($("#trainVisualCover"),type);
-
-  $("#todayCoverKicker").textContent =
-    `${dayName()} / ${typeLabel}`;
-
-  $("#todayCoverPlan").textContent =
-    planName(currentPlanCode());
-
-  $("#todayCoverTitle").textContent =
-    isWorkoutDay()
-      ? `${firstName}, today's ${typeLabel} session is ready.`
-      : `${firstName}, today is built for recovery.`;
-
-  $("#todayCoverCopy").textContent =
-    isWorkoutDay()
-      ? `Keep the plan practical: ${todayMeals.length} meals, ${workoutPlan.length} workout items, and a ${water.target} L water goal.`
-      : `Keep meals steady, finish the water goal, and use mobility without forcing a hard session.`;
-
-  $("#todayCoverMetrics").innerHTML = [
-    `${todayMeals.length} meals`,
-    `${workoutPlan.length} exercises`,
-    `${water.done}/${water.needed} bottles`
-  ].map(item => `<span class="cover-metric">${esc(item)}</span>`).join("");
-
-  $("#trainCoverKicker").textContent =
-    `${typeLabel} workout`;
-
-  $("#trainCoverCount").textContent =
-    `${workoutPlan.length} exercises`;
-
-  $("#trainCoverTitle").textContent =
-    isWorkoutDay()
-      ? `Build today's ${typeLabel} session.`
-      : "Move, recover, and stay consistent.";
-
-  $("#trainCoverCopy").textContent =
-    "The cover adds energy. Exact technique still comes from ShapeCue's curated exercise photos, videos, cues, and safety notes.";
-
-  $("#mealsCoverCount").textContent =
-    `${todayMeals.length} today`;
-
-  $("#mealsCoverTitle").textContent =
-    todayMeals.length
-      ? `${todayMeals.length} meals shaped around your day.`
-      : "Build meals around the real day.";
-
-  $("#mealsCoverCopy").textContent =
-    "Weekly food photography adds atmosphere while your actual meal timing, protein, swaps, and prep remain personalised.";
-
-  renderPulseStrip();
-}
-
-function visualCacheKey(style, workout){
-  return `${VISUAL_CACHE_PREFIX}${isoWeekKey()}.${style}.${workout}`;
-}
-
-function readVisualCache(key){
-  try{
-    const raw = localStorage.getItem(key);
-    if(!raw) return null;
-
-    const parsed = JSON.parse(raw);
-
-    const visuals = parsed?.visuals;
-    const valid =
-      parsed?.week_key &&
-      visuals?.today?.image_url &&
-      visuals?.train?.image_url &&
-      visuals?.meals?.image_url;
-
-    if(!valid){
-      localStorage.removeItem(key);
-      return null;
-    }
-
-    return parsed;
-  }catch{
-    return null;
-  }
-}
-
-function saveVisualCache(key, payload){
-  try{
-    localStorage.setItem(
-      key,
-      JSON.stringify(payload)
-    );
-  }catch(error){
-    console.warn(
-      "Weekly visual cache could not be saved.",
-      error
-    );
-  }
-}
-
-function applyWeeklyVisuals(payload){
-  visualState.visuals =
-    payload?.visuals ||
-    null;
-
-  const visuals =
-    visualState.visuals ||
-    {};
-
-  applyPhotoToCover({
-    coverId:"todayCoachCover",
-    imageId:"todayVisualImage",
-    creditId:"todayVisualCredit",
-    visual:visuals.today,
-    alt:"Fitness lifestyle visual for today's ShapeCue plan"
-  });
-
-  applyPhotoToCover({
-    coverId:"trainVisualCover",
-    imageId:"trainVisualImage",
-    creditId:"trainVisualCredit",
-    visual:visuals.train,
-    alt:"Workout visual for today's ShapeCue training plan"
-  });
-
-  applyPhotoToCover({
-    coverId:"mealsVisualCover",
-    imageId:"mealsVisualImage",
-    creditId:"mealsVisualCredit",
-    visual:visuals.meals,
-    alt:"Healthy meal preparation visual"
-  });
-
-  renderWorkoutPreview();
-  restartPulseStrip(true);
-}
-
-async function loadWeeklyVisuals(force = false){
-  const style = resolveVisualStyle();
-  const workout = todayWorkoutType();
-
-  if(style === "minimal"){
-    visualState.requestKey = `minimal.${isoWeekKey()}`;
-    visualState.visuals = null;
-    applyMinimalVisualMode();
-    return;
   }
 
-  removeMinimalVisualMode();
-
-  const key = visualCacheKey(style,workout);
-
-  if(!force && visualState.requestKey === key){
-    return;
+  if(open || focus){
+    history.replaceState({}, "", location.pathname + location.hash);
   }
-
-  visualState.requestKey = key;
-
-  const cached = !force
-    ? readVisualCache(key)
-    : null;
-
-  if(cached){
-    applyWeeklyVisuals(cached);
-    return;
-  }
-
-  if(visualState.loading){
-    return;
-  }
-
-  visualState.loading = true;
-
-  [
-    $("#todayCoachCover"),
-    $("#trainVisualCover"),
-    $("#mealsVisualCover")
-  ].forEach(cover => cover?.classList.add("visual-loading"));
-
-  try{
-    const params = new URLSearchParams({
-      style,
-      workout,
-      week:isoWeekKey(),
-      v:"6"
-    });
-
-    if(force){
-      params.set("refresh", String(Date.now()));
-    }
-
-    const response = await fetch(
-      `/.netlify/functions/get-weekly-visual?${params.toString()}`,
-      {
-        method:"GET",
-        headers:{
-          "Accept":"application/json"
-        }
-      }
-    );
-
-    const responseText = await response.text();
-    let result = {};
-
-    try{
-      result = JSON.parse(responseText);
-    }catch{
-      throw new Error(
-        response.status === 404
-          ? "Netlify function was not found. Check netlify/functions/get-weekly-visual.js and redeploy."
-          : `Visual function returned non-JSON (${response.status}).`
-      );
-    }
-
-    if(!response.ok || result.ok === false){
-      throw new Error(
-        result.error ||
-        `Weekly visuals could not be loaded (${response.status}).`
-      );
-    }
-
-    if(
-      !result?.visuals?.today?.image_url ||
-      !result?.visuals?.train?.image_url ||
-      !result?.visuals?.meals?.image_url
-    ){
-      throw new Error("Visual function returned no image URLs.");
-    }
-
-    const visualIds = [
-      result.visuals.today.id,
-      result.visuals.train.id,
-      result.visuals.meals.id
-    ].filter(Boolean);
-
-    if(new Set(visualIds).size !== visualIds.length){
-      throw new Error("Visual function returned duplicate section photos.");
-    }
-
-    saveVisualCache(key,result);
-    applyWeeklyVisuals(result);
-  }catch(error){
-    console.warn(error);
-    visualState.requestKey = "";
-
-    [
-      $("#todayCoachCover"),
-      $("#trainVisualCover"),
-      $("#mealsVisualCover")
-    ].forEach(cover => {
-      cover?.classList.remove("visual-loading");
-      cover?.classList.add("visual-minimal");
-    });
-
-    console.warn("ShapeCue weekly visuals unavailable:", error);
-    toast("Weekly visuals unavailable. Using the simple view.");
-  }finally{
-    visualState.loading = false;
-  }
-}
-
-function renderVisualExperience(force = false){
-  renderVisualCopy();
-  loadWeeklyVisuals(force);
 }
 
 async function loadAll(){
@@ -2814,6 +1136,7 @@ async function loadAll(){
 
   $("#loader").style.display="none";
   renderAll();
+  applyLaunchIntent();
   setTimeout(()=>resumePendingPlanIfAny(), 700);
 }
 
@@ -2981,8 +1304,7 @@ function buildWorkoutPlan(){
 function renderAll(){
   const name = data.profile?.full_name || "User";
 
-  $("#topSub").textContent = `${name} / ${planName(currentPlanCode())}`;
-  if($("#todayPlanChip")) $("#todayPlanChip").textContent = planName(currentPlanCode());
+  $("#topSub").textContent = `${name} • ${planName(currentPlanCode())}`;
   $("#todayTitle").textContent = `Today, ${name.split(" ")[0] || "friend"}`;
   const pendingAi = readPendingPlanData();
   $("#todaySubtitle").textContent = pendingAi
@@ -3004,7 +1326,6 @@ function renderAll(){
   renderProfile();
   renderAiCoachStatusUI();
   updateEntitlementUI();
-  renderVisualExperience();
 }
 
 function mealHTML(m){
@@ -3039,18 +1360,12 @@ function publicExerciseMediaUrl(url, path){
 function exerciseMediaHTML(ex, big=false){
   const video = publicExerciseMediaUrl(ex.video_url, ex.video_path);
   const image = publicExerciseMediaUrl(ex.image_url, ex.image_path);
-
   if(video){
-    if(big){
-      return `<video src="${esc(video)}" controls playsinline preload="metadata"></video>`;
-    }
-    return `<video src="${esc(video)}" muted autoplay loop playsinline preload="metadata" aria-label="${esc(ex.name)} exercise demonstration"></video>`;
+    return `<video src="${esc(video)}" controls playsinline></video>`;
   }
-
   if(image){
-    return `<img src="${esc(image)}" alt="${esc(ex.name)}" loading="lazy">`;
+    return `<img src="${esc(image)}" alt="${esc(ex.name)}">`;
   }
-
   return iconSvg;
 }
 
@@ -3061,9 +1376,9 @@ function exerciseCardHTML(ex, index){
     <div class="exercise-card ${done ? "done" : ""}" data-exercise-index="${index}">
       <div class="exercise-art">${exerciseMediaHTML(ex)}</div>
       <div class="exercise-body">
-        <b>${esc(ex.name)} ${done ? "&#10003;" : ""}</b>
-        <span>${esc(ex.sets)} / Rest ${esc(ex.rest_seconds)} sec</span>
-        <span>${esc(ex.target_muscle || "Body")} / ${esc(ex.cue || "")}</span>
+        <b>${esc(ex.name)} ${done ? "✓" : ""}</b>
+        <span>${esc(ex.sets)} • Rest ${esc(ex.rest_seconds)} sec</span>
+        <span>${esc(ex.target_muscle || "Body")} • ${esc(ex.cue || "")}</span>
         ${ex.coach_note ? `<div class="coach-note">${esc(ex.coach_note)}</div>` : ""}
         <div class="exercise-actions">
           <button class="btn primary exercise-done" data-done-index="${index}">Done</button>
@@ -3128,44 +1443,6 @@ function updateWorkoutStatus(){
   $("#simpleWorkoutStatus").textContent = total ? `${done}/${total} done` : "Ready";
 }
 
-function workoutPreviewVisual(){
-  const exactExercise = workoutPlan.find(ex =>
-    publicExerciseMediaUrl(ex.image_url, ex.image_path)
-  );
-
-  if(exactExercise){
-    return {
-      src:publicExerciseMediaUrl(exactExercise.image_url, exactExercise.image_path),
-      label:exactExercise.name || "Exercise guide",
-      exact:true
-    };
-  }
-
-  const generic =
-    visualState.visuals?.train?.thumb_url ||
-    visualState.visuals?.train?.image_url ||
-    "";
-
-  return generic
-    ? {src:generic,label:"Workout visual",exact:false}
-    : null;
-}
-
-function workoutPreviewMediaHTML(){
-  const visual = workoutPreviewVisual();
-
-  if(!visual?.src){
-    return `<div class="workout-preview-media" aria-hidden="true">${iconSvg}</div>`;
-  }
-
-  return `
-    <div class="workout-preview-media">
-      <img src="${esc(visual.src)}" alt="${esc(visual.exact ? visual.label : "Decorative workout visual")}" loading="lazy">
-      <span>${esc(visual.label)}</span>
-    </div>
-  `;
-}
-
 function renderWorkoutPreview(){
   const type = todayWorkoutType();
   const main = workoutPlan.filter(e=>e.plan_section==="main");
@@ -3173,23 +1450,17 @@ function renderWorkoutPreview(){
   $("#workoutPreviewSub").textContent = "Compact preview. Full details are in Train.";
   $("#workoutStatusPill").textContent = activePlan ? "AI plan" : "Ready";
   $("#workoutPreview").innerHTML = list.length ? `
-    <div class="compact-workout visual-workout-preview">
-      ${workoutPreviewMediaHTML()}
-      <div class="workout-preview-copy">
-        <strong>${esc(nice(type))} today</strong>
-        <span>${esc(workoutPlan.length)} total items. Today only shows a preview so the full workout is not repeated twice.</span>
-        <div class="compact-list">
-          ${list.map(ex => `<div class="compact-chip">${esc(ex.name)}</div>`).join("")}
-        </div>
+    <div class="compact-workout">
+      <strong>${esc(nice(type))} today</strong>
+      <span>${esc(workoutPlan.length)} total items. Today only shows a preview so the full workout is not repeated twice.</span>
+      <div class="compact-list">
+        ${list.map(ex => `<div class="compact-chip">${esc(ex.name)}</div>`).join("")}
       </div>
     </div>
   ` : `
-    <div class="compact-workout visual-workout-preview">
-      ${workoutPreviewMediaHTML()}
-      <div class="workout-preview-copy">
-        <strong>Recovery today</strong>
-        <span>No full workout found. Follow meals, water, and mobility if listed.</span>
-      </div>
+    <div class="compact-workout">
+      <strong>Recovery today</strong>
+      <span>No full workout found. Follow meals, water, and mobility if listed.</span>
     </div>
   `;
   $("#workoutTitle").textContent = `${nice(type)} workout`;
@@ -3203,7 +1474,7 @@ function renderWater(){
   const done = Number(wl.bottles_done || 0);
   const pct = Math.min(100, Math.round(done/need*100));
   $("#waterMain").textContent = `${done} / ${need}`;
-  $("#waterSub").textContent = `${target} L goal / ${bottle} ml bottle`;
+  $("#waterSub").textContent = `${target} L goal • ${bottle} ml bottle`;
   $("#waterBar").style.width = pct + "%";
   $("#waterStatusPill").textContent = wl.status==="done" ? "Done" : `${pct}%`;
 }
@@ -3212,7 +1483,7 @@ function scheduleItemMiniHTML(item){
   const reps = Array.isArray(item.replacement_options) ? item.replacement_options.slice(0,2) : [];
   return `
     <div class="mini-item">
-      <b>${esc(displayTime(item.time))} / ${esc(item.title || nice(item.type))}</b>
+      <b>${esc(displayTime(item.time))} • ${esc(item.title || nice(item.type))}</b>
       <div>${esc(item.text || "")}</div>
       ${reps.length ? `<div class="small" style="margin-top:5px;color:var(--blue)">${reps.map(r=>"Swap: "+esc(r)).join("<br>")}</div>` : ""}
     </div>
@@ -3222,15 +1493,14 @@ function scheduleItemMiniHTML(item){
 function renderWeekPlan(){
   if(!activePlan){
     $("#weekPlanTag").textContent = "No AI plan";
-    if($("#weekDateLine")) $("#weekDateLine").textContent = "Generate your plan from Progress";
     $("#fullWeekPlan").innerHTML = `
       <details class="fold-card" open>
         <summary>
           <div class="fold-title"><b>No active AI plan yet</b><span>Go to Progress and tap Update next plan.</span></div>
-          <div class="fold-arrow"></div>
+          <div class="fold-arrow">⌄</div>
         </summary>
         <div class="fold-content">
-          <button class="btn primary full-width" onclick="switchTab('progressScreen')" type="button">Go to Progress</button>
+          <button class="btn primary" onclick="switchTab('progressScreen')" type="button" style="width:100%">Go to Progress</button>
         </div>
       </details>
     `;
@@ -3238,49 +1508,14 @@ function renderWeekPlan(){
   }
 
   $("#weekPlanTag").textContent = activePlan.title || activePlanMeta?.title || "AI plan";
-  const startDate = activePlanMeta?.week_start || activePlan.start_date || "";
-  const endDate = activePlanMeta?.week_end || activePlan.end_date || "";
-  if($("#weekDateLine")) $("#weekDateLine").textContent = [startDate, endDate].filter(Boolean).join(" - ") || "Your current weekly plan";
-
-  const visibleDays = hasFeature("full_week_meals") ? DAYS : [dayName()];
-  if(!window.shapeCueSelectedMealDay || !visibleDays.includes(window.shapeCueSelectedMealDay)){
-    window.shapeCueSelectedMealDay = visibleDays.includes(dayName()) ? dayName() : visibleDays[0];
-  }
-  const selectedDay = window.shapeCueSelectedMealDay;
-  const selectedItems = activePlan.daily_schedule?.[selectedDay] || [];
-  const selectedFoodCount = selectedItems.filter(x => x.type === "food").length;
-  const selectedGymCount = selectedItems.filter(x => x.type === "gym").length;
 
   let html = "";
-
-  if(visibleDays.length > 1){
-    html += `<div class="day-strip">${visibleDays.map((day, index) => `
-      <button class="day-btn ${day === selectedDay ? "active" : ""}" type="button" data-meal-day="${esc(day)}">
-        <span>${esc(day.slice(0,3))}</span>
-        <strong>${index + 1}</strong>
-      </button>
-    `).join("")}</div>`;
-  }
 
   html += `
     <details class="fold-card" open>
       <summary>
-        <div class="fold-title"><b>${esc(selectedDay)}</b><span>${selectedItems.length} items / ${selectedFoodCount} meals${selectedGymCount ? ` / ${selectedGymCount} workout` : ""}</span></div>
-        <div class="fold-arrow"></div>
-      </summary>
-      <div class="fold-content">
-        <div class="mini-list">
-          ${selectedItems.length ? selectedItems.map(scheduleItemMiniHTML).join("") : `<div class="mini-item"><b>No items</b><div>No plan items for this day.</div></div>`}
-        </div>
-      </div>
-    </details>
-  `;
-
-  html += `
-    <details class="fold-card">
-      <summary>
         <div class="fold-title"><b>${esc(activePlan.title || activePlanMeta?.title || "ShapeCue Coach Plan")}</b><span>${esc(activePlan.summary || "Your active coach plan.")}</span></div>
-        <div class="fold-arrow"></div>
+        <div class="fold-arrow">⌄</div>
       </summary>
       <div class="fold-content">
         ${activePlan.coach_reasoning ? `<div class="coach-note">${esc(activePlan.coach_reasoning)}</div>` : ""}
@@ -3289,11 +1524,35 @@ function renderWeekPlan(){
     </details>
   `;
 
+  const visibleDays = hasFeature("full_week_meals") ? DAYS : [dayName()];
+
+  visibleDays.forEach(day => {
+    const items = activePlan.daily_schedule?.[day] || [];
+    const foodCount = items.filter(x=>x.type === "food").length;
+    const gymCount = items.filter(x=>x.type === "gym").length;
+    const open = day === dayName() ? "open" : "";
+    html += `
+      <details class="fold-card" ${open}>
+        <summary>
+          <div class="fold-title"><b>${esc(day)}</b><span>${items.length || 0} items • ${foodCount} meals${gymCount ? ` • ${gymCount} workout` : ""}</span></div>
+          <div class="fold-arrow">⌄</div>
+        </summary>
+        <div class="fold-content">
+          <div class="mini-list">
+            ${items.length ? items.map(scheduleItemMiniHTML).join("") : `<div class="mini-item"><b>No items</b><div>No plan items for this day.</div></div>`}
+          </div>
+        </div>
+      </details>
+    `;
+  });
+
   if(!hasFeature("full_week_meals")){
     html += lockedFeatureCard("Full week plan locked", "Free users see today only. Plus, Premium, and Coach unlock the full 7-day meal plan.", "full_week_meals");
   }
 
-  if(hasFeature("full_week_meals")) html += infoSectionHTML("Meal Prep", activePlan.meal_prep_plan, false);
+  if(hasFeature("full_week_meals")){
+    html += infoSectionHTML("Meal Prep", activePlan.meal_prep_plan, false);
+  }
 
   if(hasFeature("grocery_list")){
     html += arraySectionHTML("Grocery List", activePlan.grocery_list, false);
@@ -3307,12 +1566,6 @@ function renderWeekPlan(){
   html += arraySectionHTML("Why Plan Changed", activePlan.ai_adjustments, false);
 
   $("#fullWeekPlan").innerHTML = html;
-  $$('[data-meal-day]').forEach(button => {
-    button.addEventListener("click", () => {
-      window.shapeCueSelectedMealDay = button.dataset.mealDay;
-      renderWeekPlan();
-    });
-  });
 }
 
 function arraySectionHTML(title, arr, open=false){
@@ -3321,7 +1574,7 @@ function arraySectionHTML(title, arr, open=false){
     <details class="fold-card" ${open ? "open" : ""}>
       <summary>
         <div class="fold-title"><b>${esc(title)}</b><span>${arr.length} item${arr.length === 1 ? "" : "s"}</span></div>
-        <div class="fold-arrow"></div>
+        <div class="fold-arrow">⌄</div>
       </summary>
       <div class="fold-content">
         <div class="mini-list">
@@ -3348,7 +1601,7 @@ function infoSectionHTML(title, obj, open=false){
     <details class="fold-card" ${open ? "open" : ""}>
       <summary>
         <div class="fold-title"><b>${esc(title)}</b><span>${parts.length} section${parts.length === 1 ? "" : "s"}</span></div>
-        <div class="fold-arrow"></div>
+        <div class="fold-arrow">⌄</div>
       </summary>
       <div class="fold-content"><div class="mini-list">${parts.join("")}</div></div>
     </details>
@@ -3555,7 +1808,7 @@ function progressPhotoCardHTML(photo){
         ${photo.signed_url ? `<img src="${esc(photo.signed_url)}" alt="${esc(photoTypeLabel(photo.photo_type))} progress photo">` : `<span>Photo</span>`}
       </div>
       <div class="photo-info">
-        <strong>${esc(photoTypeLabel(photo.photo_type))} / ${esc(dateText)}</strong>
+        <strong>${esc(photoTypeLabel(photo.photo_type))} • ${esc(dateText)}</strong>
         <span>${esc(weightText)}</span>
         ${noteText}
       </div>
@@ -3767,12 +2020,7 @@ function renderProfile(){
   const allergies = data.food?.allergies?.length ? data.food.allergies.map(nice).join(", ") : "None selected";
 
   if($("#profileNameTitle")) $("#profileNameTitle").textContent = data.profile?.full_name || "ShapeCue user";
-  if($("#profileMiniLine")) $("#profileMiniLine").textContent = `${planName(currentPlanCode())} / Last AI update ${activePlanMeta?.created_at ? relativeTime(activePlanMeta.created_at) : "not yet"}`;
-  if($("#profilePlanBadge")){
-    const badgeCode = currentPlanCode();
-    $("#profilePlanBadge").textContent = planName(badgeCode);
-    $("#profilePlanBadge").className = `profile-plan-badge ${badgeCode}`;
-  }
+  if($("#profileMiniLine")) $("#profileMiniLine").textContent = `${planName(currentPlanCode())} • Last AI update ${activePlanMeta?.created_at ? relativeTime(activePlanMeta.created_at) : "not yet"}`;
   if($("#settingsAccountLine")) $("#settingsAccountLine").textContent = user?.email ? `Signed in as ${user.email}` : "Signed in";
   updateProfileAvatar();
 
@@ -3782,7 +2030,7 @@ function renderProfile(){
     <div class="summary-line"><span>Age</span><strong>${calculateAge(data.profile?.date_of_birth) || "-"}</strong></div>
     <div class="summary-line"><span>Food style</span><strong>${esc(niceList(foodStyles))}</strong></div>
     <div class="summary-line"><span>Allergies / avoid</span><strong>${esc(allergies)}</strong></div>
-    <div class="summary-line"><span>Workout</span><strong>${esc(nice(data.workout?.workout_place))} / ${data.workout?.max_minutes || "-"} min</strong></div>
+    <div class="summary-line"><span>Workout</span><strong>${esc(nice(data.workout?.workout_place))} • ${data.workout?.max_minutes || "-"} min</strong></div>
     <div class="summary-line"><span>Active plan</span><strong>${readPendingPlanData() ? "Generating new plan" : (activePlan ? "AI coach plan" : "Starter plan")}</strong></div>
     <div class="summary-line"><span>Last AI update</span><strong>${esc(lastAiUpdateText())}</strong></div>
   `;
@@ -3833,7 +2081,7 @@ function openDetail(index){
     ${ex.coach_note ? noteBlockHTML("Coach note", ex.coach_note) : ""}
   `;
 
-  openModal("detailModal");
+  $("#detailModal").classList.add("show");
 }
 
 function openReport(index){
@@ -3846,97 +2094,12 @@ function openReport(index){
   $("#reportReps").value = ex.target_reps || "";
   $("#reportNotes").value = "";
   resetSelectChips();
-  openModal("reportModal");
-}
-
-function openModal(id){
-  const modal = $("#" + id);
-  if(!modal) return;
-  const sheet = modal.querySelector(".sheet");
-  if(sheet){
-    sheet.style.transform = "";
-    sheet.style.transition = "";
-    sheet.scrollTop = 0;
-  }
-  modal.style.background = "";
-  modal.classList.add("show");
-  modal.setAttribute("aria-hidden", "false");
-  document.body.classList.add("modal-open");
+  $("#reportModal").classList.add("show");
 }
 
 function closeModal(id){
-  const modal = $("#" + id);
-  if(!modal) return;
-  const sheet = modal.querySelector(".sheet");
-  if(sheet){
-    sheet.style.transform = "";
-    sheet.style.transition = "";
-  }
-  modal.style.background = "";
-  modal.classList.remove("show");
-  modal.setAttribute("aria-hidden", "true");
-  if(!document.querySelector(".modal.show")){
-    document.body.classList.remove("modal-open");
-  }
+  $("#"+id).classList.remove("show");
 }
-
-function closeAllModals(){
-  $$(".modal.show").forEach(modal => closeModal(modal.id));
-}
-
-function initSheetGestures(){
-  $$(".sheet").forEach(sheet => {
-    let startY = 0;
-    let distance = 0;
-    let dragging = false;
-
-    sheet.addEventListener("touchstart", event => {
-      if(event.touches.length !== 1 || sheet.scrollTop > 0) return;
-      startY = event.touches[0].clientY;
-      distance = 0;
-      dragging = true;
-      sheet.style.transition = "none";
-    }, { passive:true });
-
-    sheet.addEventListener("touchmove", event => {
-      if(!dragging || event.touches.length !== 1) return;
-      if(sheet.scrollTop > 0){
-        dragging = false;
-        sheet.style.transform = "";
-        return;
-      }
-      const nextDistance = event.touches[0].clientY - startY;
-      if(nextDistance <= 0) return;
-      distance = Math.min(nextDistance, 180);
-      event.preventDefault();
-      sheet.style.transform = `translate3d(0, ${distance}px, 0)`;
-      const modal = sheet.closest(".modal");
-      if(modal){
-        const alpha = Math.max(.18, .58 - distance / 420);
-        modal.style.background = `rgba(0,0,0,${alpha})`;
-      }
-    }, { passive:false });
-
-    const finishDrag = () => {
-      if(!dragging) return;
-      dragging = false;
-      sheet.style.transition = "transform .2s ease";
-      const modal = sheet.closest(".modal");
-      if(distance > 86 && modal){
-        sheet.style.transform = "translate3d(0, 110%, 0)";
-        setTimeout(() => closeModal(modal.id), 180);
-      }else{
-        sheet.style.transform = "";
-        if(modal) modal.style.background = "";
-      }
-      distance = 0;
-    };
-
-    sheet.addEventListener("touchend", finishDrag, { passive:true });
-    sheet.addEventListener("touchcancel", finishDrag, { passive:true });
-  });
-}
-
 
 function resetSelectChips(){
   $$('[data-select="effort"] .select-chip').forEach(b=>b.classList.toggle("active", b.dataset.value==="good"));
@@ -4016,7 +2179,7 @@ function renderAiCoachStatusUI(){
       </div>
       <div class="ai-status-meta">
         <div class="ai-status-row"><span>Plan</span><strong>${esc(activePlanMeta.title || activePlan?.title || "AI coach plan")}</strong></div>
-        <div class="ai-status-row"><span>Week</span><strong>${esc((activePlanMeta.week_start || activePlan?.start_date || "") + " -> " + (activePlanMeta.week_end || activePlan?.end_date || ""))}</strong></div>
+        <div class="ai-status-row"><span>Week</span><strong>${esc((activePlanMeta.week_start || activePlan?.start_date || "") + " → " + (activePlanMeta.week_end || activePlan?.end_date || ""))}</strong></div>
         <div class="ai-status-row"><span>Access</span><strong>${esc(plan)}</strong></div>
       </div>
     `;
@@ -4276,7 +2439,7 @@ function buildPrintHTML(){
       html += `
         <div class="print-card">
           <strong>${esc(ex.name || "Exercise")}</strong>
-          <p>${esc(ex.section || "")} / ${esc(ex.sets || "")} / Rest ${esc(ex.rest_seconds || "")} sec</p>
+          <p>${esc(ex.section || "")} • ${esc(ex.sets || "")} • Rest ${esc(ex.rest_seconds || "")} sec</p>
           <p>${esc(ex.cue || "")}</p>
           ${ex.coach_note ? `<p class="small"><strong>Coach note:</strong> ${esc(ex.coach_note)}</p>` : ""}
         </div>
@@ -4285,7 +2448,7 @@ function buildPrintHTML(){
   });
 
   if(activePlan.water_goal){
-    html += `<h2>Water Goal</h2><div class="print-card"><p>${esc(activePlan.water_goal.target_liters || "")} L daily / ${esc(activePlan.water_goal.bottles_per_day || "")} bottles</p><p>${esc(activePlan.water_goal.note || "")}</p></div>`;
+    html += `<h2>Water Goal</h2><div class="print-card"><p>${esc(activePlan.water_goal.target_liters || "")} L daily • ${esc(activePlan.water_goal.bottles_per_day || "")} bottles</p><p>${esc(activePlan.water_goal.note || "")}</p></div>`;
   }
 
   if(activePlan.meal_prep_plan){
@@ -4335,27 +2498,11 @@ function initSelectChips(){
 }
 
 function initEvents(){
-  window.addEventListener("load", () => restartPulseStrip(true));
-  window.addEventListener("resize", () => restartPulseStrip(true), {passive:true});
-  document.addEventListener("visibilitychange", () => {
-    if(!document.hidden) restartPulseStrip(true);
-  });
-  document.fonts?.ready?.then(() => restartPulseStrip(true));
-
-  if("ResizeObserver" in window){
-    const pulseStrip = document.querySelector(".pulse-strip");
-    if(pulseStrip){
-      new ResizeObserver(() => restartPulseStrip(true)).observe(pulseStrip);
-    }
-  }
-
-  $("#todayVisualImage")?.addEventListener("load", () => restartPulseStrip(true));
-
   $$(".tab").forEach(btn=>btn.addEventListener("click",()=>switchTab(btn.dataset.tab)));
 
   $("#startWorkoutToday").onclick=()=>switchTab("workoutScreen");
   $("#openSettingsBtn")?.addEventListener("click",()=>location.href="settings.html");
-  $("#profileAvatar")?.addEventListener("click",()=>$("#profileDpFile")?.click());
+  $("#changeDpBtn")?.addEventListener("click",()=>$("#profileDpFile")?.click());
   $("#profileDpFile")?.addEventListener("change", e=>handleProfileDpFile(e.target.files?.[0]));
 
   $("#tooBusyBtn").onclick=()=>{
@@ -4438,16 +2585,6 @@ function initEvents(){
     btn.onclick=()=>closeModal(btn.dataset.closeModal);
   });
 
-  $$(".modal").forEach(modal => {
-    modal.addEventListener("click", event => {
-      if(event.target === modal) closeModal(modal.id);
-    });
-  });
-
-  document.addEventListener("keydown", event => {
-    if(event.key === "Escape") closeAllModals();
-  });
-
   $("#detailDoneBtn").onclick=async()=>{
     if(detailIndex === null) return;
     try{
@@ -4512,7 +2649,6 @@ async function logout(){
 
 initSelectChips();
 initEvents();
-initSheetGestures();
 loadAll();
 </script>
 </body>
