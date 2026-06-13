@@ -686,6 +686,159 @@
         font-size:29px;
       }
     }
+  
+    /* =========================================================
+       SHAPECUE SETTINGS CLEAN V2
+       Keep this final in the stylesheet.
+    ========================================================= */
+
+    body{
+      background:#000000 !important;
+      color:var(--text) !important;
+    }
+
+    html[data-theme="light"] body{
+      background:#F5F5F7 !important;
+    }
+
+    .topbar{
+      background:rgba(4,4,5,.97) !important;
+      border-bottom:1px solid rgba(255,255,255,.07) !important;
+      box-shadow:0 8px 24px rgba(0,0,0,.20) !important;
+      backdrop-filter:blur(24px) saturate(145%) !important;
+      -webkit-backdrop-filter:blur(24px) saturate(145%) !important;
+    }
+
+    html[data-theme="light"] .topbar{
+      background:rgba(245,245,247,.97) !important;
+      border-bottom-color:rgba(0,0,0,.06) !important;
+      box-shadow:0 8px 22px rgba(0,0,0,.06) !important;
+    }
+
+    .back-btn{
+      position:relative !important;
+      gap:7px !important;
+    }
+
+    .back-arrow{
+      width:9px;
+      height:9px;
+      border-left:2px solid currentColor;
+      border-bottom:2px solid currentColor;
+      transform:rotate(45deg);
+      display:inline-block;
+      margin-left:3px;
+    }
+
+    .group,
+    .membership-card{
+      background:var(--surface) !important;
+      border:1px solid var(--line) !important;
+      box-shadow:none !important;
+    }
+
+    .row{
+      background:transparent !important;
+    }
+
+    .row:active{
+      background:var(--surface-2) !important;
+    }
+
+    .row-icon{
+      min-width:32px !important;
+      font-size:9.5px !important;
+      letter-spacing:-.15px !important;
+      line-height:1 !important;
+    }
+
+    .row-icon:has(> span){
+      font-size:10px !important;
+    }
+
+    .chevron{
+      position:relative !important;
+      width:18px !important;
+      height:18px !important;
+      min-width:18px !important;
+      margin-left:2px !important;
+      font-size:0 !important;
+      color:var(--text-3) !important;
+    }
+
+    .chevron::before{
+      content:"" !important;
+      position:absolute !important;
+      left:4px !important;
+      top:4px !important;
+      width:7px !important;
+      height:7px !important;
+      border-top:2px solid currentColor !important;
+      border-right:2px solid currentColor !important;
+      transform:rotate(45deg) !important;
+    }
+
+    .faq-arrow{
+      position:relative !important;
+      width:28px !important;
+      height:28px !important;
+      min-width:28px !important;
+      border-radius:999px !important;
+      display:grid !important;
+      place-items:center !important;
+      background:var(--surface-2) !important;
+      border:1px solid var(--line) !important;
+      color:var(--text-2) !important;
+      font-size:0 !important;
+      transition:transform .18s ease !important;
+    }
+
+    .faq-arrow::before{
+      content:"" !important;
+      width:8px !important;
+      height:8px !important;
+      border-right:2px solid currentColor !important;
+      border-bottom:2px solid currentColor !important;
+      transform:rotate(45deg) translate(-1px,-1px) !important;
+    }
+
+    .faq[open] .faq-arrow{
+      transform:rotate(180deg) !important;
+    }
+
+    .sheet{
+      background:rgba(24,24,27,.92) !important;
+      border:1px solid rgba(255,255,255,.15) !important;
+      box-shadow:0 24px 70px rgba(0,0,0,.48) !important;
+      backdrop-filter:blur(30px) saturate(170%) !important;
+      -webkit-backdrop-filter:blur(30px) saturate(170%) !important;
+    }
+
+    html[data-theme="light"] .sheet{
+      background:rgba(255,255,255,.93) !important;
+      border-color:rgba(0,0,0,.10) !important;
+      box-shadow:0 20px 54px rgba(0,0,0,.14) !important;
+    }
+
+    .close-btn{
+      line-height:1 !important;
+      display:grid !important;
+      place-items:center !important;
+    }
+
+    .segmented button.active{
+      border:1px solid var(--line) !important;
+    }
+
+    @media(max-width:390px){
+      .row-icon{
+        width:30px !important;
+        height:30px !important;
+        min-width:30px !important;
+        border-radius:9px !important;
+      }
+    }
+
   </style>
 </head>
 
@@ -694,7 +847,7 @@
     <main class="shell">
       <header class="topbar">
         <div class="toprow">
-          <button class="back-btn" id="backBtn" type="button">â¹ Back</button>
+          <button class="back-btn" id="backBtn" type="button"><span class="back-arrow" aria-hidden="true"></span>Back</button>
           <div class="top-title">Settings</div>
           <div class="top-spacer"></div>
         </div>
@@ -749,21 +902,21 @@
 
         <section class="group">
           <button class="row" id="editProfileBtn" type="button">
-            <span class="row-icon blue">ð¤</span>
+            <span class="row-icon blue">ID</span>
             <span class="row-main">
               <span class="row-title">Personal information</span>
               <span class="row-sub" id="accountName">Name, age, height, and weight</span>
             </span>
-            <span class="chevron">âº</span>
+            <span class="chevron" aria-hidden="true"></span>
           </button>
 
           <button class="row" id="editSetupBtn" type="button">
-            <span class="row-icon green">â</span>
+            <span class="row-icon green">GO</span>
             <span class="row-main">
               <span class="row-title">Fitness and food setup</span>
               <span class="row-sub">Goals, work schedule, food preferences, and workouts</span>
             </span>
-            <span class="chevron">âº</span>
+            <span class="chevron" aria-hidden="true"></span>
           </button>
 
           <div class="row">
@@ -772,7 +925,7 @@
               <span class="row-title">Email</span>
               <span class="row-sub">Your ShapeCue sign-in email</span>
             </span>
-            <span class="row-value" id="accountEmail">â</span>
+            <span class="row-value" id="accountEmail">-</span>
           </div>
 
           <button class="row" id="adminBtn" type="button" hidden>
@@ -781,7 +934,7 @@
               <span class="row-title">Admin</span>
               <span class="row-sub">Promo codes and exercise library</span>
             </span>
-            <span class="chevron">âº</span>
+            <span class="chevron" aria-hidden="true"></span>
           </button>
         </section>
 
@@ -789,7 +942,7 @@
 
         <section class="group">
           <div class="row">
-            <span class="row-icon blue">â</span>
+            <span class="row-icon blue">UI</span>
             <span class="row-main">
               <span class="row-title">Theme</span>
               <span class="row-sub">Follow your phone or choose manually</span>
@@ -857,7 +1010,7 @@
 
         <section class="group">
           <div class="row">
-            <span class="row-icon purple">ð</span>
+            <span class="row-icon purple">LOCK</span>
             <span class="row-main">
               <span class="row-title">Use progress photos for AI review</span>
               <span class="row-sub">Off by default. Photos remain private.</span>
@@ -873,16 +1026,16 @@
               <span class="row-title">Progress photo privacy</span>
               <span class="row-sub">How ShapeCue handles private body photos</span>
             </span>
-            <span class="chevron">âº</span>
+            <span class="chevron" aria-hidden="true"></span>
           </button>
 
           <button class="row" id="downloadDataBtn" type="button">
-            <span class="row-icon green">â</span>
+            <span class="row-icon green">DL</span>
             <span class="row-main">
               <span class="row-title">Download my data</span>
               <span class="row-sub">Export is planned before public launch</span>
             </span>
-            <span class="chevron">âº</span>
+            <span class="chevron" aria-hidden="true"></span>
           </button>
         </section>
 
@@ -892,7 +1045,7 @@
           <details class="faq">
             <summary>
               <span class="faq-question">How does ShapeCue update my plan?</span>
-              <span class="faq-arrow">â</span>
+              <span class="faq-arrow" aria-hidden="true"></span>
             </summary>
             <div class="faq-answer">
               ShapeCue uses your onboarding details, completed meals and workouts, exercise reports, pain logs, measurements, and recent plan history. Your current plan remains active while a new plan is being generated.
@@ -902,7 +1055,7 @@
           <details class="faq">
             <summary>
               <span class="faq-question">What is the difference between Premium and Coach?</span>
-              <span class="faq-arrow">â</span>
+              <span class="faq-arrow" aria-hidden="true"></span>
             </summary>
             <div class="faq-answer">
               Premium updates every 14 days and includes detailed meals, exercise media, limited progress photos, and a basic progress review. Coach updates weekly and adds full smart replacements, photo AI review, Progress Vault PIN, advanced weekly review, and explanations for why your plan changed.
@@ -912,7 +1065,7 @@
           <details class="faq">
             <summary>
               <span class="faq-question">Are my progress photos private?</span>
-              <span class="faq-arrow">â</span>
+              <span class="faq-arrow" aria-hidden="true"></span>
             </summary>
             <div class="faq-answer">
               Progress photos are stored in a private Supabase bucket with per-user access rules. ShapeCue should only use them for AI review when you explicitly allow it. Avoid including your face.
@@ -922,7 +1075,7 @@
           <details class="faq">
             <summary>
               <span class="faq-question">Does ShapeCue replace medical advice?</span>
-              <span class="faq-arrow">â</span>
+              <span class="faq-arrow" aria-hidden="true"></span>
             </summary>
             <div class="faq-answer">
               No. ShapeCue provides general fitness and wellness guidance. It does not diagnose conditions, prescribe treatment, or replace a doctor, physiotherapist, registered dietitian, or other qualified professional.
@@ -935,7 +1088,7 @@
               <span class="row-title">Contact support</span>
               <span class="row-sub">Account, membership, plan, or technical help</span>
             </span>
-            <span class="chevron">âº</span>
+            <span class="chevron" aria-hidden="true"></span>
           </button>
 
           <button class="row" id="reportProblemBtn" type="button">
@@ -944,7 +1097,7 @@
               <span class="row-title">Report a problem</span>
               <span class="row-sub">Meal, workout, AI plan, payment, or app issue</span>
             </span>
-            <span class="chevron">âº</span>
+            <span class="chevron" aria-hidden="true"></span>
           </button>
         </section>
 
@@ -955,21 +1108,21 @@
             <span class="row-main">
               <span class="row-title">Privacy Policy</span>
             </span>
-            <span class="chevron">âº</span>
+            <span class="chevron" aria-hidden="true"></span>
           </button>
 
           <button class="row legal-btn" type="button" data-legal-page="terms.html" data-legal-name="Terms of Use">
             <span class="row-main">
               <span class="row-title">Terms of Use</span>
             </span>
-            <span class="chevron">âº</span>
+            <span class="chevron" aria-hidden="true"></span>
           </button>
 
           <button class="row legal-btn" type="button" data-legal-page="disclaimer.html" data-legal-name="Fitness Disclaimer">
             <span class="row-main">
               <span class="row-title">Fitness Disclaimer</span>
             </span>
-            <span class="chevron">âº</span>
+            <span class="chevron" aria-hidden="true"></span>
           </button>
         </section>
 
@@ -977,19 +1130,19 @@
 
         <section class="group">
           <button class="row" id="logoutBtn" type="button">
-            <span class="row-icon red">âª</span>
+            <span class="row-icon red">OUT</span>
             <span class="row-main">
               <span class="row-title danger-text">Log out</span>
             </span>
           </button>
 
           <button class="row" id="deleteAccountBtn" type="button">
-            <span class="row-icon red">Ã</span>
+            <span class="row-icon red">DEL</span>
             <span class="row-main">
               <span class="row-title danger-text">Delete account</span>
               <span class="row-sub">Permanent deletion requires a verified server-side flow</span>
             </span>
-            <span class="chevron">âº</span>
+            <span class="chevron" aria-hidden="true"></span>
           </button>
         </section>
 
@@ -1007,12 +1160,12 @@
           <h3>Progress photo privacy</h3>
           <p>Your photos should stay private and under your control.</p>
         </div>
-        <button class="close-btn" type="button" data-close-modal="privacyModal">Ã</button>
+        <button class="close-btn" type="button" data-close-modal="privacyModal">&times;</button>
       </div>
 
       <div class="group">
         <div class="row">
-          <span class="row-icon green">â</span>
+          <span class="row-icon green">GO</span>
           <span class="row-main">
             <span class="row-title">Private storage</span>
             <span class="row-sub">Progress photos use a private storage bucket.</span>
@@ -1036,7 +1189,7 @@
         </div>
 
         <div class="row">
-          <span class="row-icon red">Ã</span>
+          <span class="row-icon red">DEL</span>
           <span class="row-main">
             <span class="row-title">Delete anytime</span>
             <span class="row-sub">You can remove individual progress photos from the Progress page.</span>
@@ -1053,7 +1206,7 @@
           <h3 id="supportTitle">Contact support</h3>
           <p>Create a clear support request. You can copy it until a support backend is connected.</p>
         </div>
-        <button class="close-btn" type="button" data-close-modal="supportModal">Ã</button>
+        <button class="close-btn" type="button" data-close-modal="supportModal">&times;</button>
       </div>
 
       <div class="field">
@@ -1091,7 +1244,7 @@
           <h3>Delete account</h3>
           <p>This action must be handled by a verified server-side account-deletion function.</p>
         </div>
-        <button class="close-btn" type="button" data-close-modal="deleteModal">Ã</button>
+        <button class="close-btn" type="button" data-close-modal="deleteModal">&times;</button>
       </div>
 
       <div class="group">
@@ -1118,6 +1271,7 @@
       SUPABASE_URL,
       SUPABASE_ANON_KEY
     );
+    document.documentElement.dataset.shapeCueSettings = "settings-clean-v2";
 
     const $ = selector => document.querySelector(selector);
     const $$ = selector => Array.from(document.querySelectorAll(selector));
@@ -1430,7 +1584,7 @@
         "ShapeCue user";
 
       $("#accountName").textContent =
-        `${fullName} â¢ Edit onboarding information`;
+        `${fullName} / Edit onboarding information`;
 
       $("#accountEmail").textContent =
         currentUser?.email ||
