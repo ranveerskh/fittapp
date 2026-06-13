@@ -1,6 +1,4 @@
-from pathlib import Path
-
-code = r'''"use strict";
+"use strict";
 
 const STYLE_ALIASES = new Map([
   ["automatic", "mixed"],
@@ -91,6 +89,13 @@ function isoWeekKey(date = new Date()) {
   const week = Math.ceil((((value - yearStart) / 86400000) + 1) / 7);
 
   return `${value.getUTCFullYear()}-W${String(week).padStart(2, "0")}`;
+}
+
+function safeWeekKey(value) {
+  const candidate = String(value || "").trim().toUpperCase();
+  return /^\d{4}-W(?:0[1-9]|[1-4]\d|5[0-3])$/.test(candidate)
+    ? candidate
+    : isoWeekKey();
 }
 
 function hashString(value) {
@@ -342,7 +347,7 @@ exports.handler = async function handler(event) {
 
   const style = safeStyle(event.queryStringParameters?.style);
   const workout = safeWorkout(event.queryStringParameters?.workout);
-  const weekKey = isoWeekKey();
+  const weekKey = safeWeekKey(event.queryStringParameters?.week);
   const queries = buildQueries(style, workout);
 
   try {
@@ -376,8 +381,3 @@ exports.handler = async function handler(event) {
     });
   }
 };
-'''
-
-path = Path("/mnt/data/get-weekly-visual-v2.js")
-path.write_text(code, encoding="utf-8")
-print(path)
