@@ -1005,6 +1005,47 @@
       .app-shell{max-width:none !important;padding:0 !important}
     }
 
+  
+
+    /* =========================================================
+       SHAPECUE POLISH FIX V2
+    ========================================================= */
+    .page-head > div:first-child{min-width:0;flex:1 1 auto}
+    .head-actions{flex:0 0 auto !important;align-self:flex-start}
+    .circle-action{width:34px !important;height:34px !important;min-width:34px !important;flex:0 0 34px !important;padding:0 !important;overflow:hidden !important;color:var(--app-blue) !important;line-height:0 !important}
+    .circle-action svg{display:block !important;width:16px !important;height:16px !important;flex:0 0 auto !important}
+    .circle-action.locked-action{color:var(--app-amber) !important;background:var(--app-amber-soft) !important;border-color:rgba(255,179,64,.18) !important}
+
+    #workoutScreen{padding-bottom:18px !important}
+    .primary-bar{position:relative !important;bottom:auto !important;z-index:2 !important;margin:16px 0 8px !important;box-shadow:none !important;background:var(--app-surface) !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important}
+
+    .bottom-tabs{width:calc(100% - 30px) !important;max-width:394px !important;height:54px !important;min-height:54px !important;padding:4px 6px !important;border-radius:27px !important}
+    .bottom-tabs .tab{height:44px !important;min-height:44px !important;border-radius:22px !important}
+    .bottom-tabs .tab svg{width:22px !important;height:22px !important}
+    .toast{bottom:calc(70px + env(safe-area-inset-bottom)) !important}
+
+    body.profile-tab-active .topbar{display:none !important}
+    body.profile-tab-active #profileScreen{padding-top:10px !important}
+    .profile-avatar-button{position:relative !important;padding:0 !important;cursor:pointer !important;appearance:none !important;-webkit-appearance:none !important;box-shadow:none !important}
+    .profile-avatar-button::after{content:"";position:absolute;right:-2px;bottom:-2px;width:17px;height:17px;border-radius:50%;border:2px solid var(--app-bg);background:radial-gradient(circle at 50% 50%,var(--app-text) 0 2px,transparent 2.5px),var(--app-blue);box-shadow:0 2px 8px rgba(0,0,0,.22)}
+    .profile-plan-badge{flex:0 0 auto;min-height:31px;display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;border:1px solid var(--app-line);border-radius:999px;background:var(--app-surface);color:var(--app-muted);font-size:9.5px;font-weight:1000;white-space:nowrap}
+    .profile-plan-badge.plus{color:var(--app-blue);background:var(--app-blue-soft);border-color:rgba(88,170,255,.18)}
+    .profile-plan-badge.premium{color:var(--app-purple);background:rgba(191,90,242,.11);border-color:rgba(191,90,242,.18)}
+    .profile-plan-badge.coach{color:var(--app-green);background:var(--app-green-soft);border-color:rgba(53,212,111,.20)}
+
+    body.modal-open{overflow:hidden !important}
+    body.modal-open .bottom-tabs{opacity:0 !important;pointer-events:none !important;transform:translateX(-50%) translateY(18px) !important;transition:opacity .16s ease,transform .2s ease !important}
+    .modal{z-index:300 !important;align-items:flex-end !important;overflow:hidden !important;padding:max(8px,env(safe-area-inset-top)) 10px 0 !important}
+    .sheet{width:100% !important;max-width:var(--app-max) !important;max-height:calc(100dvh - max(10px,env(safe-area-inset-top))) !important;overflow-y:auto !important;overflow-x:hidden !important;overscroll-behavior-y:contain !important;-webkit-overflow-scrolling:touch !important;padding:0 14px calc(16px + env(safe-area-inset-bottom)) !important;border-radius:26px 26px 0 0 !important;will-change:transform !important;touch-action:pan-y !important}
+    .sheet-handle{position:sticky;top:0;z-index:8;width:40px;height:5px;margin:8px auto 6px;border-radius:999px;background:rgba(255,255,255,.24)}
+    html[data-theme="light"] .sheet-handle{background:rgba(0,0,0,.18)}
+    .sheet-head{position:sticky !important;top:0 !important;z-index:7 !important;margin:0 -14px 10px !important;padding:8px 14px 10px !important;background:linear-gradient(180deg,rgba(24,24,27,.98),rgba(24,24,27,.94)) !important;border-bottom:1px solid var(--app-line) !important}
+    html[data-theme="light"] .sheet-head{background:linear-gradient(180deg,rgba(255,255,255,.99),rgba(255,255,255,.95)) !important}
+    #detailModal .media-box{min-height:150px !important;height:min(34dvh,220px) !important}
+    #detailModal .summary-list{padding-bottom:4px}
+
+    @media(max-width:390px){.bottom-tabs{width:calc(100% - 22px) !important}.profile-plan-badge{padding-left:8px;padding-right:8px}}
+
   </style>
 </head>
 
@@ -1190,12 +1231,12 @@
 
       <section class="screen" id="profileScreen">
         <div class="profile-head-new">
-          <div class="profile-avatar" id="profileAvatar">SC</div>
+          <button class="profile-avatar profile-avatar-button" id="profileAvatar" type="button" aria-label="Change profile photo">SC</button>
           <div class="profile-copy-new">
             <h1 id="profileNameTitle">ShapeCue user</h1>
             <p id="profileMiniLine">Coach plan / Last AI update</p>
           </div>
-          <button class="profile-edit" id="changeDpBtn" type="button">Photo</button>
+          <span class="profile-plan-badge coach" id="profilePlanBadge">Coach</span>
         </div>
         <input id="profileDpFile" type="file" accept="image/jpeg,image/png,image/webp" style="display:none">
 
@@ -1226,14 +1267,14 @@
     <button class="tab" data-tab="profileScreen" type="button" aria-label="Me"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21c1.5-4 14.5-4 16 0"/></svg><span>Me</span></button>
   </nav>
 
-  <div class="modal" id="detailModal"><div class="sheet">
+  <div class="modal" id="detailModal" aria-hidden="true"><div class="sheet"><div class="sheet-handle" aria-hidden="true"></div>
     <div class="sheet-head"><div><h3 id="detailTitle">Exercise</h3><div class="tag green" id="detailTag" style="display:inline-flex;margin-top:7px">Details</div></div><button class="close-btn" data-close-modal="detailModal">&times;</button></div>
     <div class="media-box" id="detailMedia"></div>
     <div class="summary-list" id="detailInfo"></div>
     <div class="btn-row"><button class="btn primary" id="detailDoneBtn">Done</button><button class="btn amber" id="detailReportBtn">Report</button></div>
   </div></div>
 
-  <div class="modal" id="reportModal"><div class="sheet">
+  <div class="modal" id="reportModal" aria-hidden="true"><div class="sheet"><div class="sheet-handle" aria-hidden="true"></div>
     <div class="sheet-head"><div><h3 id="reportTitle">Report exercise</h3><div class="tag amber" style="display:inline-flex;margin-top:7px">Optional details</div></div><button class="close-btn" data-close-modal="reportModal">&times;</button></div>
     <div class="grid2">
       <div class="field"><label>Weight used</label><input class="input" id="reportWeight" type="number" step="0.5" placeholder="Optional"></div>
@@ -1246,7 +1287,7 @@
     <button class="btn primary" id="saveReportBtn" style="width:100%;margin-top:12px">Save report</button>
   </div></div>
 
-  <div class="modal" id="upgradeModal"><div class="sheet">
+  <div class="modal" id="upgradeModal" aria-hidden="true"><div class="sheet"><div class="sheet-handle" aria-hidden="true"></div>
     <div class="sheet-head"><div><h3 id="upgradeTitle">Unlock Premium</h3><div class="tag amber" style="display:inline-flex;margin-top:7px">Premium feature</div></div><button class="close-btn" data-close-modal="upgradeModal">&times;</button></div>
     <p id="upgradeText" style="font-size:13px;line-height:1.45;margin:0">Use a promo code now. Payments can be connected later.</p>
     <div class="upgrade-list"><div>&#10003; Full weekly meal + workout plan</div><div>&#10003; PDF export and grocery list</div><div>&#10003; Exercise photos/videos and smart replacements</div><div>&#10003; Progress photos for paid users only</div></div>
@@ -1262,7 +1303,7 @@
 const SUPABASE_URL = "https://qusmbveovroldkhbjudq.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_6zVS1VCVok16WmVWNPvTrw_vTiQvgX4";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-document.documentElement.dataset.shapeCueUi = "approved-ios-theme-v1";
+document.documentElement.dataset.shapeCueUi = "approved-ios-theme-v2";
 
 const $ = q => document.querySelector(q);
 const $$ = q => Array.from(document.querySelectorAll(q));
@@ -1431,7 +1472,7 @@ function showUpgrade(title="Unlock Premium", text="This feature is included in P
   $("#upgradeText").textContent = text;
   $("#upgradeMsg").textContent = "Enter a promo code to unlock Plus, Premium, or Coach.";
   $("#upgradeMsg").className = "promo-msg";
-  $("#upgradeModal").classList.add("show");
+  openModal("upgradeModal");
 }
 
 async function applyPromoFromApp(){
@@ -1626,7 +1667,11 @@ function updateEntitlementUI(){
   }
 
   if($("#exportPdfBtn")){
-    $("#exportPdfBtn").textContent = hasFeature("pdf_export") ? "Export Week PDF" : "Premium PDF";
+    const exportButton = $("#exportPdfBtn");
+    const exportLabel = hasFeature("pdf_export") ? "Export weekly PDF" : "Unlock weekly PDF export";
+    exportButton.setAttribute("aria-label", exportLabel);
+    exportButton.setAttribute("title", exportLabel);
+    exportButton.classList.toggle("locked-action", !hasFeature("pdf_export"));
   }
 
   renderPlanAccessBox();
@@ -1663,6 +1708,8 @@ function exerciseDoneKey(index, ex){
 }
 
 function switchTab(id){
+  closeAllModals();
+  document.body.classList.toggle("profile-tab-active", id === "profileScreen");
   $$(".screen").forEach(s=>s.classList.toggle("active",s.id===id));
   $$(".tab").forEach(t=>t.classList.toggle("active",t.dataset.tab===id));
   const labels = {todayScreen:"Today", weekScreen:"Meals", workoutScreen:"Train", progressScreen:"Progress", profileScreen:"Me"};
@@ -2687,6 +2734,11 @@ function renderProfile(){
 
   if($("#profileNameTitle")) $("#profileNameTitle").textContent = data.profile?.full_name || "ShapeCue user";
   if($("#profileMiniLine")) $("#profileMiniLine").textContent = `${planName(currentPlanCode())} / Last AI update ${activePlanMeta?.created_at ? relativeTime(activePlanMeta.created_at) : "not yet"}`;
+  if($("#profilePlanBadge")){
+    const badgeCode = currentPlanCode();
+    $("#profilePlanBadge").textContent = planName(badgeCode);
+    $("#profilePlanBadge").className = `profile-plan-badge ${badgeCode}`;
+  }
   if($("#settingsAccountLine")) $("#settingsAccountLine").textContent = user?.email ? `Signed in as ${user.email}` : "Signed in";
   updateProfileAvatar();
 
@@ -2747,7 +2799,7 @@ function openDetail(index){
     ${ex.coach_note ? noteBlockHTML("Coach note", ex.coach_note) : ""}
   `;
 
-  $("#detailModal").classList.add("show");
+  openModal("detailModal");
 }
 
 function openReport(index){
@@ -2760,12 +2812,97 @@ function openReport(index){
   $("#reportReps").value = ex.target_reps || "";
   $("#reportNotes").value = "";
   resetSelectChips();
-  $("#reportModal").classList.add("show");
+  openModal("reportModal");
+}
+
+function openModal(id){
+  const modal = $("#" + id);
+  if(!modal) return;
+  const sheet = modal.querySelector(".sheet");
+  if(sheet){
+    sheet.style.transform = "";
+    sheet.style.transition = "";
+    sheet.scrollTop = 0;
+  }
+  modal.style.background = "";
+  modal.classList.add("show");
+  modal.setAttribute("aria-hidden", "false");
+  document.body.classList.add("modal-open");
 }
 
 function closeModal(id){
-  $("#"+id).classList.remove("show");
+  const modal = $("#" + id);
+  if(!modal) return;
+  const sheet = modal.querySelector(".sheet");
+  if(sheet){
+    sheet.style.transform = "";
+    sheet.style.transition = "";
+  }
+  modal.style.background = "";
+  modal.classList.remove("show");
+  modal.setAttribute("aria-hidden", "true");
+  if(!document.querySelector(".modal.show")){
+    document.body.classList.remove("modal-open");
+  }
 }
+
+function closeAllModals(){
+  $$(".modal.show").forEach(modal => closeModal(modal.id));
+}
+
+function initSheetGestures(){
+  $$(".sheet").forEach(sheet => {
+    let startY = 0;
+    let distance = 0;
+    let dragging = false;
+
+    sheet.addEventListener("touchstart", event => {
+      if(event.touches.length !== 1 || sheet.scrollTop > 0) return;
+      startY = event.touches[0].clientY;
+      distance = 0;
+      dragging = true;
+      sheet.style.transition = "none";
+    }, { passive:true });
+
+    sheet.addEventListener("touchmove", event => {
+      if(!dragging || event.touches.length !== 1) return;
+      if(sheet.scrollTop > 0){
+        dragging = false;
+        sheet.style.transform = "";
+        return;
+      }
+      const nextDistance = event.touches[0].clientY - startY;
+      if(nextDistance <= 0) return;
+      distance = Math.min(nextDistance, 180);
+      event.preventDefault();
+      sheet.style.transform = `translate3d(0, ${distance}px, 0)`;
+      const modal = sheet.closest(".modal");
+      if(modal){
+        const alpha = Math.max(.18, .58 - distance / 420);
+        modal.style.background = `rgba(0,0,0,${alpha})`;
+      }
+    }, { passive:false });
+
+    const finishDrag = () => {
+      if(!dragging) return;
+      dragging = false;
+      sheet.style.transition = "transform .2s ease";
+      const modal = sheet.closest(".modal");
+      if(distance > 86 && modal){
+        sheet.style.transform = "translate3d(0, 110%, 0)";
+        setTimeout(() => closeModal(modal.id), 180);
+      }else{
+        sheet.style.transform = "";
+        if(modal) modal.style.background = "";
+      }
+      distance = 0;
+    };
+
+    sheet.addEventListener("touchend", finishDrag, { passive:true });
+    sheet.addEventListener("touchcancel", finishDrag, { passive:true });
+  });
+}
+
 
 function resetSelectChips(){
   $$('[data-select="effort"] .select-chip').forEach(b=>b.classList.toggle("active", b.dataset.value==="good"));
@@ -3168,7 +3305,7 @@ function initEvents(){
 
   $("#startWorkoutToday").onclick=()=>switchTab("workoutScreen");
   $("#openSettingsBtn")?.addEventListener("click",()=>location.href="settings.html");
-  $("#changeDpBtn")?.addEventListener("click",()=>$("#profileDpFile")?.click());
+  $("#profileAvatar")?.addEventListener("click",()=>$("#profileDpFile")?.click());
   $("#profileDpFile")?.addEventListener("change", e=>handleProfileDpFile(e.target.files?.[0]));
 
   $("#tooBusyBtn").onclick=()=>{
@@ -3251,6 +3388,16 @@ function initEvents(){
     btn.onclick=()=>closeModal(btn.dataset.closeModal);
   });
 
+  $$(".modal").forEach(modal => {
+    modal.addEventListener("click", event => {
+      if(event.target === modal) closeModal(modal.id);
+    });
+  });
+
+  document.addEventListener("keydown", event => {
+    if(event.key === "Escape") closeAllModals();
+  });
+
   $("#detailDoneBtn").onclick=async()=>{
     if(detailIndex === null) return;
     try{
@@ -3315,6 +3462,7 @@ async function logout(){
 
 initSelectChips();
 initEvents();
+initSheetGestures();
 loadAll();
 </script>
 </body>
