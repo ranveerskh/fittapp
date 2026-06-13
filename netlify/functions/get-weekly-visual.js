@@ -1,29 +1,66 @@
-from pathlib import Path
-import re
+"use strict";
 
-html_path = Path("/mnt/data/test.html")
-fn_path = Path("/mnt/data/get-weekly-visual.js")
+const STYLE_ALIASES = new Map([
+  ["automatic", "mixed"],
+  ["auto", "mixed"],
+  ["men", "men"],
+  ["man", "men"],
+  ["male", "men"],
+  ["women", "women"],
+  ["woman", "women"],
+  ["female", "women"],
+  ["mixed", "mixed"]
+]);
 
-html = html_path.read_text(encoding="utf-8")
-fn = fn_path.read_text(encoding="utf-8")
+const WORKOUT_ALIASES = new Map([
+  ["push", "push"],
+  ["pull", "pull"],
+  ["legs", "legs"],
+  ["leg", "legs"],
+  ["mobility", "mobility"],
+  ["recovery", "recovery"],
+  ["full-body", "full-body"],
+  ["fullbody", "full-body"],
+  ["cardio", "cardio"]
+]);
 
-# 1) Never cache function errors. Only successful image payloads get weekly CDN caching.
-old_json = '''function json(statusCode, body, extraHeaders = {}) {
-  return {
-    statusCode,
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": "public, max-age=3600, s-maxage=604800, stale-while-revalidate=2592000",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET,OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
-      ...extraHeaders
-    },
-    body: JSON.stringify(body)
-  };
-}'''
+const NEGATIVE_WORDS = new Set([
+  "snow",
+  "winter",
+  "hiking",
+  "hike",
+  "mountain",
+  "mountains",
+  "trail",
+  "outdoor",
+  "outdoors",
+  "street",
+  "fashion",
+  "coat",
+  "jacket",
+  "beach",
+  "ski",
+  "skiing",
+  "portrait"
+]);
 
-new_json = '''function json(statusCode, body, extraHeaders = {}) {
+const SLOT_POSITIVE_WORDS = {
+  today: ["gym", "fitness", "training", "workout", "strength", "weights"],
+  train: ["gym", "fitness", "training", "workout", "strength", "weights"],
+  meals: ["food", "meal", "protein", "healthy", "nutrition", "prep"]
+};
+
+const WORKOUT_POSITIVE_WORDS = {
+  push: ["chest", "bench", "press", "shoulder", "dumbbell"],
+  pull: ["back", "row", "pulldown", "lat", "cable"],
+  legs: ["leg", "legs", "squat", "lower", "body"],
+  mobility: ["stretch", "stretching", "mobility", "recovery"],
+  recovery: ["stretch", "stretching", "mobility", "recovery"],
+  "full-body": ["strength", "weights", "training", "gym"],
+  cardio: ["cardio", "bike", "cycling", "treadmill", "fitness"]
+};
+
+function json(statusCode, body, extraHeaders = {}) {
   const success = statusCode >= 200 && statusCode < 300 && statusCode !== 204;
   return {
     statusCode,
@@ -40,198 +77,311 @@ new_json = '''function json(statusCode, body, extraHeaders = {}) {
     },
     body: JSON.stringify(body)
   };
-}'''
+}
 
-if old_json not in fn:
-    raise RuntimeError("Could not find json helper in function file.")
-fn = fn.replace(old_json, new_json)
+function isoWeekKey(date = new Date()) {
+  const value = new Date(Date.UTC(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate()
+  ));
 
-# 2) New client cache version to bypass any cached failed v2 response.
-html = html.replace(
-    'const VISUAL_CACHE_PREFIX = "shapecue.visual_test.weekly.v2.";',
-    'const VISUAL_CACHE_PREFIX = "shapecue.visual_test.weekly.v3.";'
-)
+  const day = value.getUTCDay() || 7;
+  value.setUTCDate(value.getUTCDate() + 4 - day);
 
-# 3) Cached payload must contain actual image URLs, not merely a visuals object.
-old_cache_check = '''    if(
-      !parsed?.visuals ||
-      !parsed?.week_key
-    ){
-      return null;
-    }
+  const yearStart = new Date(Date.UTC(value.getUTCFullYear(), 0, 1));
+  const week = Math.ceil((((value - yearStart) / 86400000) + 1) / 7);
 
-    return parsed;'''
+  return `${value.getUTCFullYear()}-W${String(week).padStart(2, "0")}`;
+}
 
-new_cache_check = '''    const visuals = parsed?.visuals;
-    const valid =
-      parsed?.week_key &&
-      visuals?.today?.image_url &&
-      visuals?.train?.image_url &&
-      visuals?.meals?.image_url;
+function safeWeekKey(value) {
+  const candidate = String(value || "").trim().toUpperCase();
+  return /^\d{4}-W(?:0[1-9]|[1-4]\d|5[0-3])$/.test(candidate)
+    ? candidate
+    : isoWeekKey();
+}
 
-    if(!valid){
-      localStorage.removeItem(key);
-      return null;
-    }
+function hashString(value) {
+  let hash = 2166136261;
 
-    return parsed;'''
-
-if old_cache_check not in html:
-    raise RuntimeError("Could not find visual cache validation.")
-html = html.replace(old_cache_check, new_cache_check)
-
-# 4) Remove strict URL equality test. Browsers normalize Unsplash URLs, which can prevent reveal.
-start = html.index('function applyPhotoToCover({')
-end = html.index('\nfunction applyMinimalVisualMode()', start)
-
-new_apply = r'''function applyPhotoToCover({
-  coverId,
-  imageId,
-  creditId,
-  visual,
-  alt
-}){
-  const cover = $("#" + coverId);
-  const image = $("#" + imageId);
-  const credit = $("#" + creditId);
-
-  if(!cover || !image || !credit) return;
-
-  cover.classList.remove("visual-ready","visual-minimal");
-
-  if(!visual?.image_url){
-    cover.classList.remove("visual-loading");
-    image.removeAttribute("src");
-    image.alt = "";
-    credit.hidden = true;
-    if(coverId === "todayCoachCover") restartPulseStrip(true);
-    return;
+  for (const character of String(value)) {
+    hash ^= character.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
   }
 
-  const expectedSrc = String(visual.image_url);
-  const preload = new Image();
+  return hash >>> 0;
+}
 
-  const reveal = () => {
-    image.src = expectedSrc;
-    image.alt = alt || visual.alt || "";
-    cover.classList.remove("visual-loading","visual-minimal");
-    cover.classList.add("visual-ready");
+function safeStyle(value) {
+  return STYLE_ALIASES.get(String(value || "automatic").toLowerCase()) || "mixed";
+}
 
-    credit.textContent =
-      `Photo by ${visual.photographer_name || "Unsplash contributor"} on Unsplash`;
+function safeWorkout(value) {
+  const normalized = String(value || "mobility")
+    .toLowerCase()
+    .trim()
+    .replace(/[_\s]+/g, "-");
 
-    credit.href =
-      visual.photographer_url ||
-      visual.unsplash_url ||
-      "https://unsplash.com";
+  return WORKOUT_ALIASES.get(normalized) || "mobility";
+}
 
-    credit.hidden = false;
+function personTerm(style) {
+  if (style === "men") return "male athlete";
+  if (style === "women") return "female athlete";
+  return "athlete";
+}
 
-    if(coverId === "todayCoachCover") restartPulseStrip(true);
+function workoutTerm(workout) {
+  const terms = {
+    push: "chest press shoulder strength workout gym weights",
+    pull: "back workout gym cable row lat pulldown weights",
+    legs: "leg workout gym squat lower body strength weights",
+    mobility: "athlete stretching mobility recovery indoor fitness",
+    recovery: "athlete stretching recovery indoor fitness",
+    "full-body": "full body strength training gym weights",
+    cardio: "indoor cardio fitness training gym"
   };
 
-  const fail = () => {
-    console.error("ShapeCue visual image failed:", expectedSrc);
-    cover.classList.remove("visual-loading","visual-ready");
-    cover.classList.add("visual-minimal");
-    image.removeAttribute("src");
-    credit.hidden = true;
-    if(coverId === "todayCoachCover") restartPulseStrip(true);
+  return terms[workout] || terms.mobility;
+}
+
+function buildQueries(style, workout) {
+  const person = personTerm(style);
+  const workoutQuery = `${person} ${workoutTerm(workout)}`;
+
+  return {
+    today: workoutQuery,
+    train: workoutQuery,
+    meals: "healthy high protein meal prep fitness food"
   };
+}
 
-  preload.onload = reveal;
-  preload.onerror = fail;
-  preload.src = expectedSrc;
+async function unsplashFetch(path, accessKey) {
+  const response = await fetch(`https://api.unsplash.com${path}`, {
+    headers: {
+      "Accept-Version": "v1",
+      "Authorization": `Client-ID ${accessKey}`
+    }
+  });
 
-  if(preload.complete && preload.naturalWidth > 0){
-    requestAnimationFrame(reveal);
+  const result = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const detail = Array.isArray(result.errors)
+      ? result.errors.join(" ")
+      : "Unsplash request failed.";
+
+    throw new Error(detail);
+  }
+
+  return result;
+}
+
+function searchableText(photo) {
+  return [
+    photo.alt_description,
+    photo.description,
+    photo.user?.bio,
+    photo.user?.name
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+}
+
+function scorePhoto(photo, slot, workout) {
+  const text = searchableText(photo);
+  let score = 0;
+
+  for (const word of SLOT_POSITIVE_WORDS[slot] || []) {
+    if (text.includes(word)) score += 3;
+  }
+
+  if (slot !== "meals") {
+    for (const word of WORKOUT_POSITIVE_WORDS[workout] || []) {
+      if (text.includes(word)) score += 5;
+    }
+
+    for (const word of NEGATIVE_WORDS) {
+      if (text.includes(word)) score -= 8;
+    }
+
+    if (photo.width && photo.height && photo.width > photo.height) score += 2;
+  } else {
+    if (text.includes("gym") || text.includes("workout")) score -= 2;
+  }
+
+  if (photo.likes > 100) score += 1;
+  if (photo.alt_description || photo.description) score += 1;
+
+  return score;
+}
+
+function buildImageUrl(photo) {
+  const base =
+    photo.urls?.raw ||
+    photo.urls?.full ||
+    photo.urls?.regular ||
+    "";
+
+  if (!base) return "";
+
+  try {
+    const url = new URL(base);
+    url.searchParams.set("auto", "format");
+    url.searchParams.set("fit", "crop");
+    url.searchParams.set("crop", "faces,entropy");
+    url.searchParams.set("w", "1400");
+    url.searchParams.set("h", "820");
+    url.searchParams.set("q", "82");
+    return url.toString();
+  } catch (_) {
+    return base;
   }
 }
-'''
 
-html = html[:start] + new_apply + html[end:]
+async function choosePhoto({
+  query,
+  slot,
+  weekKey,
+  style,
+  workout,
+  accessKey
+}) {
+  const seed = hashString(`${weekKey}.${slot}.${style}.${workout}`);
+  const page = 1 + (seed % 2);
 
-# 5) Use a fresh endpoint version and bypass failed CDN cache on manual force refresh.
-old_params = '''    const params = new URLSearchParams({
-      style,
-      workout,
-      week:isoWeekKey(),
-      v:"2"
-    });'''
+  const params = new URLSearchParams({
+    query,
+    page: String(page),
+    per_page: "30",
+    order_by: "relevant",
+    orientation: "landscape",
+    content_filter: "high"
+  });
 
-new_params = '''    const params = new URLSearchParams({
-      style,
-      workout,
-      week:isoWeekKey(),
-      v:"3"
+  const result = await unsplashFetch(
+    `/search/photos?${params.toString()}`,
+    accessKey
+  );
+
+  const photos = Array.isArray(result.results) ? result.results : [];
+
+  if (!photos.length) {
+    throw new Error(`No Unsplash photo found for ${slot}.`);
+  }
+
+  const ranked = photos
+    .map(photo => ({
+      photo,
+      score: scorePhoto(photo, slot, workout)
+    }))
+    .sort((a, b) => b.score - a.score);
+
+  const bestScore = ranked[0]?.score ?? 0;
+  const shortlist = ranked
+    .filter(item => item.score >= bestScore - 3)
+    .slice(0, 8);
+
+  const selected = shortlist[seed % shortlist.length]?.photo || ranked[0].photo;
+
+  if (selected.links?.download_location) {
+    unsplashFetch(
+      selected.links.download_location.replace("https://api.unsplash.com", ""),
+      accessKey
+    ).catch(() => {});
+  }
+
+  const tracking = "utm_source=shapecue&utm_medium=referral";
+
+  return {
+    id: selected.id,
+    image_url: buildImageUrl(selected),
+    thumb_url: selected.urls?.small || "",
+    color: selected.color || "",
+    blur_hash: selected.blur_hash || "",
+    width: selected.width || null,
+    height: selected.height || null,
+    query_used: query,
+    alt:
+      selected.alt_description ||
+      selected.description ||
+      `${slot} fitness visual`,
+    photographer_name:
+      selected.user?.name ||
+      selected.user?.username ||
+      "Unsplash contributor",
+    photographer_url: selected.user?.links?.html
+      ? `${selected.user.links.html}?${tracking}`
+      : `https://unsplash.com?${tracking}`,
+    unsplash_url: selected.links?.html
+      ? `${selected.links.html}?${tracking}`
+      : `https://unsplash.com?${tracking}`,
+    download_location: selected.links?.download_location || ""
+  };
+}
+
+exports.handler = async function handler(event) {
+  if (event.httpMethod === "OPTIONS") {
+    return json(204, {});
+  }
+
+  if (event.httpMethod !== "GET") {
+    return json(
+      405,
+      {
+        ok: false,
+        error: "Method not allowed."
+      },
+      {
+        "Allow": "GET,OPTIONS"
+      }
+    );
+  }
+
+  const accessKey = process.env.UNSPLASH_ACCESS_KEY;
+
+  if (!accessKey) {
+    return json(500, {
+      ok: false,
+      error: "UNSPLASH_ACCESS_KEY is not configured for Netlify Functions."
     });
+  }
 
-    if(force){
-      params.set("refresh", String(Date.now()));
-    }'''
+  const style = safeStyle(event.queryStringParameters?.style);
+  const workout = safeWorkout(event.queryStringParameters?.workout);
+  const weekKey = safeWeekKey(event.queryStringParameters?.week);
+  const queries = buildQueries(style, workout);
 
-if old_params not in html:
-    raise RuntimeError("Could not find visual request parameters.")
-html = html.replace(old_params, new_params)
+  try {
+    const entries = await Promise.all(
+      Object.entries(queries).map(async ([slot, query]) => [
+        slot,
+        await choosePhoto({
+          query,
+          slot,
+          weekKey,
+          style,
+          workout,
+          accessKey
+        })
+      ])
+    );
 
-# 6) Provide the actual server error to the user instead of only a generic gradient message.
-html = html.replace(
-'''    toast(
-      "Visual service unavailable. Gradient preview is showing."
-    );''',
-'''    toast(
-      `Visual error: ${error.message || "service unavailable"}`
-    );'''
-)
+    return json(200, {
+      ok: true,
+      week_key: weekKey,
+      style,
+      workout,
+      visuals: Object.fromEntries(entries)
+    });
+  } catch (error) {
+    console.error("Weekly visual generation failed:", error);
 
-# 7) Add an explicit response validation in case the server returned an HTML 404 page.
-old_result = '''    const result = await response
-      .json()
-      .catch(() => ({}));
-
-    if(!response.ok || result.ok === false){
-      throw new Error(
-        result.error ||
-        "Weekly visuals could not be loaded."
-      );
-    }'''
-
-new_result = '''    const responseText = await response.text();
-    let result = {};
-
-    try{
-      result = JSON.parse(responseText);
-    }catch{
-      throw new Error(
-        response.status === 404
-          ? "Netlify function was not found. Check netlify/functions/get-weekly-visual.js and redeploy."
-          : `Visual function returned non-JSON (${response.status}).`
-      );
-    }
-
-    if(!response.ok || result.ok === false){
-      throw new Error(
-        result.error ||
-        `Weekly visuals could not be loaded (${response.status}).`
-      );
-    }
-
-    if(
-      !result?.visuals?.today?.image_url ||
-      !result?.visuals?.train?.image_url ||
-      !result?.visuals?.meals?.image_url
-    ){
-      throw new Error("Visual function returned no image URLs.");
-    }'''
-
-if old_result not in html:
-    raise RuntimeError("Could not find visual response parser.")
-html = html.replace(old_result, new_result)
-
-# Save v3 files.
-Path("/mnt/data/test-v3.html").write_text(html, encoding="utf-8")
-Path("/mnt/data/test-v3.txt").write_text(html, encoding="utf-8")
-Path("/mnt/data/get-weekly-visual-v3.js").write_text(fn, encoding="utf-8")
-Path("/mnt/data/get-weekly-visual-v3.txt").write_text(fn, encoding="utf-8")
-
-print("Created fixed v3 files.")
+    return json(502, {
+      ok: false,
+      error: error.message || "Weekly visuals could not be loaded."
+    });
+  }
+};
