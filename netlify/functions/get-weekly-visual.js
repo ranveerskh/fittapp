@@ -24,51 +24,26 @@ const WORKOUT_ALIASES = new Map([
   ["cardio", "cardio"]
 ]);
 
-const NEGATIVE_WORDS = new Set([
-  "snow",
-  "winter",
-  "hiking",
-  "hike",
-  "mountain",
-  "mountains",
-  "trail",
-  "outdoor",
-  "outdoors",
-  "street",
-  "fashion",
-  "coat",
-  "jacket",
-  "beach",
-  "ski",
-  "skiing",
-  "portrait"
-]);
-
-const SLOT_POSITIVE_WORDS = {
-  today: ["gym", "fitness", "training", "workout", "strength", "weights"],
-  train: ["gym", "fitness", "training", "workout", "strength", "weights"],
-  meals: ["food", "meal", "protein", "healthy", "nutrition", "prep"]
-};
-
-const WORKOUT_POSITIVE_WORDS = {
-  push: ["chest", "bench", "press", "shoulder", "dumbbell"],
-  pull: ["back", "row", "pulldown", "lat", "cable"],
-  legs: ["leg", "legs", "squat", "lower", "body"],
-  mobility: ["stretch", "stretching", "mobility", "recovery"],
-  recovery: ["stretch", "stretching", "mobility", "recovery"],
-  "full-body": ["strength", "weights", "training", "gym"],
-  cardio: ["cardio", "bike", "cycling", "treadmill", "fitness"]
-};
+const NEGATIVE_WORDS = [
+  "snow", "winter", "hiking", "hike", "mountain", "trail",
+  "outdoor", "outdoors", "street", "fashion", "coat", "jacket",
+  "beach", "ski", "skiing"
+];
 
 function json(statusCode, body, extraHeaders = {}) {
+  const success = statusCode >= 200 && statusCode < 300 && statusCode !== 204;
+
   return {
     statusCode,
     headers: {
       "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": "public, max-age=3600, s-maxage=604800, stale-while-revalidate=2592000",
+      "Cache-Control": success
+        ? "public, max-age=3600, s-maxage=604800, stale-while-revalidate=2592000"
+        : "no-store, max-age=0",
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "GET,OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
+      "X-ShapeCue-Visual-Version": "5",
       ...extraHeaders
     },
     body: JSON.stringify(body)
@@ -122,34 +97,55 @@ function safeWorkout(value) {
   return WORKOUT_ALIASES.get(normalized) || "mobility";
 }
 
-function personTerm(style) {
-  if (style === "men") return "male athlete";
-  if (style === "women") return "female athlete";
+function personWord(style) {
+  if (style === "men") return "man";
+  if (style === "women") return "woman";
   return "athlete";
 }
 
-function workoutTerm(workout) {
-  const terms = {
-    push: "chest press shoulder strength workout gym weights",
-    pull: "back workout gym cable row lat pulldown weights",
-    legs: "leg workout gym squat lower body strength weights",
-    mobility: "athlete stretching mobility recovery indoor fitness",
-    recovery: "athlete stretching recovery indoor fitness",
-    "full-body": "full body strength training gym weights",
-    cardio: "indoor cardio fitness training gym"
+function workoutQuery(workout) {
+  const queries = {
+    push: "chest workout gym",
+    pull: "back workout gym",
+    legs: "leg workout gym",
+    mobility: "stretching fitness gym",
+    recovery: "stretching recovery fitness",
+    "full-body": "strength training gym",
+    cardio: "cardio workout gym"
   };
 
-  return terms[workout] || terms.mobility;
+  return queries[workout] || queries.mobility;
 }
 
-function buildQueries(style, workout) {
-  const person = personTerm(style);
-  const workoutQuery = `${person} ${workoutTerm(workout)}`;
+function buildSlotConfig(style, workout) {
+  const person = personWord(style);
+  const workoutBase = workoutQuery(workout);
 
   return {
-    today: workoutQuery,
-    train: workoutQuery,
-    meals: "healthy high protein meal prep fitness food"
+    today: {
+      searchQueries: [
+        `${person} ${workoutBase}`,
+        workoutBase,
+        "fitness gym"
+      ],
+      randomQuery: workoutBase
+    },
+    train: {
+      searchQueries: [
+        `${person} ${workoutBase}`,
+        workoutBase,
+        "strength training gym"
+      ],
+      randomQuery: workoutBase
+    },
+    meals: {
+      searchQueries: [
+        "healthy high protein meal",
+        "healthy meal prep",
+        "healthy food"
+      ],
+      randomQuery: "healthy food"
+    }
   };
 }
 
@@ -166,7 +162,7 @@ async function unsplashFetch(path, accessKey) {
   if (!response.ok) {
     const detail = Array.isArray(result.errors)
       ? result.errors.join(" ")
-      : "Unsplash request failed.";
+      : `Unsplash request failed (${response.status}).`;
 
     throw new Error(detail);
   }
@@ -190,37 +186,43 @@ function scorePhoto(photo, slot, workout) {
   const text = searchableText(photo);
   let score = 0;
 
-  for (const word of SLOT_POSITIVE_WORDS[slot] || []) {
+  const slotWords = slot === "meals"
+    ? ["food", "meal", "protein", "healthy", "prep", "vegetable"]
+    : ["gym", "fitness", "training", "workout", "strength", "weights"];
+
+  const workoutWords = {
+    push: ["chest", "bench", "press", "shoulder", "dumbbell"],
+    pull: ["back", "row", "pulldown", "lat", "cable"],
+    legs: ["leg", "legs", "squat", "lower body"],
+    mobility: ["stretch", "stretching", "mobility"],
+    recovery: ["stretch", "stretching", "recovery"],
+    "full-body": ["strength", "weights", "training"],
+    cardio: ["cardio", "bike", "treadmill", "cycling"]
+  };
+
+  for (const word of slotWords) {
     if (text.includes(word)) score += 3;
   }
 
   if (slot !== "meals") {
-    for (const word of WORKOUT_POSITIVE_WORDS[workout] || []) {
+    for (const word of workoutWords[workout] || []) {
       if (text.includes(word)) score += 5;
     }
 
     for (const word of NEGATIVE_WORDS) {
-      if (text.includes(word)) score -= 8;
+      if (text.includes(word)) score -= 12;
     }
-
-    if (photo.width && photo.height && photo.width > photo.height) score += 2;
-  } else {
-    if (text.includes("gym") || text.includes("workout")) score -= 2;
   }
 
-  if (photo.likes > 100) score += 1;
+  if (photo.width && photo.height && photo.width > photo.height) score += 2;
   if (photo.alt_description || photo.description) score += 1;
+  if (Number(photo.likes || 0) > 100) score += 1;
 
   return score;
 }
 
 function buildImageUrl(photo) {
-  const base =
-    photo.urls?.raw ||
-    photo.urls?.full ||
-    photo.urls?.regular ||
-    "";
-
+  const base = photo.urls?.raw || photo.urls?.full || photo.urls?.regular || "";
   if (!base) return "";
 
   try {
@@ -232,40 +234,127 @@ function buildImageUrl(photo) {
     url.searchParams.set("h", "820");
     url.searchParams.set("q", "82");
     return url.toString();
-  } catch (_) {
+  } catch {
     return base;
   }
 }
 
-async function choosePhoto({
-  query,
-  slot,
-  weekKey,
-  style,
-  workout,
-  accessKey
-}) {
-  const seed = hashString(`${weekKey}.${slot}.${style}.${workout}`);
-  const page = 1 + (seed % 2);
-
+async function searchPhotos(query, accessKey) {
   const params = new URLSearchParams({
     query,
-    page: String(page),
+    page: "1",
     per_page: "30",
     order_by: "relevant",
     orientation: "landscape",
     content_filter: "high"
   });
 
-  const result = await unsplashFetch(
-    `/search/photos?${params.toString()}`,
-    accessKey
+  const result = await unsplashFetch(`/search/photos?${params.toString()}`, accessKey);
+  return Array.isArray(result.results) ? result.results : [];
+}
+
+async function randomPhotos(query, accessKey) {
+  const params = new URLSearchParams({
+    query,
+    orientation: "landscape",
+    content_filter: "high",
+    count: "10"
+  });
+
+  const result = await unsplashFetch(`/photos/random?${params.toString()}`, accessKey);
+  return Array.isArray(result) ? result : (result?.id ? [result] : []);
+}
+
+async function getFallbackLandscapePhotos(accessKey) {
+  const params = new URLSearchParams({
+    orientation: "landscape",
+    content_filter: "high",
+    count: "10"
+  });
+
+  const result = await unsplashFetch(`/photos/random?${params.toString()}`, accessKey);
+  return Array.isArray(result) ? result : (result?.id ? [result] : []);
+}
+
+async function triggerDownload(photo, accessKey) {
+  if (!photo?.links?.download_location) return;
+
+  const relativePath = photo.links.download_location.replace(
+    "https://api.unsplash.com",
+    ""
   );
 
-  const photos = Array.isArray(result.results) ? result.results : [];
+  unsplashFetch(relativePath, accessKey).catch(() => {});
+}
+
+function serializePhoto(photo, slot, queryUsed, fallbackUsed) {
+  const tracking = "utm_source=shapecue&utm_medium=referral";
+
+  return {
+    id: photo.id,
+    image_url: buildImageUrl(photo),
+    thumb_url: photo.urls?.small || "",
+    color: photo.color || "",
+    blur_hash: photo.blur_hash || "",
+    width: photo.width || null,
+    height: photo.height || null,
+    query_used: queryUsed,
+    fallback_used: fallbackUsed,
+    alt:
+      photo.alt_description ||
+      photo.description ||
+      `${slot} ShapeCue visual`,
+    photographer_name:
+      photo.user?.name ||
+      photo.user?.username ||
+      "Unsplash contributor",
+    photographer_url: photo.user?.links?.html
+      ? `${photo.user.links.html}?${tracking}`
+      : `https://unsplash.com?${tracking}`,
+    unsplash_url: photo.links?.html
+      ? `${photo.links.html}?${tracking}`
+      : `https://unsplash.com?${tracking}`,
+    download_location: photo.links?.download_location || ""
+  };
+}
+
+async function choosePhoto({
+  slot,
+  config,
+  weekKey,
+  style,
+  workout,
+  accessKey
+}) {
+  const seed = hashString(`${weekKey}.${slot}.${style}.${workout}`);
+  let photos = [];
+  let queryUsed = "";
+  let fallbackUsed = "none";
+
+  for (const query of config.searchQueries) {
+    photos = await searchPhotos(query, accessKey);
+
+    if (photos.length) {
+      queryUsed = query;
+      fallbackUsed = query === config.searchQueries[0] ? "none" : "simpler-search";
+      break;
+    }
+  }
 
   if (!photos.length) {
-    throw new Error(`No Unsplash photo found for ${slot}.`);
+    photos = await randomPhotos(config.randomQuery, accessKey);
+    queryUsed = config.randomQuery;
+    fallbackUsed = "random-query";
+  }
+
+  if (!photos.length) {
+    photos = await getFallbackLandscapePhotos(accessKey);
+    queryUsed = "random landscape";
+    fallbackUsed = "random-landscape";
+  }
+
+  if (!photos.length) {
+    throw new Error(`Unsplash returned no usable photo for ${slot}.`);
   }
 
   const ranked = photos
@@ -273,49 +362,23 @@ async function choosePhoto({
       photo,
       score: scorePhoto(photo, slot, workout)
     }))
+    .filter(item => buildImageUrl(item.photo))
     .sort((a, b) => b.score - a.score);
 
-  const bestScore = ranked[0]?.score ?? 0;
+  if (!ranked.length) {
+    throw new Error(`Unsplash returned photos without image URLs for ${slot}.`);
+  }
+
+  const bestScore = ranked[0].score;
   const shortlist = ranked
     .filter(item => item.score >= bestScore - 3)
     .slice(0, 8);
 
   const selected = shortlist[seed % shortlist.length]?.photo || ranked[0].photo;
 
-  if (selected.links?.download_location) {
-    unsplashFetch(
-      selected.links.download_location.replace("https://api.unsplash.com", ""),
-      accessKey
-    ).catch(() => {});
-  }
+  await triggerDownload(selected, accessKey);
 
-  const tracking = "utm_source=shapecue&utm_medium=referral";
-
-  return {
-    id: selected.id,
-    image_url: buildImageUrl(selected),
-    thumb_url: selected.urls?.small || "",
-    color: selected.color || "",
-    blur_hash: selected.blur_hash || "",
-    width: selected.width || null,
-    height: selected.height || null,
-    query_used: query,
-    alt:
-      selected.alt_description ||
-      selected.description ||
-      `${slot} fitness visual`,
-    photographer_name:
-      selected.user?.name ||
-      selected.user?.username ||
-      "Unsplash contributor",
-    photographer_url: selected.user?.links?.html
-      ? `${selected.user.links.html}?${tracking}`
-      : `https://unsplash.com?${tracking}`,
-    unsplash_url: selected.links?.html
-      ? `${selected.links.html}?${tracking}`
-      : `https://unsplash.com?${tracking}`,
-    download_location: selected.links?.download_location || ""
-  };
+  return serializePhoto(selected, slot, queryUsed, fallbackUsed);
 }
 
 exports.handler = async function handler(event) {
@@ -326,13 +389,8 @@ exports.handler = async function handler(event) {
   if (event.httpMethod !== "GET") {
     return json(
       405,
-      {
-        ok: false,
-        error: "Method not allowed."
-      },
-      {
-        "Allow": "GET,OPTIONS"
-      }
+      { ok: false, error: "Method not allowed." },
+      { Allow: "GET,OPTIONS" }
     );
   }
 
@@ -348,15 +406,15 @@ exports.handler = async function handler(event) {
   const style = safeStyle(event.queryStringParameters?.style);
   const workout = safeWorkout(event.queryStringParameters?.workout);
   const weekKey = safeWeekKey(event.queryStringParameters?.week);
-  const queries = buildQueries(style, workout);
+  const slotConfig = buildSlotConfig(style, workout);
 
   try {
-    const entries = await Promise.all(
-      Object.entries(queries).map(async ([slot, query]) => [
+    const settled = await Promise.allSettled(
+      Object.entries(slotConfig).map(async ([slot, config]) => [
         slot,
         await choosePhoto({
-          query,
           slot,
+          config,
           weekKey,
           style,
           workout,
@@ -365,18 +423,47 @@ exports.handler = async function handler(event) {
       ])
     );
 
+    const visuals = {};
+    const slotErrors = {};
+
+    settled.forEach((result, index) => {
+      const slot = Object.keys(slotConfig)[index];
+
+      if (result.status === "fulfilled") {
+        const [resolvedSlot, photo] = result.value;
+        visuals[resolvedSlot] = photo;
+      } else {
+        slotErrors[slot] = result.reason?.message || `Could not load ${slot} visual.`;
+      }
+    });
+
+    // Keep the page usable when only one fitness slot fails.
+    if (!visuals.today && visuals.train) visuals.today = visuals.train;
+    if (!visuals.train && visuals.today) visuals.train = visuals.today;
+
+    const missing = ["today", "train", "meals"].filter(slot => !visuals[slot]);
+
+    if (missing.length) {
+      throw new Error(
+        `Missing visual slots: ${missing.join(", ")}. ${JSON.stringify(slotErrors)}`
+      );
+    }
+
     return json(200, {
       ok: true,
+      version: 5,
       week_key: weekKey,
       style,
       workout,
-      visuals: Object.fromEntries(entries)
+      visuals,
+      warnings: slotErrors
     });
   } catch (error) {
     console.error("Weekly visual generation failed:", error);
 
     return json(502, {
       ok: false,
+      version: 5,
       error: error.message || "Weekly visuals could not be loaded."
     });
   }
