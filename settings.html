@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark" data-ui-version="approved-settings-v3-split-edit">
+<html lang="en" data-theme="dark" data-ui-version="approved-settings-v4-account-security">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -1172,14 +1172,14 @@
             <span class="chevron" aria-hidden="true"></span>
           </button>
 
-          <div class="row">
-            <span class="row-icon purple"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="m4 7 8 6 8-6"/></svg></span>
+          <button class="row" id="accountSecurityBtn" type="button">
+            <span class="row-icon purple"><svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>
             <span class="row-main">
-              <span class="row-title">Email</span>
-              <span class="row-sub">Your ShapeCue sign-in email</span>
+              <span class="row-title">Account &amp; security</span>
+              <span class="row-sub" id="accountEmail">Email, password, sessions, data, and deletion</span>
             </span>
-            <span class="row-value" id="accountEmail">-</span>
-          </div>
+            <span class="chevron" aria-hidden="true"></span>
+          </button>
 
           <button class="row" id="adminBtn" type="button" hidden>
             <span class="row-icon amber"><svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 5 3 8 7 10 4-2 7-5 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg></span>
@@ -1282,7 +1282,7 @@
             <span class="chevron" aria-hidden="true"></span>
           </button>
 
-          <button class="row" id="downloadDataBtn" type="button">
+          <button class="row" id="downloadDataBtn" type="button" hidden>
             <span class="row-icon green"><svg viewBox="0 0 24 24"><path d="M12 3v12M8 11l4 4 4-4"/><path d="M5 20h14"/></svg></span>
             <span class="row-main">
               <span class="row-title">Download my data</span>
@@ -1379,9 +1379,9 @@
           </button>
         </section>
 
-        <div class="section-label">Account actions</div>
+        <div class="section-label" hidden>Account actions</div>
 
-        <section class="group">
+        <section class="group" hidden>
           <button class="row" id="logoutBtn" type="button">
             <span class="row-icon red"><svg viewBox="0 0 24 24"><path d="M10 5H5v14h5M14 8l4 4-4 4M18 12H9"/></svg></span>
             <span class="row-main">
@@ -1845,8 +1845,9 @@
         `${fullName} / Edit onboarding information`;
 
       $("#accountEmail").textContent =
-        currentUser?.email ||
-        "No email";
+        currentUser?.email
+          ? `${currentUser.email} · Password and sessions`
+          : "Password, sessions, data, and deletion";
 
       $("#adminBtn").hidden = !isAppAdmin;
     }
@@ -1979,6 +1980,11 @@
       $("#editSetupBtn").addEventListener(
         "click",
         () => location.href = "onboarding.html?edit=fitness&return=settings.html"
+      );
+
+      $("#accountSecurityBtn").addEventListener(
+        "click",
+        () => location.href = "account.html"
       );
 
       $("#adminBtn").addEventListener(
