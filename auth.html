@@ -1,433 +1,1441 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark" data-ui-version="approved-auth-v1">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>FitApp - Login</title>
+  <meta name="color-scheme" content="dark light" />
+  <title>ShapeCue - Login</title>
+
+  <script>
+    (() => {
+      const saved = localStorage.getItem("shapecue.theme") || "system";
+      const resolved = saved === "system"
+        ? (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark")
+        : saved;
+      document.documentElement.dataset.theme = resolved;
+    })();
+  </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root{
-      --bg:#F6F8FB;
-      --bg2:#EEF4F9;
-      --text:#0F172A;
-      --muted:#64748B;
-      --muted2:#94A3B8;
-      --line:rgba(15,23,42,.10);
-      --glass:rgba(255,255,255,.64);
-      --glass2:rgba(255,255,255,.42);
-      --green:#22C55E;
-      --blue:#38BDF8;
-      --amber:#F59E0B;
-      --red:#EF4444;
-      --purple:#8B5CF6;
-      --shadow:0 24px 80px rgba(15,23,42,.14);
-      --shadow2:0 12px 32px rgba(15,23,42,.10);
-      --radius:30px;
-      --max:480px;
-    }
-    @media(prefers-color-scheme:dark){
-      :root{
-        --bg:#070A0F;
-        --bg2:#0B1220;
-        --text:#F8FAFC;
-        --muted:#94A3B8;
-        --muted2:#64748B;
-        --line:rgba(255,255,255,.13);
-        --glass:rgba(255,255,255,.095);
-        --glass2:rgba(255,255,255,.055);
-        --shadow:0 24px 80px rgba(0,0,0,.38);
-        --shadow2:0 16px 42px rgba(0,0,0,.24);
-      }
+      --bg:#050506;
+      --bg-top:#0A0A0C;
+      --surface:#111114;
+      --surface-2:#18181C;
+      --surface-3:#222228;
+      --glass:rgba(28,28,32,.72);
+      --glass-strong:rgba(28,28,32,.90);
+      --text:#F8F8FA;
+      --muted:#A5A5AD;
+      --muted-2:#72727B;
+      --line:rgba(255,255,255,.085);
+      --line-strong:rgba(255,255,255,.15);
+      --green:#35D46F;
+      --green-soft:rgba(53,212,111,.12);
+      --blue:#5AAEFF;
+      --blue-soft:rgba(90,174,255,.11);
+      --amber:#FFB340;
+      --amber-soft:rgba(255,179,64,.12);
+      --red:#FF6259;
+      --red-soft:rgba(255,98,89,.11);
+      --purple:#BF5AF2;
+      --purple-soft:rgba(191,90,242,.11);
+      --shadow:0 18px 46px rgba(0,0,0,.42);
+      --max:430px;
     }
 
-    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html[data-theme="light"]{
+      --bg:#F2F2F5;
+      --bg-top:#F8F8FA;
+      --surface:#FFFFFF;
+      --surface-2:#F2F2F5;
+      --surface-3:#E8E8ED;
+      --glass:rgba(255,255,255,.64);
+      --glass-strong:rgba(255,255,255,.90);
+      --text:#111114;
+      --muted:#66666E;
+      --muted-2:#8D8D95;
+      --line:rgba(0,0,0,.075);
+      --line-strong:rgba(0,0,0,.13);
+      --green:#20B95A;
+      --green-soft:rgba(32,185,90,.10);
+      --blue:#007AFF;
+      --blue-soft:rgba(0,122,255,.09);
+      --amber:#E98600;
+      --amber-soft:rgba(233,134,0,.10);
+      --red:#FF3B30;
+      --red-soft:rgba(255,59,48,.09);
+      --purple:#AF52DE;
+      --purple-soft:rgba(175,82,222,.09);
+      --shadow:0 14px 38px rgba(0,0,0,.11);
+    }
+
+    *{
+      box-sizing:border-box;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    [hidden]{
+      display:none !important;
+    }
+
+    html{
+      min-height:100%;
+    }
+
     body{
       margin:0;
       min-height:100vh;
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;
-      background:
-        radial-gradient(circle at top left, rgba(34,197,94,.27), transparent 35%),
-        radial-gradient(circle at top right, rgba(56,189,248,.25), transparent 34%),
-        radial-gradient(circle at 50% 70%, rgba(139,92,246,.12), transparent 34%),
-        linear-gradient(180deg,var(--bg),var(--bg2));
       color:var(--text);
-      display:flex;
-      justify-content:center;
+      background:
+        radial-gradient(circle at 50% -14%,rgba(255,255,255,.07),transparent 30%),
+        linear-gradient(180deg,var(--bg-top),var(--bg) 24%,var(--bg));
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,Arial,sans-serif;
       overflow-x:hidden;
     }
-    button,input{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}
 
-    .page{width:100%;max-width:var(--max);min-height:100vh;padding:18px 14px 36px;position:relative}
-    .orb{position:fixed;border-radius:999px;filter:blur(50px);opacity:.30;pointer-events:none;z-index:0}.orb.one{width:270px;height:270px;background:var(--green);top:-110px;left:-90px}.orb.two{width:290px;height:290px;background:var(--blue);bottom:90px;right:-120px;opacity:.22}.orb.three{width:240px;height:240px;background:var(--purple);top:40%;left:38%;opacity:.12}
+    html[data-theme="light"] body{
+      background:
+        radial-gradient(circle at 50% -12%,rgba(255,255,255,.96),transparent 31%),
+        linear-gradient(180deg,var(--bg-top),var(--bg) 24%,var(--bg));
+    }
 
-    .top{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:24px;border:1px solid rgba(255,255,255,.42);background:linear-gradient(180deg,rgba(255,255,255,.72),rgba(255,255,255,.44));border-radius:999px;padding:9px 10px;box-shadow:var(--shadow2);backdrop-filter:blur(26px) saturate(180%);-webkit-backdrop-filter:blur(26px) saturate(180%)}
-    @media(prefers-color-scheme:dark){.top{border-color:rgba(255,255,255,.13);background:linear-gradient(180deg,rgba(18,25,38,.72),rgba(15,23,42,.45))}}
-    .brand{display:flex;align-items:center;gap:10px;min-width:0}.logo{width:46px;height:46px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(145deg,#86EFAC,#38BDF8);color:#03100A;font-weight:1000;box-shadow:0 16px 38px rgba(34,197,94,.22);flex:0 0 auto}.brand h1{margin:0;font-size:18px;line-height:1.05;letter-spacing:-.45px}.brand span{display:block;margin-top:3px;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:245px}.home{border:1px solid var(--line);background:rgba(255,255,255,.18);color:var(--text);border-radius:999px;padding:11px 13px;font-size:12px;font-weight:950;white-space:nowrap}@media(prefers-color-scheme:dark){.home{background:rgba(255,255,255,.08)}}
+    button,
+    input{
+      font:inherit;
+    }
 
-    .hero{position:relative;z-index:1;padding:10px 3px 16px}.kicker{display:inline-flex;align-items:center;gap:8px;padding:8px 11px;border-radius:999px;border:1px solid rgba(34,197,94,.28);background:rgba(34,197,94,.10);color:#15803D;font-size:12px;font-weight:950;margin-bottom:13px;backdrop-filter:blur(18px)}@media(prefers-color-scheme:dark){.kicker{color:#BBF7D0}}.pulse{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 7px rgba(34,197,94,.13)}.hero h2{margin:0;font-size:38px;line-height:1;letter-spacing:-1.55px}.hero p{margin:11px 0 0;color:var(--muted);font-size:14.5px;line-height:1.52}
+    button{
+      color:inherit;
+      cursor:pointer;
+    }
 
-    .card{position:relative;z-index:1;border:1px solid rgba(255,255,255,.40);background:linear-gradient(180deg,var(--glass),var(--glass2));border-radius:var(--radius);box-shadow:var(--shadow);backdrop-filter:blur(28px) saturate(180%);-webkit-backdrop-filter:blur(28px) saturate(180%);padding:14px;overflow:hidden}.card:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at top right,rgba(255,255,255,.35),transparent 40%);pointer-events:none}@media(prefers-color-scheme:dark){.card{border-color:rgba(255,255,255,.13)}.card:before{background:radial-gradient(circle at top right,rgba(255,255,255,.11),transparent 40%)}}.inner{position:relative;z-index:1}
+    a{
+      color:inherit;
+      text-decoration:none;
+    }
 
-    .mode-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;background:rgba(255,255,255,.24);border:1px solid var(--line);border-radius:22px;padding:6px}@media(prefers-color-scheme:dark){.mode-tabs{background:rgba(0,0,0,.18)}}.mode-btn{border:0;background:transparent;color:var(--muted);border-radius:17px;min-height:48px;font-weight:1000}.mode-btn.active{background:#0F172A;color:#fff;box-shadow:0 12px 28px rgba(15,23,42,.16)}@media(prefers-color-scheme:dark){.mode-btn.active{background:#fff;color:#0F172A}}
+    .page{
+      width:100%;
+      max-width:var(--max);
+      min-height:100vh;
+      margin:0 auto;
+      padding:0 16px calc(30px + env(safe-area-inset-bottom));
+    }
 
-    .field{margin-top:12px}.field label{display:block;font-size:12px;color:var(--muted);font-weight:950;margin:0 0 6px 4px}.input{width:100%;border:1px solid var(--line);background:rgba(255,255,255,.42);color:var(--text);outline:none;border-radius:19px;min-height:54px;padding:13px 14px;font-size:15px;box-shadow:inset 0 1px 0 rgba(255,255,255,.22)}@media(prefers-color-scheme:dark){.input{background:rgba(0,0,0,.22)}}.input:focus{border-color:rgba(34,197,94,.58);background:rgba(255,255,255,.60)}@media(prefers-color-scheme:dark){.input:focus{background:rgba(0,0,0,.30)}}.input::placeholder{color:var(--muted2)}
+    .topbar{
+      height:54px;
+      margin:0 -16px;
+      padding:7px 16px;
+      display:flex;
+      align-items:center;
+      background:linear-gradient(180deg,rgba(5,5,6,.95),rgba(5,5,6,.80));
+      border-bottom:1px solid rgba(255,255,255,.045);
+      backdrop-filter:blur(22px) saturate(150%);
+      -webkit-backdrop-filter:blur(22px) saturate(150%);
+    }
 
-    .checkbox{display:flex;align-items:flex-start;gap:10px;margin-top:13px;border:1px solid var(--line);background:rgba(255,255,255,.25);border-radius:19px;padding:12px}@media(prefers-color-scheme:dark){.checkbox{background:rgba(0,0,0,.18)}}.checkbox input{width:20px;height:20px;margin-top:1px;accent-color:var(--green);flex:0 0 auto}.checkbox label{font-size:12.5px;color:var(--muted);line-height:1.4}
+    html[data-theme="light"] .topbar{
+      background:linear-gradient(180deg,rgba(248,248,250,.95),rgba(248,248,250,.82));
+      border-bottom-color:rgba(0,0,0,.045);
+    }
 
-    .btn{border:0;border-radius:20px;min-height:56px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;font-weight:1000;margin-top:13px;transition:transform .16s ease,opacity .16s ease;user-select:none}.btn:active{transform:scale(.985)}.btn.primary{background:linear-gradient(135deg,var(--green),#86EFAC);color:#03100A;box-shadow:0 18px 40px rgba(34,197,94,.24)}.btn.secondary{background:rgba(255,255,255,.28);border:1px solid var(--line);color:var(--text);backdrop-filter:blur(18px)}@media(prefers-color-scheme:dark){.btn.secondary{background:rgba(255,255,255,.08)}}.btn.red{background:rgba(239,68,68,.13);border:1px solid rgba(239,68,68,.24);color:#B91C1C}@media(prefers-color-scheme:dark){.btn.red{color:#FECACA}}.btn:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}.loader{width:16px;height:16px;border-radius:50%;border:2px solid rgba(3,16,10,.28);border-top-color:#03100A;display:none;animation:spin .75s linear infinite}.btn.loading .loader{display:inline-block}@keyframes spin{to{transform:rotate(360deg)}}
+    .toprow{
+      width:100%;
+      min-height:40px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
 
-    .status{display:none;margin-top:12px;border-radius:18px;padding:12px;font-size:13px;line-height:1.42;border:1px solid var(--line);background:rgba(255,255,255,.28);color:var(--text)}@media(prefers-color-scheme:dark){.status{background:rgba(255,255,255,.06);color:#E2E8F0}}.status.show{display:block}.status.good{border-color:rgba(34,197,94,.28);background:rgba(34,197,94,.10);color:#15803D}.status.bad{border-color:rgba(239,68,68,.28);background:rgba(239,68,68,.10);color:#B91C1C}.status.info{border-color:rgba(56,189,248,.28);background:rgba(56,189,248,.10);color:#0369A1}@media(prefers-color-scheme:dark){.status.good{color:#BBF7D0}.status.bad{color:#FECACA}.status.info{color:#BAE6FD}}
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:9px;
+      min-width:0;
+    }
 
-    .email-check,.reset-panel{display:none;text-align:center;padding:8px 2px 4px}.email-check.show,.reset-panel.show{display:block}.email-icon{width:76px;height:76px;border-radius:28px;margin:0 auto 14px;display:grid;place-items:center;color:#15803D;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.26)}@media(prefers-color-scheme:dark){.email-icon{color:#BBF7D0}}.email-icon svg{width:38px;height:38px;stroke:currentColor}.email-check h3,.reset-panel h3{margin:0;font-size:24px;line-height:1.08;letter-spacing:-.6px}.email-check p,.reset-panel p{margin:10px 0 0;color:var(--muted);font-size:14px;line-height:1.45}.small{font-size:12px;color:var(--muted);line-height:1.45;margin-top:12px;text-align:center}
+    .logo{
+      width:32px;
+      height:32px;
+      min-width:32px;
+      border-radius:10px;
+      display:grid;
+      place-items:center;
+      border:1px solid var(--line-strong);
+      background:var(--text);
+      color:var(--bg);
+      font-size:10px;
+      font-weight:1000;
+      letter-spacing:-.2px;
+    }
 
-    .already{display:none;margin-top:12px;border:1px solid rgba(56,189,248,.24);background:rgba(56,189,248,.10);color:#0369A1;border-radius:20px;padding:13px}.already.show{display:block}@media(prefers-color-scheme:dark){.already{color:#BAE6FD}}.already h3{margin:0 0 5px;font-size:15px}.already p{margin:0;font-size:12.5px;line-height:1.4;color:inherit}.already .two{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.already .btn{margin:0;min-height:48px;border-radius:17px}
+    .brand-copy{
+      min-width:0;
+    }
 
-    .plan-strip{position:relative;z-index:1;margin-top:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.mini-plan{border:1px solid var(--line);background:rgba(255,255,255,.28);border-radius:19px;padding:10px;backdrop-filter:blur(18px)}@media(prefers-color-scheme:dark){.mini-plan{background:rgba(255,255,255,.06)}}.mini-plan b{display:block;font-size:12.5px}.mini-plan span{display:block;margin-top:4px;color:var(--muted);font-size:11px;line-height:1.25}
+    .brand h1{
+      margin:0;
+      font-size:14px;
+      line-height:1;
+      letter-spacing:-.3px;
+    }
 
-    @media(max-width:390px){.hero h2{font-size:34px}.brand span{max-width:180px}.already .two,.plan-strip{grid-template-columns:1fr}.top{border-radius:24px}.home{padding:10px 11px}}
+    .brand span{
+      display:block;
+      margin-top:3px;
+      color:var(--muted-2);
+      font-size:10px;
+      line-height:1;
+      white-space:nowrap;
+    }
+
+    .home{
+      min-height:32px;
+      padding:6px 9px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:var(--surface);
+      color:var(--muted);
+      font-size:9.5px;
+      font-weight:900;
+    }
+
+    .hero{
+      padding:22px 2px 12px;
+    }
+
+    .kicker{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      margin-bottom:9px;
+      padding:5px 8px;
+      border:1px solid rgba(53,212,111,.24);
+      border-radius:999px;
+      background:var(--green-soft);
+      color:var(--green);
+      font-size:9px;
+      font-weight:950;
+      letter-spacing:.25px;
+      text-transform:uppercase;
+    }
+
+    .pulse{
+      width:6px;
+      height:6px;
+      border-radius:50%;
+      background:currentColor;
+      box-shadow:0 0 0 4px rgba(53,212,111,.13);
+    }
+
+    .hero h2{
+      margin:0;
+      font-size:31px;
+      line-height:1.03;
+      letter-spacing:-1.15px;
+    }
+
+    .hero p{
+      margin:7px 0 0;
+      max-width:365px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.45;
+    }
+
+    .auth-card{
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:21px;
+      background:var(--surface);
+    }
+
+    .inner{
+      padding:12px;
+    }
+
+    .mode-tabs{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:4px;
+      padding:4px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:var(--surface-2);
+    }
+
+    .mode-btn{
+      min-height:35px;
+      padding:7px 9px;
+      border:0;
+      border-radius:10px;
+      background:transparent;
+      color:var(--muted);
+      font-size:10.5px;
+      font-weight:900;
+    }
+
+    .mode-btn.active{
+      border:1px solid var(--line);
+      background:var(--surface);
+      color:var(--text);
+      box-shadow:0 2px 8px rgba(0,0,0,.08);
+    }
+
+    .field{
+      margin-top:10px;
+    }
+
+    .field label{
+      display:block;
+      margin:0 0 5px 2px;
+      color:var(--muted);
+      font-size:10px;
+      font-weight:850;
+    }
+
+    .input{
+      width:100%;
+      min-height:44px;
+      padding:9px 11px;
+      border:1px solid var(--line);
+      border-radius:13px;
+      background:var(--surface-2);
+      color:var(--text);
+      outline:none;
+      font-size:12px;
+    }
+
+    .input:focus{
+      border-color:rgba(53,212,111,.46);
+      background:var(--surface);
+    }
+
+    .input::placeholder{
+      color:var(--muted-2);
+    }
+
+    .checkbox{
+      display:flex;
+      align-items:flex-start;
+      gap:9px;
+      margin-top:10px;
+      padding:9px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:var(--surface-2);
+    }
+
+    .checkbox input{
+      width:18px;
+      height:18px;
+      margin:0;
+      flex:0 0 auto;
+      accent-color:var(--green);
+    }
+
+    .checkbox label{
+      color:var(--muted);
+      font-size:9.8px;
+      line-height:1.42;
+    }
+
+    .btn{
+      width:100%;
+      min-height:42px;
+      margin-top:10px;
+      padding:8px 11px;
+      border:1px solid transparent;
+      border-radius:13px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:7px;
+      font-size:11px;
+      font-weight:950;
+      transition:transform .16s ease,opacity .16s ease;
+    }
+
+    .btn:active{
+      transform:scale(.985);
+    }
+
+    .btn.primary{
+      background:var(--green);
+      color:#04170A;
+      box-shadow:0 7px 17px rgba(53,212,111,.20);
+    }
+
+    .btn.secondary{
+      border-color:var(--line);
+      background:var(--surface-2);
+      color:var(--text);
+    }
+
+    .btn.red{
+      border-color:rgba(255,98,89,.22);
+      background:var(--red-soft);
+      color:var(--red);
+    }
+
+    .btn:disabled{
+      opacity:.5;
+      cursor:not-allowed;
+      transform:none;
+      box-shadow:none;
+    }
+
+    .loader{
+      display:none;
+      width:15px;
+      height:15px;
+      border:2px solid rgba(4,23,10,.28);
+      border-top-color:#04170A;
+      border-radius:50%;
+      animation:spin .75s linear infinite;
+    }
+
+    .btn.loading .loader{
+      display:inline-block;
+    }
+
+    @keyframes spin{
+      to{transform:rotate(360deg)}
+    }
+
+    .status{
+      display:none;
+      margin-top:10px;
+      padding:9px;
+      border:1px solid var(--line);
+      border-radius:13px;
+      background:var(--surface-2);
+      color:var(--muted);
+      font-size:10.2px;
+      line-height:1.42;
+    }
+
+    .status.show{
+      display:block;
+    }
+
+    .status.good{
+      border-color:rgba(53,212,111,.24);
+      background:var(--green-soft);
+      color:var(--green);
+    }
+
+    .status.bad{
+      border-color:rgba(255,98,89,.24);
+      background:var(--red-soft);
+      color:var(--red);
+    }
+
+    .status.info{
+      border-color:rgba(90,174,255,.24);
+      background:var(--blue-soft);
+      color:var(--blue);
+    }
+
+    .already{
+      display:none;
+      margin-top:10px;
+      padding:10px;
+      border:1px solid rgba(90,174,255,.20);
+      border-radius:15px;
+      background:var(--blue-soft);
+    }
+
+    .already.show{
+      display:block;
+    }
+
+    .already h3{
+      margin:0;
+      color:var(--blue);
+      font-size:12px;
+      letter-spacing:-.1px;
+    }
+
+    .already p{
+      margin:4px 0 0;
+      color:var(--muted);
+      font-size:9.8px;
+      line-height:1.38;
+    }
+
+    .already .two{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:6px;
+      margin-top:8px;
+    }
+
+    .already .btn{
+      min-height:35px;
+      margin:0;
+      padding:6px 7px;
+      border-radius:11px;
+      font-size:9.8px;
+    }
+
+    .email-check,
+    .reset-panel{
+      display:none;
+      padding:8px 2px 3px;
+      text-align:center;
+    }
+
+    .email-check.show,
+    .reset-panel.show{
+      display:block;
+    }
+
+    .email-icon{
+      width:58px;
+      height:58px;
+      margin:0 auto 11px;
+      border:1px solid rgba(53,212,111,.22);
+      border-radius:19px;
+      display:grid;
+      place-items:center;
+      background:var(--green-soft);
+      color:var(--green);
+    }
+
+    .email-icon svg{
+      width:28px;
+      height:28px;
+      fill:none;
+      stroke:currentColor;
+      stroke-width:1.9;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+
+    .email-check h3,
+    .reset-panel h3{
+      margin:0;
+      font-size:20px;
+      line-height:1.08;
+      letter-spacing:-.55px;
+    }
+
+    .email-check p,
+    .reset-panel p{
+      margin:7px 0 0;
+      color:var(--muted);
+      font-size:10.8px;
+      line-height:1.43;
+    }
+
+    .small{
+      margin-top:10px;
+      color:var(--muted-2);
+      font-size:9.5px;
+      line-height:1.42;
+      text-align:center;
+    }
+
+    .plan-strip{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:6px;
+      margin-top:10px;
+    }
+
+    .mini-plan{
+      min-width:0;
+      padding:8px 6px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:var(--surface);
+      text-align:center;
+    }
+
+    .mini-plan b{
+      display:block;
+      overflow:hidden;
+      font-size:9.8px;
+      line-height:1.1;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
+    .mini-plan span{
+      display:block;
+      margin-top:3px;
+      color:var(--muted-2);
+      font-size:8.3px;
+      line-height:1.2;
+    }
+
+    .trust-note{
+      margin:10px 4px 0;
+      color:var(--muted-2);
+      font-size:9px;
+      line-height:1.42;
+      text-align:center;
+    }
+
+    @media(max-width:390px){
+      .page{
+        padding-left:13px;
+        padding-right:13px;
+      }
+
+      .topbar{
+        margin-left:-13px;
+        margin-right:-13px;
+        padding-left:13px;
+        padding-right:13px;
+      }
+
+      .hero h2{
+        font-size:29px;
+      }
+
+      .plan-strip{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+      }
+    }
   </style>
 </head>
+
 <body>
-  <div class="orb one"></div><div class="orb two"></div><div class="orb three"></div>
   <main class="page">
-    <header class="top">
-      <a href="index.html" class="brand">
-        <div class="logo">FA</div>
-        <div><h1>FitApp</h1><span>AI fitness coach</span></div>
-      </a>
-      <a class="home" href="index.html">Home</a>
+    <header class="topbar">
+      <div class="toprow">
+        <a href="index.html" class="brand">
+          <div class="logo">SC</div>
+          <div class="brand-copy">
+            <h1>ShapeCue</h1>
+            <span>AI fitness and diet coach</span>
+          </div>
+        </a>
+
+        <a class="home" href="index.html">Home</a>
+      </div>
     </header>
 
     <section class="hero">
-      <div class="kicker"><span class="pulse"></span><span id="kickerText">Secure account</span></div>
+      <div class="kicker">
+        <span class="pulse"></span>
+        <span id="kickerText">Secure account</span>
+      </div>
+
       <h2 id="heroTitle">Welcome back.</h2>
-      <p id="heroText">Login to open your Liquid Glass dashboard, meals, workouts, progress, and AI coach plan.</p>
+
+      <p id="heroText">
+        Login to open your meals, workouts, progress, and AI coach plan.
+      </p>
     </section>
 
-    <section class="card">
+    <section class="auth-card">
       <div class="inner">
         <div id="formWrap">
           <div class="mode-tabs">
-            <button class="mode-btn active" id="loginTab" type="button">Login</button>
-            <button class="mode-btn" id="signupTab" type="button">Sign up</button>
+            <button class="mode-btn active" id="loginTab" type="button">
+              Login
+            </button>
+
+            <button class="mode-btn" id="signupTab" type="button">
+              Sign up
+            </button>
           </div>
 
           <div class="field">
             <label>Email</label>
-            <input class="input" id="email" type="email" placeholder="you@example.com" autocomplete="email" />
+            <input
+              class="input"
+              id="email"
+              type="email"
+              placeholder="you@example.com"
+              autocomplete="email"
+            />
           </div>
 
           <div class="field">
             <label>Password</label>
-            <input class="input" id="password" type="password" placeholder="At least 6 characters" autocomplete="current-password" />
+            <input
+              class="input"
+              id="password"
+              type="password"
+              placeholder="At least 6 characters"
+              autocomplete="current-password"
+            />
           </div>
 
           <div class="field" id="confirmWrap" style="display:none">
             <label>Confirm password</label>
-            <input class="input" id="confirmPassword" type="password" placeholder="Repeat password" autocomplete="new-password" />
+            <input
+              class="input"
+              id="confirmPassword"
+              type="password"
+              placeholder="Repeat password"
+              autocomplete="new-password"
+            />
           </div>
 
           <div class="checkbox" id="termsWrap" style="display:none">
             <input id="termsCheck" type="checkbox" />
-            <label for="termsCheck">I understand FitApp gives general fitness guidance only. I will stop if pain increases and get professional help for medical concerns.</label>
+            <label for="termsCheck">
+              I understand ShapeCue provides general fitness and nutrition guidance, not medical advice.
+            </label>
           </div>
 
-          <button class="btn primary" id="submitBtn" type="button"><span class="loader"></span><span id="submitText">Login</span></button>
-          <button class="btn secondary" id="forgotBtn" type="button">Forgot password?</button>
+          <button class="btn primary" id="submitBtn" type="button">
+            <span class="loader"></span>
+            <span id="submitText">Login</span>
+          </button>
+
+          <button class="btn secondary" id="forgotBtn" type="button">
+            Forgot password?
+          </button>
 
           <div class="status" id="statusBox"></div>
 
           <div class="already" id="alreadyBox">
-            <h3>You are already logged in</h3>
-            <p>Open your app or sign out to use another account.</p>
+            <h3>You are already signed in</h3>
+            <p>Open ShapeCue, or sign out to use another account.</p>
+
             <div class="two">
-              <button class="btn primary" id="openAppBtn" type="button">Open app</button>
-              <button class="btn secondary" id="signOutBtn" type="button">Sign out</button>
+              <button class="btn primary" id="openAppBtn" type="button">
+                Open app
+              </button>
+
+              <button class="btn secondary" id="signOutBtn" type="button">
+                Sign out
+              </button>
             </div>
           </div>
         </div>
 
         <div id="emailCheck" class="email-check">
-          <div class="email-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 6h16v12H4V6Z"/><path d="m4 7 8 6 8-6"/></svg></div>
+          <div class="email-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M4 6h16v12H4V6Z"></path>
+              <path d="m4 7 8 6 8-6"></path>
+            </svg>
+          </div>
+
           <h3>Check your email.</h3>
-          <p>We sent a confirmation link. Open your email, confirm your account, then come back and login.</p>
-          <button class="btn primary" id="goLoginBtn" type="button">Go to login</button>
-          <p class="small">If you do not see it, check spam/junk folder or try signing up again after a few minutes.</p>
+
+          <p>
+            Open the confirmation link, then return here and login.
+          </p>
+
+          <button class="btn primary" id="goLoginBtn" type="button">
+            Go to login
+          </button>
+
+          <p class="small">
+            Check your spam or junk folder if the message is missing.
+          </p>
         </div>
 
         <div id="resetPanel" class="reset-panel">
-          <div class="email-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 15v2"/><path d="M6 10h12v10H6V10Z"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
-          <h3>Create new password.</h3>
-          <p>Enter a new password for your FitApp account.</p>
-          <div class="field" style="text-align:left"><label>New password</label><input class="input" id="newPassword" type="password" placeholder="At least 6 characters" autocomplete="new-password" /></div>
-          <div class="field" style="text-align:left"><label>Confirm new password</label><input class="input" id="newPassword2" type="password" placeholder="Repeat new password" autocomplete="new-password" /></div>
-          <button class="btn primary" id="updatePasswordBtn" type="button">Update password</button>
+          <div class="email-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 15v2"></path>
+              <path d="M6 10h12v10H6V10Z"></path>
+              <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
+            </svg>
+          </div>
+
+          <h3>Create a new password.</h3>
+
+          <p>
+            Enter your new ShapeCue password below.
+          </p>
+
+          <div class="field" style="text-align:left">
+            <label>New password</label>
+            <input
+              class="input"
+              id="newPassword"
+              type="password"
+              placeholder="At least 6 characters"
+              autocomplete="new-password"
+            />
+          </div>
+
+          <div class="field" style="text-align:left">
+            <label>Confirm new password</label>
+            <input
+              class="input"
+              id="newPassword2"
+              type="password"
+              placeholder="Repeat new password"
+              autocomplete="new-password"
+            />
+          </div>
+
+          <button class="btn primary" id="updatePasswordBtn" type="button">
+            Update password
+          </button>
+
           <div class="status" id="resetStatusBox"></div>
         </div>
       </div>
     </section>
 
-    <div class="plan-strip">
-      <div class="mini-plan"><b>Free</b><span>Starter plan</span></div>
-      <div class="mini-plan"><b>Premium</b><span>PDF + full week</span></div>
-      <div class="mini-plan"><b>Plus</b><span>Weekly AI update</span></div>
-    </div>
+    <section class="plan-strip" aria-label="ShapeCue plans">
+      <div class="mini-plan">
+        <b>Free</b>
+        <span>Starter</span>
+      </div>
+
+      <div class="mini-plan">
+        <b>Plus</b>
+        <span>Monthly AI</span>
+      </div>
+
+      <div class="mini-plan">
+        <b>Premium</b>
+        <span>Every 14 days</span>
+      </div>
+
+      <div class="mini-plan">
+        <b>Coach</b>
+        <span>Weekly AI</span>
+      </div>
+    </section>
+
+    <p class="trust-note">
+      Your account and fitness data stay private from advertisers.
+    </p>
   </main>
 
-<script>
-  const SUPABASE_URL = "https://qusmbveovroldkhbjudq.supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_6zVS1VCVok16WmVWNPvTrw_vTiQvgX4";
+  <script>
+    const SUPABASE_URL =
+      "https://qusmbveovroldkhbjudq.supabase.co";
 
-  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    auth: {
-      detectSessionInUrl: true,
-      persistSession: true,
-      autoRefreshToken: true
-    }
-  });
+    const SUPABASE_ANON_KEY =
+      "sb_publishable_6zVS1VCVok16WmVWNPvTrw_vTiQvgX4";
 
-  const $ = q => document.querySelector(q);
+    const supabaseClient = supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY,
+      {
+        auth:{
+          detectSessionInUrl:true,
+          persistSession:true,
+          autoRefreshToken:true
+        }
+      }
+    );
 
-  let mode = "login";
-  let currentSession = null;
-  let isRecoveryMode = false;
+    const $ = selector =>
+      document.querySelector(selector);
 
-  function getParam(name){ return new URLSearchParams(window.location.search).get(name); }
-  function getHashParam(name){ return new URLSearchParams((window.location.hash || "").replace(/^#/, "")).get(name); }
+    let mode = "login";
+    let currentSession = null;
+    let isRecoveryMode = false;
 
-  function normalizeEmail(value){ return String(value || "").trim().toLowerCase(); }
-
-  function showStatus(message, type){
-    const box = $("#statusBox");
-    box.textContent = message || "";
-    box.className = "status";
-    if(message){ box.classList.add("show"); if(type) box.classList.add(type); }
-  }
-
-  function showResetStatus(message, type){
-    const box = $("#resetStatusBox");
-    box.textContent = message || "";
-    box.className = "status";
-    if(message){ box.classList.add("show"); if(type) box.classList.add(type); }
-  }
-
-  function setLoading(isLoading){
-    $("#submitBtn").disabled = isLoading;
-    $("#submitBtn").classList.toggle("loading", isLoading);
-    $("#loginTab").disabled = isLoading;
-    $("#signupTab").disabled = isLoading;
-  }
-
-  function setMode(nextMode){
-    if(isRecoveryMode) return;
-    mode = nextMode === "signup" ? "signup" : "login";
-    $("#loginTab").classList.toggle("active", mode === "login");
-    $("#signupTab").classList.toggle("active", mode === "signup");
-    $("#confirmWrap").style.display = mode === "signup" ? "block" : "none";
-    $("#termsWrap").style.display = mode === "signup" ? "flex" : "none";
-    $("#forgotBtn").style.display = mode === "login" ? "flex" : "none";
-    $("#submitText").textContent = mode === "signup" ? "Create account" : "Login";
-    $("#kickerText").textContent = mode === "signup" ? "Start free" : "Secure account";
-    $("#heroTitle").textContent = mode === "signup" ? "Create your FitApp." : "Welcome back.";
-    $("#heroText").textContent = mode === "signup"
-      ? "Create your account, confirm your email, then build your personal fitness setup."
-      : "Login to open your Liquid Glass dashboard, meals, workouts, progress, and AI coach plan.";
-    showStatus("", "");
-  }
-
-  function showEmailCheck(){
-    $("#formWrap").style.display = "none";
-    $("#emailCheck").classList.add("show");
-    $("#resetPanel").classList.remove("show");
-    $("#alreadyBox").classList.remove("show");
-    $("#heroTitle").textContent = "Almost done.";
-    $("#heroText").textContent = "Confirm your email before logging in.";
-  }
-
-  function showResetPanel(){
-    isRecoveryMode = true;
-    $("#formWrap").style.display = "none";
-    $("#emailCheck").classList.remove("show");
-    $("#resetPanel").classList.add("show");
-    $("#heroTitle").textContent = "Reset password.";
-    $("#heroText").textContent = "Create a new password, then login to continue.";
-    $("#kickerText").textContent = "Password recovery";
-  }
-
-  function validateAuth(){
-    const email = normalizeEmail($("#email").value);
-    const password = $("#password").value;
-    if(!email || !email.includes("@")) return "Enter a valid email.";
-    if(!password || password.length < 6) return "Password must be at least 6 characters.";
-    if(mode === "signup"){
-      const confirm = $("#confirmPassword").value;
-      if(password !== confirm) return "Passwords do not match.";
-      if(!$("#termsCheck").checked) return "Please tick the fitness disclaimer/terms checkbox before creating account.";
-    }
-    return "";
-  }
-
-  async function findProfileAndRedirect(){
-    if(!currentSession?.user){
-      const { data } = await supabaseClient.auth.getSession();
-      currentSession = data?.session || null;
+    function getParam(name){
+      return new URLSearchParams(
+        window.location.search
+      ).get(name);
     }
 
-    if(!currentSession?.user){
-      showStatus("Login session not found. Please login again.", "bad");
-      return;
+    function getHashParam(name){
+      return new URLSearchParams(
+        (window.location.hash || "")
+          .replace(/^#/,"")
+      ).get(name);
     }
 
-    const { data: profile, error } = await supabaseClient
-      .from("profiles")
-      .select("id,onboarding_completed")
-      .eq("id", currentSession.user.id)
-      .maybeSingle();
-
-    if(error) console.warn(error);
-    location.href = profile && profile.onboarding_completed ? "app.html" : "onboarding.html";
-  }
-
-  async function handleLogin(){
-    const email = normalizeEmail($("#email").value);
-    const password = $("#password").value;
-    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-    if(error) throw error;
-    if(!data?.session) throw new Error("Login failed. Please try again.");
-    currentSession = data.session;
-    showStatus("Login successful. Opening your app...", "good");
-    await findProfileAndRedirect();
-  }
-
-  async function handleSignup(){
-    const email = normalizeEmail($("#email").value);
-    const password = $("#password").value;
-    const redirectTo = `${window.location.origin}/auth.html?mode=login&confirmed=1`;
-    const { data, error } = await supabaseClient.auth.signUp({
-      email,
-      password,
-      options: { emailRedirectTo: redirectTo }
-    });
-    if(error) throw error;
-    if(data?.session){
-      currentSession = data.session;
-      showStatus("Account created. Opening setup...", "good");
-      setTimeout(() => { location.href = "onboarding.html"; }, 700);
-      return;
-    }
-    showEmailCheck();
-  }
-
-  async function submit(){
-    const validation = validateAuth();
-    if(validation){ showStatus(validation, "bad"); return; }
-    try{
-      setLoading(true);
-      showStatus(mode === "signup" ? "Creating account..." : "Logging in...", "info");
-      if(mode === "signup") await handleSignup(); else await handleLogin();
-    }catch(err){
-      console.error(err);
-      showStatus(err.message || "Something went wrong. Please try again.", "bad");
-    }finally{
-      setLoading(false);
-    }
-  }
-
-  async function forgotPassword(){
-    const email = normalizeEmail($("#email").value);
-    if(!email || !email.includes("@")){ showStatus("Enter your email first, then tap forgot password.", "bad"); return; }
-    try{
-      showStatus("Sending reset email...", "info");
-      const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth.html?reset=1`
-      });
-      if(error) throw error;
-      showStatus("Password reset email sent. Check your email.", "good");
-    }catch(err){
-      showStatus(err.message || "Could not send reset email.", "bad");
-    }
-  }
-
-  async function updatePassword(){
-    const p1 = $("#newPassword").value;
-    const p2 = $("#newPassword2").value;
-    if(!p1 || p1.length < 6){ showResetStatus("Password must be at least 6 characters.", "bad"); return; }
-    if(p1 !== p2){ showResetStatus("Passwords do not match.", "bad"); return; }
-
-    try{
-      $("#updatePasswordBtn").disabled = true;
-      showResetStatus("Updating password...", "info");
-      const { error } = await supabaseClient.auth.updateUser({ password: p1 });
-      if(error) throw error;
-      showResetStatus("Password updated. Opening your app...", "good");
-      const { data } = await supabaseClient.auth.getSession();
-      currentSession = data?.session || currentSession;
-      setTimeout(findProfileAndRedirect, 800);
-    }catch(err){
-      showResetStatus(err.message || "Could not update password.", "bad");
-    }finally{
-      $("#updatePasswordBtn").disabled = false;
-    }
-  }
-
-  async function checkExistingSession(){
-    const { data } = await supabaseClient.auth.getSession();
-    if(data?.session?.user){
-      currentSession = data.session;
-      if(!isRecoveryMode) $("#alreadyBox").classList.add("show");
-    }
-  }
-
-  async function signOut(){
-    await supabaseClient.auth.signOut();
-    currentSession = null;
-    $("#alreadyBox").classList.remove("show");
-    showStatus("Signed out. You can login with another account.", "good");
-  }
-
-  async function init(){
-    const urlMode = getParam("mode");
-    const confirmed = getParam("confirmed");
-    const reset = getParam("reset");
-    const hashType = getHashParam("type");
-
-    if(reset || hashType === "recovery"){
-      showResetPanel();
-    }else{
-      setMode(urlMode === "signup" ? "signup" : "login");
+    function normalizeEmail(value){
+      return String(value || "")
+        .trim()
+        .toLowerCase();
     }
 
-    if(confirmed) showStatus("Email confirmed. Please login now.", "good");
+    function showStatus(message, type){
+      const box = $("#statusBox");
 
-    $("#loginTab").addEventListener("click", () => setMode("login"));
-    $("#signupTab").addEventListener("click", () => setMode("signup"));
-    $("#submitBtn").addEventListener("click", submit);
-    $("#forgotBtn").addEventListener("click", forgotPassword);
-    $("#updatePasswordBtn").addEventListener("click", updatePassword);
-    $("#goLoginBtn").addEventListener("click", () => {
+      box.textContent = message || "";
+      box.className = "status";
+
+      if(message){
+        box.classList.add("show");
+
+        if(type){
+          box.classList.add(type);
+        }
+      }
+    }
+
+    function showResetStatus(message, type){
+      const box = $("#resetStatusBox");
+
+      box.textContent = message || "";
+      box.className = "status";
+
+      if(message){
+        box.classList.add("show");
+
+        if(type){
+          box.classList.add(type);
+        }
+      }
+    }
+
+    function setLoading(isLoading){
+      $("#submitBtn").disabled = isLoading;
+
+      $("#submitBtn").classList.toggle(
+        "loading",
+        isLoading
+      );
+
+      $("#loginTab").disabled = isLoading;
+      $("#signupTab").disabled = isLoading;
+    }
+
+    function setMode(nextMode){
+      if(isRecoveryMode) return;
+
+      mode = nextMode === "signup"
+        ? "signup"
+        : "login";
+
+      $("#loginTab").classList.toggle(
+        "active",
+        mode === "login"
+      );
+
+      $("#signupTab").classList.toggle(
+        "active",
+        mode === "signup"
+      );
+
+      $("#confirmWrap").style.display =
+        mode === "signup"
+          ? "block"
+          : "none";
+
+      $("#termsWrap").style.display =
+        mode === "signup"
+          ? "flex"
+          : "none";
+
+      $("#forgotBtn").style.display =
+        mode === "login"
+          ? "flex"
+          : "none";
+
+      $("#submitText").textContent =
+        mode === "signup"
+          ? "Create account"
+          : "Login";
+
+      $("#kickerText").textContent =
+        mode === "signup"
+          ? "Start free"
+          : "Secure account";
+
+      $("#heroTitle").textContent =
+        mode === "signup"
+          ? "Create your ShapeCue."
+          : "Welcome back.";
+
+      $("#heroText").textContent =
+        mode === "signup"
+          ? "Create your account, confirm your email, then build your personal setup."
+          : "Login to open your meals, workouts, progress, and AI coach plan.";
+
+      showStatus("","");
+    }
+
+    function showEmailCheck(){
+      $("#formWrap").style.display = "none";
+      $("#emailCheck").classList.add("show");
+      $("#resetPanel").classList.remove("show");
+      $("#alreadyBox").classList.remove("show");
+
+      $("#heroTitle").textContent =
+        "Almost done.";
+
+      $("#heroText").textContent =
+        "Confirm your email before logging in.";
+
+      $("#kickerText").textContent =
+        "Email confirmation";
+    }
+
+    function showResetPanel(){
+      isRecoveryMode = true;
+
+      $("#formWrap").style.display = "none";
       $("#emailCheck").classList.remove("show");
-      $("#formWrap").style.display = "block";
-      setMode("login");
-      showStatus("After confirming email, login here.", "good");
-    });
-    $("#openAppBtn").addEventListener("click", findProfileAndRedirect);
-    $("#signOutBtn").addEventListener("click", signOut);
+      $("#resetPanel").classList.add("show");
 
-    ["#password", "#confirmPassword"].forEach(sel => {
-      const el = $(sel);
-      if(el) el.addEventListener("keydown", e => { if(e.key === "Enter") submit(); });
-    });
-    ["#newPassword", "#newPassword2"].forEach(sel => {
-      const el = $(sel);
-      if(el) el.addEventListener("keydown", e => { if(e.key === "Enter") updatePassword(); });
-    });
+      $("#heroTitle").textContent =
+        "Reset password.";
 
-    await checkExistingSession();
-  }
+      $("#heroText").textContent =
+        "Create a new password, then continue to ShapeCue.";
 
-  init();
-</script>
+      $("#kickerText").textContent =
+        "Password recovery";
+    }
+
+    function validateAuth(){
+      const email = normalizeEmail(
+        $("#email").value
+      );
+
+      const password =
+        $("#password").value;
+
+      if(!email || !email.includes("@")){
+        return "Enter a valid email.";
+      }
+
+      if(!password || password.length < 6){
+        return "Password must be at least 6 characters.";
+      }
+
+      if(mode === "signup"){
+        const confirmPassword =
+          $("#confirmPassword").value;
+
+        if(password !== confirmPassword){
+          return "Passwords do not match.";
+        }
+
+        if(!$("#termsCheck").checked){
+          return "Please accept the fitness disclaimer before creating your account.";
+        }
+      }
+
+      return "";
+    }
+
+    async function findProfileAndRedirect(){
+      if(!currentSession?.user){
+        const { data } =
+          await supabaseClient
+            .auth
+            .getSession();
+
+        currentSession =
+          data?.session ||
+          null;
+      }
+
+      if(!currentSession?.user){
+        showStatus(
+          "Login session not found. Please login again.",
+          "bad"
+        );
+        return;
+      }
+
+      const { data:profile, error } =
+        await supabaseClient
+          .from("profiles")
+          .select("id,onboarding_completed")
+          .eq("id",currentSession.user.id)
+          .maybeSingle();
+
+      if(error){
+        console.warn(error);
+      }
+
+      location.href = (
+        profile &&
+        profile.onboarding_completed
+      )
+        ? "app.html"
+        : "onboarding.html";
+    }
+
+    async function handleLogin(){
+      const email = normalizeEmail(
+        $("#email").value
+      );
+
+      const password =
+        $("#password").value;
+
+      const { data, error } =
+        await supabaseClient
+          .auth
+          .signInWithPassword({
+            email,
+            password
+          });
+
+      if(error) throw error;
+
+      if(!data?.session){
+        throw new Error(
+          "Login failed. Please try again."
+        );
+      }
+
+      currentSession = data.session;
+
+      showStatus(
+        "Login successful. Opening ShapeCue...",
+        "good"
+      );
+
+      await findProfileAndRedirect();
+    }
+
+    async function handleSignup(){
+      const email = normalizeEmail(
+        $("#email").value
+      );
+
+      const password =
+        $("#password").value;
+
+      const redirectTo =
+        `${window.location.origin}/auth.html?mode=login&confirmed=1`;
+
+      const { data, error } =
+        await supabaseClient
+          .auth
+          .signUp({
+            email,
+            password,
+            options:{
+              emailRedirectTo:redirectTo
+            }
+          });
+
+      if(error) throw error;
+
+      if(data?.session){
+        currentSession = data.session;
+
+        showStatus(
+          "Account created. Opening setup...",
+          "good"
+        );
+
+        setTimeout(() => {
+          location.href = "onboarding.html";
+        },700);
+
+        return;
+      }
+
+      showEmailCheck();
+    }
+
+    async function submit(){
+      const validation = validateAuth();
+
+      if(validation){
+        showStatus(validation,"bad");
+        return;
+      }
+
+      try{
+        setLoading(true);
+
+        showStatus(
+          mode === "signup"
+            ? "Creating account..."
+            : "Logging in...",
+          "info"
+        );
+
+        if(mode === "signup"){
+          await handleSignup();
+        }else{
+          await handleLogin();
+        }
+      }catch(error){
+        console.error(error);
+
+        showStatus(
+          error.message ||
+          "Something went wrong. Please try again.",
+          "bad"
+        );
+      }finally{
+        setLoading(false);
+      }
+    }
+
+    async function forgotPassword(){
+      const email = normalizeEmail(
+        $("#email").value
+      );
+
+      if(!email || !email.includes("@")){
+        showStatus(
+          "Enter your email first, then tap Forgot password.",
+          "bad"
+        );
+        return;
+      }
+
+      try{
+        showStatus(
+          "Sending reset email...",
+          "info"
+        );
+
+        const { error } =
+          await supabaseClient
+            .auth
+            .resetPasswordForEmail(
+              email,
+              {
+                redirectTo:
+                  `${window.location.origin}/auth.html?reset=1`
+              }
+            );
+
+        if(error) throw error;
+
+        showStatus(
+          "Password reset email sent. Check your email.",
+          "good"
+        );
+      }catch(error){
+        showStatus(
+          error.message ||
+          "Could not send reset email.",
+          "bad"
+        );
+      }
+    }
+
+    async function updatePassword(){
+      const firstPassword =
+        $("#newPassword").value;
+
+      const secondPassword =
+        $("#newPassword2").value;
+
+      if(
+        !firstPassword ||
+        firstPassword.length < 6
+      ){
+        showResetStatus(
+          "Password must be at least 6 characters.",
+          "bad"
+        );
+        return;
+      }
+
+      if(firstPassword !== secondPassword){
+        showResetStatus(
+          "Passwords do not match.",
+          "bad"
+        );
+        return;
+      }
+
+      try{
+        $("#updatePasswordBtn").disabled = true;
+
+        showResetStatus(
+          "Updating password...",
+          "info"
+        );
+
+        const { error } =
+          await supabaseClient
+            .auth
+            .updateUser({
+              password:firstPassword
+            });
+
+        if(error) throw error;
+
+        showResetStatus(
+          "Password updated. Opening ShapeCue...",
+          "good"
+        );
+
+        const { data } =
+          await supabaseClient
+            .auth
+            .getSession();
+
+        currentSession =
+          data?.session ||
+          currentSession;
+
+        setTimeout(
+          findProfileAndRedirect,
+          800
+        );
+      }catch(error){
+        showResetStatus(
+          error.message ||
+          "Could not update password.",
+          "bad"
+        );
+      }finally{
+        $("#updatePasswordBtn").disabled = false;
+      }
+    }
+
+    async function checkExistingSession(){
+      const { data } =
+        await supabaseClient
+          .auth
+          .getSession();
+
+      if(data?.session?.user){
+        currentSession = data.session;
+
+        if(!isRecoveryMode){
+          $("#alreadyBox").classList.add("show");
+        }
+      }
+    }
+
+    async function signOut(){
+      await supabaseClient.auth.signOut();
+
+      currentSession = null;
+      $("#alreadyBox").classList.remove("show");
+
+      showStatus(
+        "Signed out. You can login with another account.",
+        "good"
+      );
+    }
+
+    async function init(){
+      const urlMode =
+        getParam("mode");
+
+      const confirmed =
+        getParam("confirmed");
+
+      const reset =
+        getParam("reset");
+
+      const hashType =
+        getHashParam("type");
+
+      if(
+        reset ||
+        hashType === "recovery"
+      ){
+        showResetPanel();
+      }else{
+        setMode(
+          urlMode === "signup"
+            ? "signup"
+            : "login"
+        );
+      }
+
+      if(confirmed){
+        showStatus(
+          "Email confirmed. Please login now.",
+          "good"
+        );
+      }
+
+      $("#loginTab").addEventListener(
+        "click",
+        () => setMode("login")
+      );
+
+      $("#signupTab").addEventListener(
+        "click",
+        () => setMode("signup")
+      );
+
+      $("#submitBtn").addEventListener(
+        "click",
+        submit
+      );
+
+      $("#forgotBtn").addEventListener(
+        "click",
+        forgotPassword
+      );
+
+      $("#updatePasswordBtn").addEventListener(
+        "click",
+        updatePassword
+      );
+
+      $("#goLoginBtn").addEventListener(
+        "click",
+        () => {
+          $("#emailCheck").classList.remove("show");
+          $("#formWrap").style.display = "block";
+
+          setMode("login");
+
+          showStatus(
+            "After confirming your email, login here.",
+            "good"
+          );
+        }
+      );
+
+      $("#openAppBtn").addEventListener(
+        "click",
+        findProfileAndRedirect
+      );
+
+      $("#signOutBtn").addEventListener(
+        "click",
+        signOut
+      );
+
+      [
+        "#password",
+        "#confirmPassword"
+      ].forEach(selector => {
+        const element = $(selector);
+
+        if(element){
+          element.addEventListener(
+            "keydown",
+            event => {
+              if(event.key === "Enter"){
+                submit();
+              }
+            }
+          );
+        }
+      });
+
+      [
+        "#newPassword",
+        "#newPassword2"
+      ].forEach(selector => {
+        const element = $(selector);
+
+        if(element){
+          element.addEventListener(
+            "keydown",
+            event => {
+              if(event.key === "Enter"){
+                updatePassword();
+              }
+            }
+          );
+        }
+      });
+
+      await checkExistingSession();
+    }
+
+    init();
+  </script>
 </body>
 </html>
