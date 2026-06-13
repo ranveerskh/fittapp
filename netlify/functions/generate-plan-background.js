@@ -130,6 +130,73 @@ function number(value, fallback = 0) {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
+function hasValue(value) {
+  return value !== null && value !== undefined && String(value).trim() !== "";
+}
+
+function hasArray(value) {
+  return Array.isArray(value) && value.some(item => hasValue(item));
+}
+
+function validateFirstPlanSetup(data) {
+  const profile = data.profile || {};
+  const workout = data.workout_availability || {};
+  const work = data.work_schedule || {};
+  const food = data.food_preferences || {};
+  const water = data.water_settings || {};
+  const latestMeasurement = safeArray(data.measurements)[0] || {};
+  const missing = [];
+
+  const add = (section, label, ready) => {
+    if (!ready) missing.push(`${section}: ${label}`);
+  };
+
+  add("Personal information", "full name", hasValue(profile.full_name));
+  add("Personal information", "date of birth", hasValue(profile.date_of_birth));
+  add("Personal information", "gender", hasValue(profile.gender));
+  add("Personal information", "height", Number(profile.height_cm) > 0);
+  add("Personal information", "current weight", Number(profile.starting_weight || latestMeasurement.weight) > 0);
+  add("Goals and body", "main fitness goal", hasArray(profile.main_goals) || hasValue(profile.main_goal));
+  add("Goals and body", "body type", hasValue(profile.body_type));
+
+  add("Workout setup", "workout place", hasValue(workout.workout_place));
+  add("Workout setup", "workout days", hasArray(workout.workout_days));
+  add("Workout setup", "time available", Number(workout.max_minutes) > 0);
+  add("Workout setup", "training experience", hasValue(workout.experience_level));
+  add("Workout setup", "training split", hasValue(workout.preferred_split));
+  add("Workout setup", "equipment preference", hasArray(workout.equipment));
+
+  add("Pain and safety", "pain or no-pain selection", hasArray(workout.pain_areas));
+  add("Pain and safety", "pain rating", hasValue(workout.pain_rating));
+
+  const notWorking = ["not_working", "retired", "student_no_job"].includes(
+    String(work.job_activity || "").toLowerCase()
+  );
+
+  if (!notWorking) {
+    add("Work schedule", "work days", hasArray(work.work_days));
+    add("Work schedule", "work start time", hasValue(work.work_start));
+    add("Work schedule", "work end time", hasValue(work.work_end));
+    add("Work schedule", "job activity", hasValue(work.job_activity));
+    add("Work schedule", "at least one break or eating window", hasArray(work.breaks));
+  }
+
+  add("Food setup", "diet type", hasValue(food.diet_type));
+  add("Food setup", "cuisine preference", hasArray(food.food_styles) || hasValue(food.food_style));
+  add("Food setup", "protein preferences", hasArray(food.preferred_proteins));
+  add("Food setup", "carb preferences", hasArray(food.preferred_carbs));
+  add("Food setup", "allergy or no-allergy selection", hasArray(food.allergies));
+  add("Food setup", "smoothie preference", typeof food.likes_smoothies === "boolean");
+  add("Food setup", "whey preference", typeof food.uses_whey_protein === "boolean");
+  add("Food setup", "usual or favourite foods", hasValue(food.usual_foods) || hasValue(food.favourite_foods));
+  add("Food setup", "meal prep style", hasValue(food.meal_prep_style));
+
+  add("Water setup", "bottle size", Number(water.bottle_size_ml) > 0);
+  add("Water setup", "daily water target", Number(water.daily_target_liters || water.target_liters) > 0);
+
+  return { complete: missing.length === 0, missing };
+}
+
 function compactRows(rows, fields, limit = 20) {
   return safeArray(rows).slice(0, limit).map(row => {
     const out = {};
@@ -687,7 +754,7 @@ export async function handler(event) {
     const access = requestRow.prompt_payload?.access || {};
     const requestSource = String(access.request_source || "");
 
-    if (!["admin_manual", "addon_credit", "scheduled_auto"].includes(requestSource)) {
+    if (!["first_plan", "admin_manual", "addon_credit", "scheduled_auto"].includes(requestSource)) {
       const err = new Error("This AI request was not authorized by ShapeCue.");
       err.statusCode = 403;
       throw err;
@@ -722,6 +789,17 @@ export async function handler(event) {
     const userData = await readUserData(db, userId);
 
     if (!userData.profile?.onboarding_completed) throw new Error("Onboarding is not completed.");
+
+    if (requestSource === "first_plan") {
+      const setupStatus = validateFirstPlanSetup(userData);
+      if (!setupStatus.complete) {
+        const err = new Error(`SETUP_INCOMPLETE: ${setupStatus.missing.join(", ")}`);
+        err.statusCode = 422;
+        err.responsePayload = { missing_setup: setupStatus.missing };
+        throw err;
+      }
+    }
+
     if (!userData.approved_exercise_library.length) {
       throw new Error("Exercise library is empty. Add approved exercises before generating a workout plan.");
     }
@@ -731,6 +809,7 @@ export async function handler(event) {
       plan_code: tier.code,
       plan_name: tier.label,
       generation_type: tier.generationType,
+      first_plan: requestSource === "first_plan",
       admin_manual: requestSource === "admin_manual",
       extra_addon_used: requestSource === "addon_credit",
       scheduled_membership_update: requestSource === "scheduled_auto",
@@ -799,7 +878,7 @@ export async function handler(event) {
     try {
       parsed = extractJson(outputText);
     } catch (parseError) {
-      const err = new Error("AI returned invalid JSON. The add-on will be returned when applicable.");
+      const err = new Error("AI returned invalid JSON. Any reserved add-on will be returned when applicable.");
       err.responsePayload = {
         parse_error: parseError.message || "JSON parse failed",
         openai_status: openaiData.status || null,
@@ -868,19 +947,41 @@ export async function handler(event) {
 
     if (completeRes.error) throw completeRes.error;
 
-    if (requestSource === "scheduled_auto") {
-      const next = new Date();
-      if (tier.code === "plus") next.setUTCMonth(next.getUTCMonth() + 1);
-      if (tier.code === "premium") next.setUTCDate(next.getUTCDate() + 14);
-      if (tier.code === "coach") next.setUTCDate(next.getUTCDate() + 7);
+    if (["first_plan", "scheduled_auto"].includes(requestSource)) {
+      const now = new Date();
+      const profileUpdate = {
+        auto_plan_update_status: "not_included",
+        next_plan_update_at: null
+      };
+
+      if (tier.code === "plus") {
+        const next = new Date(now);
+        next.setUTCMonth(next.getUTCMonth() + 1);
+        profileUpdate.next_plan_update_at = next.toISOString();
+        profileUpdate.auto_plan_update_status = "scheduled";
+      }
+
+      if (tier.code === "premium") {
+        const next = new Date(now);
+        next.setUTCDate(next.getUTCDate() + 14);
+        profileUpdate.next_plan_update_at = next.toISOString();
+        profileUpdate.auto_plan_update_status = "scheduled";
+      }
+
+      if (tier.code === "coach") {
+        const next = new Date(now);
+        next.setUTCDate(next.getUTCDate() + 7);
+        profileUpdate.next_plan_update_at = next.toISOString();
+        profileUpdate.auto_plan_update_status = "scheduled";
+      }
+
+      if (requestSource === "scheduled_auto") {
+        profileUpdate.last_auto_plan_update_at = now.toISOString();
+      }
 
       await db
         .from("profiles")
-        .update({
-          last_auto_plan_update_at: new Date().toISOString(),
-          next_plan_update_at: next.toISOString(),
-          auto_plan_update_status: "scheduled"
-        })
+        .update(profileUpdate)
         .eq("id", userId);
     }
 
