@@ -1774,6 +1774,7 @@ let isAppAdmin = false;
 let extraAiUpdatesRemaining = 0;
 let aiUpdateWalletLoaded = false;
 let progressPhotoLoading = false;
+let autoPlanStateRefreshBusy = false;
 
 const VISUAL_STYLE_KEY = "shapecue.visual.style";
 const VISUAL_CACHE_PREFIX = "shapecue.visual.weekly.v6.";
@@ -1888,6 +1889,18 @@ function calculatedNextAiUpdate(){
   return base;
 }
 
+function automaticPlanState(){
+  return String(data.profile?.auto_plan_update_status || "").toLowerCase();
+}
+
+function automaticPlanIsBusy(){
+  return ["queued", "processing", "dispatch_retry", "waiting_for_current_update"].includes(automaticPlanState());
+}
+
+function automaticPlanIsRetrying(){
+  return automaticPlanState() === "retry_pending";
+}
+
 function hasFilledValue(value){
   return value !== null && value !== undefined && String(value).trim() !== "";
 }
@@ -1981,6 +1994,7 @@ function firstPlanMissingHTML(status = firstPlanSetupStatus()){
 }
 
 function manualAiMode(){
+  if(automaticPlanIsBusy()) return "busy";
   if(!activePlanMeta?.created_at && !activePlan){
     return firstPlanSetupStatus().complete ? "first" : "setup";
   }
@@ -2335,10 +2349,49 @@ function switchTab(id){
   if(id==="weekScreen") renderWeekPlan();
   if(id==="progressScreen") {
     renderProgress();
+    refreshAutomaticPlanState();
     if(hasFeature("progress_photos") && !data.progressPhotosLoadedOnce){
       data.progressPhotosLoadedOnce = true;
       loadProgressPhotos();
     }
+  }
+}
+
+async function refreshAutomaticPlanState(){
+  if(!user || autoPlanStateRefreshBusy) return;
+  autoPlanStateRefreshBusy = true;
+
+  try{
+    const previousPlanId = activePlanMeta?.id || null;
+
+    const { data: profileState, error } = await supabaseClient
+      .from("profiles")
+      .select("next_plan_update_at,last_auto_plan_update_at,auto_plan_update_status,auto_plan_queued_at,auto_plan_retry_count,auto_plan_last_error")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if(error) throw error;
+    if(profileState) Object.assign(data.profile, profileState);
+
+    if(automaticPlanIsBusy() || automaticPlanState() === "scheduled"){
+      await loadPlan();
+
+      if((activePlanMeta?.id || null) !== previousPlanId){
+        await ensureWaterLog();
+        buildTodaySchedule();
+        buildWorkoutPlan();
+        renderAll();
+        toast("Your scheduled AI plan is ready.");
+        return;
+      }
+    }
+
+    renderAiCoachStatusUI();
+    renderProfile();
+  }catch(error){
+    console.warn("Could not refresh automatic AI plan state", error);
+  }finally{
+    autoPlanStateRefreshBusy = false;
   }
 }
 
@@ -4166,15 +4219,16 @@ function renderManualAiControls(){
 
   const pending = Boolean(readPendingPlanData());
   const mode = manualAiMode();
+  const automaticBusy = automaticPlanIsBusy();
 
   button.hidden = true;
   setupLink.hidden = true;
   addOnLink.hidden = true;
-  button.disabled = pending;
+  button.disabled = pending || automaticBusy;
 
-  if(pending){
+  if(pending || automaticBusy || mode === "busy"){
     button.hidden = false;
-    button.textContent = "AI update in progress";
+    button.textContent = automaticBusy ? "Membership update in progress" : "AI update in progress";
     note.textContent = "Your current plan stays active until the new plan is ready.";
     return;
   }
@@ -4245,6 +4299,47 @@ function renderAiCoachStatusUI(){
         <div class="ai-status-row"><span>Started</span><strong>${esc(formatDateTime(pending.saved_at))}</strong></div>
         <div class="ai-status-row"><span>Current plan</span><strong>${esc(activePlan ? "Still active" : "Starter plan showing")}</strong></div>
         <div class="ai-status-row"><span>Request access</span><strong>${esc(sourceLabel)}</strong></div>
+      </div>
+    `;
+    renderManualAiControls();
+    return;
+  }
+
+  if(activePlanMeta?.created_at && automaticPlanIsBusy()){
+    const state = automaticPlanState();
+    const queuedAt = data.profile?.auto_plan_queued_at;
+    box.innerHTML = `
+      <div class="ai-status-top">
+        <div>
+          <h4>Your membership update is in progress</h4>
+          <p>Your current plan stays active while ShapeCue prepares the next one automatically.</p>
+        </div>
+        <span class="status-pill purple">${esc(state === "processing" ? "Generating" : "Queued")}</span>
+      </div>
+      <div class="ai-status-meta">
+        <div class="ai-status-row"><span>Membership</span><strong>${esc(plan)}</strong></div>
+        <div class="ai-status-row"><span>Automatic schedule</span><strong>${esc(cadence.label)}</strong></div>
+        <div class="ai-status-row"><span>Queued</span><strong>${esc(queuedAt ? formatDateTime(queuedAt) : "Recently")}</strong></div>
+        <div class="ai-status-row"><span>Current plan</span><strong>Still active</strong></div>
+      </div>
+    `;
+    renderManualAiControls();
+    return;
+  }
+
+  if(activePlanMeta?.created_at && automaticPlanIsRetrying()){
+    box.innerHTML = `
+      <div class="ai-status-top">
+        <div>
+          <h4>Automatic update will retry</h4>
+          <p>The last scheduled attempt did not finish. ShapeCue kept your current plan and scheduled a safe retry.</p>
+        </div>
+        <span class="status-pill amber">Retrying</span>
+      </div>
+      <div class="ai-status-meta">
+        <div class="ai-status-row"><span>Next retry</span><strong>${esc(nextUpdate ? formatDateTime(nextUpdate) : "Scheduled")}</strong></div>
+        <div class="ai-status-row"><span>Retry count</span><strong>${esc(String(data.profile?.auto_plan_retry_count || 1))}</strong></div>
+        <div class="ai-status-row"><span>Current plan</span><strong>Still active</strong></div>
       </div>
     `;
     renderManualAiControls();
@@ -4445,6 +4540,12 @@ async function generatePlan(){
   const btn = $("#updatePlanBtn");
   const old = btn?.textContent || "Update plan";
   const mode = manualAiMode();
+
+  if(mode === "busy"){
+    toast("Your scheduled membership update is already in progress.");
+    renderAiCoachStatusUI();
+    return;
+  }
 
   if(mode === "setup"){
     toast("Complete the missing setup details before generating your first plan.");
@@ -4672,8 +4773,16 @@ function initSelectChips(){
 function initEvents(){
   window.addEventListener("load", () => restartPulseStrip(true));
   window.addEventListener("resize", () => restartPulseStrip(true), {passive:true});
+  window.setInterval(() => {
+    if(!document.hidden && $("#progressScreen")?.classList.contains("active") && (automaticPlanIsBusy() || automaticPlanIsRetrying())){
+      refreshAutomaticPlanState();
+    }
+  }, 45000);
   document.addEventListener("visibilitychange", () => {
-    if(!document.hidden) restartPulseStrip(true);
+    if(!document.hidden){
+      restartPulseStrip(true);
+      if($("#progressScreen")?.classList.contains("active")) refreshAutomaticPlanState();
+    }
   });
   document.fonts?.ready?.then(() => restartPulseStrip(true));
 
