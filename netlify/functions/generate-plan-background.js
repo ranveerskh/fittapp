@@ -13,52 +13,53 @@ const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", 
 
 const PLAN_LEVELS = {
   free: {
-    label: "Free User",
+    label: "Free",
     generationType: "starter",
     isPremium: false,
-    depth: "starter",
     maxOutputTokens: 10000,
-    planInstruction: `
-FREE USER PLAN RULES:
-- Create a useful 7-day starter plan, but keep it simple.
-- Give enough daily guidance for Today screen.
-- Do not include advanced smart replacements.
-- Keep meal replacement options basic.
-- Progress photos, PDF export, grocery list, and weekly AI updates are locked in UI.
-- Still keep the plan safe and practical.
+    instruction: `
+FREE PLAN:
+- Create a safe and useful 7-day starter plan.
+- Keep meal replacements and coaching detail basic.
+- The user sees the Today experience, while paid-only UI features stay locked.
+`
+  },
+  plus: {
+    label: "Plus",
+    generationType: "plus_monthly",
+    isPremium: true,
+    maxOutputTokens: 14000,
+    instruction: `
+PLUS PLAN:
+- Create a practical full 7-day plan.
+- Include workday, gym-day, and off-day meal timing.
+- Include exact foods, protein estimates, meal-prep notes, replacements, and safe workout guidance.
+- This plan is automatically refreshed monthly by the membership scheduler.
 `
   },
   premium: {
     label: "Premium",
-    generationType: "premium_biweekly",
+    generationType: "premium_every_14_days",
     isPremium: true,
-    depth: "full",
-    maxOutputTokens: 15000,
-    planInstruction: `
-PREMIUM PLAN RULES:
-- Create a full practical 7-day plan.
-- Include gym-day, work-day, and off-day meal timing.
-- Include grocery list and meal prep plan.
-- Include exact foods, protein estimate, prep notes, and 1-2 replacements per meal.
-- Include exercise cues and safe alternatives.
-- Plan should feel like a paid coach made it.
+    maxOutputTokens: 17000,
+    instruction: `
+PREMIUM PLAN:
+- Create a detailed full 7-day plan.
+- Include grocery planning, meal preparation, progression-aware workouts, smart replacements, and pain-aware adjustments.
+- This plan is automatically refreshed every 14 days by the membership scheduler.
 `
   },
-  premium_plus: {
-    label: "Premium Plus",
-    generationType: "premium_plus_weekly",
+  coach: {
+    label: "Coach",
+    generationType: "coach_weekly",
     isPremium: true,
-    depth: "advanced",
     maxOutputTokens: 20000,
-    planInstruction: `
-PREMIUM PLUS PLAN RULES:
-- Create the strongest version of the plan.
-- Include weekly coach reasoning, smart replacements, advanced progress-based adjustments, and safety flags.
-- Meals must include practical recipe-style detail, protein estimates, prep time, work-friendly notes, and replacements.
-- Workout must include progression logic from logs, pain-aware changes, and form cues.
-- Include exactly why next week changed compared with previous logs/plans.
-- Add advanced weekly review targets and coach notes.
-- This should feel like a premium weekly online coach update, not a generic AI plan.
+    instruction: `
+COACH PLAN:
+- Create the strongest weekly coaching plan.
+- Include coach reasoning, smart replacements, progress-based changes, safety flags, and clear explanations of why the plan changed.
+- Use recent logs and previous plans heavily.
+- This plan is automatically refreshed weekly by the membership scheduler.
 `
   }
 };
@@ -66,10 +67,7 @@ PREMIUM PLUS PLAN RULES:
 function jsonResponse(statusCode, body) {
   return {
     statusCode,
-    headers: {
-      ...CORS_HEADERS,
-      "Content-Type": "application/json"
-    },
+    headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
     body: JSON.stringify(body)
   };
 }
@@ -80,48 +78,39 @@ function getBearerToken(event) {
   return header.replace("Bearer ", "").trim();
 }
 
+function normalizePlanCode(code) {
+  const value = String(code || "free").toLowerCase();
+  if (["coach", "premium_plus", "premium_plus_weekly"].includes(value)) return "coach";
+  if (["premium", "premium_biweekly", "premium_every_14_days"].includes(value)) return "premium";
+  if (["plus", "premium_monthly", "plus_monthly"].includes(value)) return "plus";
+  return "free";
+}
+
+function planTierInfo(entitlement) {
+  const code = normalizePlanCode(entitlement?.plan_code);
+  return { code, ...(PLAN_LEVELS[code] || PLAN_LEVELS.free) };
+}
+
+function cleanEntitlement(row) {
+  if (!row) return null;
+  const planCode = normalizePlanCode(row.plan_code);
+  return {
+    id: row.id,
+    user_id: row.user_id,
+    plan_code: planCode,
+    plan_name: row.plan_name || PLAN_LEVELS[planCode]?.label || "Free",
+    status: row.status || "active",
+    source: row.source || "free",
+    starts_at: row.starts_at || null,
+    ends_at: row.ends_at || null,
+    features: { ...(row.plan_features || {}), ...(row.features_override || {}) }
+  };
+}
+
 function dateISO(offsetDays = 0) {
   const d = new Date();
-  d.setDate(d.getDate() + offsetDays);
+  d.setUTCDate(d.getUTCDate() + offsetDays);
   return d.toISOString().slice(0, 10);
-}
-
-function startOfCurrentMonthISO() {
-  const d = new Date();
-  d.setUTCDate(1);
-  d.setUTCHours(0, 0, 0, 0);
-  return d.toISOString();
-}
-
-function getOutputText(openaiData) {
-  if (openaiData.output_text) return openaiData.output_text;
-
-  try {
-    return (openaiData.output || [])
-      .flatMap(item => item.content || [])
-      .map(part => part.text || part.output_text || "")
-      .join("")
-      .trim();
-  } catch {
-    return "";
-  }
-}
-
-function extractJson(text) {
-  let t = String(text || "").trim();
-
-  const codeBlock = t.match(/```(?:json)?\s*([\s\S]*?)```/i);
-  if (codeBlock) {
-    t = codeBlock[1].trim();
-  } else {
-    const start = t.indexOf("{");
-    const end = t.lastIndexOf("}");
-    if (start !== -1 && end !== -1 && end > start) {
-      t = t.slice(start, end + 1);
-    }
-  }
-
-  return JSON.parse(t);
 }
 
 function safeArray(value) {
@@ -132,42 +121,50 @@ function safeObject(value) {
   return value && typeof value === "object" && !Array.isArray(value) ? value : {};
 }
 
-function normalizeText(value, fallback = "") {
-  return String(value || fallback || "").trim();
+function text(value, fallback = "") {
+  return String(value ?? fallback ?? "").trim();
 }
 
-function normalizeNumber(value, fallback = 0) {
-  const n = Number(value);
-  return Number.isFinite(n) ? n : fallback;
+function number(value, fallback = 0) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
 }
 
-function planTierInfo(entitlement) {
-  const code = entitlement?.plan_code || "free";
-  return PLAN_LEVELS[code] ? { code, ...PLAN_LEVELS[code] } : { code: "free", ...PLAN_LEVELS.free };
-}
-
-function cleanEntitlement(row) {
-  if (!row) return null;
-
-  return {
-    id: row.id,
-    user_id: row.user_id,
-    plan_code: row.plan_code || "free",
-    plan_name: row.plan_name || row.plan_code || "Free User",
-    status: row.status || "active",
-    source: row.source || "free",
-    starts_at: row.starts_at || null,
-    ends_at: row.ends_at || null,
-    features: {
-      ...(row.plan_features || {}),
-      ...(row.features_override || {})
+function compactRows(rows, fields, limit = 20) {
+  return safeArray(rows).slice(0, limit).map(row => {
+    const out = {};
+    for (const key of fields) {
+      const value = row?.[key];
+      if (value !== undefined && value !== null && value !== "") out[key] = value;
     }
-  };
+    return out;
+  });
+}
+
+function getOutputText(openaiData) {
+  if (openaiData?.output_text) return openaiData.output_text;
+  return safeArray(openaiData?.output)
+    .flatMap(item => safeArray(item?.content))
+    .map(part => part?.text || part?.output_text || "")
+    .join("")
+    .trim();
+}
+
+function extractJson(output) {
+  let value = String(output || "").trim();
+  const fenced = value.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fenced) {
+    value = fenced[1].trim();
+  } else {
+    const start = value.indexOf("{");
+    const end = value.lastIndexOf("}");
+    if (start >= 0 && end > start) value = value.slice(start, end + 1);
+  }
+  return JSON.parse(value);
 }
 
 async function getUserFromToken(db, event) {
   const token = getBearerToken(event);
-
   if (!token) {
     const err = new Error("Missing Authorization Bearer token.");
     err.statusCode = 401;
@@ -175,30 +172,16 @@ async function getUserFromToken(db, event) {
   }
 
   const { data, error } = await db.auth.getUser(token);
-
   if (error || !data?.user) {
     const err = new Error("Invalid or expired user token.");
     err.statusCode = 401;
     throw err;
   }
-
   return data.user;
-}
-
-async function isAdmin(db, userId) {
-  const { data, error } = await db
-    .from("app_admins")
-    .select("user_id, role")
-    .eq("user_id", userId)
-    .maybeSingle();
-
-  if (error) return false;
-  return Boolean(data?.user_id);
 }
 
 async function expireOldEntitlements(db, userId) {
   const now = new Date().toISOString();
-
   await db
     .from("user_entitlements")
     .update({ status: "expired", updated_at: now })
@@ -223,7 +206,6 @@ async function readCurrentEntitlement(db, userId) {
 
 async function createFreeEntitlement(db, userId) {
   const now = new Date().toISOString();
-
   const { error } = await db
     .from("user_entitlements")
     .insert({
@@ -251,9 +233,7 @@ async function createFreeEntitlement(db, userId) {
 
 async function ensureEntitlement(db, userId) {
   await expireOldEntitlements(db, userId);
-
   let entitlement = await readCurrentEntitlement(db, userId);
-
   if (!entitlement) {
     await createFreeEntitlement(db, userId);
     entitlement = await readCurrentEntitlement(db, userId);
@@ -263,497 +243,148 @@ async function ensureEntitlement(db, userId) {
     id: null,
     user_id: userId,
     plan_code: "free",
-    plan_name: "Free User",
+    plan_name: "Free",
     status: "active",
     source: "free",
-    features: PLAN_LEVELS.free
+    features: {}
   };
-}
-
-async function readUsageLimit(db, planCode) {
-  const { data, error } = await db
-    .from("ai_usage_limits")
-    .select("*")
-    .eq("plan_code", planCode)
-    .maybeSingle();
-
-  if (error || !data) {
-    if (planCode === "premium_plus") return { weekly_plan_generations_per_month: 5 };
-    if (planCode === "premium") return { weekly_plan_generations_per_month: 2 };
-    return { weekly_plan_generations_per_month: 1 };
-  }
-
-  return data;
-}
-
-async function countMonthlyPlanGenerations(db, userId) {
-  try {
-    const { count, error } = await db
-      .from("ai_requests")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", userId)
-      .in("status", ["pending", "completed"])
-      .gte("created_at", startOfCurrentMonthISO())
-      .ilike("request_type", "weekly_plan_coach%");
-
-    if (error) return 0;
-    return count || 0;
-  } catch {
-    return 0;
-  }
 }
 
 async function readUserData(db, userId) {
-  const [
-    profileRes,
-    foodRes,
-    workRes,
-    workoutRes,
-    waterRes,
-    measurementRes,
-    dailyLogsRes,
-    mealLogsRes,
-    waterLogsRes,
-    workoutSessionsRes,
-    exerciseLogsRes,
-    setLogsRes,
-    painLogsRes,
-    exercisesRes,
-    previousPlansRes
-  ] = await Promise.all([
+  const results = await Promise.all([
     db.from("profiles").select("*").eq("id", userId).maybeSingle(),
-
     db.from("food_preferences").select("*").eq("user_id", userId).maybeSingle(),
-
     db.from("work_schedules").select("*").eq("user_id", userId).maybeSingle(),
-
     db.from("workout_availability").select("*").eq("user_id", userId).maybeSingle(),
-
     db.from("water_settings").select("*").eq("user_id", userId).maybeSingle(),
-
-    db.from("measurements")
-      .select("*")
-      .eq("user_id", userId)
-      .order("entry_date", { ascending: false })
-      .limit(8),
-
-    db.from("daily_logs")
-      .select("*")
-      .eq("user_id", userId)
-      .order("log_date", { ascending: false })
-      .limit(21),
-
-    db.from("meal_logs")
-      .select("*")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false })
-      .limit(80),
-
-    db.from("water_logs")
-      .select("*")
-      .eq("user_id", userId)
-      .order("log_date", { ascending: false })
-      .limit(21),
-
-    db.from("workout_sessions")
-      .select("*")
-      .eq("user_id", userId)
-      .order("workout_date", { ascending: false })
-      .limit(12),
-
-    db.from("exercise_logs")
-      .select("*")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false })
-      .limit(100),
-
-    db.from("exercise_set_logs")
-      .select("*")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false })
-      .limit(160),
-
-    db.from("pain_logs")
-      .select("*")
-      .eq("user_id", userId)
-      .order("logged_at", { ascending: false })
-      .limit(50),
-
-    db.from("exercises")
-      .select("id,name,category,section,target_muscle,equipment,difficulty,short_cue,safe_alternative,back_safe,knee_safe,shoulder_safe,approved,plan_ready,usage_priority"),
-
-    db.from("weekly_plans")
-      .select("id,title,week_start,week_end,status,ai_summary,created_at")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false })
-      .limit(4)
+    db.from("measurements").select("*").eq("user_id", userId).order("entry_date", { ascending: false }).limit(8),
+    db.from("daily_logs").select("*").eq("user_id", userId).order("log_date", { ascending: false }).limit(21),
+    db.from("meal_logs").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(80),
+    db.from("water_logs").select("*").eq("user_id", userId).order("log_date", { ascending: false }).limit(21),
+    db.from("workout_sessions").select("*").eq("user_id", userId).order("workout_date", { ascending: false }).limit(12),
+    db.from("exercise_logs").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(100),
+    db.from("exercise_set_logs").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(160),
+    db.from("pain_logs").select("*").eq("user_id", userId).order("logged_at", { ascending: false }).limit(50),
+    db.from("exercises").select("*").order("category", { ascending: true }),
+    db.from("weekly_plans").select("id,title,week_start,week_end,status,ai_summary,created_at").eq("user_id", userId).order("created_at", { ascending: false }).limit(4)
   ]);
 
-  const errors = [
-    profileRes.error,
-    foodRes.error,
-    workRes.error,
-    workoutRes.error,
-    waterRes.error,
-    measurementRes.error,
-    dailyLogsRes.error,
-    mealLogsRes.error,
-    waterLogsRes.error,
-    workoutSessionsRes.error,
-    exerciseLogsRes.error,
-    setLogsRes.error,
-    painLogsRes.error,
-    exercisesRes.error,
-    previousPlansRes.error
-  ].filter(Boolean);
+  const firstError = results.map(result => result.error).find(Boolean);
+  if (firstError) throw new Error(firstError.message || "Could not read user data.");
 
-  if (errors.length) {
-    throw new Error(errors[0].message || "Could not read user data.");
-  }
-
-  const allExercises = exercisesRes.data || [];
-  const approvedExercises = allExercises.filter(ex => ex.approved !== false);
-  const readyExercises = approvedExercises.filter(ex => ex.plan_ready === true);
-  const exerciseLibrary = readyExercises.length >= 8
-    ? readyExercises
-    : (approvedExercises.length ? approvedExercises : allExercises);
-
-  const exerciseLibraryMode = readyExercises.length >= 8
-    ? "plan_ready_only"
-    : "approved_fallback_not_enough_plan_ready";
+  const [profile, food, work, workout, water, measurements, daily, meals, waterLogs, sessions, exercises, sets, pain, library, previous] = results;
+  const allExercises = library.data || [];
+  const approved = allExercises.filter(item => item.approved !== false);
+  const planReady = approved.filter(item => item.plan_ready === true);
+  const usable = planReady.length >= 8 ? planReady : (approved.length ? approved : allExercises);
 
   return {
-    profile: profileRes.data,
-    food_preferences: foodRes.data,
-    work_schedule: workRes.data,
-    workout_availability: workoutRes.data,
-    water_settings: waterRes.data,
-    measurements: measurementRes.data || [],
-    daily_logs: dailyLogsRes.data || [],
-    meal_logs: mealLogsRes.data || [],
-    water_logs: waterLogsRes.data || [],
-    workout_sessions: workoutSessionsRes.data || [],
-    exercise_logs: exerciseLogsRes.data || [],
-    exercise_set_logs: setLogsRes.data || [],
-    pain_logs: painLogsRes.data || [],
-    approved_exercise_library: exerciseLibrary,
-    all_exercises: allExercises,
+    profile: profile.data,
+    food_preferences: food.data,
+    work_schedule: work.data,
+    workout_availability: workout.data,
+    water_settings: water.data,
+    measurements: measurements.data || [],
+    daily_logs: daily.data || [],
+    meal_logs: meals.data || [],
+    water_logs: waterLogs.data || [],
+    workout_sessions: sessions.data || [],
+    exercise_logs: exercises.data || [],
+    exercise_set_logs: sets.data || [],
+    pain_logs: pain.data || [],
+    approved_exercise_library: usable,
+    previous_plans: previous.data || [],
     exercise_library_status: {
-      mode: exerciseLibraryMode,
+      mode: planReady.length >= 8 ? "plan_ready_only" : "approved_fallback",
       total: allExercises.length,
-      approved: approvedExercises.length,
-      plan_ready: readyExercises.length,
-      used_for_ai: exerciseLibrary.length,
-      missing_media: approvedExercises.filter(ex => (ex.media_status || "missing") === "missing").length,
-      missing_guide: approvedExercises.filter(ex => (ex.guide_status || "missing") === "missing").length
-    },
-    previous_plans: previousPlansRes.data || []
-  };
-}
-
-function buildInputSummary(userData, entitlement, usageInfo) {
-  const p = userData.profile || {};
-  const food = userData.food_preferences || {};
-  const work = userData.work_schedule || {};
-  const workout = userData.workout_availability || {};
-
-  return {
-    plan_code: entitlement?.plan_code || "free",
-    user: {
-      gender: p.gender || null,
-      dob: p.date_of_birth || null,
-      height_cm: p.height_cm || null,
-      starting_weight: p.starting_weight || null,
-      weight_unit: p.weight_unit || null,
-      body_type: p.body_type || null,
-      main_goals: p.main_goals || null
-    },
-    food: {
-      food_style: food.food_style || null,
-      usual_foods: food.usual_foods || null,
-      preferred_proteins: food.preferred_proteins || null,
-      allergies: food.allergies || null,
-      avoid_foods: food.avoid_foods || null,
-      smoothie_preference: food.smoothie_preference || null,
-      whey_preference: food.whey_preference || null
-    },
-    schedule: {
-      work_days: work.work_days || null,
-      work_type: work.work_type || null,
-      breaks: work.breaks || null,
-      workout_days: workout.workout_days || null,
-      workout_place: workout.workout_place || null,
-      max_minutes: workout.max_minutes || null
-    },
-    exercise_library: userData.exercise_library_status || {},
-    recent_data_counts: {
-      measurements: userData.measurements.length,
-      daily_logs: userData.daily_logs.length,
-      meal_logs: userData.meal_logs.length,
-      workout_sessions: userData.workout_sessions.length,
-      exercise_logs: userData.exercise_logs.length,
-      set_logs: userData.exercise_set_logs.length,
-      pain_logs: userData.pain_logs.length,
-      previous_plans: userData.previous_plans.length
-    },
-    usage: usageInfo
-  };
-}
-
-
-function compactRows(rows, fields, limit = 20) {
-  return safeArray(rows).slice(0, limit).map(row => {
-    const out = {};
-    for (const key of fields) {
-      if (row && row[key] !== undefined && row[key] !== null && row[key] !== "") out[key] = row[key];
+      approved: approved.length,
+      plan_ready: planReady.length,
+      used_for_ai: usable.length
     }
-    return out;
-  });
-}
-
-function toTextList(value) {
-  if (Array.isArray(value)) {
-    return value
-      .map(v => String(v || "").trim())
-      .filter(Boolean);
-  }
-
-  if (typeof value === "string") {
-    return value
-      .split(/[,.\n]/)
-      .map(v => v.trim())
-      .filter(Boolean);
-  }
-
-  return [];
-}
-
-function uniqueTextList(values) {
-  const seen = new Set();
-  const out = [];
-
-  for (const value of values.flatMap(v => toTextList(v))) {
-    const key = value.toLowerCase();
-    if (!key || seen.has(key)) continue;
-    seen.add(key);
-    out.push(value);
-  }
-
-  return out;
-}
-
-function truthyFoodFlag(value) {
-  return value === true || value === "true" || value === "yes" || value === "allowed" || value === 1;
-}
-
-function buildFoodRules(food = {}) {
-  const preferredProteins = uniqueTextList([
-    food.preferred_proteins,
-    food.protein_preferences
-  ]);
-
-  const preferredCarbs = uniqueTextList([
-    food.preferred_carbs,
-    food.carb_preferences
-  ]);
-
-  const hardBlockedFoods = uniqueTextList([
-    food.allergies,
-    food.avoid_foods
-  ]);
-
-  const dislikedFoods = uniqueTextList([food.disliked_foods]);
-
-  const allowedProteins = [...preferredProteins];
-
-  const positiveProteinFlags = [
-    ["eggs", food.eats_eggs],
-    ["chicken", food.eats_chicken],
-    ["paneer", food.eats_paneer],
-    ["tofu", food.eats_tofu],
-    ["soya", food.eats_soya],
-    ["Greek yogurt", food.greek_yogurt_ok],
-    ["homemade curd", food.homemade_curd_ok],
-    ["milk", food.milk_ok],
-    ["whey protein", food.uses_whey_protein]
-  ];
-
-  for (const [label, value] of positiveProteinFlags) {
-    if (truthyFoodFlag(value)) allowedProteins.push(label);
-  }
-
-  if (truthyFoodFlag(food.likes_smoothies)) allowedProteins.push("smoothies");
-
-  const dietType = String(food.diet_type || "").toLowerCase();
-  const dietBlocks = [];
-
-  if (dietType.includes("vegan")) {
-    dietBlocks.push("milk", "curd", "Greek yogurt", "paneer", "whey protein", "eggs", "chicken", "fish", "meat");
-  } else if (dietType.includes("vegetarian")) {
-    dietBlocks.push("chicken", "fish", "meat");
-  }
-
-  return {
-    food_styles: toTextList(food.food_styles || food.food_style),
-    diet_type: food.diet_type || "not_specified",
-    usual_foods: normalizeText(food.usual_foods),
-    favourite_foods: normalizeText(food.favourite_foods),
-    preferred_proteins: uniqueTextList([allowedProteins]),
-    preferred_carbs: preferredCarbs,
-    hard_blocked_foods: uniqueTextList([hardBlockedFoods, dietBlocks]),
-    disliked_foods: dislikedFoods,
-    allergies: toTextList(food.allergies),
-    avoid_foods: toTextList(food.avoid_foods),
-    likes_smoothies: truthyFoodFlag(food.likes_smoothies),
-    uses_whey_protein: truthyFoodFlag(food.uses_whey_protein),
-    smoothie_details: normalizeText(food.smoothie_details),
-    bloating_triggers: toTextList(food.bloating_triggers),
-    meal_prep_style: normalizeText(food.meal_prep_style),
-    fridge_freezer_ok: truthyFoodFlag(food.fridge_freezer_ok),
-    quick_meal_preference: normalizeText(food.quick_meal_preference || food.snack_preferences),
-    dinner_preference: normalizeText(food.dinner_preference || food.meal_notes),
-    interpretation_notes: [
-      "Only hard_blocked_foods and allergies are strict avoid rules.",
-      "False or missing food booleans mean not selected yet, not that the user refuses that food.",
-      "Do not write 'user does not eat X' unless X is in hard_blocked_foods or diet_type clearly blocks it.",
-      "Use preferred_proteins strongly, but normal common foods may be used when not blocked."
-    ]
   };
 }
 
-function buildAiUserData(userData) {
-  const p = userData.profile || {};
-  const food = userData.food_preferences || {};
-  const work = userData.work_schedule || {};
-  const workout = userData.workout_availability || {};
-  const water = userData.water_settings || {};
-
+function buildAiUserData(data) {
+  const profile = data.profile || {};
+  const food = data.food_preferences || {};
   const exerciseFields = [
     "id", "name", "category", "section", "target_muscle", "equipment", "difficulty",
-    "short_cue", "safe_alternative", "back_safe", "knee_safe", "shoulder_safe", "usage_priority", "plan_ready"
+    "short_cue", "safe_alternative", "back_safe", "knee_safe", "shoulder_safe",
+    "usage_priority", "plan_ready"
   ];
 
   return {
     profile: {
-      age: p.age || null,
-      gender: p.gender || null,
-      date_of_birth: p.date_of_birth || null,
-      height_cm: p.height_cm || null,
-      starting_weight: p.starting_weight || null,
-      weight_unit: p.weight_unit || null,
-      body_type: p.body_type || null,
-      body_type_custom: p.body_type_custom || null,
-      main_goal: p.main_goal || null,
-      main_goals: p.main_goals || null,
-      preferred_language: p.preferred_language || "en",
-      preferred_plan_detail: p.preferred_plan_detail || null
+      date_of_birth: profile.date_of_birth || null,
+      gender: profile.gender || null,
+      height_cm: profile.height_cm || null,
+      starting_weight: profile.starting_weight || null,
+      weight_unit: profile.weight_unit || null,
+      body_type: profile.body_type || null,
+      body_type_custom: profile.body_type_custom || null,
+      main_goal: profile.main_goal || null,
+      main_goals: profile.main_goals || null,
+      preferred_language: profile.preferred_language || "en"
     },
-    food_preferences: buildFoodRules(food),
-    raw_food_preference_keys_present: Object.keys(food || {}).filter(key => food[key] !== null && food[key] !== undefined && food[key] !== ""),
-    work_schedule: work,
-    workout_availability: workout,
-    water_settings: water,
-    measurements: compactRows(userData.measurements, ["entry_date", "weight", "waist", "chest", "hips", "thigh", "biceps", "neck", "unit", "notes"], 4),
-    recent_checkins: compactRows(userData.daily_logs, ["log_date", "meals_status", "water_status", "workout_status", "sleep_quality", "energy", "digestion", "mood", "notes"], 10),
-    recent_water: compactRows(userData.water_logs, ["log_date", "status", "bottles_done", "target_liters", "bottle_size_ml"], 10),
-    recent_workouts: compactRows(userData.workout_sessions, ["workout_date", "workout_type", "status", "duration_minutes", "notes"], 8),
-    recent_exercise_logs: compactRows(userData.exercise_logs, ["created_at", "exercise_name", "workout_type", "status", "effort", "pain_level", "notes"], 25),
-    recent_set_logs: compactRows(userData.exercise_set_logs, ["created_at", "exercise_name", "set_number", "weight", "reps", "effort", "pain_level"], 35),
-    recent_pain_logs: compactRows(userData.pain_logs, ["logged_at", "pain_area", "pain_score", "pain_rating", "rating", "notes"], 10),
-    previous_plans: compactRows(userData.previous_plans, ["title", "week_start", "week_end", "status", "ai_summary", "created_at"], 3),
-    approved_exercise_library: compactRows(userData.approved_exercise_library, exerciseFields, 90),
-    exercise_library_status: userData.exercise_library_status || {}
+    food_preferences: food,
+    work_schedule: data.work_schedule || {},
+    workout_availability: data.workout_availability || {},
+    water_settings: data.water_settings || {},
+    measurements: compactRows(data.measurements, ["entry_date", "weight", "waist", "chest", "hips", "thigh", "unit", "notes"], 6),
+    recent_checkins: compactRows(data.daily_logs, ["log_date", "meals_status", "water_status", "workout_status", "sleep_quality", "energy", "digestion", "mood", "notes"], 14),
+    recent_meals: compactRows(data.meal_logs, ["created_at", "meal_name", "status", "hunger_after", "notes"], 24),
+    recent_water: compactRows(data.water_logs, ["log_date", "status", "bottles_done", "target_liters", "bottle_size_ml"], 14),
+    recent_workouts: compactRows(data.workout_sessions, ["workout_date", "workout_type", "status", "duration_minutes", "notes"], 10),
+    recent_exercise_logs: compactRows(data.exercise_logs, ["created_at", "exercise_name", "section", "actual_weight", "actual_reps", "effort", "pain_level", "pain_area", "skipped", "notes"], 35),
+    recent_set_logs: compactRows(data.exercise_set_logs, ["created_at", "exercise_name", "set_number", "weight", "reps", "effort", "pain_level"], 50),
+    recent_pain_logs: compactRows(data.pain_logs, ["logged_at", "exercise_name", "pain_area", "pain_level", "pain_score", "notes"], 15),
+    previous_plans: compactRows(data.previous_plans, ["title", "week_start", "week_end", "status", "ai_summary", "created_at"], 4),
+    approved_exercise_library: compactRows(data.approved_exercise_library, exerciseFields, 100),
+    exercise_library_status: data.exercise_library_status
   };
 }
 
-function buildPrompt(userData, entitlement, usageInfo) {
+function buildPrompt(data, entitlement, requestInfo) {
   const tier = planTierInfo(entitlement);
-
   return `
-You are ShapeCue AI, a premium personal trainer and practical nutrition coach.
+You are ShapeCue AI, a careful personal trainer and practical nutrition coach.
 
-You are generating a plan for plan tier: ${tier.label} (${tier.code}).
+MEMBERSHIP: ${tier.label} (${tier.code})
+REQUEST SOURCE: ${requestInfo.request_source}
+${tier.instruction}
 
-${tier.planInstruction}
+PRODUCT GOAL:
+Create a realistic daily coach plan for a busy person. It must clearly answer what to eat, what to train, and what to report.
 
-CORE PRODUCT PROMISE:
-This app is not a generic dashboard. It is a daily coach for busy workers.
-The plan must answer:
-1. What should the user eat today?
-2. What should the user train today?
-3. What should the user report so next week can adjust?
+NON-NEGOTIABLE PERSONALIZATION:
+- Use the user's actual schedule, work breaks, workout days, maximum workout time, goals, food preferences, allergies, avoid foods, usual foods, measurements, pain logs, exercise logs, and previous plans.
+- Only explicit allergies, avoid foods, and diet-type restrictions are hard food blocks.
+- Missing or false food toggles do not mean the user refuses that food.
+- Use practical home and work meals. Never write vague advice such as "eat balanced food".
+- Include protein in main meals when muscle or body-shape goals are present.
+- Use realistic amounts such as roti count, milk volume, oats grams, yogurt amount, eggs, paneer, tofu, chicken, dal, or whey when permitted.
+- Give 1-2 practical replacements for every food item.
+- Match short work breaks with fast snacks and longer breaks with full packed meals.
+- If work is already physically demanding or step-heavy, do not add unnecessary cardio.
 
-QUALITY BAR:
-- The output must feel like a real trainer reviewed the user's schedule, food preference, pain, logs, and previous plan.
-- Do not produce vague fitness advice.
-- Do not say "eat a balanced meal" without exact examples.
-- Do not create random unrealistic meals.
-- Use practical home/work meals the user can actually follow.
-- Use coach notes to explain why each meal/workout is placed there.
-- If user works heavy_active/high steps, do not add random cardio.
-- Make dinner lighter if belly/bloating is a goal.
-- Include protein in every main meal if goal includes muscle/shape.
-- Include simple water guidance from water settings.
+WORKOUT SAFETY:
+- Use only exercise names found in approved_exercise_library, matching names exactly.
+- Every workout must contain warmup, main, and stretch sections.
+- Prefer machines, cables, dumbbells, and controlled movements for beginners.
+- Use recent effort, reps, weight, skipped exercises, and pain to progress or reduce exercises.
+- If pain was high, sharp, or worsening, replace the movement with a safer library option.
+- For lower-back concerns, avoid ego deadlifts, risky loaded bending, and heavy back-loaded squats.
+- Most working sets should finish with about 1-2 reps remaining.
 
-STRICT SAFETY RULES:
-- You are not a doctor. Do not diagnose or treat medical conditions.
-- If pain is 5+ or sharp pain is reported, reduce risk and recommend stopping that movement and using a safer alternative.
-- If lower back pain is present, avoid ego deadlifts, heavy back-loaded squats, risky bending, and loaded back extensions.
-- Use back-safe options like machines, chest-supported row, controlled leg press, hip thrust machine, dead bug, Pallof press, face pulls, glute bridge if available in approved library.
-- Most sets should stop with 1-2 reps left. Do not train to failure every set.
+EVERY EXERCISE MUST INCLUDE:
+name, section, planned_sets, sets, target_weight, target_reps, weight_step, rest_seconds, cue, target_muscle, coach_note.
 
-PERSONALIZATION RULES:
-- Use user's real date of birth/age, measurements, goals, body type, work days, breaks, workout days, workout time, food styles, usual foods, favorite foods, disliked foods, allergies, avoid foods, smoothie preference, whey preference, protein preferences, carb preferences, meal prep style, bloating triggers, exercise preferences, pain areas, pain rating, logs, and previous plans.
-- CRITICAL FOOD INTERPRETATION: only food_preferences.hard_blocked_foods and food_preferences.allergies are strict avoid rules.
-- Do NOT say or imply the user avoids eggs, milk, whey, Greek yogurt, curd, paneer, tofu, soya, or chicken unless that exact food is inside hard_blocked_foods/allergies or the diet_type clearly blocks it.
-- False or missing food booleans mean "not selected yet", NOT "the user does not eat this".
-- If preferred_proteins contains a food, use it confidently.
-- If preferred_proteins is empty or incomplete, use practical normal options that are not blocked instead of inventing restrictions.
-- Disliked foods should be avoided unless no other option exists, but dislikes are not allergies.
-- Favorite foods and usual foods should be used strongly.
-- If likes_smoothies is true, include smoothie options. If uses_whey_protein is true, whey is allowed.
-- If likes_smoothies is false or missing, do not claim the user hates smoothies; simply prefer non-smoothie meals unless smoothie_details/preferred_proteins support it.
-- If uses_whey_protein is false or missing, do not claim the user refuses whey; only avoid whey if hard_blocked_foods says so.
-- If user selected Punjabi/Indian/home food, meals should look like real home meals.
-- If user prefers roti, rice, oats, wraps, bananas, dates, use those in the plan.
-- If user has a short work break, give fast snack only.
-- If user has a 30-minute break, give full packed meal.
-- If user has fridge_freezer_ok, include fridge/freezer strategy.
+EVERY FOOD ITEM MUST INCLUDE:
+time, title, text, type="food", estimated_protein_g, prep_minutes, work_friendly, ingredients, replacement_options, coach_note.
 
-WORKOUT RULES:
-- Use ONLY approved_exercise_library for exercise names. This is the app-owned exercise library with reusable photos/videos/guides.
-- Exercise names must match approved_exercise_library name exactly.
-- Prefer exercises with usage_priority "high" or "medium" unless user safety requires another option.
-- Every workout must include warmup, main, and stretch sections.
-- If approved_exercise_library is missing a perfect exercise, choose the closest safe exercise from that library.
-- Never invent exercise names outside approved_exercise_library.
-- Do not request new exercise photos. The app reuses media from the library.
-- Every exercise must include:
-  name, section, planned_sets, sets, target_weight, target_reps, weight_step, rest_seconds, cue, target_muscle, coach_note.
-- Workouts must match max_minutes.
-- If user is beginner or some_experience, prefer machines, dumbbells, cables, and controlled movements.
-- If exercise_logs show hard effort or pain, keep same, reduce, or replace with safer alternative.
-- If effort was easy and pain low, slightly increase reps or target weight.
+Return only valid JSON. No markdown and no text outside JSON.
 
-MEAL/RECIPE RULES:
-- Give exact meals, not vague "protein + carbs".
-- Include amounts when useful: 2 roti, 3 roti, 300 ml milk, 1 scoop whey, 30g oats, 1 banana, 175g yogurt.
-- Every food item must include replacement_options with 1-2 practical replacements.
-- Every food item should include estimated_protein_g, prep_minutes, work_friendly, ingredients, and coach_note where possible.
-- Workday meals must be realistic for breaks.
-- Gym-day meals must include pre-workout and post-workout if workout time exists.
-- Whey is allowed when uses_whey_protein is true, preferred_proteins includes whey, or whey is not blocked and the plan needs a practical protein option.
-- Smoothies are allowed when likes_smoothies is true, smoothie_details exists, or the user has not blocked smoothies.
-- If user prefers meal prep, include meal prep plan.
-
-RETURN ONLY VALID JSON.
-No markdown.
-No comments.
-No trailing commas.
-No text outside JSON.
-
-RETURN THIS EXACT JSON SHAPE:
-
+Use this exact top-level shape:
 {
   "next_week_plan": {
     "title": "ShapeCue Coach Plan",
@@ -761,21 +392,11 @@ RETURN THIS EXACT JSON SHAPE:
     "generation_type": "${tier.generationType}",
     "start_date": "${dateISO(0)}",
     "end_date": "${dateISO(6)}",
-    "summary": "short trainer-style summary",
-    "coach_reasoning": "why this plan fits the user",
+    "summary": "short summary",
+    "coach_reasoning": "why this plan fits",
     "safety_note": "short safety note",
-    "weekly_structure": [
-      {
-        "day": "Sunday",
-        "focus": "Work + mobility",
-        "reason": "short reason"
-      }
-    ],
-    "targets": [
-      "specific target 1",
-      "specific target 2",
-      "specific target 3"
-    ],
+    "weekly_structure": [],
+    "targets": [],
     "water_goal": {
       "target_liters": 2,
       "bottle_size_ml": 1000,
@@ -783,436 +404,373 @@ RETURN THIS EXACT JSON SHAPE:
       "note": "short note"
     },
     "daily_schedule": {
-      "Sunday": [],
-      "Monday": [],
-      "Tuesday": [],
-      "Wednesday": [],
-      "Thursday": [],
-      "Friday": [],
-      "Saturday": []
+      "Sunday": [], "Monday": [], "Tuesday": [], "Wednesday": [],
+      "Thursday": [], "Friday": [], "Saturday": []
     },
-    "workouts": {
-      "push": [],
-      "legs": [],
-      "pull": [],
-      "mobility": []
-    },
+    "workouts": { "push": [], "legs": [], "pull": [], "mobility": [] },
     "meal_prep_plan": {
       "prep_day": "Saturday",
-      "fridge_items": [],
-      "freezer_items": [],
-      "fresh_items": [],
-      "packing_notes": []
+      "fridge_items": [], "freezer_items": [], "fresh_items": [], "packing_notes": []
     },
     "grocery_list": [],
     "bloating_control": [],
     "daily_checklist": [],
     "weekly_focus": [],
     "ai_adjustments": [],
-    "feature_locks": {
-      "pdf_export": ${tier.code === "free" ? "true" : "false"},
-      "progress_photos": ${tier.code === "free" ? "true" : "false"},
-      "smart_replacements": ${tier.code === "premium_plus" ? "false" : "true"}
-    }
+    "feature_locks": {}
   }
 }
 
-DAILY FOOD ITEM FORMAT:
-{
-  "time": "08:00",
-  "title": "Breakfast",
-  "text": "300 ml 2% milk smoothie with 1 banana, 1 scoop whey, 30g oats, 1 tbsp peanut butter, cinnamon",
-  "type": "food",
-  "estimated_protein_g": 28,
-  "prep_minutes": 5,
-  "work_friendly": true,
-  "ingredients": [
-    { "name": "2% milk", "amount": "300 ml" },
-    { "name": "banana", "amount": "1" }
-  ],
-  "replacement_options": [
-    "2-3 eggs with 1-2 toast/roti and fruit",
-    "Greek yogurt/curd bowl with oats and berries if dairy is allowed"
-  ],
-  "coach_note": "why this meal is placed here"
-}
-
-GYM ITEM FORMAT:
-{
-  "time": "10:45",
-  "title": "Gym: Push Day",
-  "text": "Chest, shoulders, triceps, core. Start workout mode.",
-  "type": "gym",
-  "workout": "push"
-}
-
-MOBILITY ITEM FORMAT:
-{
-  "time": "20:30",
-  "title": "Short mobility",
-  "text": "Cat-cow, glute bridge, dead bug, light stretch.",
-  "type": "mobility"
-}
-
-WORKOUT EXERCISE FORMAT:
-{
-  "name": "Machine Chest Press",
-  "section": "main",
-  "planned_sets": 4,
-  "sets": "4 x 8-12",
-  "target_weight": 0,
-  "target_reps": 10,
-  "weight_step": 5,
-  "rest_seconds": 90,
-  "cue": "Chest up, shoulder blades back, do not over-arch lower back.",
-  "target_muscle": "Chest",
-  "coach_note": "why this exercise is included"
-}
-
-DAILY SCHEDULE REQUIREMENTS:
-- Every day must include at least 5 items unless user schedule is extremely limited.
-- Workdays should include breakfast, break meals/snacks based on break times, after-work small option, dinner, and optional mobility.
-- Gym days should include breakfast, pre-workout, gym item, post-workout, lunch, snack, dinner.
-- Every food item must have 1-2 replacement_options.
-- Add gym item on workout days.
-- Add mobility/recovery item on workdays if useful.
+DAILY REQUIREMENTS:
+- Build all seven days.
+- Workdays should include breakfast, break food based on actual break times, an after-work option, dinner, and recovery/mobility where useful.
+- Gym days should include pre-workout, a gym item with workout key, post-workout food, and regular meals.
+- Every day should usually contain at least five useful items.
 
 WORKOUT REQUIREMENTS:
-- push workout: warmup + chest/shoulders/triceps/main + core if available + stretch.
-- legs workout: warmup + thighs/glutes/back-safe main + stretch.
-- pull workout: warmup + back/biceps/posture main + stretch.
-- mobility workout: short warmup/mobility/stretch only.
+- Push: warmup, chest/shoulders/triceps, optional safe core, stretch.
+- Legs: warmup, thighs/glutes with back-safe choices, stretch.
+- Pull: warmup, back/biceps/posture, stretch.
+- Mobility: short recovery-focused session.
 
-USAGE CONTEXT:
-${JSON.stringify(usageInfo, null, 2)}
+REQUEST INFO:
+${JSON.stringify(requestInfo, null, 2)}
 
-COMPACT USER DATA:
-${JSON.stringify(buildAiUserData(userData), null, 2)}
+USER DATA:
+${JSON.stringify(buildAiUserData(data), null, 2)}
 `;
 }
 
-function buildExerciseLookup(exercises) {
-  const byName = new Map();
-  const byLower = new Map();
-
-  for (const ex of safeArray(exercises)) {
-    if (!ex?.name) continue;
-    byName.set(ex.name, ex);
-    byLower.set(String(ex.name).trim().toLowerCase(), ex);
+function exerciseLookup(library) {
+  const map = new Map();
+  for (const item of safeArray(library)) {
+    if (!item?.name) continue;
+    map.set(String(item.name).trim().toLowerCase(), item);
   }
-
-  return { byName, byLower };
+  return map;
 }
 
-function findFallbackExercise(exercises, sectionOrWorkout = "main") {
-  const list = safeArray(exercises);
-
-  const safe = list.find(ex => ex.back_safe === true && String(ex.section || "").toLowerCase().includes("main"));
-  if (safe) return safe;
-
-  const sectionMatch = list.find(ex => String(ex.section || "").toLowerCase() === String(sectionOrWorkout || "").toLowerCase());
-  if (sectionMatch) return sectionMatch;
-
-  return list[0] || null;
+function fallbackExercise(library, section) {
+  return safeArray(library).find(item => String(item.section || "").toLowerCase() === String(section || "main").toLowerCase())
+    || safeArray(library).find(item => item.back_safe === true)
+    || safeArray(library)[0]
+    || null;
 }
 
-function sanitizeExercise(ex, lookup, exercises, workoutKey) {
-  const originalName = normalizeText(ex?.name);
-  let libraryExercise = lookup.byName.get(originalName) || lookup.byLower.get(originalName.toLowerCase());
+function sanitizeExercise(item, library, lookup, workoutKey) {
+  const raw = safeObject(item);
+  const exact = lookup.get(text(raw.name).toLowerCase());
+  const source = exact || fallbackExercise(library, raw.section || workoutKey);
+  if (!source?.name) return null;
 
-  if (!libraryExercise) {
-    libraryExercise = findFallbackExercise(exercises, ex?.section || workoutKey);
-  }
-
-  if (!libraryExercise?.name) return null;
-
-  const plannedSets = Math.max(1, Math.min(6, Math.round(normalizeNumber(ex?.planned_sets, 3))));
-  const targetReps = Math.max(1, Math.min(30, Math.round(normalizeNumber(ex?.target_reps, 10))));
-  const restSeconds = Math.max(30, Math.min(180, Math.round(normalizeNumber(ex?.rest_seconds, 90))));
+  const sets = Math.max(1, Math.min(6, Math.round(number(raw.planned_sets, 3))));
+  const reps = Math.max(1, Math.min(30, Math.round(number(raw.target_reps, 10))));
 
   return {
-    name: libraryExercise.name,
-    exercise_id: libraryExercise.id || ex?.exercise_id || null,
-    section: normalizeText(ex?.section, libraryExercise.section || "main"),
-    planned_sets: plannedSets,
-    sets: normalizeText(ex?.sets, `${plannedSets} x ${targetReps}`),
-    target_weight: normalizeNumber(ex?.target_weight, 0),
-    target_reps: targetReps,
-    weight_step: normalizeNumber(ex?.weight_step, 5),
-    rest_seconds: restSeconds,
-    cue: normalizeText(ex?.cue, libraryExercise.short_cue || "Use controlled form and stop if pain increases."),
-    target_muscle: normalizeText(ex?.target_muscle, libraryExercise.target_muscle || "Main muscle"),
-    coach_note: normalizeText(ex?.coach_note, "Included because it fits the weekly training focus."),
-    image_url: libraryExercise.image_url || null,
-    video_url: libraryExercise.video_url || null,
-    image_path: libraryExercise.image_path || null,
-    video_path: libraryExercise.video_path || null,
-    guide_steps: Array.isArray(libraryExercise.guide_steps) ? libraryExercise.guide_steps : [],
-    common_mistakes: Array.isArray(libraryExercise.common_mistakes) ? libraryExercise.common_mistakes : [],
-    common_mistake: libraryExercise.common_mistake || null,
-    pain_warning: libraryExercise.pain_warning || null,
-    alternatives: Array.isArray(libraryExercise.alternatives) ? libraryExercise.alternatives : [],
-    safe_alternative: libraryExercise.safe_alternative || null,
-    usage_priority: libraryExercise.usage_priority || "medium",
-    plan_ready: libraryExercise.plan_ready === true
+    name: source.name,
+    exercise_id: source.id || raw.exercise_id || null,
+    section: text(raw.section, source.section || "main"),
+    planned_sets: sets,
+    sets: text(raw.sets, `${sets} x ${reps}`),
+    target_weight: number(raw.target_weight, 0),
+    target_reps: reps,
+    weight_step: number(raw.weight_step, 5),
+    rest_seconds: Math.max(30, Math.min(180, Math.round(number(raw.rest_seconds, 90)))),
+    cue: text(raw.cue, source.short_cue || "Use controlled form and stop if pain increases."),
+    target_muscle: text(raw.target_muscle, source.target_muscle || "Main muscle"),
+    coach_note: text(raw.coach_note, "Included because it fits this session and the user's recent feedback."),
+    image_url: source.image_url || null,
+    video_url: source.video_url || null,
+    image_path: source.image_path || null,
+    video_path: source.video_path || null,
+    guide_steps: safeArray(source.guide_steps),
+    common_mistakes: safeArray(source.common_mistakes),
+    common_mistake: source.common_mistake || null,
+    pain_warning: source.pain_warning || null,
+    alternatives: safeArray(source.alternatives),
+    safe_alternative: source.safe_alternative || null,
+    usage_priority: source.usage_priority || "medium",
+    plan_ready: source.plan_ready === true
   };
 }
 
 function sanitizeFoodItem(item) {
-  const obj = safeObject(item);
-  const type = normalizeText(obj.type, "food");
-
-  if (type !== "food") return obj;
-
-  const replacements = safeArray(obj.replacement_options)
-    .map(v => normalizeText(v))
-    .filter(Boolean)
-    .slice(0, 2);
-
+  const raw = safeObject(item);
+  const replacements = safeArray(raw.replacement_options).map(value => text(value)).filter(Boolean).slice(0, 2);
   return {
-    time: normalizeText(obj.time, ""),
-    title: normalizeText(obj.title, "Meal"),
-    text: normalizeText(obj.text, "Protein-focused meal"),
+    time: text(raw.time),
+    title: text(raw.title, "Meal"),
+    text: text(raw.text, "Protein-focused practical meal"),
     type: "food",
-    estimated_protein_g: normalizeNumber(obj.estimated_protein_g, 0),
-    prep_minutes: normalizeNumber(obj.prep_minutes, 0),
-    work_friendly: obj.work_friendly === undefined ? true : Boolean(obj.work_friendly),
-    ingredients: safeArray(obj.ingredients).slice(0, 12),
-    replacement_options: replacements.length ? replacements : ["Similar home meal with protein", "Greek yogurt/curd or eggs if suitable"],
-    coach_note: normalizeText(obj.coach_note, "Placed here to keep energy stable and protein consistent.")
+    estimated_protein_g: number(raw.estimated_protein_g, 0),
+    prep_minutes: number(raw.prep_minutes, 0),
+    work_friendly: raw.work_friendly === undefined ? true : Boolean(raw.work_friendly),
+    ingredients: safeArray(raw.ingredients).slice(0, 14),
+    replacement_options: replacements.length ? replacements : [
+      "Similar home meal with a practical protein source",
+      "Eggs, yogurt/curd, tofu, paneer, chicken, dal, or whey when allowed"
+    ],
+    coach_note: text(raw.coach_note, "Placed here to support energy and protein consistency.")
   };
 }
 
-function sanitizeDailySchedule(dailySchedule) {
-  const clean = {};
-
+function sanitizeDailySchedule(schedule) {
+  const result = {};
   for (const day of DAYS) {
-    const items = safeArray(dailySchedule?.[day]).map(item => {
-      const obj = safeObject(item);
-      if (obj.type === "food") return sanitizeFoodItem(obj);
+    result[day] = safeArray(schedule?.[day]).map(item => {
+      const raw = safeObject(item);
+      if (text(raw.type).toLowerCase() === "food") return sanitizeFoodItem(raw);
       return {
-        ...obj,
-        time: normalizeText(obj.time, ""),
-        title: normalizeText(obj.title, obj.type === "gym" ? "Gym" : "Plan item"),
-        text: normalizeText(obj.text, ""),
-        type: normalizeText(obj.type, "note")
+        ...raw,
+        time: text(raw.time),
+        title: text(raw.title, raw.type === "gym" ? "Gym" : "Plan item"),
+        text: text(raw.text),
+        type: text(raw.type, "note")
       };
     });
-
-    clean[day] = items;
   }
-
-  return clean;
+  return result;
 }
 
-function sanitizeWorkouts(workouts, exercises) {
-  const lookup = buildExerciseLookup(exercises);
-  const clean = {};
-
+function sanitizeWorkouts(workouts, library) {
+  const lookup = exerciseLookup(library);
+  const result = {};
   for (const key of ["push", "legs", "pull", "mobility"]) {
-    const items = safeArray(workouts?.[key])
-      .map(ex => sanitizeExercise(ex, lookup, exercises, key))
+    result[key] = safeArray(workouts?.[key])
+      .map(item => sanitizeExercise(item, library, lookup, key))
       .filter(Boolean);
-
-    clean[key] = items;
   }
-
-  return clean;
+  return result;
 }
 
-function buildSafetyFlags(plan, userData) {
+function safetyFlags(plan, data) {
   const flags = [];
-  const profile = userData.profile || {};
-  const painLogs = safeArray(userData.pain_logs);
-
-  const hasBackPain = JSON.stringify({ profile, painLogs }).toLowerCase().includes("back");
-  if (hasBackPain) flags.push({ type: "back_safe", message: "Back-safe loading and controlled movement recommended." });
-
-  const highPain = painLogs.some(log => normalizeNumber(log.pain_score || log.pain_rating || log.rating, 0) >= 5);
-  if (highPain) flags.push({ type: "pain_5_plus", message: "Recent pain 5+ found. Avoid risky exercises and stop if pain increases." });
-
+  const source = JSON.stringify({ profile: data.profile, pain: data.pain_logs }).toLowerCase();
+  if (source.includes("back")) {
+    flags.push({ type: "back_safe", message: "Use back-safe loading and controlled range." });
+  }
+  if (safeArray(data.pain_logs).some(item => number(item.pain_level ?? item.pain_score ?? item.pain_rating, 0) >= 5)) {
+    flags.push({ type: "pain_5_plus", message: "Recent pain at 5+ requires safer substitutions and stopping painful movements." });
+  }
   const planText = JSON.stringify(plan).toLowerCase();
   if (planText.includes("deadlift") || planText.includes("back squat")) {
-    flags.push({ type: "risky_loading_check", message: "Plan contains potentially risky loading. Confirm exercise library safety and user pain level." });
+    flags.push({ type: "loading_review", message: "Review heavy loading against current pain and experience." });
   }
-
   return flags;
 }
 
-function sanitizePlan(rawPlan, userData, entitlement) {
+function sanitizePlan(rawPlan, data, entitlement) {
   const tier = planTierInfo(entitlement);
-  const plan = safeObject(rawPlan);
+  const raw = safeObject(rawPlan);
+  const progressPhotosLocked = !["premium", "coach"].includes(tier.code);
+  const smartReplacementsLocked = !["premium", "coach"].includes(tier.code);
 
-  const clean = {
-    title: normalizeText(plan.title, "ShapeCue Coach Plan"),
+  const plan = {
+    title: text(raw.title, "ShapeCue Coach Plan"),
     plan_code: tier.code,
     generation_type: tier.generationType,
-    start_date: normalizeText(plan.start_date, dateISO(0)),
-    end_date: normalizeText(plan.end_date, dateISO(6)),
-    summary: normalizeText(plan.summary, "Your weekly coach plan is ready."),
-    coach_reasoning: normalizeText(plan.coach_reasoning, "This plan is based on your goals, schedule, food preferences, and recent logs."),
-    safety_note: normalizeText(plan.safety_note, "Use controlled form. Stop any movement that causes sharp or increasing pain."),
-    weekly_structure: safeArray(plan.weekly_structure),
-    targets: safeArray(plan.targets).slice(0, 8),
+    start_date: text(raw.start_date, dateISO(0)),
+    end_date: text(raw.end_date, dateISO(6)),
+    summary: text(raw.summary, "Your ShapeCue plan is ready."),
+    coach_reasoning: text(raw.coach_reasoning, "Built from your goals, schedule, preferences, and recent logs."),
+    safety_note: text(raw.safety_note, "Use controlled form and stop movements that cause sharp or increasing pain."),
+    weekly_structure: safeArray(raw.weekly_structure),
+    targets: safeArray(raw.targets).slice(0, 10),
     water_goal: {
-      target_liters: normalizeNumber(plan.water_goal?.target_liters, userData.water_settings?.target_liters || 2),
-      bottle_size_ml: normalizeNumber(plan.water_goal?.bottle_size_ml, userData.water_settings?.bottle_size_ml || 1000),
-      bottles_per_day: normalizeNumber(plan.water_goal?.bottles_per_day, userData.water_settings?.bottles_per_day || 2),
-      note: normalizeText(plan.water_goal?.note, "Sip consistently through the day.")
+      target_liters: number(raw.water_goal?.target_liters, data.water_settings?.daily_target_liters || 2),
+      bottle_size_ml: number(raw.water_goal?.bottle_size_ml, data.water_settings?.bottle_size_ml || 1000),
+      bottles_per_day: number(raw.water_goal?.bottles_per_day, 2),
+      note: text(raw.water_goal?.note, "Sip consistently through the day.")
     },
-    daily_schedule: sanitizeDailySchedule(plan.daily_schedule),
-    workouts: sanitizeWorkouts(plan.workouts, userData.approved_exercise_library),
+    daily_schedule: sanitizeDailySchedule(raw.daily_schedule),
+    workouts: sanitizeWorkouts(raw.workouts, data.approved_exercise_library),
     meal_prep_plan: {
-      prep_day: normalizeText(plan.meal_prep_plan?.prep_day, "Saturday"),
-      fridge_items: safeArray(plan.meal_prep_plan?.fridge_items),
-      freezer_items: safeArray(plan.meal_prep_plan?.freezer_items),
-      fresh_items: safeArray(plan.meal_prep_plan?.fresh_items),
-      packing_notes: safeArray(plan.meal_prep_plan?.packing_notes)
+      prep_day: text(raw.meal_prep_plan?.prep_day, "Saturday"),
+      fridge_items: safeArray(raw.meal_prep_plan?.fridge_items),
+      freezer_items: safeArray(raw.meal_prep_plan?.freezer_items),
+      fresh_items: safeArray(raw.meal_prep_plan?.fresh_items),
+      packing_notes: safeArray(raw.meal_prep_plan?.packing_notes)
     },
-    grocery_list: safeArray(plan.grocery_list),
-    bloating_control: safeArray(plan.bloating_control),
-    daily_checklist: safeArray(plan.daily_checklist),
-    weekly_focus: safeArray(plan.weekly_focus),
-    ai_adjustments: safeArray(plan.ai_adjustments),
+    grocery_list: safeArray(raw.grocery_list),
+    bloating_control: safeArray(raw.bloating_control),
+    daily_checklist: safeArray(raw.daily_checklist),
+    weekly_focus: safeArray(raw.weekly_focus),
+    ai_adjustments: safeArray(raw.ai_adjustments),
     feature_locks: {
+      ...safeObject(raw.feature_locks),
       pdf_export: tier.code === "free",
-      progress_photos: tier.code === "free",
-      smart_replacements: tier.code !== "premium_plus",
-      ...(safeObject(plan.feature_locks))
+      progress_photos: progressPhotosLocked,
+      smart_replacements: smartReplacementsLocked
     }
   };
 
-  clean.safety_flags = buildSafetyFlags(clean, userData);
-
-  return clean;
+  plan.safety_flags = safetyFlags(plan, data);
+  return plan;
 }
 
 function validatePlan(plan) {
-  if (!plan || typeof plan !== "object") {
-    throw new Error("AI returned empty plan.");
-  }
-
-  if (!plan.daily_schedule || typeof plan.daily_schedule !== "object") {
-    throw new Error("AI returned JSON, but daily_schedule is missing.");
-  }
-
-  if (!plan.workouts || typeof plan.workouts !== "object") {
-    throw new Error("AI returned JSON, but workouts are missing.");
-  }
-
+  if (!plan || typeof plan !== "object") throw new Error("AI returned an empty plan.");
   for (const day of DAYS) {
-    if (!Array.isArray(plan.daily_schedule[day])) {
-      throw new Error(`AI returned JSON, but ${day} schedule is missing.`);
+    if (!Array.isArray(plan.daily_schedule?.[day])) {
+      throw new Error(`AI plan is missing the ${day} schedule.`);
     }
   }
-
   for (const key of ["push", "legs", "pull", "mobility"]) {
-    if (!Array.isArray(plan.workouts[key])) {
-      throw new Error(`AI returned JSON, but ${key} workout is missing.`);
+    if (!Array.isArray(plan.workouts?.[key])) {
+      throw new Error(`AI plan is missing the ${key} workout.`);
     }
   }
+}
 
-  return true;
+async function failAndRefund(db, requestId, userId, errorMessage, responsePayload = null) {
+  if (!db || !requestId || !userId) return null;
+  const { data, error } = await db.rpc("fail_ai_plan_request_and_refund", {
+    p_request_id: requestId,
+    p_user_id: userId,
+    p_error_message: String(errorMessage || "Plan generation failed."),
+    p_response_payload: responsePayload
+  });
+
+  if (error) {
+    console.error("Secure failure/refund RPC failed:", error);
+    await db
+      .from("ai_requests")
+      .update({ status: "failed", error_message: String(errorMessage || "Plan generation failed.") })
+      .eq("id", requestId)
+      .eq("user_id", userId);
+    return null;
+  }
+  return data || null;
 }
 
 export async function handler(event) {
   if (event.httpMethod === "OPTIONS") {
     return { statusCode: 200, headers: CORS_HEADERS, body: "" };
   }
-
   if (event.httpMethod !== "POST") {
     return jsonResponse(405, { ok: false, error: "Use POST." });
   }
 
-  let aiRequestId = null;
   let db = null;
+  let requestId = null;
+  let userId = null;
 
   try {
     const openaiKey = process.env.OPENAI_API_KEY;
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
     if (!openaiKey) return jsonResponse(500, { ok: false, error: "OPENAI_API_KEY missing in Netlify." });
     if (!serviceRoleKey) return jsonResponse(500, { ok: false, error: "SUPABASE_SERVICE_ROLE_KEY missing in Netlify." });
 
     let body = {};
     try { body = JSON.parse(event.body || "{}"); } catch { body = {}; }
-    aiRequestId = body.request_id || body.ai_request_id || null;
-
-    if (!aiRequestId) {
-      return jsonResponse(400, { ok: false, error: "request_id missing." });
-    }
+    requestId = body.request_id || body.ai_request_id || null;
+    if (!requestId) return jsonResponse(400, { ok: false, error: "request_id missing." });
 
     db = createClient(SUPABASE_URL, serviceRoleKey, {
       auth: { persistSession: false, autoRefreshToken: false }
     });
 
     const user = await getUserFromToken(db, event);
-    const userId = user.id;
+    userId = user.id;
 
-    const existingReq = await db
+    const requestRes = await db
       .from("ai_requests")
       .select("*")
-      .eq("id", aiRequestId)
+      .eq("id", requestId)
       .eq("user_id", userId)
       .maybeSingle();
 
-    if (existingReq.error) throw existingReq.error;
-    if (!existingReq.data) return jsonResponse(404, { ok: false, error: "AI request not found." });
-    if (existingReq.data.status === "completed") return jsonResponse(200, { ok: true, status: "completed" });
+    if (requestRes.error) throw requestRes.error;
+    if (!requestRes.data) return jsonResponse(404, { ok: false, error: "AI request not found." });
 
-    await db
-      .from("ai_requests")
-      .update({ status: "processing", error_message: null })
-      .eq("id", aiRequestId);
+    const requestRow = requestRes.data;
+    const access = requestRow.prompt_payload?.access || {};
+    const requestSource = String(access.request_source || "");
 
-    const admin = await isAdmin(db, userId);
+    if (!["admin_manual", "addon_credit", "scheduled_auto"].includes(requestSource)) {
+      const err = new Error("This AI request was not authorized by ShapeCue.");
+      err.statusCode = 403;
+      throw err;
+    }
+
+    if (requestRow.status === "completed") {
+      return jsonResponse(200, { ok: true, status: "completed" });
+    }
+    if (requestRow.status === "failed") {
+      return jsonResponse(409, { ok: false, status: "failed", error: requestRow.error_message || "AI request failed." });
+    }
+
+    const { data: claim, error: claimError } = await db.rpc("claim_ai_plan_request", {
+      p_request_id: requestId,
+      p_user_id: userId
+    });
+    if (claimError) throw claimError;
+
+    if (!claim?.claimed) {
+      if (claim?.status === "completed") return jsonResponse(200, { ok: true, status: "completed" });
+      if (claim?.status === "failed") return jsonResponse(409, { ok: false, status: "failed", error: "AI request failed." });
+      return jsonResponse(202, {
+        ok: true,
+        status: claim?.status || "processing",
+        already_processing: true,
+        message: "Your AI coach is already generating this plan."
+      });
+    }
+
     const entitlement = await ensureEntitlement(db, userId);
     const tier = planTierInfo(entitlement);
-    const usageLimit = await readUsageLimit(db, tier.code);
-    const monthlyUsed = await countMonthlyPlanGenerations(db, userId);
-    const monthlyLimit = Number(usageLimit.weekly_plan_generations_per_month || 0);
-
-    if (!admin && monthlyLimit > 0 && monthlyUsed > monthlyLimit) {
-      throw new Error(`${tier.label} plan allows ${monthlyLimit} AI plan generation${monthlyLimit === 1 ? "" : "s"} per month.`);
-    }
-
     const userData = await readUserData(db, userId);
 
-    if (!userData.profile || !userData.profile.onboarding_completed) {
-      throw new Error("Onboarding is not completed.");
-    }
-
+    if (!userData.profile?.onboarding_completed) throw new Error("Onboarding is not completed.");
     if (!userData.approved_exercise_library.length) {
-      throw new Error("Exercise library is empty. Add exercises first before generating a workout plan.");
+      throw new Error("Exercise library is empty. Add approved exercises before generating a workout plan.");
     }
 
-    const usageInfo = {
+    const requestInfo = {
+      request_source: requestSource,
       plan_code: tier.code,
       plan_name: tier.label,
       generation_type: tier.generationType,
-      is_admin_bypass: admin,
-      monthly_used: monthlyUsed,
-      monthly_limit: monthlyLimit,
-      remaining_this_month: admin ? "admin_bypass" : Math.max(0, monthlyLimit - monthlyUsed),
-      exercise_library_mode: userData.exercise_library_status?.mode || "unknown",
-      plan_ready_exercises: userData.exercise_library_status?.plan_ready || 0,
-      ai_exercises_available: userData.exercise_library_status?.used_for_ai || 0
+      admin_manual: requestSource === "admin_manual",
+      extra_addon_used: requestSource === "addon_credit",
+      scheduled_membership_update: requestSource === "scheduled_auto",
+      exercise_library_mode: userData.exercise_library_status.mode,
+      exercises_available: userData.exercise_library_status.used_for_ai
     };
 
-    const inputSummary = buildInputSummary(userData, entitlement, usageInfo);
+    const inputSummary = {
+      plan_code: tier.code,
+      request_source: requestSource,
+      profile: {
+        gender: userData.profile.gender || null,
+        date_of_birth: userData.profile.date_of_birth || null,
+        goals: userData.profile.main_goals || userData.profile.main_goal || null,
+        body_type: userData.profile.body_type || null
+      },
+      data_counts: {
+        measurements: userData.measurements.length,
+        daily_logs: userData.daily_logs.length,
+        meal_logs: userData.meal_logs.length,
+        workout_sessions: userData.workout_sessions.length,
+        exercise_logs: userData.exercise_logs.length,
+        pain_logs: userData.pain_logs.length
+      }
+    };
 
     await db
       .from("ai_requests")
       .update({
         model: MODEL,
         prompt_payload: {
+          ...(requestRow.prompt_payload || {}),
           entitlement,
-          usage: usageInfo,
+          request_info: requestInfo,
           input_summary: inputSummary,
           compact_user_data: buildAiUserData(userData)
         }
       })
-      .eq("id", aiRequestId);
+      .eq("id", requestId)
+      .eq("user_id", userId);
 
     const openaiResponse = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
@@ -1222,78 +780,56 @@ export async function handler(event) {
       },
       body: JSON.stringify({
         model: MODEL,
-        input: buildPrompt(userData, entitlement, usageInfo),
+        input: buildPrompt(userData, entitlement, requestInfo),
         text: { format: { type: "json_object" } },
         max_output_tokens: tier.maxOutputTokens
       })
     });
 
     const openaiData = await openaiResponse.json();
-
     if (!openaiResponse.ok) {
-      await db
-        .from("ai_requests")
-        .update({ status: "failed", error_message: JSON.stringify(openaiData) })
-        .eq("id", aiRequestId);
-      return jsonResponse(openaiResponse.status, { ok: false, error: openaiData });
+      const err = new Error(openaiData?.error?.message || `OpenAI request failed (${openaiResponse.status}).`);
+      err.statusCode = openaiResponse.status;
+      err.responsePayload = openaiData;
+      throw err;
     }
 
     const outputText = getOutputText(openaiData);
     let parsed;
-
     try {
       parsed = extractJson(outputText);
     } catch (parseError) {
-      await db
-        .from("ai_requests")
-        .update({
-          status: "failed",
-          error_message: "AI returned invalid JSON. Output may have been cut or malformed.",
-          response_payload: {
-            parse_error: parseError.message || "JSON parse failed",
-            openai_status: openaiData.status || null,
-            incomplete_details: openaiData.incomplete_details || null,
-            openai_usage: openaiData.usage || null,
-            output_length: String(outputText || "").length,
-            raw_output_preview: String(outputText || "").slice(0, 12000),
-            raw_output_end: String(outputText || "").slice(-12000),
-            usage: openaiData.usage || null
-          },
-          input_tokens: openaiData.usage?.input_tokens || null,
-          output_tokens: openaiData.usage?.output_tokens || null
-        })
-        .eq("id", aiRequestId);
-      throw new Error("AI returned invalid JSON. Try lower detail or higher output tokens.");
+      const err = new Error("AI returned invalid JSON. The add-on will be returned when applicable.");
+      err.responsePayload = {
+        parse_error: parseError.message || "JSON parse failed",
+        openai_status: openaiData.status || null,
+        incomplete_details: openaiData.incomplete_details || null,
+        output_length: outputText.length,
+        raw_output_preview: outputText.slice(0, 12000),
+        raw_output_end: outputText.slice(-12000),
+        usage: openaiData.usage || null
+      };
+      throw err;
     }
 
-    const rawPlan = parsed.next_week_plan || parsed;
-    const plan = sanitizePlan(rawPlan, userData, entitlement);
+    const plan = sanitizePlan(parsed.next_week_plan || parsed, userData, entitlement);
     validatePlan(plan);
-
-    const weekStart = plan.start_date || dateISO(0);
-    const weekEnd = plan.end_date || dateISO(6);
-
-    await db
-      .from("weekly_plans")
-      .update({ status: "archived" })
-      .eq("user_id", userId)
-      .eq("status", "active");
 
     const savedPlanRes = await db
       .from("weekly_plans")
       .insert({
         user_id: userId,
-        week_start: weekStart,
-        week_end: weekEnd,
-        title: plan.title || "ShapeCue Coach Plan",
+        week_start: plan.start_date || dateISO(0),
+        week_end: plan.end_date || dateISO(6),
+        title: plan.title,
         status: "active",
         plan_json: plan,
-        ai_summary: plan.summary || "",
+        ai_summary: plan.summary,
         generated_by: "ai",
         is_premium_plan: tier.isPremium,
         plan_code: tier.code,
         generation_type: tier.generationType,
-        entitlement_id: entitlement?.id || null,
+        entitlement_id: entitlement.id || null,
         model_used: MODEL,
         input_summary: inputSummary,
         safety_flags: plan.safety_flags || []
@@ -1304,45 +840,82 @@ export async function handler(event) {
     if (savedPlanRes.error) throw savedPlanRes.error;
 
     await db
+      .from("weekly_plans")
+      .update({ status: "archived" })
+      .eq("user_id", userId)
+      .eq("status", "active")
+      .neq("id", savedPlanRes.data.id);
+
+    const completeRes = await db
       .from("ai_requests")
       .update({
         status: "completed",
+        error_message: null,
         response_payload: {
+          ...(requestRow.response_payload || {}),
           plan_id: savedPlanRes.data.id,
-          plan_title: plan.title || "ShapeCue Coach Plan",
-          plan_summary: plan.summary || "",
+          plan_title: plan.title,
+          plan_summary: plan.summary,
+          request_source: requestSource,
           completed_at: new Date().toISOString(),
           usage: openaiData.usage || null
         },
         input_tokens: openaiData.usage?.input_tokens || null,
         output_tokens: openaiData.usage?.output_tokens || null
       })
-      .eq("id", aiRequestId);
+      .eq("id", requestId)
+      .eq("user_id", userId);
+
+    if (completeRes.error) throw completeRes.error;
+
+    if (requestSource === "scheduled_auto") {
+      const next = new Date();
+      if (tier.code === "plus") next.setUTCMonth(next.getUTCMonth() + 1);
+      if (tier.code === "premium") next.setUTCDate(next.getUTCDate() + 14);
+      if (tier.code === "coach") next.setUTCDate(next.getUTCDate() + 7);
+
+      await db
+        .from("profiles")
+        .update({
+          last_auto_plan_update_at: new Date().toISOString(),
+          next_plan_update_at: next.toISOString(),
+          auto_plan_update_status: "scheduled"
+        })
+        .eq("id", userId);
+    }
 
     return jsonResponse(200, {
       ok: true,
       status: "completed",
       plan_id: savedPlanRes.data.id,
+      request_source: requestSource,
       message: `${tier.label} coach plan generated and saved.`
     });
-
   } catch (error) {
     console.error(error);
 
-    if (db && aiRequestId) {
+    let failure = null;
+    if (db && requestId && userId) {
       try {
-        await db
-          .from("ai_requests")
-          .update({ status: "failed", error_message: error.message || "Plan generation failed." })
-          .eq("id", aiRequestId);
-      } catch {
-        // ignore logging failure
+        failure = await failAndRefund(
+          db,
+          requestId,
+          userId,
+          error.message || "Plan generation failed.",
+          error.responsePayload || null
+        );
+      } catch (refundError) {
+        console.error("Could not record failure/refund:", refundError);
       }
     }
 
     return jsonResponse(error.statusCode || 500, {
       ok: false,
-      error: error.message || "Plan generation failed."
+      error: error.message || "Plan generation failed.",
+      credit_refunded: Boolean(failure?.refunded),
+      extra_updates_remaining: Number.isFinite(Number(failure?.extra_updates_remaining))
+        ? Number(failure.extra_updates_remaining)
+        : null
     });
   }
 }
