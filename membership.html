@@ -1,11 +1,20 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="dark" data-ui-version="approved-membership-v2">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="color-scheme" content="dark light" />
   <title>ShapeCue - Membership</title>
 
+  <script>
+    (() => {
+      const saved = localStorage.getItem("shapecue.theme") || "system";
+      const resolved = saved === "system"
+        ? (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark")
+        : saved;
+      document.documentElement.dataset.theme = resolved;
+    })();
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
@@ -836,6 +845,493 @@
         font-size:28px;
       }
     }
+  
+    /* =========================================================
+       SHAPECUE APPROVED MEMBERSHIP UI V2
+       Matches the approved app and settings visual system.
+    ========================================================= */
+
+    [hidden]{
+      display:none !important;
+    }
+
+    :root{
+      --approved-bg:#050506;
+      --approved-bg-top:#0A0A0C;
+    }
+
+    html[data-theme="light"]{
+      --approved-bg:#F2F2F5;
+      --approved-bg-top:#F8F8FA;
+    }
+
+    body{
+      background:
+        radial-gradient(circle at 50% -14%,rgba(255,255,255,.07),transparent 30%),
+        linear-gradient(180deg,var(--approved-bg-top),var(--approved-bg) 24%,var(--approved-bg)) !important;
+    }
+
+    html[data-theme="light"] body{
+      background:
+        radial-gradient(circle at 50% -12%,rgba(255,255,255,.95),transparent 31%),
+        linear-gradient(180deg,var(--approved-bg-top),var(--approved-bg) 24%,var(--approved-bg)) !important;
+    }
+
+    .shell{
+      max-width:430px !important;
+      padding:0 16px calc(30px + env(safe-area-inset-bottom)) !important;
+    }
+
+    .topbar{
+      height:54px !important;
+      margin:0 -16px !important;
+      padding:7px 16px !important;
+      display:flex !important;
+      align-items:center !important;
+      background:linear-gradient(180deg,rgba(5,5,6,.94),rgba(5,5,6,.78)) !important;
+      border-bottom:1px solid rgba(255,255,255,.045) !important;
+      box-shadow:none !important;
+      backdrop-filter:blur(22px) saturate(150%) !important;
+      -webkit-backdrop-filter:blur(22px) saturate(150%) !important;
+    }
+
+    html[data-theme="light"] .topbar{
+      background:linear-gradient(180deg,rgba(248,248,250,.94),rgba(248,248,250,.78)) !important;
+      border-bottom-color:rgba(0,0,0,.045) !important;
+    }
+
+    .toprow{
+      width:100% !important;
+      min-height:40px !important;
+      grid-template-columns:72px 1fr 72px !important;
+    }
+
+    .back-btn{
+      min-height:36px !important;
+      gap:7px !important;
+      font-size:13px !important;
+      padding:4px 0 !important;
+    }
+
+    .back-arrow{
+      width:9px;
+      height:9px;
+      display:inline-block;
+      border-left:2px solid currentColor;
+      border-bottom:2px solid currentColor;
+      transform:rotate(45deg);
+      margin-left:3px;
+    }
+
+    .top-title{
+      font-size:14px !important;
+      letter-spacing:-.2px !important;
+    }
+
+    /* Page title, not a giant card. */
+    .hero{
+      margin:0 !important;
+      padding:18px 2px 11px !important;
+      border:0 !important;
+      border-radius:0 !important;
+      background:transparent !important;
+      box-shadow:none !important;
+    }
+
+    .hero h1{
+      font-size:29px !important;
+      line-height:1.04 !important;
+      letter-spacing:-1.05px !important;
+    }
+
+    .hero p{
+      margin-top:6px !important;
+      max-width:330px !important;
+      font-size:12px !important;
+      line-height:1.4 !important;
+    }
+
+    .hero-chips{
+      gap:6px !important;
+      margin-top:10px !important;
+    }
+
+    .chip{
+      padding:5px 8px !important;
+      font-size:9px !important;
+    }
+
+    #membershipContent{
+      animation:membershipContentIn .18s ease;
+    }
+
+    @keyframes membershipContentIn{
+      from{
+        opacity:.45;
+        transform:translateY(3px);
+      }
+      to{
+        opacity:1;
+        transform:none;
+      }
+    }
+
+    .section-label{
+      margin:18px 4px 7px !important;
+      font-size:9.5px !important;
+      letter-spacing:.7px !important;
+    }
+
+    .current-card,
+    .plan-card,
+    .compare-card,
+    .promo-card,
+    .note-card{
+      border:1px solid var(--line) !important;
+      background:var(--surface) !important;
+      box-shadow:none !important;
+    }
+
+    .current-card{
+      border-radius:20px !important;
+      padding:13px !important;
+    }
+
+    .current-copy h2{
+      font-size:19px !important;
+      letter-spacing:-.5px !important;
+    }
+
+    .current-copy p{
+      margin-top:4px !important;
+      font-size:10.8px !important;
+    }
+
+    .current-pill{
+      padding:6px 9px !important;
+      font-size:9.5px !important;
+    }
+
+    .current-meta{
+      gap:7px !important;
+      margin-top:11px !important;
+    }
+
+    .meta-row{
+      padding-top:7px !important;
+      font-size:10.8px !important;
+    }
+
+    .meta-row strong{
+      font-size:10.8px !important;
+    }
+
+    .action-grid{
+      gap:7px !important;
+      margin-top:10px !important;
+    }
+
+    .btn{
+      min-height:40px !important;
+      border-radius:13px !important;
+      padding:8px 10px !important;
+      font-size:11px !important;
+    }
+
+    .billing-toggle{
+      padding:4px !important;
+      border-radius:15px !important;
+      background:var(--surface) !important;
+    }
+
+    .billing-toggle button{
+      min-height:35px !important;
+      border-radius:10px !important;
+      font-size:10.5px !important;
+    }
+
+    .billing-toggle button.active{
+      background:var(--surface-2) !important;
+      box-shadow:0 2px 8px rgba(0,0,0,.08) !important;
+    }
+
+    .save-pill{
+      padding:2px 5px !important;
+      font-size:8px !important;
+    }
+
+    .plans{
+      gap:9px !important;
+      margin-top:8px !important;
+    }
+
+    .plan-card{
+      border-radius:20px !important;
+      padding:13px !important;
+    }
+
+    .plan-card.recommended{
+      border-color:color-mix(in srgb,var(--purple) 34%,var(--line)) !important;
+    }
+
+    .plan-card.current{
+      border-color:color-mix(in srgb,var(--green) 34%,var(--line)) !important;
+    }
+
+    .plan-ribbon{
+      top:10px !important;
+      right:10px !important;
+      padding:4px 7px !important;
+      font-size:8.5px !important;
+    }
+
+    .plan-head{
+      padding-right:76px !important;
+    }
+
+    .plan-head h3{
+      font-size:17px !important;
+      letter-spacing:-.4px !important;
+    }
+
+    .plan-head p{
+      margin-top:4px !important;
+      font-size:10.5px !important;
+      line-height:1.38 !important;
+    }
+
+    .price-row{
+      gap:5px !important;
+      margin-top:10px !important;
+    }
+
+    .price{
+      font-size:27px !important;
+      letter-spacing:-1px !important;
+    }
+
+    .price-unit{
+      padding-bottom:2px !important;
+      font-size:10px !important;
+    }
+
+    .yearly-note{
+      margin-top:4px !important;
+      font-size:9.5px !important;
+    }
+
+    .feature-list{
+      gap:6px !important;
+      margin-top:11px !important;
+    }
+
+    .feature{
+      grid-template-columns:16px 1fr !important;
+      gap:7px !important;
+      font-size:10.6px !important;
+      line-height:1.35 !important;
+    }
+
+    .feature-mark{
+      width:16px !important;
+      height:16px !important;
+      font-size:8.5px !important;
+    }
+
+    .plan-action{
+      margin-top:11px !important;
+    }
+
+    .compare-card{
+      border-radius:20px !important;
+    }
+
+    .compare-head{
+      padding:12px !important;
+    }
+
+    .compare-head h3{
+      font-size:16px !important;
+    }
+
+    .compare-head p{
+      margin-top:4px !important;
+      font-size:10.5px !important;
+    }
+
+    .compare-table{
+      min-width:630px !important;
+      font-size:10px !important;
+    }
+
+    .compare-table th,
+    .compare-table td{
+      padding:9px 8px !important;
+    }
+
+    .compare-table th:first-child,
+    .compare-table td:first-child{
+      width:165px !important;
+    }
+
+    .promo-card{
+      border-radius:20px !important;
+      padding:12px !important;
+    }
+
+    .promo-card h3{
+      font-size:16px !important;
+    }
+
+    .promo-card p{
+      margin-top:4px !important;
+      font-size:10.5px !important;
+    }
+
+    .promo-row{
+      gap:7px !important;
+      margin-top:10px !important;
+    }
+
+    .field label{
+      margin-bottom:5px !important;
+      font-size:10px !important;
+    }
+
+    .input{
+      min-height:42px !important;
+      padding:9px 11px !important;
+      border-radius:13px !important;
+      font-size:12px !important;
+    }
+
+    .promo-msg{
+      margin-top:7px !important;
+      font-size:10.3px !important;
+    }
+
+    .note-card{
+      margin-top:9px !important;
+      border-radius:17px !important;
+      padding:10px !important;
+      font-size:9.8px !important;
+      line-height:1.43 !important;
+    }
+
+    .loader{
+      min-height:52vh !important;
+    }
+
+    .modal{
+      align-items:flex-end !important;
+      padding:10px 12px calc(10px + env(safe-area-inset-bottom)) !important;
+      background:rgba(0,0,0,.54) !important;
+      backdrop-filter:blur(10px) !important;
+      -webkit-backdrop-filter:blur(10px) !important;
+    }
+
+    .sheet{
+      max-width:430px !important;
+      max-height:min(86dvh,760px) !important;
+      border-radius:25px !important;
+      padding:14px !important;
+      background:rgba(24,24,27,.92) !important;
+      border:1px solid rgba(255,255,255,.15) !important;
+      box-shadow:0 24px 70px rgba(0,0,0,.48) !important;
+      backdrop-filter:blur(30px) saturate(170%) !important;
+      -webkit-backdrop-filter:blur(30px) saturate(170%) !important;
+      overscroll-behavior:contain !important;
+    }
+
+    html[data-theme="light"] .sheet{
+      background:rgba(255,255,255,.92) !important;
+      border-color:rgba(255,255,255,.74) !important;
+      box-shadow:0 18px 50px rgba(0,0,0,.14) !important;
+    }
+
+    .sheet-head{
+      position:sticky !important;
+      top:-14px !important;
+      z-index:3 !important;
+      margin:-14px -14px 10px !important;
+      padding:14px !important;
+      background:inherit !important;
+      border-bottom:1px solid var(--line) !important;
+    }
+
+    .sheet-head h3{
+      font-size:18px !important;
+    }
+
+    .sheet-head p{
+      font-size:10.8px !important;
+    }
+
+    .close-btn{
+      width:34px !important;
+      height:34px !important;
+      display:grid !important;
+      place-items:center !important;
+      line-height:1 !important;
+    }
+
+    .sheet-plan{
+      border-radius:16px !important;
+      padding:10px !important;
+    }
+
+    .sheet-plan strong{
+      font-size:14px !important;
+    }
+
+    .sheet-plan span,
+    .sheet-list div{
+      font-size:10.5px !important;
+    }
+
+    .sheet-list{
+      gap:7px !important;
+      margin-top:10px !important;
+    }
+
+    .sheet-list div{
+      border-radius:12px !important;
+      padding:8px !important;
+    }
+
+    .sheet-actions{
+      gap:7px !important;
+      margin-top:10px !important;
+    }
+
+    .toast{
+      bottom:calc(18px + env(safe-area-inset-bottom)) !important;
+      font-size:11px !important;
+    }
+
+    @media(max-width:390px){
+      .shell{
+        padding-left:13px !important;
+        padding-right:13px !important;
+      }
+
+      .topbar{
+        margin-left:-13px !important;
+        margin-right:-13px !important;
+        padding-left:13px !important;
+        padding-right:13px !important;
+      }
+
+      .action-grid,
+      .sheet-actions{
+        grid-template-columns:1fr !important;
+      }
+
+      .promo-row{
+        grid-template-columns:1fr !important;
+      }
+    }
+
   </style>
 </head>
 
@@ -844,7 +1340,7 @@
     <main class="shell">
       <header class="topbar">
         <div class="toprow">
-          <button class="back-btn" id="backBtn" type="button">&lsaquo; Back</button>
+          <button class="back-btn" id="backBtn" type="button"><span class="back-arrow" aria-hidden="true"></span>Back</button>
           <div class="top-title">Membership</div>
           <div class="top-spacer"></div>
         </div>
@@ -852,10 +1348,7 @@
 
       <section class="hero">
         <h1>Choose your coaching level</h1>
-        <p>
-          Start free, get monthly guidance with Plus, deeper updates with Premium,
-          or weekly AI coaching with Coach.
-        </p>
+        <p>Pick the update frequency and coaching depth that fits you.</p>
         <div class="hero-chips">
           <span class="chip green">Cancel anytime after billing is connected</span>
           <span class="chip purple">Promo codes supported now</span>
@@ -1334,8 +1827,14 @@
 
       renderAll();
 
-      $("#pageLoader").hidden = true;
-      $("#membershipContent").hidden = false;
+      const loader = $("#pageLoader");
+      const content = $("#membershipContent");
+
+      loader.hidden = true;
+      loader.style.display = "none";
+
+      content.hidden = false;
+      content.style.display = "block";
     }
 
     function renderAll(){
