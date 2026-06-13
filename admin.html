@@ -1,401 +1,940 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark" data-ui-version="approved-admin-v1">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark light" />
   <title>ShapeCue - Admin</title>
+
+  <script>
+    (() => {
+      const saved = localStorage.getItem("shapecue.theme") || "system";
+      const resolved = saved === "system"
+        ? (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark")
+        : saved;
+      document.documentElement.dataset.theme = resolved;
+    })();
+  </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root{
-      --bg:#070A0F;
-      --bg2:#0B1220;
-      --line:rgba(255,255,255,.13);
-      --text:#F8FAFC;
-      --muted:#94A3B8;
-      --muted2:#64748B;
-      --green:#22C55E;
-      --blue:#38BDF8;
-      --amber:#F59E0B;
-      --red:#EF4444;
-      --purple:#A78BFA;
-      --shadow:0 24px 70px rgba(0,0,0,.38);
-      --radius:26px;
+      --bg:#050506;
+      --bg-top:#0A0A0C;
+      --surface:#111114;
+      --surface-2:#18181C;
+      --surface-3:#222228;
+      --glass:rgba(28,28,32,.72);
+      --glass-strong:rgba(28,28,32,.92);
+      --text:#F8F8FA;
+      --muted:#A5A5AD;
+      --muted-2:#72727B;
+      --line:rgba(255,255,255,.085);
+      --line-strong:rgba(255,255,255,.15);
+      --green:#35D46F;
+      --green-soft:rgba(53,212,111,.12);
+      --blue:#5AAEFF;
+      --blue-soft:rgba(90,174,255,.11);
+      --amber:#FFB340;
+      --amber-soft:rgba(255,179,64,.12);
+      --red:#FF6259;
+      --red-soft:rgba(255,98,89,.11);
+      --purple:#BF5AF2;
+      --purple-soft:rgba(191,90,242,.11);
+      --shadow:0 18px 46px rgba(0,0,0,.42);
       --max:760px;
     }
 
-    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    html{scroll-behavior:smooth}
+    html[data-theme="light"]{
+      --bg:#F2F2F5;
+      --bg-top:#F8F8FA;
+      --surface:#FFFFFF;
+      --surface-2:#F2F2F5;
+      --surface-3:#E8E8ED;
+      --glass:rgba(255,255,255,.64);
+      --glass-strong:rgba(255,255,255,.92);
+      --text:#111114;
+      --muted:#66666E;
+      --muted-2:#8D8D95;
+      --line:rgba(0,0,0,.075);
+      --line-strong:rgba(0,0,0,.13);
+      --green:#20B95A;
+      --green-soft:rgba(32,185,90,.10);
+      --blue:#007AFF;
+      --blue-soft:rgba(0,122,255,.09);
+      --amber:#E98600;
+      --amber-soft:rgba(233,134,0,.10);
+      --red:#FF3B30;
+      --red-soft:rgba(255,59,48,.09);
+      --purple:#AF52DE;
+      --purple-soft:rgba(175,82,222,.09);
+      --shadow:0 14px 38px rgba(0,0,0,.11);
+    }
+
+    *{
+      box-sizing:border-box;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    [hidden],
+    .hidden{
+      display:none !important;
+    }
+
+    html{
+      scroll-behavior:smooth;
+    }
+
     body{
       margin:0;
       min-height:100vh;
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;
-      background:
-        radial-gradient(circle at top left, rgba(34,197,94,.24), transparent 34%),
-        radial-gradient(circle at top right, rgba(56,189,248,.18), transparent 32%),
-        radial-gradient(circle at 70% 85%, rgba(167,139,250,.12), transparent 32%),
-        linear-gradient(180deg,var(--bg),var(--bg2));
-      color:var(--text);
+      padding-bottom:calc(78px + env(safe-area-inset-bottom));
       overflow-x:hidden;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 50% -14%,rgba(255,255,255,.07),transparent 30%),
+        linear-gradient(180deg,var(--bg-top),var(--bg) 24%,var(--bg));
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,Arial,sans-serif;
     }
 
-    button,input,select,textarea{font:inherit}
-    button{cursor:pointer}
-    a{color:inherit;text-decoration:none}
+    html[data-theme="light"] body{
+      background:
+        radial-gradient(circle at 50% -12%,rgba(255,255,255,.96),transparent 31%),
+        linear-gradient(180deg,var(--bg-top),var(--bg) 24%,var(--bg));
+    }
 
-    .page{width:100%;min-height:100vh;display:flex;justify-content:center}
-    .app-shell{width:100%;max-width:var(--max);min-height:100vh;position:relative;padding:16px 14px 110px}
+    button,
+    input,
+    select,
+    textarea{
+      font:inherit;
+    }
 
-    .glow{position:fixed;width:280px;height:280px;border-radius:999px;filter:blur(58px);opacity:.23;pointer-events:none;z-index:0}
-    .glow.one{background:var(--green);top:-110px;left:-80px}
-    .glow.two{background:var(--blue);bottom:60px;right:-100px;opacity:.17}
+    button{
+      color:inherit;
+      cursor:pointer;
+    }
+
+    a{
+      color:inherit;
+      text-decoration:none;
+    }
+
+    .page{
+      width:100%;
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+    }
+
+    .app-shell{
+      width:100%;
+      max-width:var(--max);
+      min-height:100vh;
+      padding:0 16px 30px;
+    }
 
     .topbar{
       position:sticky;
       top:0;
-      z-index:25;
-      margin:-16px -14px 12px;
-      padding:14px 14px 12px;
-      background:linear-gradient(180deg,rgba(7,10,15,.97),rgba(7,10,15,.82),rgba(7,10,15,0));
-      backdrop-filter:blur(22px) saturate(160%);
+      z-index:40;
+      height:55px;
+      margin:0 -16px;
+      padding:7px 16px;
+      display:flex;
+      align-items:center;
+      background:linear-gradient(180deg,rgba(5,5,6,.96),rgba(5,5,6,.82));
+      border-bottom:1px solid rgba(255,255,255,.045);
+      backdrop-filter:blur(22px) saturate(150%);
+      -webkit-backdrop-filter:blur(22px) saturate(150%);
     }
-    .toprow{display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .brand{display:flex;align-items:center;gap:10px;min-width:0}
-    .logo{
-      width:44px;height:44px;border-radius:17px;display:grid;place-items:center;
-      background:linear-gradient(145deg,rgba(34,197,94,.95),rgba(56,189,248,.74));
-      color:#03100A;font-weight:1000;box-shadow:0 14px 35px rgba(34,197,94,.22);flex:0 0 auto;
-    }
-    .brand h1{margin:0;font-size:18px;letter-spacing:-.45px;line-height:1.05}
-    .brand span{display:block;margin-top:3px;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:410px}
 
-    .top-actions{display:flex;gap:8px;align-items:center}
-    .pill-link,.top-pill{
-      border:1px solid rgba(255,255,255,.13);
-      background:rgba(255,255,255,.075);
-      color:var(--text);
-      padding:9px 12px;
+    html[data-theme="light"] .topbar{
+      background:linear-gradient(180deg,rgba(248,248,250,.96),rgba(248,248,250,.84));
+      border-bottom-color:rgba(0,0,0,.045);
+    }
+
+    .toprow{
+      width:100%;
+      min-height:40px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:9px;
+      min-width:0;
+    }
+
+    .logo{
+      width:32px;
+      height:32px;
+      min-width:32px;
+      border:1px solid var(--line-strong);
+      border-radius:10px;
+      display:grid;
+      place-items:center;
+      background:var(--text);
+      color:var(--bg);
+      font-size:10px;
+      font-weight:1000;
+      letter-spacing:-.2px;
+    }
+
+    .brand-copy{
+      min-width:0;
+    }
+
+    .brand h1{
+      margin:0;
+      font-size:14px;
+      line-height:1;
+      letter-spacing:-.3px;
+    }
+
+    .brand span{
+      display:block;
+      max-width:410px;
+      margin-top:3px;
+      overflow:hidden;
+      color:var(--muted-2);
+      font-size:9.5px;
+      line-height:1;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
+    .top-actions{
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+
+    .pill-link,
+    .top-pill{
+      min-height:32px;
+      padding:6px 9px;
+      border:1px solid var(--line);
       border-radius:999px;
-      font-size:12px;
+      background:var(--surface);
+      color:var(--muted);
+      font-size:9.5px;
       font-weight:900;
       white-space:nowrap;
-      backdrop-filter:blur(18px);
     }
-    .top-pill{border-color:rgba(34,197,94,.24);background:rgba(34,197,94,.10);color:#BBF7D0}
 
-    .screen{position:relative;z-index:2}
-    .hidden{display:none!important}
+    .top-pill{
+      border-color:rgba(255,98,89,.20);
+      background:var(--red-soft);
+      color:var(--red);
+    }
 
-    .hero{
-      border:1px solid rgba(34,197,94,.20);
-      background:
-        radial-gradient(circle at top right,rgba(34,197,94,.18),transparent 42%),
-        linear-gradient(180deg,rgba(255,255,255,.095),rgba(255,255,255,.045));
-      border-radius:30px;
-      padding:17px;
-      box-shadow:var(--shadow);
-      backdrop-filter:blur(24px) saturate(170%);
+    .screen{
+      position:relative;
+      z-index:2;
+    }
+
+    .page-heading{
+      padding:17px 2px 10px;
+    }
+
+    .page-heading h2{
+      margin:0;
+      font-size:29px;
+      line-height:1.04;
+      letter-spacing:-1.05px;
+    }
+
+    .page-heading p{
+      margin:6px 0 0;
+      max-width:610px;
+      color:var(--muted);
+      font-size:11.5px;
+      line-height:1.43;
+    }
+
+    .chips-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin-top:9px;
+    }
+
+    .tag,
+    .status-pill{
+      padding:5px 8px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:var(--surface);
+      color:var(--muted);
+      font-size:8.8px;
+      font-weight:950;
+      white-space:nowrap;
+    }
+
+    .tag.green,
+    .status-pill{
+      border-color:rgba(53,212,111,.22);
+      background:var(--green-soft);
+      color:var(--green);
+    }
+
+    .tag.blue,
+    .status-pill.blue{
+      border-color:rgba(90,174,255,.22);
+      background:var(--blue-soft);
+      color:var(--blue);
+    }
+
+    .tag.amber,
+    .status-pill.amber{
+      border-color:rgba(255,179,64,.22);
+      background:var(--amber-soft);
+      color:var(--amber);
+    }
+
+    .tag.purple{
+      border-color:rgba(191,90,242,.22);
+      background:var(--purple-soft);
+      color:var(--purple);
+    }
+
+    .status-pill.red{
+      border-color:rgba(255,98,89,.22);
+      background:var(--red-soft);
+      color:var(--red);
+    }
+
+    .stats-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:7px;
+      margin-top:2px;
+    }
+
+    .stat{
+      min-width:0;
+      min-height:72px;
+      padding:10px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:var(--surface);
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      gap:8px;
+    }
+
+    .stat span{
+      color:var(--muted);
+      font-size:9.5px;
+    }
+
+    .stat strong{
       overflow:hidden;
-      margin-bottom:12px;
+      font-size:17px;
+      letter-spacing:-.4px;
+      text-overflow:ellipsis;
+      white-space:nowrap;
     }
-    .hero h2{margin:0;font-size:34px;line-height:1.02;letter-spacing:-1.3px}
-    .hero p{margin:9px 0 0;color:#CBD5E1;font-size:14px;line-height:1.45;max-width:600px}
-    .chips-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:13px}
-    .tag{border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);color:#CBD5E1;border-radius:999px;padding:7px 10px;font-size:11.5px;font-weight:900}
-    .tag.green{border-color:rgba(34,197,94,.28);background:rgba(34,197,94,.10);color:#BBF7D0}
-    .tag.blue{border-color:rgba(56,189,248,.25);background:rgba(56,189,248,.10);color:#BAE6FD}
-    .tag.amber{border-color:rgba(245,158,11,.25);background:rgba(245,158,11,.10);color:#FDE68A}
-    .tag.purple{border-color:rgba(167,139,250,.25);background:rgba(167,139,250,.10);color:#DDD6FE}
 
-    .grid{display:grid;grid-template-columns:1fr;gap:12px}
-    @media(min-width:760px){.grid.two{grid-template-columns:.86fr 1.14fr}.grid.three{grid-template-columns:repeat(3,1fr)}}
+    .quick-actions{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:6px;
+      margin-top:8px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:9px;
+    }
+
+    @media(min-width:700px){
+      .grid.two{
+        grid-template-columns:minmax(0,.88fr) minmax(0,1.12fr);
+      }
+    }
 
     .card{
-      border:1px solid var(--line);
-      background:linear-gradient(180deg,rgba(255,255,255,.105),rgba(255,255,255,.055));
-      box-shadow:var(--shadow);
-      border-radius:var(--radius);
-      padding:14px;
-      backdrop-filter:blur(24px) saturate(170%);
       overflow:hidden;
-      position:relative;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:var(--surface);
     }
-    .card:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at top right,rgba(255,255,255,.11),transparent 38%);pointer-events:none}
-    .card-inner{position:relative;z-index:1}
-    .card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}
-    .card-head h3{margin:0;font-size:18px;letter-spacing:-.35px}
-    .card-head p{margin:5px 0 0;color:var(--muted);font-size:12.5px;line-height:1.36}
 
-    .field{margin-top:10px}
-    .field label{display:block;font-size:12px;color:#CBD5E1;font-weight:900;margin:0 0 6px 3px}
-    .input,.select,.textarea{
-      width:100%;border:1px solid rgba(255,255,255,.13);background:rgba(0,0,0,.20);color:var(--text);
-      outline:none;border-radius:17px;min-height:50px;padding:12px 13px;font-size:14.5px;
+    .card-inner{
+      padding:11px;
     }
-    .textarea{min-height:82px;resize:vertical;line-height:1.4}
-    .input:focus,.select:focus,.textarea:focus{border-color:rgba(34,197,94,.55);background:rgba(0,0,0,.28)}
-    .input::placeholder,.textarea::placeholder{color:#64748B}
 
-    .row2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-    .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
-    @media(max-width:560px){.row2,.row3{grid-template-columns:1fr}}
+    .card-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:9px;
+    }
+
+    .card-head h3{
+      margin:0;
+      font-size:14px;
+      letter-spacing:-.25px;
+    }
+
+    .card-head p{
+      margin:4px 0 0;
+      color:var(--muted);
+      font-size:9.8px;
+      line-height:1.35;
+    }
+
+    .field{
+      min-width:0;
+      margin-top:9px;
+    }
+
+    .field:first-child{
+      margin-top:0;
+    }
+
+    .field label{
+      display:block;
+      margin:0 0 5px 2px;
+      color:var(--muted);
+      font-size:9.8px;
+      font-weight:850;
+    }
+
+    .input,
+    .select,
+    .textarea{
+      width:100%;
+      min-width:0;
+      min-height:42px;
+      padding:8px 10px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:var(--surface-2);
+      color:var(--text);
+      outline:none;
+      font-size:11px;
+    }
+
+    .textarea{
+      min-height:72px;
+      resize:vertical;
+      line-height:1.4;
+    }
+
+    .input:focus,
+    .select:focus,
+    .textarea:focus{
+      border-color:rgba(53,212,111,.42);
+      background:var(--surface);
+    }
+
+    .input::placeholder,
+    .textarea::placeholder{
+      color:var(--muted-2);
+    }
+
+    .row2,
+    .row3{
+      display:grid;
+      gap:7px;
+    }
+
+    .row2{
+      grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+
+    .row3{
+      grid-template-columns:repeat(3,minmax(0,1fr));
+    }
 
     .btn{
-      border:0;border-radius:18px;min-height:52px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
-      padding:13px 14px;font-weight:1000;transition:transform .16s ease,opacity .16s ease;user-select:none;
+      width:100%;
+      min-width:0;
+      min-height:40px;
+      padding:8px 10px;
+      border:1px solid transparent;
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:7px;
+      font-size:10.5px;
+      font-weight:950;
+      transition:transform .16s ease,opacity .16s ease;
     }
-    .btn:active{transform:scale(.985)}
-    .btn.primary{background:linear-gradient(135deg,var(--green),#86EFAC);color:#03100A;box-shadow:0 18px 40px rgba(34,197,94,.24)}
-    .btn.secondary{background:rgba(255,255,255,.08);border:1px solid var(--line);color:var(--text)}
-    .btn.blue{background:rgba(56,189,248,.14);border:1px solid rgba(56,189,248,.25);color:#BAE6FD}
-    .btn.amber{background:rgba(245,158,11,.14);border:1px solid rgba(245,158,11,.25);color:#FDE68A}
-    .btn.red{background:rgba(239,68,68,.14);border:1px solid rgba(239,68,68,.25);color:#FECACA}
-    .btn:disabled{opacity:.52;cursor:not-allowed;transform:none;box-shadow:none}
-    .mini-btn{border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.075);color:var(--text);border-radius:999px;padding:8px 10px;font-size:12px;font-weight:900;white-space:nowrap}
-    .mini-btn.green{border-color:rgba(34,197,94,.26);background:rgba(34,197,94,.10);color:#BBF7D0}
-    .mini-btn.red{border-color:rgba(239,68,68,.24);background:rgba(239,68,68,.10);color:#FECACA}
-    .mini-btn.blue{border-color:rgba(56,189,248,.24);background:rgba(56,189,248,.10);color:#BAE6FD}
 
-    .status{
-      display:none;margin-top:12px;border-radius:17px;padding:12px;font-size:13px;line-height:1.42;
-      border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#E2E8F0;
+    .btn:active{
+      transform:scale(.985);
     }
-    .status.show{display:block}
-    .status.good{border-color:rgba(34,197,94,.25);background:rgba(34,197,94,.09);color:#BBF7D0}
-    .status.bad{border-color:rgba(239,68,68,.25);background:rgba(239,68,68,.08);color:#FECACA}
-    .status.info{border-color:rgba(56,189,248,.24);background:rgba(56,189,248,.08);color:#BAE6FD}
 
-    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:12px}
-    @media(max-width:640px){.stats-grid{grid-template-columns:1fr 1fr}}
-    .stat{border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.16);border-radius:20px;padding:12px;min-height:86px;display:flex;flex-direction:column;justify-content:space-between;gap:10px}
-    .stat span{font-size:12px;color:var(--muted)}
-    .stat strong{font-size:22px;letter-spacing:-.6px}
-
-    .promo-list,.exercise-list{display:grid;gap:10px}
-    .promo-card,.exercise-card{border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.16);border-radius:21px;padding:12px}
-    .promo-top,.exercise-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-    .promo-code,.exercise-name{font-size:18px;font-weight:1000;letter-spacing:.2px;word-break:break-word}
-    .promo-meta,.exercise-meta{margin-top:5px;color:var(--muted);font-size:12.5px;line-height:1.4}
-    .status-pill{white-space:nowrap;border-radius:999px;padding:7px 10px;font-size:11px;font-weight:950;border:1px solid rgba(34,197,94,.28);background:rgba(34,197,94,.10);color:#BBF7D0}
-    .status-pill.red{border-color:rgba(239,68,68,.25);background:rgba(239,68,68,.10);color:#FECACA}
-    .status-pill.amber{border-color:rgba(245,158,11,.25);background:rgba(245,158,11,.10);color:#FDE68A}
-    .status-pill.blue{border-color:rgba(56,189,248,.25);background:rgba(56,189,248,.10);color:#BAE6FD}
-    .promo-actions,.exercise-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
-    @media(max-width:390px){.promo-actions,.exercise-actions{grid-template-columns:1fr}}
-
-    .media-preview{
-      width:100%;height:210px;border-radius:22px;border:1px solid rgba(255,255,255,.11);
-      background:radial-gradient(circle at 30% 10%,rgba(34,197,94,.22),transparent 42%),rgba(255,255,255,.055);
-      display:grid;place-items:center;overflow:hidden;color:#BBF7D0;margin-top:10px;
+    .btn.primary{
+      background:var(--green);
+      color:#04170A;
+      box-shadow:0 7px 17px rgba(53,212,111,.18);
     }
-    .media-preview img,.media-preview video{width:100%;height:100%;object-fit:cover}
-    .media-preview span{font-size:13px;color:var(--muted);font-weight:900}
-    .media-thumb{width:60px;height:60px;border-radius:18px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);overflow:hidden;display:grid;place-items:center;color:#BAE6FD;flex:0 0 auto}
-    .media-thumb img,.media-thumb video{width:100%;height:100%;object-fit:cover}
-    .upload-box{border:1px dashed rgba(255,255,255,.18);border-radius:18px;padding:12px;background:rgba(0,0,0,.14);margin-top:10px}
-    .checkbox-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px}
-    .check-pill{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);border-radius:16px;padding:10px;font-size:12px;font-weight:900;color:#E2E8F0;display:flex;align-items:center;gap:8px}
-    .check-pill input{accent-color:var(--green)}
-    @media(max-width:520px){.checkbox-row{grid-template-columns:1fr}}
 
-    .loader-screen{min-height:56vh;display:grid;place-items:center;text-align:center;color:var(--muted);position:relative;z-index:2}
-    .spin{width:32px;height:32px;border-radius:50%;border:3px solid rgba(255,255,255,.12);border-top-color:var(--green);margin:0 auto 12px;animation:spin .75s linear infinite}
-    @keyframes spin{to{transform:rotate(360deg)}}
-
-    .bottom-tabs{
-      position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:var(--max);z-index:40;
-      padding:9px 10px calc(9px + env(safe-area-inset-bottom));
-      pointer-events:none;
-    }
-    .tabs-glass{
-      pointer-events:auto;
-      display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;
-      border:1px solid rgba(255,255,255,.18);
-      background:rgba(255,255,255,.10);
-      backdrop-filter:blur(28px) saturate(180%);
-      box-shadow:0 20px 55px rgba(0,0,0,.35);
-      border-radius:999px;
-      padding:7px;
-    }
-    .tab{
-      min-height:48px;border:0;border-radius:999px;background:transparent;color:#CBD5E1;font-weight:1000;font-size:13px;
-      display:flex;align-items:center;justify-content:center;gap:8px;
-    }
-    .tab.active{background:rgba(255,255,255,.18);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 8px 22px rgba(0,0,0,.20)}
-
-    @media(min-width:760px){.app-shell{padding-top:22px}.hero h2{font-size:38px}}
-    @media(max-width:430px){.tab{font-size:12px}.hero h2{font-size:31px}}
-
-    /* Step Admin UI: calmer Liquid Glass + collapsed workspace */
-    :root{
-      --bg:#F5F7FB;
-      --bg2:#EAF0F8;
-      --text:#0F172A;
-      --muted:#64748B;
-      --muted2:#94A3B8;
-      --line:rgba(15,23,42,.10);
-      --green:#18C37E;
-      --blue:#0EA5E9;
-      --amber:#D97706;
-      --red:#E11D48;
-      --purple:#7C3AED;
-      --shadow:0 20px 60px rgba(15,23,42,.10);
-    }
-    body{
-      background:
-        radial-gradient(circle at 8% -8%, rgba(24,195,126,.20), transparent 32%),
-        radial-gradient(circle at 94% 0%, rgba(14,165,233,.14), transparent 28%),
-        linear-gradient(180deg,var(--bg),var(--bg2));
+    .btn.secondary{
+      border-color:var(--line);
+      background:var(--surface);
       color:var(--text);
     }
-    .glow{display:none}
-    .topbar{
-      background:linear-gradient(180deg,rgba(245,247,251,.88),rgba(245,247,251,.72),rgba(245,247,251,0));
-      backdrop-filter:blur(28px) saturate(190%);
+
+    .btn.blue{
+      border-color:rgba(90,174,255,.22);
+      background:var(--blue-soft);
+      color:var(--blue);
     }
-    .logo{
-      background:linear-gradient(145deg,rgba(255,255,255,.90),rgba(255,255,255,.50));
-      border:1px solid rgba(255,255,255,.65);
-      box-shadow:0 12px 30px rgba(15,23,42,.10), inset 0 1px 0 rgba(255,255,255,.90);
-      color:#0F172A;
+
+    .btn.amber{
+      border-color:rgba(255,179,64,.22);
+      background:var(--amber-soft);
+      color:var(--amber);
     }
-    .brand h1,.card-head h3,.promo-code,.exercise-name,.hero h2{color:#0F172A}
-    .hero,.card,.collapse-panel{
-      background:linear-gradient(180deg,rgba(255,255,255,.70),rgba(255,255,255,.38));
-      border:1px solid rgba(255,255,255,.72);
-      box-shadow:0 18px 55px rgba(15,23,42,.10), inset 0 1px 0 rgba(255,255,255,.70);
-      backdrop-filter:blur(30px) saturate(190%);
+
+    .btn.red{
+      border-color:rgba(255,98,89,.22);
+      background:var(--red-soft);
+      color:var(--red);
     }
-    .hero{padding:15px;border-radius:28px}
-    .hero h2{font-size:30px;letter-spacing:-1px}
-    .hero p{color:#475569}
-    .tag,.pill-link,.mini-btn,.top-pill{
-      background:rgba(255,255,255,.42);
-      border-color:rgba(15,23,42,.10);
-      color:#334155;
+
+    .btn:disabled{
+      opacity:.5;
+      cursor:not-allowed;
+      transform:none;
+      box-shadow:none;
     }
-    .tag.green,.top-pill,.mini-btn.green{background:rgba(24,195,126,.12);color:#047857;border-color:rgba(24,195,126,.20)}
-    .tag.blue,.mini-btn.blue{background:rgba(14,165,233,.12);color:#0369A1;border-color:rgba(14,165,233,.20)}
-    .tag.amber{background:rgba(217,119,6,.12);color:#92400E;border-color:rgba(217,119,6,.20)}
-    .tag.purple{background:rgba(124,58,237,.10);color:#5B21B6;border-color:rgba(124,58,237,.18)}
-    .input,.select,.textarea{
-      background:rgba(255,255,255,.58);
-      border-color:rgba(15,23,42,.10);
-      color:#0F172A;
-      min-height:45px;
-      border-radius:15px;
+
+    .mini-btn{
+      min-height:30px;
+      padding:5px 8px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:var(--surface);
+      color:var(--muted);
+      font-size:9px;
+      font-weight:900;
+      white-space:nowrap;
     }
-    .input:focus,.select:focus,.textarea:focus{background:rgba(255,255,255,.76);border-color:rgba(24,195,126,.36)}
-    .promo-card,.exercise-card,.stat,.upload-box,.media-preview,.check-pill{
-      background:rgba(255,255,255,.46);
-      border-color:rgba(15,23,42,.08);
-      color:#0F172A;
+
+    .mini-btn.green{
+      border-color:rgba(53,212,111,.22);
+      background:var(--green-soft);
+      color:var(--green);
     }
-    .promo-meta,.exercise-meta,.field label,.brand span,.card-head p,.stat span{color:#64748B}
-    .btn{min-height:46px;border-radius:15px}
-    .btn.primary{background:linear-gradient(135deg,#18C37E,#7AE7B7);box-shadow:0 14px 28px rgba(24,195,126,.18)}
-    .btn.secondary{background:rgba(255,255,255,.46);border-color:rgba(15,23,42,.10);color:#0F172A}
-    .btn.blue{background:rgba(14,165,233,.12);color:#0369A1;border-color:rgba(14,165,233,.20)}
-    .btn.amber{background:rgba(217,119,6,.12);color:#92400E;border-color:rgba(217,119,6,.20)}
-    .status-pill{background:rgba(24,195,126,.12);color:#047857;border-color:rgba(24,195,126,.22)}
-    .status-pill.red{background:rgba(225,29,72,.10);color:#9F1239;border-color:rgba(225,29,72,.20)}
-    .status-pill.amber{background:rgba(217,119,6,.12);color:#92400E;border-color:rgba(217,119,6,.20)}
-    .status-pill.blue{background:rgba(14,165,233,.12);color:#0369A1;border-color:rgba(14,165,233,.20)}
+
+    .mini-btn.blue{
+      border-color:rgba(90,174,255,.22);
+      background:var(--blue-soft);
+      color:var(--blue);
+    }
+
+    .mini-btn.red{
+      border-color:rgba(255,98,89,.22);
+      background:var(--red-soft);
+      color:var(--red);
+    }
+
+    .status{
+      display:none;
+      margin-top:9px;
+      padding:9px;
+      border:1px solid var(--line);
+      border-radius:13px;
+      background:var(--surface-2);
+      color:var(--muted);
+      font-size:9.8px;
+      line-height:1.4;
+    }
+
+    .status.show{
+      display:block;
+    }
+
+    .status.good{
+      border-color:rgba(53,212,111,.22);
+      background:var(--green-soft);
+      color:var(--green);
+    }
+
+    .status.bad{
+      border-color:rgba(255,98,89,.22);
+      background:var(--red-soft);
+      color:var(--red);
+    }
+
+    .status.info{
+      border-color:rgba(90,174,255,.22);
+      background:var(--blue-soft);
+      color:var(--blue);
+    }
 
     .collapse-panel{
       display:block;
-      border-radius:26px;
-      margin-top:12px;
+      margin-top:9px;
       overflow:hidden;
-      position:relative;
+      border:1px solid var(--line);
+      border-radius:19px;
+      background:var(--surface);
+      scroll-margin-top:62px;
     }
+
     .collapse-panel > summary{
+      min-height:58px;
+      padding:11px 12px;
       list-style:none;
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:12px;
-      padding:14px;
       cursor:pointer;
       user-select:none;
     }
-    .collapse-panel > summary::-webkit-details-marker{display:none}
+
+    .collapse-panel > summary::-webkit-details-marker{
+      display:none;
+    }
+
     .collapse-panel > summary h3{
       margin:0;
-      color:#0F172A;
-      font-size:17px;
-      letter-spacing:-.3px;
+      font-size:14px;
+      letter-spacing:-.25px;
     }
+
     .collapse-panel > summary p{
       margin:4px 0 0;
-      color:#64748B;
-      font-size:12.5px;
-      line-height:1.35;
+      color:var(--muted);
+      font-size:9.8px;
+      line-height:1.34;
     }
-    .collapse-panel > summary:after{
-      content:"⌄";
-      width:34px;
-      height:34px;
-      border-radius:999px;
-      display:grid;
-      place-items:center;
+
+    .collapse-panel > summary::after{
+      content:"";
+      width:9px;
+      height:9px;
+      margin-right:4px;
       flex:0 0 auto;
-      color:#334155;
-      background:rgba(255,255,255,.58);
-      border:1px solid rgba(15,23,42,.08);
+      border-right:2px solid var(--muted);
+      border-bottom:2px solid var(--muted);
+      transform:rotate(45deg);
       transition:transform .18s ease;
     }
-    .collapse-panel[open] > summary:after{transform:rotate(180deg)}
+
+    .collapse-panel[open] > summary::after{
+      transform:rotate(225deg);
+    }
+
     .collapse-body{
-      padding:0 12px 12px;
+      padding:0 10px 10px;
     }
-    .collapse-panel.card{padding:0}
-    .collapse-panel.card:before{display:none}
-    .collapse-panel.card .card-inner{padding:0 12px 12px}
-    .collapse-panel.card .card-head{display:none}
 
-    .quick-actions{
+    .promo-list,
+    .exercise-list{
       display:grid;
-      grid-template-columns:1fr 1fr 1fr;
-      gap:8px;
-      margin-top:10px;
+      gap:7px;
     }
-    @media(max-width:560px){.quick-actions{grid-template-columns:1fr}}
-    .bottom-tabs{padding:6px 10px calc(6px + env(safe-area-inset-bottom));}
-    .tabs-glass{
-      background:rgba(255,255,255,.54);
-      border-color:rgba(15,23,42,.10);
-      border-radius:24px;
-      padding:5px;
-      box-shadow:0 16px 40px rgba(15,23,42,.14), inset 0 1px 0 rgba(255,255,255,.70);
-    }
-    .tab{min-height:39px;font-size:12px;color:#64748B}
-    .tab.active{
-      background:rgba(15,23,42,.88);
-      color:#fff;
-      box-shadow:0 8px 18px rgba(15,23,42,.18);
-    }
-    .app-shell{padding-bottom:84px}
 
+    .promo-card,
+    .exercise-card{
+      padding:10px;
+      border:1px solid var(--line);
+      border-radius:15px;
+      background:var(--surface-2);
+    }
+
+    .promo-top,
+    .exercise-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .promo-code,
+    .exercise-name{
+      overflow-wrap:anywhere;
+      font-size:13px;
+      font-weight:1000;
+      letter-spacing:-.15px;
+    }
+
+    .promo-meta,
+    .exercise-meta{
+      margin-top:4px;
+      color:var(--muted);
+      font-size:9.4px;
+      line-height:1.42;
+    }
+
+    .promo-actions,
+    .exercise-actions{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:6px;
+      margin-top:8px;
+    }
+
+    .media-preview{
+      width:100%;
+      height:190px;
+      margin-top:9px;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:var(--surface-3);
+      display:grid;
+      place-items:center;
+      color:var(--muted);
+    }
+
+    .media-preview img,
+    .media-preview video{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+
+    .media-preview span{
+      font-size:9.8px;
+      font-weight:850;
+    }
+
+    .media-thumb{
+      width:54px;
+      height:54px;
+      min-width:54px;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:var(--surface-3);
+      display:grid;
+      place-items:center;
+      color:var(--blue);
+      font-size:9px;
+    }
+
+    .media-thumb img,
+    .media-thumb video{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+
+    .upload-box{
+      margin-top:10px;
+      padding:10px;
+      border:1px dashed var(--line-strong);
+      border-radius:15px;
+      background:var(--surface-2);
+    }
+
+    .section-title{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin:13px 2px 7px;
+    }
+
+    .section-title h3{
+      margin:0;
+      font-size:11.5px;
+    }
+
+    .section-title span{
+      color:var(--muted-2);
+      font-size:8.8px;
+      font-weight:850;
+    }
+
+    .checkbox-row{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:6px;
+      margin-top:8px;
+    }
+
+    .check-pill{
+      min-height:36px;
+      padding:7px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:var(--surface-2);
+      display:flex;
+      align-items:center;
+      gap:6px;
+      color:var(--muted);
+      font-size:9.2px;
+      font-weight:850;
+    }
+
+    .check-pill input{
+      width:15px;
+      height:15px;
+      margin:0;
+      accent-color:var(--green);
+    }
+
+    .loader-screen{
+      min-height:62vh;
+      display:grid;
+      place-items:center;
+      color:var(--muted);
+      font-size:11px;
+      text-align:center;
+    }
+
+    .spin{
+      width:29px;
+      height:29px;
+      margin:0 auto 11px;
+      border:3px solid var(--line-strong);
+      border-top-color:var(--green);
+      border-radius:50%;
+      animation:spin .75s linear infinite;
+    }
+
+    @keyframes spin{
+      to{transform:rotate(360deg)}
+    }
+
+    .bottom-tabs{
+      position:fixed;
+      left:50%;
+      bottom:calc(8px + env(safe-area-inset-bottom));
+      z-index:60;
+      width:calc(100% - 28px);
+      max-width:430px;
+      transform:translateX(-50%);
+    }
+
+    .tabs-glass{
+      height:58px;
+      padding:5px 6px;
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:5px;
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:29px;
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.035)),
+        var(--glass);
+      box-shadow:
+        0 16px 40px rgba(0,0,0,.42),
+        inset 0 1px 0 rgba(255,255,255,.21);
+      backdrop-filter:blur(28px) saturate(180%);
+      -webkit-backdrop-filter:blur(28px) saturate(180%);
+    }
+
+    html[data-theme="light"] .tabs-glass{
+      border-color:rgba(255,255,255,.72);
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.50),rgba(248,248,252,.34)),
+        var(--glass);
+      box-shadow:
+        0 11px 28px rgba(55,55,70,.13),
+        inset 0 1px 0 rgba(255,255,255,.86);
+    }
+
+    .tab{
+      min-width:0;
+      min-height:48px;
+      padding:6px 7px;
+      border:1px solid transparent;
+      border-radius:24px;
+      background:transparent;
+      color:var(--muted-2);
+      font-size:9.7px;
+      font-weight:950;
+    }
+
+    .tab.active{
+      border-color:var(--line);
+      background:rgba(255,255,255,.10);
+      color:var(--text);
+    }
+
+    html[data-theme="light"] .tab.active{
+      background:rgba(255,255,255,.82);
+    }
+
+    @media(max-width:620px){
+      .stats-grid{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+      }
+
+      .quick-actions{
+        grid-template-columns:1fr;
+      }
+
+      .row3,
+      .checkbox-row{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media(max-width:480px){
+      .row2{
+        grid-template-columns:1fr;
+      }
+
+      .promo-actions,
+      .exercise-actions{
+        grid-template-columns:1fr;
+      }
+
+      .brand span{
+        max-width:180px;
+      }
+    }
+
+    @media(max-width:390px){
+      .app-shell{
+        padding-left:13px;
+        padding-right:13px;
+      }
+
+      .topbar{
+        margin-left:-13px;
+        margin-right:-13px;
+        padding-left:13px;
+        padding-right:13px;
+      }
+
+      .page-heading h2{
+        font-size:27px;
+      }
+
+      .pill-link{
+        display:none;
+      }
+    }
   </style>
 </head>
 
 <body>
-  <div class="glow one"></div>
-  <div class="glow two"></div>
-
   <div class="page">
     <main class="app-shell">
       <header class="topbar">
         <div class="toprow">
           <a href="app.html" class="brand">
             <div class="logo">SC</div>
-            <div>
+            <div class="brand-copy">
               <h1>ShapeCue Admin</h1>
-              <span id="topSub">Promo + exercise media manager</span>
+              <span id="topSub">Promo and exercise library</span>
             </div>
           </a>
+
           <div class="top-actions">
             <a class="pill-link" href="app.html">App</a>
             <button class="top-pill" id="logoutBtn" type="button">Logout</button>
@@ -404,32 +943,61 @@
       </header>
 
       <div id="loader" class="loader-screen">
-        <div><div class="spin"></div><div>Checking ShapeCue admin access...</div></div>
+        <div>
+          <div class="spin"></div>
+          <div>Checking ShapeCue admin access...</div>
+        </div>
       </div>
 
       <section class="screen hidden" id="adminScreen">
-        <div class="hero">
+        <div class="page-heading">
           <h2>Admin Control</h2>
-          <p>Manage promo codes and the exercise library with a cleaner, collapsed Liquid Glass admin workspace.</p>
+          <p>
+            Manage tester access, promo codes, exercise guides, and exercise media.
+          </p>
+
           <div class="chips-row">
             <span class="tag green" id="adminRoleTag">Admin</span>
             <span class="tag blue">Promo codes</span>
             <span class="tag purple">Exercise media</span>
-            <span class="tag amber">Service role protected</span>
+            <span class="tag amber">Protected functions</span>
           </div>
         </div>
 
         <div class="stats-grid">
-          <div class="stat"><span>Total codes</span><strong id="statTotal">0</strong></div>
-          <div class="stat"><span>Active codes</span><strong id="statActive">0</strong></div>
-          <div class="stat"><span>Total uses</span><strong id="statUsed">0</strong></div>
-          <div class="stat"><span>Exercises</span><strong id="statExercises">0</strong></div>
+          <div class="stat">
+            <span>Total codes</span>
+            <strong id="statTotal">0</strong>
+          </div>
+
+          <div class="stat">
+            <span>Active codes</span>
+            <strong id="statActive">0</strong>
+          </div>
+
+          <div class="stat">
+            <span>Total uses</span>
+            <strong id="statUsed">0</strong>
+          </div>
+
+          <div class="stat">
+            <span>Plan-ready exercises</span>
+            <strong id="statExercises">0</strong>
+          </div>
         </div>
 
         <div class="quick-actions">
-          <button class="btn secondary" type="button" id="quickCreateBtn">Create promo</button>
-          <button class="btn secondary" type="button" id="quickCodesBtn">View codes</button>
-          <button class="btn secondary" type="button" id="quickExerciseBtn">Exercise library</button>
+          <button class="btn secondary" type="button" id="quickCreateBtn">
+            Create promo
+          </button>
+
+          <button class="btn secondary" type="button" id="quickCodesBtn">
+            View codes
+          </button>
+
+          <button class="btn secondary" type="button" id="quickExerciseBtn">
+            Exercise library
+          </button>
         </div>
 
         <details class="collapse-panel" id="createSection" open>
@@ -439,92 +1007,143 @@
               <p>Generate tester, launch, or manual access codes.</p>
             </div>
           </summary>
+
           <div class="collapse-body">
-          <div class="grid two">
-            <section class="card">
-              <div class="card-inner">
-                <div class="card-head">
-                  <div>
-                    <h3>Create promo</h3>
-                    <p>Leave code empty to auto-generate.</p>
+            <div class="grid two">
+              <section class="card">
+                <div class="card-inner">
+                  <div class="card-head">
+                    <div>
+                      <h3>New promo code</h3>
+                      <p>Leave the custom code empty to auto-generate one.</p>
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label>Plan to unlock</label>
+                    <select class="select" id="planCode">
+                      <option value="plus">Plus</option>
+                      <option value="premium">Premium</option>
+                      <option value="premium_plus">Coach</option>
+                      <option value="free">Free</option>
+                    </select>
+                  </div>
+
+                  <div class="field">
+                    <label>Custom code optional</label>
+                    <input
+                      class="input"
+                      id="customCode"
+                      placeholder="Example: SHAPE30"
+                      maxlength="40"
+                    />
+                  </div>
+
+                  <div class="row2">
+                    <div class="field">
+                      <label>Duration days</label>
+                      <input
+                        class="input"
+                        id="durationDays"
+                        type="number"
+                        min="1"
+                        step="1"
+                        placeholder="30"
+                      />
+                    </div>
+
+                    <div class="field">
+                      <label>Max redemptions</label>
+                      <input
+                        class="input"
+                        id="maxRedemptions"
+                        type="number"
+                        min="1"
+                        step="1"
+                        placeholder="1"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label>Code expiry optional</label>
+                    <input class="input" id="expiresAt" type="datetime-local" />
+                  </div>
+
+                  <div class="field">
+                    <label>Notes optional</label>
+                    <textarea
+                      class="textarea"
+                      id="notes"
+                      placeholder="Example: tester, giveaway, close beta"
+                    ></textarea>
+                  </div>
+
+                  <button class="btn primary" id="createBtn" type="button">
+                    Create promo code
+                  </button>
+
+                  <div class="status" id="createStatus"></div>
+                </div>
+              </section>
+
+              <section class="card">
+                <div class="card-inner">
+                  <div class="card-head">
+                    <div>
+                      <h3>Quick rules</h3>
+                      <p>Useful patterns while paid checkout is not connected.</p>
+                    </div>
+                  </div>
+
+                  <div class="promo-card">
+                    <div class="promo-code">Suggested codes</div>
+                    <div class="promo-meta">
+                      Coach / 30 days / one use for testers<br />
+                      Premium / 14 days / 20 uses for launch<br />
+                      Plus / 30 days / multiple uses for early users
+                    </div>
+                  </div>
+
+                  <div class="promo-card" style="margin-top:7px">
+                    <div class="promo-code">Security</div>
+                    <div class="promo-meta">
+                      Users redeem through Netlify Functions. Admin actions are verified
+                      before service-role access is used.
+                    </div>
                   </div>
                 </div>
-
-                <div class="field">
-                  <label>Plan to unlock</label>
-                  <select class="select" id="planCode">
-                    <option value="premium">Premium</option>
-                    <option value="premium_plus">Coach</option>
-                    <option value="free">Free</option>
-                  </select>
-                </div>
-
-                <div class="field">
-                  <label>Custom code optional</label>
-                  <input class="input" id="customCode" placeholder="Example: SHAPE30" maxlength="40" />
-                </div>
-
-                <div class="row2">
-                  <div class="field"><label>Duration days</label><input class="input" id="durationDays" type="number" min="1" step="1" placeholder="30" /></div>
-                  <div class="field"><label>Max redemptions</label><input class="input" id="maxRedemptions" type="number" min="1" step="1" placeholder="1" /></div>
-                </div>
-
-                <div class="field"><label>Code expiry optional</label><input class="input" id="expiresAt" type="datetime-local" /></div>
-                <div class="field"><label>Notes optional</label><textarea class="textarea" id="notes" placeholder="Example: Instagram giveaway, tester, friend, launch offer..."></textarea></div>
-
-                <button class="btn primary" id="createBtn" type="button">Create promo code</button>
-                <div class="status" id="createStatus"></div>
-              </div>
-            </section>
-
-            <section class="card">
-              <div class="card-inner">
-                <div class="card-head">
-                  <div>
-                    <h3>Quick rules</h3>
-                    <p>Simple access while payment is not connected.</p>
-                  </div>
-                </div>
-
-                <div class="promo-card">
-                  <div class="promo-code">Best codes to create</div>
-                  <div class="promo-meta">
-                    • Coach, 30 days, 1 use for testers<br>
-                    • Premium, 7 days, 20 uses for launch giveaway<br>
-                    • Coach, 90 days, 1 use for close beta users
-                  </div>
-                </div>
-
-                <div class="promo-card" style="margin-top:10px">
-                  <div class="promo-code">Security note</div>
-                  <div class="promo-meta">
-                    Users cannot read promo codes. They redeem through Netlify functions. Admin actions use service role inside functions.
-                  </div>
-                </div>
-              </div>
-            </section>
-          </div>
+              </section>
+            </div>
           </div>
         </details>
 
-        <details class="collapse-panel card" id="listSection">
+        <details class="collapse-panel" id="listSection">
           <summary>
             <div>
               <h3>Existing promo codes</h3>
-              <p>Copy, deactivate, reactivate, and track usage.</p>
+              <p>Copy, deactivate, reactivate, and review usage.</p>
             </div>
           </summary>
-          <div class="card-inner">
-            <div class="card-head">
-              <div>
-                <h3>Existing promo codes</h3>
-                <p>Copy, deactivate, reactivate, and track usage.</p>
-              </div>
-              <button class="mini-btn green" id="refreshBtn" type="button">Refresh</button>
-            </div>
 
-            <div class="promo-list" id="promoList"></div>
-            <div class="status" id="listStatus"></div>
+          <div class="collapse-body">
+            <section class="card">
+              <div class="card-inner">
+                <div class="card-head">
+                  <div>
+                    <h3>Promo library</h3>
+                    <p>All generated access codes.</p>
+                  </div>
+
+                  <button class="mini-btn green" id="refreshBtn" type="button">
+                    Refresh
+                  </button>
+                </div>
+
+                <div class="promo-list" id="promoList"></div>
+                <div class="status" id="listStatus"></div>
+              </div>
+            </section>
           </div>
         </details>
 
@@ -535,115 +1154,343 @@
               <p>Edit guide text, upload media, and control AI readiness.</p>
             </div>
           </summary>
+
           <div class="collapse-body">
-          <div class="grid two">
-            <section class="card">
-              <div class="card-inner">
-                <div class="card-head">
-                  <div>
-                    <h3>Exercise editor</h3>
-                    <p>Add photos/videos and exact guide text for workout cards.</p>
+            <div class="grid two">
+              <section class="card">
+                <div class="card-inner">
+                  <div class="card-head">
+                    <div>
+                      <h3>Exercise editor</h3>
+                      <p>Add guide text, safety notes, images, and videos.</p>
+                    </div>
+
+                    <button class="mini-btn blue" id="newExerciseBtn" type="button">
+                      New
+                    </button>
                   </div>
-                  <button class="mini-btn blue" id="newExerciseBtn" type="button">New</button>
-                </div>
 
-                <input type="hidden" id="exerciseId" />
+                  <input type="hidden" id="exerciseId" />
 
-                <div class="field">
-                  <label>Select existing exercise</label>
-                  <select class="select" id="exerciseSelect">
-                    <option value="">New exercise / choose existing</option>
-                  </select>
-                </div>
+                  <div class="field">
+                    <label>Select existing exercise</label>
+                    <select class="select" id="exerciseSelect">
+                      <option value="">New exercise / choose existing</option>
+                    </select>
+                  </div>
 
-                <div class="row2">
-                  <div class="field"><label>Name</label><input class="input" id="exName" placeholder="Machine Chest Press" /></div>
-                  <div class="field"><label>Slug</label><input class="input" id="exSlug" placeholder="machine-chest-press" /></div>
-                </div>
-
-                <div class="row3">
-                  <div class="field"><label>Category</label><input class="input" id="exCategory" placeholder="push / legs / pull" /></div>
-                  <div class="field"><label>Section</label><input class="input" id="exSection" placeholder="main / warmup / stretch" /></div>
-                  <div class="field"><label>Difficulty</label><select class="select" id="exDifficulty"><option value="beginner">Beginner</option><option value="intermediate">Intermediate</option><option value="advanced">Advanced</option></select></div>
-                </div>
-
-                <div class="row2">
-                  <div class="field"><label>Target muscle</label><input class="input" id="exTargetMuscle" placeholder="Chest, triceps" /></div>
-                  <div class="field"><label>Equipment</label><input class="input" id="exEquipment" placeholder="Machine / dumbbells" /></div>
-                </div>
-
-                <div class="field"><label>Short cue</label><textarea class="textarea" id="exShortCue" placeholder="Chest up, shoulder blades back, controlled reps."></textarea></div>
-                <div class="field"><label>Guide steps - one per line</label><textarea class="textarea" id="exGuideSteps" placeholder="Sit with back supported&#10;Grip handles slightly below shoulder level&#10;Press forward with control&#10;Return slowly"></textarea></div>
-                <div class="field"><label>Common mistakes - one per line</label><textarea class="textarea" id="exMistakes" placeholder="Going too heavy&#10;Shoulders shrugging up&#10;Fast uncontrolled reps"></textarea></div>
-                <div class="field"><label>Pain warning</label><textarea class="textarea" id="exPainWarning" placeholder="Stop if shoulder or chest pain feels sharp."></textarea></div>
-                <div class="field"><label>Alternatives - one per line</label><textarea class="textarea" id="exAlternatives" placeholder="Dumbbell floor press&#10;Push-up&#10;Cable chest press"></textarea></div>
-                <div class="field"><label>Safe alternative short text</label><input class="input" id="exSafeAlternative" placeholder="Dumbbell floor press or machine press" /></div>
-
-                <div class="checkbox-row">
-                  <label class="check-pill"><input type="checkbox" id="exBackSafe" /> Back safe</label>
-                  <label class="check-pill"><input type="checkbox" id="exKneeSafe" /> Knee safe</label>
-                  <label class="check-pill"><input type="checkbox" id="exShoulderSafe" /> Shoulder safe</label>
-                </div>
-
-                <div class="section-title"><h3>AI library control</h3><span>Used for weekly plans</span></div>
-                <div class="checkbox-row">
-                  <label class="check-pill"><input type="checkbox" id="exApproved" checked /> Approved</label>
-                  <label class="check-pill"><input type="checkbox" id="exPlanReady" /> Plan ready</label>
-                  <label class="check-pill"><input type="checkbox" id="exMediaRequired" checked /> Media required</label>
-                </div>
-                <div class="row2">
-                  <div class="field"><label>Usage priority</label><select class="select" id="exUsagePriority"><option value="high">High - common exercise</option><option value="medium">Medium</option><option value="low">Low - rare/advanced</option></select></div>
-                  <div class="field"><label>Quality note</label><input class="input" id="exQualityNote" disabled placeholder="Plan ready needs media + guide" /></div>
-                </div>
-
-                <div class="upload-box">
                   <div class="row2">
-                    <div class="field"><label>Image upload</label><input class="input" id="exImageFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif" /></div>
-                    <div class="field"><label>Video upload</label><input class="input" id="exVideoFile" type="file" accept="video/mp4,video/webm,video/quicktime" /></div>
+                    <div class="field">
+                      <label>Name</label>
+                      <input
+                        class="input"
+                        id="exName"
+                        placeholder="Machine Chest Press"
+                      />
+                    </div>
+
+                    <div class="field">
+                      <label>Slug</label>
+                      <input
+                        class="input"
+                        id="exSlug"
+                        placeholder="machine-chest-press"
+                      />
+                    </div>
                   </div>
+
+                  <div class="row3">
+                    <div class="field">
+                      <label>Category</label>
+                      <input
+                        class="input"
+                        id="exCategory"
+                        placeholder="push / legs / pull"
+                      />
+                    </div>
+
+                    <div class="field">
+                      <label>Section</label>
+                      <input
+                        class="input"
+                        id="exSection"
+                        placeholder="main / warmup / stretch"
+                      />
+                    </div>
+
+                    <div class="field">
+                      <label>Difficulty</label>
+                      <select class="select" id="exDifficulty">
+                        <option value="beginner">Beginner</option>
+                        <option value="intermediate">Intermediate</option>
+                        <option value="advanced">Advanced</option>
+                      </select>
+                    </div>
+                  </div>
+
                   <div class="row2">
-                    <div class="field"><label>Image URL/path</label><input class="input" id="exImagePath" placeholder="Auto after upload or paste URL" /></div>
-                    <div class="field"><label>Video URL/path</label><input class="input" id="exVideoPath" placeholder="Auto after upload or paste URL" /></div>
+                    <div class="field">
+                      <label>Target muscle</label>
+                      <input
+                        class="input"
+                        id="exTargetMuscle"
+                        placeholder="Chest, triceps"
+                      />
+                    </div>
+
+                    <div class="field">
+                      <label>Equipment</label>
+                      <input
+                        class="input"
+                        id="exEquipment"
+                        placeholder="Machine / dumbbells"
+                      />
+                    </div>
                   </div>
-                  <button class="btn blue" id="uploadMediaBtn" type="button">Upload selected media</button>
-                  <div class="media-preview" id="exercisePreview"><span>No exercise media selected</span></div>
-                </div>
 
-                <button class="btn primary" id="saveExerciseBtn" type="button" style="margin-top:12px">Save exercise guide</button>
-                <div class="status" id="exerciseStatus"></div>
-              </div>
-            </section>
-
-            <section class="card">
-              <div class="card-inner">
-                <div class="card-head">
-                  <div>
-                    <h3>Exercise library</h3>
-                    <p>Search and edit exercises quickly.</p>
+                  <div class="field">
+                    <label>Short cue</label>
+                    <textarea
+                      class="textarea"
+                      id="exShortCue"
+                      placeholder="Chest up, shoulder blades back, controlled reps."
+                    ></textarea>
                   </div>
-                  <button class="mini-btn green" id="refreshExercisesBtn" type="button">Refresh</button>
-                </div>
 
-                <div class="row2">
-                  <div class="field" style="margin-top:0"><label>Search</label><input class="input" id="exerciseSearch" placeholder="Search chest, pull, dumbbell..." /></div>
-                  <div class="field" style="margin-top:0"><label>Filter</label><select class="select" id="exerciseFilter"><option value="all">All exercises</option><option value="plan_ready">Plan ready</option><option value="not_ready">Not plan-ready</option><option value="missing_media">Missing media</option><option value="missing_guide">Missing guide</option><option value="high_priority">High priority</option></select></div>
+                  <div class="field">
+                    <label>Guide steps - one per line</label>
+                    <textarea
+                      class="textarea"
+                      id="exGuideSteps"
+                      placeholder="Sit with back supported&#10;Grip handles&#10;Press with control&#10;Return slowly"
+                    ></textarea>
+                  </div>
+
+                  <div class="field">
+                    <label>Common mistakes - one per line</label>
+                    <textarea
+                      class="textarea"
+                      id="exMistakes"
+                      placeholder="Going too heavy&#10;Shrugging shoulders&#10;Fast reps"
+                    ></textarea>
+                  </div>
+
+                  <div class="field">
+                    <label>Pain warning</label>
+                    <textarea
+                      class="textarea"
+                      id="exPainWarning"
+                      placeholder="Stop if pain becomes sharp."
+                    ></textarea>
+                  </div>
+
+                  <div class="field">
+                    <label>Alternatives - one per line</label>
+                    <textarea
+                      class="textarea"
+                      id="exAlternatives"
+                      placeholder="Dumbbell floor press&#10;Push-up&#10;Cable chest press"
+                    ></textarea>
+                  </div>
+
+                  <div class="field">
+                    <label>Safe alternative short text</label>
+                    <input
+                      class="input"
+                      id="exSafeAlternative"
+                      placeholder="Dumbbell floor press or machine press"
+                    />
+                  </div>
+
+                  <div class="checkbox-row">
+                    <label class="check-pill">
+                      <input type="checkbox" id="exBackSafe" />
+                      Back safe
+                    </label>
+
+                    <label class="check-pill">
+                      <input type="checkbox" id="exKneeSafe" />
+                      Knee safe
+                    </label>
+
+                    <label class="check-pill">
+                      <input type="checkbox" id="exShoulderSafe" />
+                      Shoulder safe
+                    </label>
+                  </div>
+
+                  <div class="section-title">
+                    <h3>AI library control</h3>
+                    <span>Weekly-plan eligibility</span>
+                  </div>
+
+                  <div class="checkbox-row">
+                    <label class="check-pill">
+                      <input type="checkbox" id="exApproved" checked />
+                      Approved
+                    </label>
+
+                    <label class="check-pill">
+                      <input type="checkbox" id="exPlanReady" />
+                      Plan ready
+                    </label>
+
+                    <label class="check-pill">
+                      <input type="checkbox" id="exMediaRequired" checked />
+                      Media required
+                    </label>
+                  </div>
+
+                  <div class="row2">
+                    <div class="field">
+                      <label>Usage priority</label>
+                      <select class="select" id="exUsagePriority">
+                        <option value="high">High - common exercise</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low - rare / advanced</option>
+                      </select>
+                    </div>
+
+                    <div class="field">
+                      <label>Quality note</label>
+                      <input
+                        class="input"
+                        id="exQualityNote"
+                        disabled
+                        placeholder="Plan ready needs media and guide"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="upload-box">
+                    <div class="row2">
+                      <div class="field">
+                        <label>Image upload</label>
+                        <input
+                          class="input"
+                          id="exImageFile"
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp,image/gif"
+                        />
+                      </div>
+
+                      <div class="field">
+                        <label>Video upload</label>
+                        <input
+                          class="input"
+                          id="exVideoFile"
+                          type="file"
+                          accept="video/mp4,video/webm,video/quicktime"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="row2">
+                      <div class="field">
+                        <label>Image URL / path</label>
+                        <input
+                          class="input"
+                          id="exImagePath"
+                          placeholder="Auto after upload or paste URL"
+                        />
+                      </div>
+
+                      <div class="field">
+                        <label>Video URL / path</label>
+                        <input
+                          class="input"
+                          id="exVideoPath"
+                          placeholder="Auto after upload or paste URL"
+                        />
+                      </div>
+                    </div>
+
+                    <button class="btn blue" id="uploadMediaBtn" type="button">
+                      Upload selected media
+                    </button>
+
+                    <div class="media-preview" id="exercisePreview">
+                      <span>No exercise media selected</span>
+                    </div>
+                  </div>
+
+                  <button
+                    class="btn primary"
+                    id="saveExerciseBtn"
+                    type="button"
+                    style="margin-top:10px"
+                  >
+                    Save exercise guide
+                  </button>
+
+                  <div class="status" id="exerciseStatus"></div>
                 </div>
-                <div class="exercise-list" id="exerciseList" style="margin-top:10px"></div>
-                <div class="status" id="exerciseListStatus"></div>
-              </div>
-            </section>
-          </div>
+              </section>
+
+              <section class="card">
+                <div class="card-inner">
+                  <div class="card-head">
+                    <div>
+                      <h3>Exercise library</h3>
+                      <p>Search and edit exercises quickly.</p>
+                    </div>
+
+                    <button
+                      class="mini-btn green"
+                      id="refreshExercisesBtn"
+                      type="button"
+                    >
+                      Refresh
+                    </button>
+                  </div>
+
+                  <div class="row2">
+                    <div class="field" style="margin-top:0">
+                      <label>Search</label>
+                      <input
+                        class="input"
+                        id="exerciseSearch"
+                        placeholder="Search chest, pull, dumbbell"
+                      />
+                    </div>
+
+                    <div class="field" style="margin-top:0">
+                      <label>Filter</label>
+                      <select class="select" id="exerciseFilter">
+                        <option value="all">All exercises</option>
+                        <option value="plan_ready">Plan ready</option>
+                        <option value="not_ready">Not plan-ready</option>
+                        <option value="missing_media">Missing media</option>
+                        <option value="missing_guide">Missing guide</option>
+                        <option value="high_priority">High priority</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div
+                    class="exercise-list"
+                    id="exerciseList"
+                    style="margin-top:9px"
+                  ></div>
+
+                  <div class="status" id="exerciseListStatus"></div>
+                </div>
+              </section>
+            </div>
           </div>
         </details>
       </section>
 
       <section class="screen hidden" id="noAccessScreen">
-        <div class="hero">
+        <div class="page-heading">
           <h2>No admin access.</h2>
-          <p>This page is only for users added in the app_admins table. Login with your admin account or return to the app.</p>
-          <div class="chips-row">
-            <a class="btn secondary" href="auth.html?mode=login" style="width:auto;min-width:160px">Login</a>
-            <a class="btn primary" href="app.html" style="width:auto;min-width:160px">Open app</a>
+          <p>
+            This page is restricted to users in the app_admins table.
+          </p>
+
+          <div class="quick-actions">
+            <a class="btn secondary" href="auth.html?mode=login">Login</a>
+            <a class="btn primary" href="app.html">Open app</a>
           </div>
         </div>
       </section>
@@ -652,607 +1499,1449 @@
 
   <nav class="bottom-tabs" aria-label="ShapeCue admin navigation">
     <div class="tabs-glass">
-      <button class="tab active" id="createTab" type="button">＋ Promo</button>
-      <button class="tab" id="codesTab" type="button">◎ Codes</button>
-      <button class="tab" id="exerciseTab" type="button">▣ Exercise</button>
+      <button class="tab active" id="createTab" type="button">
+        Create
+      </button>
+
+      <button class="tab" id="codesTab" type="button">
+        Codes
+      </button>
+
+      <button class="tab" id="exerciseTab" type="button">
+        Exercises
+      </button>
     </div>
   </nav>
 
-<script>
-  const SUPABASE_URL = "https://qusmbveovroldkhbjudq.supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_6zVS1VCVok16WmVWNPvTrw_vTiQvgX4";
+  <script>
+    const SUPABASE_URL =
+      "https://qusmbveovroldkhbjudq.supabase.co";
 
-  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    auth: { detectSessionInUrl:false, persistSession:true, autoRefreshToken:true }
-  });
+    const SUPABASE_ANON_KEY =
+      "sb_publishable_6zVS1VCVok16WmVWNPvTrw_vTiQvgX4";
 
-  const $ = q => document.querySelector(q);
-  const $$ = q => Array.from(document.querySelectorAll(q));
-
-  let currentSession = null;
-  let promos = [];
-  let exercises = [];
-
-  function show(el){ el?.classList.remove("hidden"); }
-  function hide(el){ el?.classList.add("hidden"); }
-
-  function esc(value){
-    return String(value ?? "").replace(/[&<>'"]/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[ch]));
-  }
-
-  function slugify(value){
-    return String(value || "").trim().toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,80);
-  }
-
-  function lines(value){
-    return String(value || "").split(/\n/g).map(v => v.trim()).filter(Boolean);
-  }
-
-  function showStatus(id, message, type = ""){
-    const box = $(id);
-    if(!box) return;
-    box.textContent = message || "";
-    box.className = "status";
-    if(message){
-      box.classList.add("show");
-      if(type) box.classList.add(type);
-    }
-  }
-
-  function money(cents){
-    const n = Number(cents || 0);
-    if(!n) return "$0";
-    return `$${(n/100).toFixed(2)}`;
-  }
-
-  function planName(code){
-    if(code === "premium_plus" || code === "coach") return "Coach";
-    if(code === "premium") return "Premium";
-    if(code === "plus") return "Plus";
-    return "Free";
-  }
-
-  function prettyDate(value){
-    if(!value) return "No expiry";
-    const d = new Date(value);
-    if(Number.isNaN(d.getTime())) return "No expiry";
-    return d.toLocaleString([], { year:"numeric", month:"short", day:"numeric", hour:"numeric", minute:"2-digit" });
-  }
-
-  function isExpired(row){ return row.expires_at && new Date(row.expires_at).getTime() < Date.now(); }
-
-  function statusPill(row){
-    if(!row.is_active) return `<span class="status-pill red">Inactive</span>`;
-    if(isExpired(row)) return `<span class="status-pill amber">Expired</span>`;
-    if(row.max_redemptions !== null && row.max_redemptions !== undefined && Number(row.used_count || 0) >= Number(row.max_redemptions)) return `<span class="status-pill amber">Used up</span>`;
-    return `<span class="status-pill">Active</span>`;
-  }
-
-  function requireSession(){
-    if(!currentSession?.access_token){
-      location.href = "auth.html?mode=login";
-      return "";
-    }
-    return currentSession.access_token;
-  }
-
-  async function api(path, options = {}){
-    const token = requireSession();
-    if(!token) throw new Error("Login required.");
-
-    const res = await fetch(path, {
-      ...options,
-      headers: {
-        "Content-Type":"application/json",
-        "Authorization":`Bearer ${token}`,
-        ...(options.headers || {})
+    const supabaseClient = supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY,
+      {
+        auth:{
+          detectSessionInUrl:false,
+          persistSession:true,
+          autoRefreshToken:true
+        }
       }
-    });
+    );
 
-    const result = await res.json().catch(() => ({}));
-    if(!res.ok || result.ok === false) throw new Error(result.error || "Request failed.");
-    return result;
-  }
+    const $ = selector =>
+      document.querySelector(selector);
 
-  function readPromoForm(){
-    const code = $("#customCode").value.trim().toUpperCase().replace(/\s+/g, "");
-    const duration = $("#durationDays").value.trim();
-    const max = $("#maxRedemptions").value.trim();
-    const expiresRaw = $("#expiresAt").value;
+    const $$ = selector =>
+      Array.from(document.querySelectorAll(selector));
 
-    return {
-      plan_code: $("#planCode").value,
-      code: code || undefined,
-      duration_days: duration ? Number(duration) : null,
-      max_redemptions: max ? Number(max) : null,
-      expires_at: expiresRaw ? new Date(expiresRaw).toISOString() : null,
-      notes: $("#notes").value.trim() || null
-    };
-  }
+    let currentSession = null;
+    let promos = [];
+    let exercises = [];
 
-  function resetPromoForm(){
-    $("#customCode").value = "";
-    $("#durationDays").value = "30";
-    $("#maxRedemptions").value = "1";
-    $("#expiresAt").value = "";
-    $("#notes").value = "";
-    $("#planCode").value = "premium_plus";
-  }
-
-  async function createPromo(){
-    const btn = $("#createBtn");
-    const old = btn.textContent;
-    try{
-      btn.disabled = true;
-      btn.textContent = "Creating...";
-      showStatus("#createStatus", "", "");
-      const payload = readPromoForm();
-      const result = await api("/.netlify/functions/admin-create-promo", { method:"POST", body:JSON.stringify(payload) });
-      const code = result.promo?.code || payload.code || "Created";
-      showStatus("#createStatus", `Promo created: ${code}`, "good");
-      try{ await navigator.clipboard.writeText(code); }catch{}
-      resetPromoForm();
-      await loadPromos();
-      scrollToCodes(false);
-    }catch(err){
-      showStatus("#createStatus", err.message || "Could not create promo.", "bad");
-    }finally{
-      btn.disabled = false;
-      btn.textContent = old;
+    function show(element){
+      element?.classList.remove("hidden");
     }
-  }
 
-  async function loadPromos(){
-    try{
-      showStatus("#listStatus", "Loading promo codes...", "info");
-      const result = await api("/.netlify/functions/admin-list-promos", { method:"GET" });
-      promos = result.promos || [];
-      renderStats();
-      renderPromos();
-      showStatus("#listStatus", promos.length ? "" : "No promo codes yet.", promos.length ? "" : "info");
-      if(result.admin?.role) $("#adminRoleTag").textContent = result.admin.role;
-    }catch(err){
-      showStatus("#listStatus", err.message || "Could not load promo codes.", "bad");
-      if(String(err.message || "").toLowerCase().includes("admin")){
-        hide($("#adminScreen")); show($("#noAccessScreen"));
+    function hide(element){
+      element?.classList.add("hidden");
+    }
+
+    function esc(value){
+      return String(value ?? "")
+        .replace(
+          /[&<>'"]/g,
+          character => ({
+            "&":"&amp;",
+            "<":"&lt;",
+            ">":"&gt;",
+            "'":"&#39;",
+            '"':"&quot;"
+          }[character])
+        );
+    }
+
+    function slugify(value){
+      return String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g,"-")
+        .replace(/^-+|-+$/g,"")
+        .slice(0,80);
+    }
+
+    function lines(value){
+      return String(value || "")
+        .split(/\n/g)
+        .map(item => item.trim())
+        .filter(Boolean);
+    }
+
+    function showStatus(id, message, type = ""){
+      const box = $(id);
+
+      if(!box) return;
+
+      box.textContent = message || "";
+      box.className = "status";
+
+      if(message){
+        box.classList.add("show");
+
+        if(type){
+          box.classList.add(type);
+        }
       }
     }
-  }
 
-  function renderStats(){
-    const total = promos.length;
-    const active = promos.filter(p => p.is_active && !isExpired(p)).length;
-    const used = promos.reduce((sum,p) => sum + Number(p.used_count || 0), 0);
-    $("#statTotal").textContent = total;
-    $("#statActive").textContent = active;
-    $("#statUsed").textContent = used;
-    const ready = exercises.filter(e => e.plan_ready && e.approved !== false).length;
-    $("#statExercises").textContent = `${ready}/${exercises.length || 0}`;
-  }
+    function money(cents){
+      const value = Number(cents || 0);
 
-  function renderPromos(){
-    const list = $("#promoList");
-    if(!promos.length){ list.innerHTML = ""; return; }
+      if(!value) return "$0";
 
-    list.innerHTML = promos.map(row => {
-      const plan = row.plan_name || planName(row.plan_code);
-      const usedText = `${Number(row.used_count || 0)} / ${row.max_redemptions ?? "∞"}`;
-      const durationText = row.duration_days ? `${row.duration_days} days access` : "Lifetime/no end after redeem";
-      return `
-        <article class="promo-card" data-promo-id="${esc(row.id)}">
-          <div class="promo-top">
-            <div>
-              <div class="promo-code">${esc(row.code)}</div>
-              <div class="promo-meta">
-                ${esc(plan)} • ${money(row.monthly_price_cents)} • ${esc(durationText)}<br>
-                Uses: ${esc(usedText)} • Code expiry: ${esc(prettyDate(row.expires_at))}<br>
-                Created: ${esc(prettyDate(row.created_at))}
-                ${row.notes ? `<br>Notes: ${esc(row.notes)}` : ""}
-              </div>
-            </div>
-            ${statusPill(row)}
-          </div>
-          <div class="promo-actions">
-            <button class="mini-btn green" type="button" data-copy-code="${esc(row.code)}">Copy code</button>
-            <button class="mini-btn ${row.is_active ? "red" : "green"}" type="button" data-toggle-promo="${esc(row.id)}" data-active="${row.is_active ? "false" : "true"}">
-              ${row.is_active ? "Deactivate" : "Reactivate"}
-            </button>
-          </div>
-        </article>`;
-    }).join("");
-  }
+      return `$${(value / 100).toFixed(2)}`;
+    }
 
-  async function updatePromo(id, updates){
-    await api("/.netlify/functions/admin-update-promo", { method:"POST", body:JSON.stringify({ id, ...updates }) });
-    await loadPromos();
-  }
+    function normalizePlanCode(code){
+      const value = String(code || "free").toLowerCase();
 
-  async function copyText(text){
-    try{ await navigator.clipboard.writeText(text); showStatus("#listStatus", `Copied: ${text}`, "good"); }
-    catch{ showStatus("#listStatus", `Copy manually: ${text}`, "info"); }
-  }
+      if([
+        "premium_plus",
+        "premium_plus_weekly",
+        "coach"
+      ].includes(value)){
+        return "coach";
+      }
 
-  function resetExerciseForm(){
-    $("#exerciseId").value = "";
-    $("#exerciseSelect").value = "";
-    $("#exName").value = "";
-    $("#exSlug").value = "";
-    $("#exCategory").value = "";
-    $("#exSection").value = "main";
-    $("#exDifficulty").value = "beginner";
-    $("#exTargetMuscle").value = "";
-    $("#exEquipment").value = "";
-    $("#exShortCue").value = "";
-    $("#exGuideSteps").value = "";
-    $("#exMistakes").value = "";
-    $("#exPainWarning").value = "";
-    $("#exAlternatives").value = "";
-    $("#exSafeAlternative").value = "";
-    $("#exBackSafe").checked = false;
-    $("#exKneeSafe").checked = false;
-    $("#exShoulderSafe").checked = false;
-    $("#exApproved").checked = true;
-    $("#exPlanReady").checked = false;
-    $("#exMediaRequired").checked = true;
-    $("#exUsagePriority").value = "medium";
-    $("#exQualityNote").value = "Plan ready needs media + guide";
-    $("#exImageFile").value = "";
-    $("#exVideoFile").value = "";
-    $("#exImagePath").value = "";
-    $("#exVideoPath").value = "";
-    renderExercisePreview(null);
-    showStatus("#exerciseStatus", "", "");
-  }
+      if([
+        "premium",
+        "premium_biweekly"
+      ].includes(value)){
+        return "premium";
+      }
 
-  function currentExercise(){
-    const id = $("#exerciseId").value;
-    return exercises.find(e => String(e.id) === String(id)) || null;
-  }
+      if([
+        "plus",
+        "premium_monthly"
+      ].includes(value)){
+        return "plus";
+      }
 
-  function fillExerciseForm(ex){
-    if(!ex){ resetExerciseForm(); return; }
-    $("#exerciseId").value = ex.id || "";
-    $("#exerciseSelect").value = ex.id || "";
-    $("#exName").value = ex.name || "";
-    $("#exSlug").value = ex.slug || "";
-    $("#exCategory").value = ex.category || "";
-    $("#exSection").value = ex.section || "main";
-    $("#exDifficulty").value = ex.difficulty || "beginner";
-    $("#exTargetMuscle").value = ex.target_muscle || "";
-    $("#exEquipment").value = ex.equipment || "";
-    $("#exShortCue").value = ex.short_cue || "";
-    $("#exGuideSteps").value = Array.isArray(ex.guide_steps) ? ex.guide_steps.join("\n") : "";
-    $("#exMistakes").value = Array.isArray(ex.common_mistakes) && ex.common_mistakes.length ? ex.common_mistakes.join("\n") : (ex.common_mistake || "");
-    $("#exPainWarning").value = ex.pain_warning || "";
-    $("#exAlternatives").value = Array.isArray(ex.alternatives) && ex.alternatives.length ? ex.alternatives.join("\n") : "";
-    $("#exSafeAlternative").value = ex.safe_alternative || "";
-    $("#exBackSafe").checked = !!ex.back_safe;
-    $("#exKneeSafe").checked = !!ex.knee_safe;
-    $("#exShoulderSafe").checked = !!ex.shoulder_safe;
-    $("#exApproved").checked = ex.approved !== false;
-    $("#exPlanReady").checked = !!ex.plan_ready;
-    $("#exMediaRequired").checked = ex.media_required !== false;
-    $("#exUsagePriority").value = ex.usage_priority || "medium";
-    $("#exQualityNote").value = `Media: ${ex.media_status || "missing"} • Guide: ${ex.guide_status || "missing"}`;
-    $("#exImageFile").value = "";
-    $("#exVideoFile").value = "";
-    $("#exImagePath").value = ex.image_path || ex.image_url || "";
-    $("#exVideoPath").value = ex.video_path || ex.video_url || "";
-    renderExercisePreview(ex);
-  }
+      return "free";
+    }
 
-  function renderExercisePreview(ex){
-    const box = $("#exercisePreview");
-    const image = ex?.image_public_url || (String($("#exImagePath")?.value || "").startsWith("http") ? $("#exImagePath").value : "");
-    const video = ex?.video_public_url || (String($("#exVideoPath")?.value || "").startsWith("http") ? $("#exVideoPath").value : "");
-    if(image){ box.innerHTML = `<img src="${esc(image)}" alt="Exercise media">`; return; }
-    if(video){ box.innerHTML = `<video src="${esc(video)}" controls playsinline></video>`; return; }
-    box.innerHTML = `<span>No exercise media selected</span>`;
-  }
+    function planName(code){
+      const normalized = normalizePlanCode(code);
 
-  function exercisePayload(){
-    const name = $("#exName").value.trim();
-    const imagePathValue = $("#exImagePath").value.trim();
-    const videoPathValue = $("#exVideoPath").value.trim();
-    const payload = {
-      id: $("#exerciseId").value.trim() || undefined,
-      name,
-      slug: $("#exSlug").value.trim() || slugify(name),
-      category: $("#exCategory").value.trim() || "general",
-      section: $("#exSection").value.trim() || "main",
-      difficulty: $("#exDifficulty").value,
-      target_muscle: $("#exTargetMuscle").value.trim() || null,
-      equipment: $("#exEquipment").value.trim() || null,
-      short_cue: $("#exShortCue").value.trim() || null,
-      guide_steps: lines($("#exGuideSteps").value),
-      common_mistakes: lines($("#exMistakes").value),
-      common_mistake: lines($("#exMistakes").value)[0] || null,
-      pain_warning: $("#exPainWarning").value.trim() || null,
-      alternatives: lines($("#exAlternatives").value),
-      safe_alternative: $("#exSafeAlternative").value.trim() || null,
-      back_safe: $("#exBackSafe").checked,
-      knee_safe: $("#exKneeSafe").checked,
-      shoulder_safe: $("#exShoulderSafe").checked,
-      approved: $("#exApproved").checked,
-      plan_ready: $("#exPlanReady").checked,
-      media_required: $("#exMediaRequired").checked,
-      usage_priority: $("#exUsagePriority").value || "medium"
-    };
+      if(normalized === "coach") return "Coach";
+      if(normalized === "premium") return "Premium";
+      if(normalized === "plus") return "Plus";
+      return "Free";
+    }
 
-    if(imagePathValue.startsWith("http")) payload.image_url = imagePathValue;
-    else payload.image_path = imagePathValue || null;
+    function prettyDate(value){
+      if(!value) return "No expiry";
 
-    if(videoPathValue.startsWith("http")) payload.video_url = videoPathValue;
-    else payload.video_path = videoPathValue || null;
+      const date = new Date(value);
 
-    return payload;
-  }
+      if(Number.isNaN(date.getTime())){
+        return "No expiry";
+      }
 
-  function safeFileName(file){
-    const ext = file.name.includes(".") ? file.name.split(".").pop().toLowerCase() : "bin";
-    const base = file.name.replace(/\.[^/.]+$/, "").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,45) || "media";
-    return `${Date.now()}-${base}.${ext}`;
-  }
+      return date.toLocaleString(
+        [],
+        {
+          year:"numeric",
+          month:"short",
+          day:"numeric",
+          hour:"numeric",
+          minute:"2-digit"
+        }
+      );
+    }
 
-  async function uploadOneMedia(file, kind){
-    if(!file) return null;
+    function isExpired(row){
+      return (
+        row.expires_at &&
+        new Date(row.expires_at).getTime() < Date.now()
+      );
+    }
 
-    const name = $("#exName").value.trim() || "exercise";
-    const folder = slugify($("#exSlug").value.trim() || name) || "exercise";
-    const path = `${folder}/${kind}-${safeFileName(file)}`;
+    function statusPill(row){
+      if(!row.is_active){
+        return '<span class="status-pill red">Inactive</span>';
+      }
 
-    // More reliable than direct browser upload with RLS:
-    // admin is verified by Netlify function, then Supabase returns a signed upload token.
-    const signed = await api("/.netlify/functions/admin-create-media-upload-url", {
-      method:"POST",
-      body:JSON.stringify({
-        bucket:"exercise-media",
+      if(isExpired(row)){
+        return '<span class="status-pill amber">Expired</span>';
+      }
+
+      if(
+        row.max_redemptions !== null &&
+        row.max_redemptions !== undefined &&
+        Number(row.used_count || 0) >=
+        Number(row.max_redemptions)
+      ){
+        return '<span class="status-pill amber">Used up</span>';
+      }
+
+      return '<span class="status-pill">Active</span>';
+    }
+
+    function requireSession(){
+      if(!currentSession?.access_token){
+        location.href = "auth.html?mode=login";
+        return "";
+      }
+
+      return currentSession.access_token;
+    }
+
+    async function api(path, options = {}){
+      const token = requireSession();
+
+      if(!token){
+        throw new Error("Login required.");
+      }
+
+      const response = await fetch(
         path,
-        mime_type:file.type || "application/octet-stream",
-        size:file.size || 0
-      })
-    });
+        {
+          ...options,
+          headers:{
+            "Content-Type":"application/json",
+            "Authorization":`Bearer ${token}`,
+            ...(options.headers || {})
+          }
+        }
+      );
 
-    if(!signed?.token || !signed?.path){
-      throw new Error("Could not create signed upload URL.");
+      const result = await response
+        .json()
+        .catch(() => ({}));
+
+      if(
+        !response.ok ||
+        result.ok === false
+      ){
+        throw new Error(
+          result.error ||
+          "Request failed."
+        );
+      }
+
+      return result;
     }
 
-    const { data, error } = await supabaseClient.storage
-      .from("exercise-media")
-      .uploadToSignedUrl(signed.path, signed.token, file, {
-        cacheControl:"3600",
-        contentType:file.type || undefined
-      });
+    function readPromoForm(){
+      const code = $("#customCode")
+        .value
+        .trim()
+        .toUpperCase()
+        .replace(/\s+/g,"");
 
-    if(error) throw error;
-    return data?.path || signed.path;
-  }
+      const duration =
+        $("#durationDays").value.trim();
 
-  async function uploadExerciseMedia(){
-    const btn = $("#uploadMediaBtn");
-    const old = btn.textContent;
-    const imageFile = $("#exImageFile").files?.[0] || null;
-    const videoFile = $("#exVideoFile").files?.[0] || null;
+      const maximum =
+        $("#maxRedemptions").value.trim();
 
-    if(!imageFile && !videoFile){
-      showStatus("#exerciseStatus", "Choose image or video first.", "info");
-      return;
+      const expiresRaw =
+        $("#expiresAt").value;
+
+      return {
+        plan_code:$("#planCode").value,
+        code:code || undefined,
+        duration_days:duration
+          ? Number(duration)
+          : null,
+        max_redemptions:maximum
+          ? Number(maximum)
+          : null,
+        expires_at:expiresRaw
+          ? new Date(expiresRaw).toISOString()
+          : null,
+        notes:$("#notes").value.trim() || null
+      };
     }
 
-    try{
-      btn.disabled = true;
-      btn.textContent = "Uploading...";
-      showStatus("#exerciseStatus", "Uploading media...", "info");
-
-      const imagePath = await uploadOneMedia(imageFile, "image");
-      const videoPath = await uploadOneMedia(videoFile, "video");
-      if(imagePath) $("#exImagePath").value = imagePath;
-      if(videoPath) $("#exVideoPath").value = videoPath;
-
-      showStatus("#exerciseStatus", "Media uploaded. Now save the exercise guide.", "good");
-      renderExercisePreview(null);
-    }catch(err){
-      showStatus("#exerciseStatus", err.message || "Could not upload media. Check admin storage policy.", "bad");
-    }finally{
-      btn.disabled = false;
-      btn.textContent = old;
+    function resetPromoForm(){
+      $("#customCode").value = "";
+      $("#durationDays").value = "30";
+      $("#maxRedemptions").value = "1";
+      $("#expiresAt").value = "";
+      $("#notes").value = "";
+      $("#planCode").value = "premium_plus";
     }
-  }
 
-  async function saveExercise(){
-    const btn = $("#saveExerciseBtn");
-    const old = btn.textContent;
-    try{
-      btn.disabled = true;
-      btn.textContent = "Saving...";
-      showStatus("#exerciseStatus", "Saving exercise guide...", "info");
+    async function createPromo(){
+      const button = $("#createBtn");
+      const originalText = button.textContent;
 
-      const result = await api("/.netlify/functions/admin-save-exercise", { method:"POST", body:JSON.stringify(exercisePayload()) });
-      showStatus("#exerciseStatus", result.message || "Exercise saved.", "good");
-      await loadExercises();
-      fillExerciseForm(result.exercise);
-    }catch(err){
-      showStatus("#exerciseStatus", err.message || "Could not save exercise.", "bad");
-    }finally{
-      btn.disabled = false;
-      btn.textContent = old;
-    }
-  }
+      try{
+        button.disabled = true;
+        button.textContent = "Creating...";
 
-  async function loadExercises(){
-    try{
-      showStatus("#exerciseListStatus", "Loading exercises...", "info");
-      const result = await api("/.netlify/functions/admin-list-exercises", { method:"GET" });
-      exercises = result.exercises || [];
-      renderExerciseOptions();
-      renderExercises();
-      renderStats();
-      showStatus("#exerciseListStatus", exercises.length ? "" : "No exercises yet.", exercises.length ? "" : "info");
-      if(result.admin?.role) $("#adminRoleTag").textContent = result.admin.role;
-    }catch(err){
-      showStatus("#exerciseListStatus", err.message || "Could not load exercises.", "bad");
-      if(String(err.message || "").toLowerCase().includes("admin")){
-        hide($("#adminScreen")); show($("#noAccessScreen"));
+        showStatus(
+          "#createStatus",
+          "",
+          ""
+        );
+
+        const payload = readPromoForm();
+
+        const result = await api(
+          "/.netlify/functions/admin-create-promo",
+          {
+            method:"POST",
+            body:JSON.stringify(payload)
+          }
+        );
+
+        const code =
+          result.promo?.code ||
+          payload.code ||
+          "Created";
+
+        showStatus(
+          "#createStatus",
+          `Promo created: ${code}`,
+          "good"
+        );
+
+        try{
+          await navigator.clipboard.writeText(code);
+        }catch{}
+
+        resetPromoForm();
+        await loadPromos();
+        scrollToCodes(false);
+      }catch(error){
+        showStatus(
+          "#createStatus",
+          error.message ||
+          "Could not create promo.",
+          "bad"
+        );
+      }finally{
+        button.disabled = false;
+        button.textContent = originalText;
       }
     }
-  }
 
-  function renderExerciseOptions(){
-    const select = $("#exerciseSelect");
-    const current = select.value;
-    select.innerHTML = `<option value="">New exercise / choose existing</option>` + exercises.map(ex => `<option value="${esc(ex.id)}">${esc(ex.name)} ${ex.category ? `• ${esc(ex.category)}` : ""}</option>`).join("");
-    if(current) select.value = current;
-  }
+    async function loadPromos(){
+      try{
+        showStatus(
+          "#listStatus",
+          "Loading promo codes...",
+          "info"
+        );
 
-  function renderExercises(){
-    const list = $("#exerciseList");
-    const q = $("#exerciseSearch").value.trim().toLowerCase();
-    const filter = $("#exerciseFilter")?.value || "all";
-    const filtered = exercises.filter(ex => {
-      const haystack = [ex.name, ex.category, ex.section, ex.target_muscle, ex.equipment, ex.difficulty, ex.usage_priority, ex.media_status, ex.guide_status].join(" ").toLowerCase();
-      const matchesSearch = !q || haystack.includes(q);
-      if(!matchesSearch) return false;
-      if(filter === "plan_ready") return ex.plan_ready && ex.approved !== false;
-      if(filter === "not_ready") return !ex.plan_ready || ex.approved === false;
-      if(filter === "missing_media") return (ex.media_status || "missing") === "missing";
-      if(filter === "missing_guide") return (ex.guide_status || "missing") === "missing";
-      if(filter === "high_priority") return (ex.usage_priority || "medium") === "high";
-      return true;
-    });
+        const result = await api(
+          "/.netlify/functions/admin-list-promos",
+          { method:"GET" }
+        );
 
-    if(!filtered.length){
-      list.innerHTML = "";
-      showStatus("#exerciseListStatus", q ? "No matching exercises." : "No exercises yet.", "info");
-      return;
+        promos = result.promos || [];
+
+        renderStats();
+        renderPromos();
+
+        showStatus(
+          "#listStatus",
+          promos.length
+            ? ""
+            : "No promo codes yet.",
+          promos.length
+            ? ""
+            : "info"
+        );
+
+        if(result.admin?.role){
+          $("#adminRoleTag").textContent =
+            result.admin.role;
+        }
+      }catch(error){
+        showStatus(
+          "#listStatus",
+          error.message ||
+          "Could not load promo codes.",
+          "bad"
+        );
+
+        if(
+          String(error.message || "")
+            .toLowerCase()
+            .includes("admin")
+        ){
+          hide($("#adminScreen"));
+          show($("#noAccessScreen"));
+        }
+      }
     }
 
-    showStatus("#exerciseListStatus", "", "");
-    list.innerHTML = filtered.map(ex => {
-      const media = ex.image_public_url ? `<img src="${esc(ex.image_public_url)}" alt="">` : (ex.video_public_url ? `<video src="${esc(ex.video_public_url)}"></video>` : "▣");
-      const mediaStatus = ex.plan_ready && ex.approved !== false
-        ? `<span class="status-pill">Plan ready</span>`
-        : ((ex.media_status || "missing") === "missing" ? `<span class="status-pill amber">No media</span>` : `<span class="status-pill blue">Draft</span>`);
-      return `
-        <article class="exercise-card">
-          <div class="exercise-top">
-            <div style="display:flex;gap:10px;align-items:flex-start;min-width:0">
-              <div class="media-thumb">${media}</div>
+    function renderStats(){
+      const total = promos.length;
+
+      const active = promos.filter(
+        promo =>
+          promo.is_active &&
+          !isExpired(promo)
+      ).length;
+
+      const used = promos.reduce(
+        (sum,promo) =>
+          sum + Number(promo.used_count || 0),
+        0
+      );
+
+      const ready = exercises.filter(
+        exercise =>
+          exercise.plan_ready &&
+          exercise.approved !== false
+      ).length;
+
+      $("#statTotal").textContent = total;
+      $("#statActive").textContent = active;
+      $("#statUsed").textContent = used;
+      $("#statExercises").textContent =
+        `${ready}/${exercises.length || 0}`;
+    }
+
+    function renderPromos(){
+      const list = $("#promoList");
+
+      if(!promos.length){
+        list.innerHTML = "";
+        return;
+      }
+
+      list.innerHTML = promos.map(row => {
+        const plan =
+          row.plan_name ||
+          planName(row.plan_code);
+
+        const usedText =
+          `${Number(row.used_count || 0)} / ${row.max_redemptions ?? "Unlimited"}`;
+
+        const durationText = row.duration_days
+          ? `${row.duration_days} days access`
+          : "No access end date";
+
+        return `
+          <article class="promo-card" data-promo-id="${esc(row.id)}">
+            <div class="promo-top">
               <div>
-                <div class="exercise-name">${esc(ex.name)}</div>
-                <div class="exercise-meta">
-                  ${esc(ex.category || "general")} • ${esc(ex.section || "main")} • ${esc(ex.difficulty || "beginner")} • ${esc(ex.usage_priority || "medium")}<br>
-                  ${esc(ex.target_muscle || "No target muscle")} ${ex.equipment ? `• ${esc(ex.equipment)}` : ""}<br>
-                  Media: ${esc(ex.media_status || "missing")} • Guide: ${esc(ex.guide_status || "missing")} ${ex.approved === false ? "• Not approved" : ""}
+                <div class="promo-code">${esc(row.code)}</div>
+                <div class="promo-meta">
+                  ${esc(plan)} / ${money(row.monthly_price_cents)} / ${esc(durationText)}<br />
+                  Uses: ${esc(usedText)} / Code expiry: ${esc(prettyDate(row.expires_at))}<br />
+                  Created: ${esc(prettyDate(row.created_at))}
+                  ${row.notes ? `<br />Notes: ${esc(row.notes)}` : ""}
                 </div>
               </div>
+
+              ${statusPill(row)}
             </div>
-            ${mediaStatus}
-          </div>
-          <div class="exercise-actions">
-            <button class="mini-btn green" type="button" data-edit-exercise="${esc(ex.id)}">Edit</button>
-            <button class="mini-btn blue" type="button" data-copy-exercise="${esc(ex.name)}">Copy name</button>
-          </div>
-        </article>`;
-    }).join("");
-  }
 
-  async function updatePromo(id, updates){
-    await api("/.netlify/functions/admin-update-promo", { method:"POST", body:JSON.stringify({ id, ...updates }) });
-    await loadPromos();
-  }
+            <div class="promo-actions">
+              <button
+                class="mini-btn green"
+                type="button"
+                data-copy-code="${esc(row.code)}"
+              >
+                Copy code
+              </button>
 
-  function setActiveTab(tab){
-    $$(".tab").forEach(t => t.classList.remove("active"));
-    tab.classList.add("active");
-  }
-
-  function openPanel(selector){
-    const el = $(selector);
-    if(el && el.tagName === "DETAILS") el.open = true;
-    return el;
-  }
-
-  function scrollToCodes(smooth = true){
-    setActiveTab($("#codesTab"));
-    const el = openPanel("#listSection");
-    el?.scrollIntoView({ behavior:smooth ? "smooth" : "auto", block:"start" });
-  }
-  function scrollToCreate(){
-    setActiveTab($("#createTab"));
-    const el = openPanel("#createSection");
-    el?.scrollIntoView({ behavior:"smooth", block:"start" });
-  }
-  function scrollToExercises(){
-    setActiveTab($("#exerciseTab"));
-    const el = openPanel("#exerciseSection");
-    el?.scrollIntoView({ behavior:"smooth", block:"start" });
-  }
-
-  async function boot(){
-    const { data } = await supabaseClient.auth.getSession();
-    currentSession = data?.session || null;
-    if(!currentSession){ location.href = "auth.html?mode=login"; return; }
-
-    hide($("#loader")); show($("#adminScreen"));
-    resetPromoForm(); resetExerciseForm();
-    await Promise.all([loadPromos(), loadExercises()]);
-  }
-
-  $("#createBtn").addEventListener("click", createPromo);
-  $("#refreshBtn").addEventListener("click", loadPromos);
-  $("#refreshExercisesBtn").addEventListener("click", loadExercises);
-  $("#newExerciseBtn").addEventListener("click", resetExerciseForm);
-  $("#uploadMediaBtn").addEventListener("click", uploadExerciseMedia);
-  $("#saveExerciseBtn").addEventListener("click", saveExercise);
-  $("#exerciseSearch").addEventListener("input", renderExercises);
-  $("#exerciseFilter").addEventListener("change", renderExercises);
-  $("#exName").addEventListener("input", () => { if(!$("#exSlug").value.trim()) $("#exSlug").value = slugify($("#exName").value); });
-  $("#exImagePath").addEventListener("input", () => renderExercisePreview(null));
-  $("#exVideoPath").addEventListener("input", () => renderExercisePreview(null));
-  $("#exerciseSelect").addEventListener("change", () => {
-    const ex = exercises.find(e => String(e.id) === String($("#exerciseSelect").value));
-    fillExerciseForm(ex || null);
-  });
-
-  $("#logoutBtn").addEventListener("click", async () => { await supabaseClient.auth.signOut(); location.href = "auth.html?mode=login"; });
-  $("#createTab").addEventListener("click", scrollToCreate);
-  $("#codesTab").addEventListener("click", () => scrollToCodes(true));
-  $("#exerciseTab").addEventListener("click", scrollToExercises);
-  $("#quickCreateBtn")?.addEventListener("click", scrollToCreate);
-  $("#quickCodesBtn")?.addEventListener("click", () => scrollToCodes(true));
-  $("#quickExerciseBtn")?.addEventListener("click", scrollToExercises);
-
-  document.addEventListener("click", async e => {
-    const copy = e.target.closest("[data-copy-code]");
-    if(copy){ await copyText(copy.dataset.copyCode); return; }
-
-    const toggle = e.target.closest("[data-toggle-promo]");
-    if(toggle){
-      const id = toggle.dataset.togglePromo;
-      const active = toggle.dataset.active === "true";
-      toggle.disabled = true;
-      try{ await updatePromo(id, { is_active: active }); showStatus("#listStatus", active ? "Promo reactivated." : "Promo deactivated.", "good"); }
-      catch(err){ showStatus("#listStatus", err.message || "Could not update promo.", "bad"); }
-      finally{ toggle.disabled = false; }
-      return;
+              <button
+                class="mini-btn ${row.is_active ? "red" : "green"}"
+                type="button"
+                data-toggle-promo="${esc(row.id)}"
+                data-active="${row.is_active ? "false" : "true"}"
+              >
+                ${row.is_active ? "Deactivate" : "Reactivate"}
+              </button>
+            </div>
+          </article>
+        `;
+      }).join("");
     }
 
-    const edit = e.target.closest("[data-edit-exercise]");
-    if(edit){
-      const ex = exercises.find(x => String(x.id) === String(edit.dataset.editExercise));
-      fillExerciseForm(ex);
-      scrollToExercises();
-      return;
+    async function updatePromo(id, updates){
+      await api(
+        "/.netlify/functions/admin-update-promo",
+        {
+          method:"POST",
+          body:JSON.stringify({
+            id,
+            ...updates
+          })
+        }
+      );
+
+      await loadPromos();
     }
 
-    const copyEx = e.target.closest("[data-copy-exercise]");
-    if(copyEx){
-      try{ await navigator.clipboard.writeText(copyEx.dataset.copyExercise); showStatus("#exerciseListStatus", `Copied: ${copyEx.dataset.copyExercise}`, "good"); }
-      catch{ showStatus("#exerciseListStatus", `Copy manually: ${copyEx.dataset.copyExercise}`, "info"); }
-    }
-  });
+    async function copyText(text){
+      try{
+        await navigator.clipboard.writeText(text);
 
-  boot();
-</script>
+        showStatus(
+          "#listStatus",
+          `Copied: ${text}`,
+          "good"
+        );
+      }catch{
+        showStatus(
+          "#listStatus",
+          `Copy manually: ${text}`,
+          "info"
+        );
+      }
+    }
+
+    function resetExerciseForm(){
+      $("#exerciseId").value = "";
+      $("#exerciseSelect").value = "";
+      $("#exName").value = "";
+      $("#exSlug").value = "";
+      $("#exCategory").value = "";
+      $("#exSection").value = "main";
+      $("#exDifficulty").value = "beginner";
+      $("#exTargetMuscle").value = "";
+      $("#exEquipment").value = "";
+      $("#exShortCue").value = "";
+      $("#exGuideSteps").value = "";
+      $("#exMistakes").value = "";
+      $("#exPainWarning").value = "";
+      $("#exAlternatives").value = "";
+      $("#exSafeAlternative").value = "";
+      $("#exBackSafe").checked = false;
+      $("#exKneeSafe").checked = false;
+      $("#exShoulderSafe").checked = false;
+      $("#exApproved").checked = true;
+      $("#exPlanReady").checked = false;
+      $("#exMediaRequired").checked = true;
+      $("#exUsagePriority").value = "medium";
+      $("#exQualityNote").value =
+        "Plan ready needs media and guide";
+      $("#exImageFile").value = "";
+      $("#exVideoFile").value = "";
+      $("#exImagePath").value = "";
+      $("#exVideoPath").value = "";
+
+      renderExercisePreview(null);
+
+      showStatus(
+        "#exerciseStatus",
+        "",
+        ""
+      );
+    }
+
+    function fillExerciseForm(exercise){
+      if(!exercise){
+        resetExerciseForm();
+        return;
+      }
+
+      $("#exerciseId").value =
+        exercise.id || "";
+
+      $("#exerciseSelect").value =
+        exercise.id || "";
+
+      $("#exName").value =
+        exercise.name || "";
+
+      $("#exSlug").value =
+        exercise.slug || "";
+
+      $("#exCategory").value =
+        exercise.category || "";
+
+      $("#exSection").value =
+        exercise.section || "main";
+
+      $("#exDifficulty").value =
+        exercise.difficulty || "beginner";
+
+      $("#exTargetMuscle").value =
+        exercise.target_muscle || "";
+
+      $("#exEquipment").value =
+        exercise.equipment || "";
+
+      $("#exShortCue").value =
+        exercise.short_cue || "";
+
+      $("#exGuideSteps").value =
+        Array.isArray(exercise.guide_steps)
+          ? exercise.guide_steps.join("\n")
+          : "";
+
+      $("#exMistakes").value =
+        Array.isArray(exercise.common_mistakes) &&
+        exercise.common_mistakes.length
+          ? exercise.common_mistakes.join("\n")
+          : (exercise.common_mistake || "");
+
+      $("#exPainWarning").value =
+        exercise.pain_warning || "";
+
+      $("#exAlternatives").value =
+        Array.isArray(exercise.alternatives) &&
+        exercise.alternatives.length
+          ? exercise.alternatives.join("\n")
+          : "";
+
+      $("#exSafeAlternative").value =
+        exercise.safe_alternative || "";
+
+      $("#exBackSafe").checked =
+        !!exercise.back_safe;
+
+      $("#exKneeSafe").checked =
+        !!exercise.knee_safe;
+
+      $("#exShoulderSafe").checked =
+        !!exercise.shoulder_safe;
+
+      $("#exApproved").checked =
+        exercise.approved !== false;
+
+      $("#exPlanReady").checked =
+        !!exercise.plan_ready;
+
+      $("#exMediaRequired").checked =
+        exercise.media_required !== false;
+
+      $("#exUsagePriority").value =
+        exercise.usage_priority || "medium";
+
+      $("#exQualityNote").value =
+        `Media: ${exercise.media_status || "missing"} / Guide: ${exercise.guide_status || "missing"}`;
+
+      $("#exImageFile").value = "";
+      $("#exVideoFile").value = "";
+
+      $("#exImagePath").value =
+        exercise.image_path ||
+        exercise.image_url ||
+        "";
+
+      $("#exVideoPath").value =
+        exercise.video_path ||
+        exercise.video_url ||
+        "";
+
+      renderExercisePreview(exercise);
+    }
+
+    function renderExercisePreview(exercise){
+      const box = $("#exercisePreview");
+
+      const image =
+        exercise?.image_public_url ||
+        (
+          String($("#exImagePath")?.value || "")
+            .startsWith("http")
+            ? $("#exImagePath").value
+            : ""
+        );
+
+      const video =
+        exercise?.video_public_url ||
+        (
+          String($("#exVideoPath")?.value || "")
+            .startsWith("http")
+            ? $("#exVideoPath").value
+            : ""
+        );
+
+      if(image){
+        box.innerHTML =
+          `<img src="${esc(image)}" alt="Exercise media" />`;
+        return;
+      }
+
+      if(video){
+        box.innerHTML =
+          `<video src="${esc(video)}" controls playsinline></video>`;
+        return;
+      }
+
+      box.innerHTML =
+        "<span>No exercise media selected</span>";
+    }
+
+    function exercisePayload(){
+      const name =
+        $("#exName").value.trim();
+
+      const imagePathValue =
+        $("#exImagePath").value.trim();
+
+      const videoPathValue =
+        $("#exVideoPath").value.trim();
+
+      const mistakeLines =
+        lines($("#exMistakes").value);
+
+      const payload = {
+        id:$("#exerciseId").value.trim() || undefined,
+        name,
+        slug:$("#exSlug").value.trim() || slugify(name),
+        category:$("#exCategory").value.trim() || "general",
+        section:$("#exSection").value.trim() || "main",
+        difficulty:$("#exDifficulty").value,
+        target_muscle:$("#exTargetMuscle").value.trim() || null,
+        equipment:$("#exEquipment").value.trim() || null,
+        short_cue:$("#exShortCue").value.trim() || null,
+        guide_steps:lines($("#exGuideSteps").value),
+        common_mistakes:mistakeLines,
+        common_mistake:mistakeLines[0] || null,
+        pain_warning:$("#exPainWarning").value.trim() || null,
+        alternatives:lines($("#exAlternatives").value),
+        safe_alternative:$("#exSafeAlternative").value.trim() || null,
+        back_safe:$("#exBackSafe").checked,
+        knee_safe:$("#exKneeSafe").checked,
+        shoulder_safe:$("#exShoulderSafe").checked,
+        approved:$("#exApproved").checked,
+        plan_ready:$("#exPlanReady").checked,
+        media_required:$("#exMediaRequired").checked,
+        usage_priority:$("#exUsagePriority").value || "medium"
+      };
+
+      if(imagePathValue.startsWith("http")){
+        payload.image_url = imagePathValue;
+      }else{
+        payload.image_path = imagePathValue || null;
+      }
+
+      if(videoPathValue.startsWith("http")){
+        payload.video_url = videoPathValue;
+      }else{
+        payload.video_path = videoPathValue || null;
+      }
+
+      return payload;
+    }
+
+    function safeFileName(file){
+      const extension = file.name.includes(".")
+        ? file.name.split(".").pop().toLowerCase()
+        : "bin";
+
+      const base = file.name
+        .replace(/\.[^/.]+$/,"")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g,"-")
+        .replace(/^-+|-+$/g,"")
+        .slice(0,45) || "media";
+
+      return `${Date.now()}-${base}.${extension}`;
+    }
+
+    async function uploadOneMedia(file, kind){
+      if(!file) return null;
+
+      const name =
+        $("#exName").value.trim() ||
+        "exercise";
+
+      const folder =
+        slugify(
+          $("#exSlug").value.trim() ||
+          name
+        ) || "exercise";
+
+      const path =
+        `${folder}/${kind}-${safeFileName(file)}`;
+
+      const signed = await api(
+        "/.netlify/functions/admin-create-media-upload-url",
+        {
+          method:"POST",
+          body:JSON.stringify({
+            bucket:"exercise-media",
+            path,
+            mime_type:file.type || "application/octet-stream",
+            size:file.size || 0
+          })
+        }
+      );
+
+      if(!signed?.token || !signed?.path){
+        throw new Error(
+          "Could not create signed upload URL."
+        );
+      }
+
+      const { data, error } =
+        await supabaseClient
+          .storage
+          .from("exercise-media")
+          .uploadToSignedUrl(
+            signed.path,
+            signed.token,
+            file,
+            {
+              cacheControl:"3600",
+              contentType:file.type || undefined
+            }
+          );
+
+      if(error) throw error;
+
+      return data?.path || signed.path;
+    }
+
+    async function uploadExerciseMedia(){
+      const button = $("#uploadMediaBtn");
+      const originalText = button.textContent;
+
+      const imageFile =
+        $("#exImageFile").files?.[0] ||
+        null;
+
+      const videoFile =
+        $("#exVideoFile").files?.[0] ||
+        null;
+
+      if(!imageFile && !videoFile){
+        showStatus(
+          "#exerciseStatus",
+          "Choose an image or video first.",
+          "info"
+        );
+        return;
+      }
+
+      try{
+        button.disabled = true;
+        button.textContent = "Uploading...";
+
+        showStatus(
+          "#exerciseStatus",
+          "Uploading media...",
+          "info"
+        );
+
+        const imagePath =
+          await uploadOneMedia(
+            imageFile,
+            "image"
+          );
+
+        const videoPath =
+          await uploadOneMedia(
+            videoFile,
+            "video"
+          );
+
+        if(imagePath){
+          $("#exImagePath").value = imagePath;
+        }
+
+        if(videoPath){
+          $("#exVideoPath").value = videoPath;
+        }
+
+        showStatus(
+          "#exerciseStatus",
+          "Media uploaded. Save the exercise guide next.",
+          "good"
+        );
+
+        renderExercisePreview(null);
+      }catch(error){
+        showStatus(
+          "#exerciseStatus",
+          error.message ||
+          "Could not upload media.",
+          "bad"
+        );
+      }finally{
+        button.disabled = false;
+        button.textContent = originalText;
+      }
+    }
+
+    async function saveExercise(){
+      const button = $("#saveExerciseBtn");
+      const originalText = button.textContent;
+
+      try{
+        button.disabled = true;
+        button.textContent = "Saving...";
+
+        showStatus(
+          "#exerciseStatus",
+          "Saving exercise guide...",
+          "info"
+        );
+
+        const result = await api(
+          "/.netlify/functions/admin-save-exercise",
+          {
+            method:"POST",
+            body:JSON.stringify(
+              exercisePayload()
+            )
+          }
+        );
+
+        showStatus(
+          "#exerciseStatus",
+          result.message ||
+          "Exercise saved.",
+          "good"
+        );
+
+        await loadExercises();
+        fillExerciseForm(result.exercise);
+      }catch(error){
+        showStatus(
+          "#exerciseStatus",
+          error.message ||
+          "Could not save exercise.",
+          "bad"
+        );
+      }finally{
+        button.disabled = false;
+        button.textContent = originalText;
+      }
+    }
+
+    async function loadExercises(){
+      try{
+        showStatus(
+          "#exerciseListStatus",
+          "Loading exercises...",
+          "info"
+        );
+
+        const result = await api(
+          "/.netlify/functions/admin-list-exercises",
+          { method:"GET" }
+        );
+
+        exercises = result.exercises || [];
+
+        renderExerciseOptions();
+        renderExercises();
+        renderStats();
+
+        showStatus(
+          "#exerciseListStatus",
+          exercises.length
+            ? ""
+            : "No exercises yet.",
+          exercises.length
+            ? ""
+            : "info"
+        );
+
+        if(result.admin?.role){
+          $("#adminRoleTag").textContent =
+            result.admin.role;
+        }
+      }catch(error){
+        showStatus(
+          "#exerciseListStatus",
+          error.message ||
+          "Could not load exercises.",
+          "bad"
+        );
+
+        if(
+          String(error.message || "")
+            .toLowerCase()
+            .includes("admin")
+        ){
+          hide($("#adminScreen"));
+          show($("#noAccessScreen"));
+        }
+      }
+    }
+
+    function renderExerciseOptions(){
+      const select = $("#exerciseSelect");
+      const current = select.value;
+
+      select.innerHTML =
+        '<option value="">New exercise / choose existing</option>' +
+        exercises.map(exercise => `
+          <option value="${esc(exercise.id)}">
+            ${esc(exercise.name)}
+            ${exercise.category ? ` / ${esc(exercise.category)}` : ""}
+          </option>
+        `).join("");
+
+      if(current){
+        select.value = current;
+      }
+    }
+
+    function renderExercises(){
+      const list = $("#exerciseList");
+
+      const query = $("#exerciseSearch")
+        .value
+        .trim()
+        .toLowerCase();
+
+      const filter =
+        $("#exerciseFilter")?.value ||
+        "all";
+
+      const filtered = exercises.filter(exercise => {
+        const haystack = [
+          exercise.name,
+          exercise.category,
+          exercise.section,
+          exercise.target_muscle,
+          exercise.equipment,
+          exercise.difficulty,
+          exercise.usage_priority,
+          exercise.media_status,
+          exercise.guide_status
+        ].join(" ").toLowerCase();
+
+        if(
+          query &&
+          !haystack.includes(query)
+        ){
+          return false;
+        }
+
+        if(filter === "plan_ready"){
+          return (
+            exercise.plan_ready &&
+            exercise.approved !== false
+          );
+        }
+
+        if(filter === "not_ready"){
+          return (
+            !exercise.plan_ready ||
+            exercise.approved === false
+          );
+        }
+
+        if(filter === "missing_media"){
+          return (
+            exercise.media_status ||
+            "missing"
+          ) === "missing";
+        }
+
+        if(filter === "missing_guide"){
+          return (
+            exercise.guide_status ||
+            "missing"
+          ) === "missing";
+        }
+
+        if(filter === "high_priority"){
+          return (
+            exercise.usage_priority ||
+            "medium"
+          ) === "high";
+        }
+
+        return true;
+      });
+
+      if(!filtered.length){
+        list.innerHTML = "";
+
+        showStatus(
+          "#exerciseListStatus",
+          query
+            ? "No matching exercises."
+            : "No exercises yet.",
+          "info"
+        );
+
+        return;
+      }
+
+      showStatus(
+        "#exerciseListStatus",
+        "",
+        ""
+      );
+
+      list.innerHTML = filtered.map(exercise => {
+        const media = exercise.image_public_url
+          ? `<img src="${esc(exercise.image_public_url)}" alt="" />`
+          : (
+              exercise.video_public_url
+                ? `<video src="${esc(exercise.video_public_url)}"></video>`
+                : "Media"
+            );
+
+        const readyStatus = (
+          exercise.plan_ready &&
+          exercise.approved !== false
+        )
+          ? '<span class="status-pill">Plan ready</span>'
+          : (
+              (exercise.media_status || "missing") === "missing"
+                ? '<span class="status-pill amber">No media</span>'
+                : '<span class="status-pill blue">Draft</span>'
+            );
+
+        return `
+          <article class="exercise-card">
+            <div class="exercise-top">
+              <div style="display:flex;gap:9px;align-items:flex-start;min-width:0">
+                <div class="media-thumb">${media}</div>
+
+                <div style="min-width:0">
+                  <div class="exercise-name">${esc(exercise.name)}</div>
+
+                  <div class="exercise-meta">
+                    ${esc(exercise.category || "general")} /
+                    ${esc(exercise.section || "main")} /
+                    ${esc(exercise.difficulty || "beginner")} /
+                    ${esc(exercise.usage_priority || "medium")}<br />
+                    ${esc(exercise.target_muscle || "No target muscle")}
+                    ${exercise.equipment ? ` / ${esc(exercise.equipment)}` : ""}<br />
+                    Media: ${esc(exercise.media_status || "missing")} /
+                    Guide: ${esc(exercise.guide_status || "missing")}
+                    ${exercise.approved === false ? " / Not approved" : ""}
+                  </div>
+                </div>
+              </div>
+
+              ${readyStatus}
+            </div>
+
+            <div class="exercise-actions">
+              <button
+                class="mini-btn green"
+                type="button"
+                data-edit-exercise="${esc(exercise.id)}"
+              >
+                Edit
+              </button>
+
+              <button
+                class="mini-btn blue"
+                type="button"
+                data-copy-exercise="${esc(exercise.name)}"
+              >
+                Copy name
+              </button>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function setActiveTab(tab){
+      $$(".tab").forEach(item => {
+        item.classList.remove("active");
+      });
+
+      tab.classList.add("active");
+    }
+
+    function openPanel(selector){
+      const element = $(selector);
+
+      if(
+        element &&
+        element.tagName === "DETAILS"
+      ){
+        element.open = true;
+      }
+
+      return element;
+    }
+
+    function scrollToCodes(smooth = true){
+      setActiveTab($("#codesTab"));
+
+      const element =
+        openPanel("#listSection");
+
+      element?.scrollIntoView({
+        behavior:smooth ? "smooth" : "auto",
+        block:"start"
+      });
+    }
+
+    function scrollToCreate(){
+      setActiveTab($("#createTab"));
+
+      const element =
+        openPanel("#createSection");
+
+      element?.scrollIntoView({
+        behavior:"smooth",
+        block:"start"
+      });
+    }
+
+    function scrollToExercises(){
+      setActiveTab($("#exerciseTab"));
+
+      const element =
+        openPanel("#exerciseSection");
+
+      element?.scrollIntoView({
+        behavior:"smooth",
+        block:"start"
+      });
+    }
+
+    async function boot(){
+      const { data } =
+        await supabaseClient
+          .auth
+          .getSession();
+
+      currentSession =
+        data?.session ||
+        null;
+
+      if(!currentSession){
+        location.href = "auth.html?mode=login";
+        return;
+      }
+
+      const loader = $("#loader");
+
+      loader.hidden = true;
+      loader.style.display = "none";
+
+      hide(loader);
+      show($("#adminScreen"));
+
+      resetPromoForm();
+      resetExerciseForm();
+
+      await Promise.all([
+        loadPromos(),
+        loadExercises()
+      ]);
+    }
+
+    $("#createBtn").addEventListener(
+      "click",
+      createPromo
+    );
+
+    $("#refreshBtn").addEventListener(
+      "click",
+      loadPromos
+    );
+
+    $("#refreshExercisesBtn").addEventListener(
+      "click",
+      loadExercises
+    );
+
+    $("#newExerciseBtn").addEventListener(
+      "click",
+      resetExerciseForm
+    );
+
+    $("#uploadMediaBtn").addEventListener(
+      "click",
+      uploadExerciseMedia
+    );
+
+    $("#saveExerciseBtn").addEventListener(
+      "click",
+      saveExercise
+    );
+
+    $("#exerciseSearch").addEventListener(
+      "input",
+      renderExercises
+    );
+
+    $("#exerciseFilter").addEventListener(
+      "change",
+      renderExercises
+    );
+
+    $("#exName").addEventListener(
+      "input",
+      () => {
+        if(!$("#exSlug").value.trim()){
+          $("#exSlug").value =
+            slugify($("#exName").value);
+        }
+      }
+    );
+
+    $("#exImagePath").addEventListener(
+      "input",
+      () => renderExercisePreview(null)
+    );
+
+    $("#exVideoPath").addEventListener(
+      "input",
+      () => renderExercisePreview(null)
+    );
+
+    $("#exerciseSelect").addEventListener(
+      "change",
+      () => {
+        const exercise = exercises.find(
+          item =>
+            String(item.id) ===
+            String($("#exerciseSelect").value)
+        );
+
+        fillExerciseForm(exercise || null);
+      }
+    );
+
+    $("#logoutBtn").addEventListener(
+      "click",
+      async () => {
+        await supabaseClient.auth.signOut();
+        location.href = "auth.html?mode=login";
+      }
+    );
+
+    $("#createTab").addEventListener(
+      "click",
+      scrollToCreate
+    );
+
+    $("#codesTab").addEventListener(
+      "click",
+      () => scrollToCodes(true)
+    );
+
+    $("#exerciseTab").addEventListener(
+      "click",
+      scrollToExercises
+    );
+
+    $("#quickCreateBtn").addEventListener(
+      "click",
+      scrollToCreate
+    );
+
+    $("#quickCodesBtn").addEventListener(
+      "click",
+      () => scrollToCodes(true)
+    );
+
+    $("#quickExerciseBtn").addEventListener(
+      "click",
+      scrollToExercises
+    );
+
+    document.addEventListener(
+      "click",
+      async event => {
+        const copyCode = event.target.closest(
+          "[data-copy-code]"
+        );
+
+        if(copyCode){
+          await copyText(
+            copyCode.dataset.copyCode
+          );
+          return;
+        }
+
+        const togglePromo = event.target.closest(
+          "[data-toggle-promo]"
+        );
+
+        if(togglePromo){
+          const id =
+            togglePromo.dataset.togglePromo;
+
+          const active =
+            togglePromo.dataset.active === "true";
+
+          togglePromo.disabled = true;
+
+          try{
+            await updatePromo(
+              id,
+              { is_active:active }
+            );
+
+            showStatus(
+              "#listStatus",
+              active
+                ? "Promo reactivated."
+                : "Promo deactivated.",
+              "good"
+            );
+          }catch(error){
+            showStatus(
+              "#listStatus",
+              error.message ||
+              "Could not update promo.",
+              "bad"
+            );
+          }finally{
+            togglePromo.disabled = false;
+          }
+
+          return;
+        }
+
+        const editExercise = event.target.closest(
+          "[data-edit-exercise]"
+        );
+
+        if(editExercise){
+          const exercise = exercises.find(
+            item =>
+              String(item.id) ===
+              String(editExercise.dataset.editExercise)
+          );
+
+          fillExerciseForm(exercise);
+          scrollToExercises();
+          return;
+        }
+
+        const copyExercise = event.target.closest(
+          "[data-copy-exercise]"
+        );
+
+        if(copyExercise){
+          try{
+            await navigator.clipboard.writeText(
+              copyExercise.dataset.copyExercise
+            );
+
+            showStatus(
+              "#exerciseListStatus",
+              `Copied: ${copyExercise.dataset.copyExercise}`,
+              "good"
+            );
+          }catch{
+            showStatus(
+              "#exerciseListStatus",
+              `Copy manually: ${copyExercise.dataset.copyExercise}`,
+              "info"
+            );
+          }
+        }
+      }
+    );
+
+    boot();
+  </script>
 </body>
 </html>
