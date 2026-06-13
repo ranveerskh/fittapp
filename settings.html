@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark" data-ui-version="approved-settings-v1">
+<html lang="en" data-theme="dark" data-ui-version="approved-settings-v2-loader-fix">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -77,6 +77,10 @@
 
     html{
       scroll-behavior:smooth;
+    }
+
+    [hidden]{
+      display:none !important;
     }
 
     body{
@@ -696,6 +700,21 @@
       }
     }
   
+    #settingsContent{
+      animation:settingsContentIn .18s ease;
+    }
+
+    @keyframes settingsContentIn{
+      from{
+        opacity:.45;
+        transform:translateY(3px);
+      }
+      to{
+        opacity:1;
+        transform:none;
+      }
+    }
+
     /* =========================================================
        SHAPECUE APPROVED SETTINGS UI V1
        Native-style grouped settings using the approved app theme.
@@ -1807,8 +1826,14 @@
       renderAccount();
       renderMembership();
 
-      $("#pageLoader").hidden = true;
-      $("#settingsContent").hidden = false;
+      const loader = $("#pageLoader");
+      const content = $("#settingsContent");
+
+      loader.hidden = true;
+      loader.style.display = "none";
+
+      content.hidden = false;
+      content.style.display = "block";
     }
 
     function renderAccount(){
