@@ -61,18 +61,14 @@ const WORKOUT_POSITIVE_WORDS = {
 };
 
 function json(statusCode, body, extraHeaders = {}) {
-  const success = statusCode >= 200 && statusCode < 300 && statusCode !== 204;
   return {
     statusCode,
     headers: {
       "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": success
-        ? "public, max-age=3600, s-maxage=604800, stale-while-revalidate=2592000"
-        : "no-store, max-age=0",
+      "Cache-Control": "public, max-age=3600, s-maxage=604800, stale-while-revalidate=2592000",
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "GET,OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
-      "X-ShapeCue-Visual-Version": "3",
       ...extraHeaders
     },
     body: JSON.stringify(body)
