@@ -1856,7 +1856,7 @@ let progressPhotoLoading = false;
 
 const VISUAL_TEST_READ_ONLY = true;
 const VISUAL_STYLE_KEY = "shapecue.visual_test.style";
-const VISUAL_CACHE_PREFIX = "shapecue.visual_test.weekly.v2.";
+const VISUAL_CACHE_PREFIX = "shapecue.visual_test.weekly.v3.";
 const visualState = {
   preference: localStorage.getItem(VISUAL_STYLE_KEY) || "auto",
   requestKey: "",
@@ -2385,7 +2385,7 @@ function applyPhotoToCover({
 
   if(!cover || !image || !credit) return;
 
-  cover.classList.remove("visual-ready");
+  cover.classList.remove("visual-ready","visual-minimal");
 
   if(!visual?.image_url){
     cover.classList.remove("visual-loading");
@@ -2396,39 +2396,42 @@ function applyPhotoToCover({
     return;
   }
 
-  const expectedSrc = visual.image_url;
+  const expectedSrc = String(visual.image_url);
+  const preload = new Image();
 
   const reveal = () => {
-    if(image.src !== expectedSrc && image.getAttribute("src") !== expectedSrc) return;
-    cover.classList.remove("visual-loading");
+    image.src = expectedSrc;
+    image.alt = alt || visual.alt || "";
+    cover.classList.remove("visual-loading","visual-minimal");
     cover.classList.add("visual-ready");
+
+    credit.textContent =
+      `Photo by ${visual.photographer_name || "Unsplash contributor"} on Unsplash`;
+
+    credit.href =
+      visual.photographer_url ||
+      visual.unsplash_url ||
+      "https://unsplash.com";
+
+    credit.hidden = false;
+
     if(coverId === "todayCoachCover") restartPulseStrip(true);
   };
 
   const fail = () => {
-    if(image.src !== expectedSrc && image.getAttribute("src") !== expectedSrc) return;
+    console.error("ShapeCue visual image failed:", expectedSrc);
     cover.classList.remove("visual-loading","visual-ready");
     cover.classList.add("visual-minimal");
+    image.removeAttribute("src");
     credit.hidden = true;
     if(coverId === "todayCoachCover") restartPulseStrip(true);
   };
 
-  image.onload = reveal;
-  image.onerror = fail;
-  image.alt = alt || visual.alt || "";
-  image.src = expectedSrc;
+  preload.onload = reveal;
+  preload.onerror = fail;
+  preload.src = expectedSrc;
 
-  credit.textContent =
-    `Photo by ${visual.photographer_name || "Unsplash contributor"} on Unsplash`;
-
-  credit.href =
-    visual.photographer_url ||
-    visual.unsplash_url ||
-    "https://unsplash.com";
-
-  credit.hidden = false;
-
-  if(image.complete && image.naturalWidth > 0){
+  if(preload.complete && preload.naturalWidth > 0){
     requestAnimationFrame(reveal);
   }
 }
@@ -2630,10 +2633,15 @@ function readVisualCache(key){
 
     const parsed = JSON.parse(raw);
 
-    if(
-      !parsed?.visuals ||
-      !parsed?.week_key
-    ){
+    const visuals = parsed?.visuals;
+    const valid =
+      parsed?.week_key &&
+      visuals?.today?.image_url &&
+      visuals?.train?.image_url &&
+      visuals?.meals?.image_url;
+
+    if(!valid){
+      localStorage.removeItem(key);
       return null;
     }
 
@@ -2741,8 +2749,12 @@ async function loadWeeklyVisuals(force = false){
       style,
       workout,
       week:isoWeekKey(),
-      v:"2"
+      v:"3"
     });
+
+    if(force){
+      params.set("refresh", String(Date.now()));
+    }
 
     const response = await fetch(
       `/.netlify/functions/get-weekly-visual?${params.toString()}`,
@@ -2754,15 +2766,32 @@ async function loadWeeklyVisuals(force = false){
       }
     );
 
-    const result = await response
-      .json()
-      .catch(() => ({}));
+    const responseText = await response.text();
+    let result = {};
+
+    try{
+      result = JSON.parse(responseText);
+    }catch{
+      throw new Error(
+        response.status === 404
+          ? "Netlify function was not found. Check netlify/functions/get-weekly-visual.js and redeploy."
+          : `Visual function returned non-JSON (${response.status}).`
+      );
+    }
 
     if(!response.ok || result.ok === false){
       throw new Error(
         result.error ||
-        "Weekly visuals could not be loaded."
+        `Weekly visuals could not be loaded (${response.status}).`
       );
+    }
+
+    if(
+      !result?.visuals?.today?.image_url ||
+      !result?.visuals?.train?.image_url ||
+      !result?.visuals?.meals?.image_url
+    ){
+      throw new Error("Visual function returned no image URLs.");
     }
 
     saveVisualCache(key,result);
@@ -2780,7 +2809,7 @@ async function loadWeeklyVisuals(force = false){
     });
 
     toast(
-      "Visual service unavailable. Gradient preview is showing."
+      `Visual error: ${error.message || "service unavailable"}`
     );
   }finally{
     visualState.loading = false;
