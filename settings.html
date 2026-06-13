@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark" data-ui-version="approved-settings-v4-account-security">
+<html lang="en" data-theme="dark" data-ui-version="approved-settings-v5-auto-ai">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -1092,6 +1092,109 @@
       }
     }
 
+  
+
+    /* Step 4: automatic AI coaching controls */
+    .ai-coach-card{
+      position:relative;
+      overflow:hidden;
+    }
+
+    .ai-coach-card::before{
+      content:"";
+      position:absolute;
+      inset:0 auto auto 0;
+      width:100%;
+      height:3px;
+      background:linear-gradient(90deg,var(--purple),var(--blue),var(--green));
+      opacity:.9;
+    }
+
+    .ai-coach-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom:14px;
+    }
+
+    .ai-coach-head h2{
+      margin:0 0 5px;
+      font-size:18px;
+      letter-spacing:-.02em;
+    }
+
+    .ai-coach-head p{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.45;
+    }
+
+    .ai-status-pill{
+      flex:0 0 auto;
+      min-width:58px;
+      padding:7px 10px;
+      border-radius:999px;
+      text-align:center;
+      font-size:11px;
+      font-weight:900;
+      background:rgba(148,163,184,.14);
+      color:var(--muted);
+      border:1px solid var(--line);
+    }
+
+    .ai-status-pill.on{
+      color:var(--green);
+      background:rgba(34,197,94,.12);
+      border-color:rgba(34,197,94,.24);
+    }
+
+    .ai-status-pill.locked{
+      color:var(--amber);
+      background:rgba(245,158,11,.12);
+      border-color:rgba(245,158,11,.25);
+    }
+
+    .ai-toggle-row{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:13px 0;
+      border-top:1px solid var(--line);
+      border-bottom:1px solid var(--line);
+    }
+
+    .ai-toggle-copy{
+      flex:1;
+      min-width:0;
+    }
+
+    .ai-toggle-copy strong{
+      display:block;
+      font-size:14px;
+      margin-bottom:3px;
+    }
+
+    .ai-toggle-copy span{
+      display:block;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.4;
+    }
+
+    .ai-coach-note{
+      margin:12px 0 0;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.5;
+    }
+
+    .switch:disabled{
+      opacity:.45;
+      cursor:not-allowed;
+    }
+
   </style>
 </head>
 
@@ -1149,6 +1252,53 @@
             <a class="btn primary" href="membership.html">Manage membership</a>
             <a class="btn secondary" href="membership.html#compare">Compare plans</a>
           </div>
+        </section>
+
+
+        <div class="section-label">AI Coaching</div>
+
+        <section class="membership-card ai-coach-card" id="autoAiCard">
+          <div class="ai-coach-head">
+            <div>
+              <h2>Automatic plan updates</h2>
+              <p id="autoAiDescription">Keep your plan updated using your latest meals, workouts, measurements, pain reports, and feedback.</p>
+            </div>
+            <span class="ai-status-pill" id="autoAiStatusPill">Off</span>
+          </div>
+
+          <div class="ai-toggle-row">
+            <div class="ai-toggle-copy">
+              <strong id="autoAiToggleTitle">Update automatically</strong>
+              <span id="autoAiToggleSub">Turn this on to follow your membership schedule.</span>
+            </div>
+            <button class="switch" id="autoAiToggle" type="button" aria-label="Automatic AI plan updates" aria-pressed="false">
+              <span class="switch-dot"></span>
+            </button>
+          </div>
+
+          <div class="membership-meta">
+            <div class="meta-row">
+              <span>Your schedule</span>
+              <strong id="autoAiCadence">Loading…</strong>
+            </div>
+            <div class="meta-row">
+              <span>Last AI update</span>
+              <strong id="lastAiUpdate">Checking…</strong>
+            </div>
+            <div class="meta-row">
+              <span>Next automatic update</span>
+              <strong id="nextAiUpdate">Off</strong>
+            </div>
+          </div>
+
+          <div class="membership-actions">
+            <button class="btn primary" id="updatePlanNowBtn" type="button">Open AI coach</button>
+            <a class="btn secondary" href="membership.html#compare" id="autoAiMembershipBtn">Plan details</a>
+          </div>
+
+          <p class="ai-coach-note" id="autoAiNote">
+            Your current plan stays active while a new plan is prepared.
+          </p>
         </section>
 
         <div class="section-label">Account</div>
@@ -1533,6 +1683,7 @@
     let currentProfile = null;
     let currentEntitlement = null;
     let isAppAdmin = false;
+    let latestAiPlan = null;
 
     function toast(message){
       const box = $("#toast");
@@ -1616,6 +1767,180 @@
       }
 
       return "Starter access with Today, a basic exercise guide, and limited plan previews.";
+    }
+
+
+    function aiCadenceConfig(code){
+      const normalized = normalizePlanCode(code);
+
+      if(normalized === "coach"){
+        return { included:true, label:"Every 7 days", kind:"days", amount:7 };
+      }
+
+      if(normalized === "premium"){
+        return { included:true, label:"Every 14 days", kind:"days", amount:14 };
+      }
+
+      if(normalized === "plus"){
+        return { included:true, label:"Monthly", kind:"months", amount:1 };
+      }
+
+      return { included:false, label:"Not included on Free", kind:null, amount:0 };
+    }
+
+    function formatDateTime(value, fallback = "Not yet"){
+      if(!value) return fallback;
+
+      const date = new Date(value);
+      if(Number.isNaN(date.getTime())) return fallback;
+
+      return date.toLocaleString([], {
+        year:"numeric",
+        month:"short",
+        day:"numeric",
+        hour:"numeric",
+        minute:"2-digit"
+      });
+    }
+
+    function calculateNextAiUpdate(baseValue, code){
+      const config = aiCadenceConfig(code);
+      if(!config.included) return null;
+
+      const date = baseValue ? new Date(baseValue) : new Date();
+      if(Number.isNaN(date.getTime())) return null;
+
+      if(config.kind === "months"){
+        date.setMonth(date.getMonth() + config.amount);
+      }else{
+        date.setDate(date.getDate() + config.amount);
+      }
+
+      return date;
+    }
+
+    async function loadLatestAiPlan(){
+      const { data, error } = await supabaseClient
+        .from("weekly_plans")
+        .select("id,title,created_at,week_start,week_end,status")
+        .eq("user_id", currentUser.id)
+        .order("created_at", { ascending:false })
+        .limit(1);
+
+      if(error){
+        console.warn("Could not load latest AI plan", error);
+        latestAiPlan = null;
+        return null;
+      }
+
+      latestAiPlan = data?.[0] || null;
+      return latestAiPlan;
+    }
+
+    function renderAutoAi(){
+      const code = currentPlanCode();
+      const config = aiCadenceConfig(code);
+      const enabled = Boolean(currentProfile?.auto_plan_updates_enabled) && config.included;
+      const toggle = $("#autoAiToggle");
+      const pill = $("#autoAiStatusPill");
+      const action = $("#updatePlanNowBtn");
+
+      $("#autoAiCadence").textContent = config.label;
+      $("#lastAiUpdate").textContent = formatDateTime(
+        currentProfile?.last_auto_plan_update_at || latestAiPlan?.created_at,
+        "No AI update yet"
+      );
+
+      toggle.disabled = !config.included;
+      toggle.classList.toggle("on", enabled);
+      toggle.setAttribute("aria-pressed", String(enabled));
+
+      pill.classList.remove("on", "locked");
+
+      if(!config.included){
+        pill.textContent = "Upgrade";
+        pill.classList.add("locked");
+        $("#autoAiToggleTitle").textContent = "Automatic updates are locked";
+        $("#autoAiToggleSub").textContent = "Plus updates monthly, Premium every 14 days, and Coach weekly.";
+        $("#nextAiUpdate").textContent = "Not available";
+        $("#autoAiNote").textContent = "Your Free plan can still use the starter experience. Upgrade to schedule recurring AI coaching.";
+        action.textContent = "Compare plans";
+        return;
+      }
+
+      $("#autoAiToggleTitle").textContent = "Update automatically";
+      $("#autoAiToggleSub").textContent = `${planShortName(code)} follows ${config.label.toLowerCase()} AI updates.`;
+      action.textContent = "Update plan now";
+
+      if(enabled){
+        pill.textContent = "On";
+        pill.classList.add("on");
+        $("#nextAiUpdate").textContent = formatDateTime(
+          currentProfile?.next_plan_update_at,
+          "Scheduling…"
+        );
+        $("#autoAiNote").textContent = "ShapeCue will use your newest logs and keep the current plan active until the replacement is ready.";
+      }else{
+        pill.textContent = "Off";
+        $("#nextAiUpdate").textContent = "Turn on to schedule";
+        $("#autoAiNote").textContent = "Automatic updates are optional. You can still request a plan manually from Progress.";
+      }
+    }
+
+    async function saveAutoAiSetting(enabled){
+      const config = aiCadenceConfig(currentPlanCode());
+      if(!config.included){
+        location.href = "membership.html#compare";
+        return;
+      }
+
+      const toggle = $("#autoAiToggle");
+      toggle.disabled = true;
+
+      try{
+        const base =
+          currentProfile?.last_auto_plan_update_at ||
+          latestAiPlan?.created_at ||
+          new Date().toISOString();
+
+        const nextDate = enabled
+          ? calculateNextAiUpdate(base, currentPlanCode())
+          : null;
+
+        const payload = {
+          auto_plan_updates_enabled:Boolean(enabled),
+          next_plan_update_at:nextDate ? nextDate.toISOString() : null,
+          auto_plan_update_status:enabled ? "scheduled" : "paused"
+        };
+
+        const { data, error } = await supabaseClient
+          .from("profiles")
+          .update(payload)
+          .eq("id", currentUser.id)
+          .select("auto_plan_updates_enabled,next_plan_update_at,last_auto_plan_update_at,auto_plan_update_status")
+          .single();
+
+        if(error) throw error;
+
+        currentProfile = {
+          ...currentProfile,
+          ...data
+        };
+
+        renderAutoAi();
+        toast(enabled ? "Automatic AI updates turned on" : "Automatic AI updates turned off");
+      }catch(error){
+        console.error(error);
+        const message = String(error?.message || error || "");
+
+        if(message.toLowerCase().includes("auto_plan_updates")){
+          toast("Run the Step 4 SQL first");
+        }else{
+          toast("Could not save AI update setting");
+        }
+      }finally{
+        toggle.disabled = !aiCadenceConfig(currentPlanCode()).included;
+      }
     }
 
     function currentPlanCode(){
@@ -1822,9 +2147,11 @@
       }
 
       await loadAdminStatus();
+      await loadLatestAiPlan();
 
       renderAccount();
       renderMembership();
+      renderAutoAi();
 
       const loader = $("#pageLoader");
       const content = $("#settingsContent");
@@ -1985,6 +2312,24 @@
       $("#accountSecurityBtn").addEventListener(
         "click",
         () => location.href = "account.html"
+      );
+
+
+      $("#autoAiToggle").addEventListener(
+        "click",
+        () => saveAutoAiSetting(!$("#autoAiToggle").classList.contains("on"))
+      );
+
+      $("#updatePlanNowBtn").addEventListener(
+        "click",
+        () => {
+          if(!aiCadenceConfig(currentPlanCode()).included){
+            location.href = "membership.html#compare";
+            return;
+          }
+
+          location.href = "app.html?open=progress&focus=ai-update";
+        }
       );
 
       $("#adminBtn").addEventListener(
