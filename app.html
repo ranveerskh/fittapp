@@ -1,28 +1,73 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark light" />
   <title>ShapeCue - Dashboard</title>
 
+  <script>
+    (() => {
+      const saved = localStorage.getItem("shapecue.theme") || "system";
+      const resolved = saved === "system"
+        ? (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark")
+        : saved;
+      document.documentElement.dataset.theme = resolved;
+    })();
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root{
-      --bg:#070A0F;
-      --bg2:#0B1220;
-      --line:rgba(255,255,255,.13);
-      --text:#F8FAFC;
-      --muted:#94A3B8;
-      --muted2:#64748B;
-      --green:#22C55E;
-      --blue:#38BDF8;
-      --amber:#F59E0B;
-      --red:#EF4444;
-      --purple:#A78BFA;
-      --shadow:0 24px 70px rgba(0,0,0,.38);
-      --radius:24px;
+      --page:#000000;
+      --surface:#111111;
+      --surface2:#181818;
+      --surface3:#222222;
+      --glass:rgba(22,22,22,.72);
+      --glass-strong:rgba(25,25,25,.84);
+      --line:rgba(255,255,255,.09);
+      --line-strong:rgba(255,255,255,.16);
+      --text:#FFFFFF;
+      --muted:#B3B3B8;
+      --muted2:#78787F;
+      --green:#30D158;
+      --blue:#0A84FF;
+      --amber:#FF9F0A;
+      --red:#FF453A;
+      --purple:#BF5AF2;
+      --green-soft:rgba(48,209,88,.12);
+      --blue-soft:rgba(10,132,255,.12);
+      --amber-soft:rgba(255,159,10,.12);
+      --red-soft:rgba(255,69,58,.12);
+      --purple-soft:rgba(191,90,242,.12);
+      --shadow:0 18px 52px rgba(0,0,0,.46);
+      --radius:22px;
       --max:480px;
+    }
+
+    html[data-theme="light"]{
+      --page:#F5F5F7;
+      --surface:#FFFFFF;
+      --surface2:#F0F0F3;
+      --surface3:#E7E7EB;
+      --glass:rgba(255,255,255,.72);
+      --glass-strong:rgba(255,255,255,.86);
+      --line:rgba(0,0,0,.075);
+      --line-strong:rgba(0,0,0,.13);
+      --text:#111111;
+      --muted:#66666C;
+      --muted2:#8A8A91;
+      --green:#22C55E;
+      --blue:#007AFF;
+      --amber:#FF9500;
+      --red:#FF3B30;
+      --purple:#AF52DE;
+      --green-soft:rgba(34,197,94,.10);
+      --blue-soft:rgba(0,122,255,.09);
+      --amber-soft:rgba(255,149,0,.10);
+      --red-soft:rgba(255,59,48,.09);
+      --purple-soft:rgba(175,82,222,.09);
+      --shadow:0 14px 38px rgba(0,0,0,.11);
     }
 
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -30,600 +75,252 @@
     body{
       margin:0;
       min-height:100vh;
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;
-      background:
-        radial-gradient(circle at top left, rgba(34,197,94,.22), transparent 34%),
-        radial-gradient(circle at top right, rgba(56,189,248,.15), transparent 32%),
-        linear-gradient(180deg,var(--bg),var(--bg2));
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Inter,Arial,sans-serif;
+      background:var(--page);
       color:var(--text);
       overflow-x:hidden;
-      padding-bottom:88px;
+      padding-bottom:82px;
     }
-
     button,input,select,textarea{font:inherit}
     button{cursor:pointer}
     a{color:inherit;text-decoration:none}
 
     .page{width:100%;min-height:100vh;display:flex;justify-content:center}
-    .app-shell{width:100%;max-width:var(--max);min-height:100vh;position:relative;padding:14px 14px 30px}
+    .app-shell{width:100%;max-width:var(--max);min-height:100vh;position:relative;padding:10px 13px 28px}
 
     .topbar{
-      position:sticky;
-      top:0;
-      z-index:25;
-      margin:-14px -14px 10px;
-      padding:14px 14px 10px;
-      background:linear-gradient(180deg,rgba(7,10,15,.96),rgba(7,10,15,.80),rgba(7,10,15,0));
-      backdrop-filter:blur(18px);
+      position:sticky;top:0;z-index:25;
+      margin:-10px -13px 8px;padding:10px 13px 9px;
+      background:linear-gradient(180deg,var(--glass-strong),var(--glass),transparent);
+      backdrop-filter:blur(28px) saturate(180%);
+      -webkit-backdrop-filter:blur(28px) saturate(180%);
     }
-
     .toprow{display:flex;align-items:center;justify-content:space-between;gap:12px}
     .brand{display:flex;align-items:center;gap:10px;min-width:0}
     .logo{
-      width:42px;height:42px;border-radius:16px;display:grid;place-items:center;
-      background:linear-gradient(145deg,rgba(34,197,94,.95),rgba(56,189,248,.72));
-      color:#03100A;font-weight:1000;box-shadow:0 14px 35px rgba(34,197,94,.22)
+      width:40px;height:40px;border-radius:14px;display:grid;place-items:center;
+      background:var(--text);color:var(--page);font-weight:1000;font-size:13px;
+      border:1px solid var(--line-strong)
     }
-    .brand h1{margin:0;font-size:17px;letter-spacing:-.4px;line-height:1.05}
-    .brand span{display:block;margin-top:3px;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:275px}
+    .brand h1{margin:0;font-size:17px;letter-spacing:-.45px;line-height:1.05}
+    .brand span{display:block;margin-top:3px;font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:270px}
+    .top-pill{border:1px solid var(--line);background:var(--surface2);color:var(--muted);padding:7px 10px;border-radius:999px;font-size:11px;font-weight:900;white-space:nowrap}
 
-    .top-pill{
-      border:1px solid rgba(34,197,94,.24);
-      background:rgba(34,197,94,.10);
-      color:#BBF7D0;
-      padding:8px 11px;
-      border-radius:999px;
-      font-size:12px;
-      font-weight:900;
-      white-space:nowrap;
-    }
-
-    .screen{display:none;position:relative;z-index:2;animation:fade .18s ease}
+    .screen{display:none;position:relative;z-index:2;animation:fade .16s ease;padding-bottom:8px}
     .screen.active{display:block}
-    @keyframes fade{from{opacity:.45;transform:translateY(4px)}to{opacity:1;transform:none}}
+    @keyframes fade{from{opacity:.45;transform:translateY(3px)}to{opacity:1;transform:none}}
 
     .hero{
-      border:1px solid rgba(34,197,94,.20);
-      background:
-        radial-gradient(circle at top right,rgba(34,197,94,.18),transparent 42%),
-        linear-gradient(180deg,rgba(255,255,255,.095),rgba(255,255,255,.045));
-      border-radius:28px;
-      padding:16px;
-      box-shadow:var(--shadow);
-      backdrop-filter:blur(22px);
-      overflow:hidden;
-      position:relative;
-      margin-bottom:12px;
-    }
-    .hero h2{margin:0;font-size:28px;line-height:1.02;letter-spacing:-1px}
-    .hero p{margin:8px 0 0;color:#CBD5E1;font-size:13.5px;line-height:1.43}
-
-    .chips-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
-    .tag{
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(0,0,0,.18);
-      color:#CBD5E1;
-      border-radius:999px;
-      padding:6px 9px;
-      font-size:11.5px;
-      font-weight:850;
-    }
-    .tag.green{border-color:rgba(34,197,94,.28);background:rgba(34,197,94,.10);color:#BBF7D0}
-    .tag.blue{border-color:rgba(56,189,248,.25);background:rgba(56,189,248,.10);color:#BAE6FD}
-    .tag.amber{border-color:rgba(245,158,11,.25);background:rgba(245,158,11,.10);color:#FDE68A}
-    .tag.purple{border-color:rgba(167,139,250,.25);background:rgba(167,139,250,.10);color:#DDD6FE}
-
-    .card{
       border:1px solid var(--line);
-      background:linear-gradient(180deg,rgba(255,255,255,.105),rgba(255,255,255,.055));
-      box-shadow:var(--shadow);
-      border-radius:var(--radius);
-      padding:14px;
-      backdrop-filter:blur(22px);
-      margin-top:12px;
+      background:var(--surface);
+      border-radius:25px;
+      padding:15px;
+      box-shadow:none;
       overflow:hidden;
       position:relative;
+      margin-bottom:10px;
     }
+    #todayScreen .hero{box-shadow:var(--shadow)}
+    .hero h2{margin:0;font-size:27px;line-height:1.03;letter-spacing:-1.1px}
+    .hero p{margin:8px 0 0;color:var(--muted);font-size:13px;line-height:1.42}
+
+    .chips-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
+    .tag,.status-pill{
+      border:1px solid var(--line);background:var(--surface2);color:var(--muted);
+      border-radius:999px;padding:6px 9px;font-size:11px;font-weight:900;white-space:nowrap
+    }
+    .tag.green,.status-pill.green{border-color:rgba(48,209,88,.25);background:var(--green-soft);color:var(--green)}
+    .tag.blue,.status-pill.blue{border-color:rgba(10,132,255,.25);background:var(--blue-soft);color:var(--blue)}
+    .tag.amber,.status-pill.amber{border-color:rgba(255,159,10,.25);background:var(--amber-soft);color:var(--amber)}
+    .tag.red,.status-pill.red{border-color:rgba(255,69,58,.25);background:var(--red-soft);color:var(--red)}
+    .tag.purple,.status-pill.purple{border-color:rgba(191,90,242,.25);background:var(--purple-soft);color:var(--purple)}
+
+    .card,.fold-card,.profile-card,.settings-card{
+      border:1px solid var(--line);background:var(--surface);border-radius:var(--radius);box-shadow:none;overflow:hidden
+    }
+    .card{padding:13px;margin-top:10px;position:relative}
     .card-inner{position:relative;z-index:1}
-
     .card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}
-    .card-head h3{margin:0;font-size:18px;letter-spacing:-.35px}
-    .card-head p{margin:4px 0 0;color:var(--muted);font-size:12.5px;line-height:1.35}
-
-    .status-pill{
-      white-space:nowrap;
-      border-radius:999px;
-      padding:6px 9px;
-      font-size:11px;
-      font-weight:950;
-      border:1px solid rgba(34,197,94,.28);
-      background:rgba(34,197,94,.10);
-      color:#BBF7D0;
-    }
-    .status-pill.blue{border-color:rgba(56,189,248,.25);background:rgba(56,189,248,.10);color:#BAE6FD}
-    .status-pill.amber{border-color:rgba(245,158,11,.25);background:rgba(245,158,11,.10);color:#FDE68A}
-    .status-pill.red{border-color:rgba(239,68,68,.25);background:rgba(239,68,68,.10);color:#FECACA}
-    .status-pill.purple{border-color:rgba(167,139,250,.25);background:rgba(167,139,250,.10);color:#DDD6FE}
+    .card-head h3{margin:0;font-size:17px;letter-spacing:-.35px}
+    .card-head p{margin:4px 0 0;color:var(--muted);font-size:12.2px;line-height:1.35}
 
     .timeline{display:grid;gap:8px}
-    .meal{
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(0,0,0,.16);
-      border-radius:18px;
-      padding:11px;
-      display:grid;
-      grid-template-columns:58px 1fr;
-      gap:10px;
-      align-items:start;
+    .meal,.exercise-card,.mini-item,.stat,.photo-upload-box,.ai-status-box,.compact-workout{
+      border:1px solid var(--line);background:var(--surface2)
     }
-    .meal-time{
-      border-radius:14px;
-      background:rgba(34,197,94,.10);
-      border:1px solid rgba(34,197,94,.20);
-      color:#BBF7D0;
-      min-height:42px;
-      display:grid;
-      place-items:center;
-      text-align:center;
-      font-size:11px;
-      font-weight:950;
-      padding:5px;
-    }
+    .meal{border-radius:17px;padding:10px;display:grid;grid-template-columns:61px 1fr;gap:10px;align-items:start}
+    .meal-time{border-radius:13px;background:var(--surface3);border:1px solid var(--line);color:var(--text);min-height:42px;display:grid;place-items:center;text-align:center;font-size:10.5px;font-weight:950;padding:5px}
     .meal b{display:block;font-size:13.5px;margin-bottom:3px}
-    .meal span{display:block;color:var(--muted);font-size:12px;line-height:1.35}
+    .meal span{display:block;color:var(--muted);font-size:12px;line-height:1.38}
     .replacements{margin-top:7px;display:grid;gap:5px}
-    .replacement{
-      font-size:11.5px;
-      line-height:1.3;
-      color:#BAE6FD;
-      border:1px solid rgba(56,189,248,.16);
-      background:rgba(56,189,248,.075);
-      border-radius:12px;
-      padding:7px;
-    }
-    .coach-note{
-      margin-top:7px;
-      font-size:11.5px;
-      line-height:1.35;
-      color:#FDE68A;
-      border:1px solid rgba(245,158,11,.16);
-      background:rgba(245,158,11,.075);
-      border-radius:12px;
-      padding:7px;
-    }
+    .replacement{font-size:11.5px;line-height:1.3;color:var(--blue);background:var(--blue-soft);border-radius:11px;padding:7px}
+    .coach-note{margin-top:7px;font-size:11.5px;line-height:1.35;color:var(--amber);background:var(--amber-soft);border-radius:11px;padding:7px}
 
     .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
     .btn-row.three{grid-template-columns:repeat(3,1fr)}
     .btn-row.four{grid-template-columns:repeat(4,1fr)}
-    .btn{
-      border:0;border-radius:16px;min-height:46px;display:flex;align-items:center;justify-content:center;gap:7px;
-      padding:10px 11px;font-weight:950;font-size:13px;transition:transform .16s ease,opacity .16s ease;user-select:none
-    }
+    .btn{border:1px solid transparent;border-radius:15px;min-height:43px;display:flex;align-items:center;justify-content:center;gap:7px;padding:10px 11px;font-weight:950;font-size:12.6px;transition:transform .16s ease,opacity .16s ease;user-select:none}
     .btn:active{transform:scale(.985)}
-    .btn.primary{background:linear-gradient(135deg,var(--green),#86EFAC);color:#03100A;box-shadow:0 14px 32px rgba(34,197,94,.18)}
-    .btn.secondary{background:rgba(255,255,255,.08);border:1px solid var(--line);color:var(--text)}
-    .btn.blue{background:rgba(56,189,248,.14);border:1px solid rgba(56,189,248,.25);color:#BAE6FD}
-    .btn.amber{background:rgba(245,158,11,.14);border:1px solid rgba(245,158,11,.25);color:#FDE68A}
-    .btn.red{background:rgba(239,68,68,.14);border:1px solid rgba(239,68,68,.25);color:#FECACA}
-    .btn.purple{background:rgba(167,139,250,.14);border:1px solid rgba(167,139,250,.25);color:#DDD6FE}
-    .btn.full{grid-column:1 / -1}
+    .btn.primary{background:var(--green);color:#04180A}
+    .btn.secondary{background:var(--surface2);border-color:var(--line);color:var(--text)}
+    .btn.blue{background:var(--blue-soft);border-color:rgba(10,132,255,.22);color:var(--blue)}
+    .btn.amber{background:var(--amber-soft);border-color:rgba(255,159,10,.22);color:var(--amber)}
+    .btn.red{background:var(--red-soft);border-color:rgba(255,69,58,.22);color:var(--red)}
+    .btn.purple{background:var(--purple-soft);border-color:rgba(191,90,242,.22);color:var(--purple)}
+    .btn.full{grid-column:1/-1}
     .btn:disabled{opacity:.48;cursor:not-allowed;transform:none;box-shadow:none}
 
-    .progress-mini{height:9px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.08);border-radius:999px;overflow:hidden}
-    .progress-mini div{height:100%;width:0;background:linear-gradient(90deg,var(--green),#86EFAC);border-radius:999px;transition:.25s}
-
+    .progress-mini{height:8px;background:var(--surface3);border-radius:999px;overflow:hidden}
+    .progress-mini div{height:100%;width:0;background:var(--green);border-radius:999px;transition:.25s}
     .water-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:stretch}
-    .water-big{
-      border:1px solid rgba(56,189,248,.18);
-      background:rgba(56,189,248,.08);
-      border-radius:20px;
-      padding:14px;
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-      gap:11px;
-    }
-    .water-big strong{font-size:26px;letter-spacing:-1px}
-    .water-big span{font-size:12px;color:#BAE6FD}
+    .water-big{border:1px solid var(--line);background:var(--surface2);border-radius:18px;padding:14px;display:flex;flex-direction:column;justify-content:space-between;gap:11px}
+    .water-big strong{font-size:25px;letter-spacing:-1px}
+    .water-big span{font-size:12px;color:var(--muted)}
 
-    .exercise-card{
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(0,0,0,.16);
-      border-radius:18px;
-      padding:10px;
-      display:grid;
-      grid-template-columns:58px 1fr;
-      gap:10px;
-      align-items:start;
-      margin-bottom:8px;
-    }
-
-    .exercise-card.done{
-      border-color:rgba(34,197,94,.30);
-      background:rgba(34,197,94,.08);
-    }
-
-    .exercise-art{
-      width:58px;
-      height:58px;
-      border-radius:17px;
-      background:
-        radial-gradient(circle at 30% 20%,rgba(34,197,94,.25),transparent 45%),
-        rgba(255,255,255,.07);
-      border:1px solid rgba(255,255,255,.10);
-      display:grid;
-      place-items:center;
-      color:#BBF7D0;
-      overflow:hidden;
-    }
-    .exercise-art svg{width:34px;height:34px;stroke:currentColor}
+    .exercise-card{border-radius:17px;padding:10px;display:grid;grid-template-columns:58px 1fr;gap:10px;align-items:start;margin-bottom:8px}
+    .exercise-card.done{border-color:rgba(48,209,88,.32);background:var(--green-soft)}
+    .exercise-art{width:58px;height:58px;border-radius:15px;background:var(--surface3);border:1px solid var(--line);display:grid;place-items:center;color:var(--green);overflow:hidden}
+    .exercise-art svg{width:32px;height:32px;stroke:currentColor}
     .exercise-art img{width:100%;height:100%;object-fit:cover}
-    .exercise-body b{display:block;font-size:14px;margin-bottom:3px}
-    .exercise-body span{display:block;color:var(--muted);font-size:12px;line-height:1.35}
-    .exercise-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px}
+    .exercise-body b{display:block;font-size:13.5px;margin-bottom:3px}
+    .exercise-body span{display:block;color:var(--muted);font-size:11.8px;line-height:1.35}
+    .exercise-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}
 
     .section-block{margin-top:12px}
-    .section-title{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin:14px 2px 8px;
-    }
+    .section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:13px 2px 8px}
     .section-title h3{margin:0;font-size:16px}
-    .section-title span{font-size:12px;color:var(--muted);font-weight:800}
+    .section-title span{font-size:11.5px;color:var(--muted);font-weight:800}
 
     .field{margin-top:10px}
-    .field label{display:block;font-size:12px;color:#CBD5E1;font-weight:850;margin:0 0 6px 3px}
-    .input,.select,.textarea{
-      width:100%;border:1px solid rgba(255,255,255,.13);background:rgba(0,0,0,.20);
-      color:var(--text);outline:none;border-radius:16px;min-height:48px;padding:11px 12px;font-size:14px
-    }
+    .field label{display:block;font-size:11.5px;color:var(--muted);font-weight:850;margin:0 0 6px 3px}
+    .input,.select,.textarea{width:100%;border:1px solid var(--line);background:var(--surface2);color:var(--text);outline:none;border-radius:14px;min-height:47px;padding:11px 12px;font-size:14px}
     .textarea{min-height:78px;resize:vertical;line-height:1.4}
     .grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 
     .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-    .stat{border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.16);border-radius:19px;padding:12px;min-height:86px;display:flex;flex-direction:column;justify-content:space-between;gap:10px}
-    .stat span{font-size:12px;color:var(--muted)}
-    .stat strong{font-size:20px;letter-spacing:-.5px}
+    .stat{border-radius:17px;padding:12px;min-height:84px;display:flex;flex-direction:column;justify-content:space-between;gap:10px}
+    .stat span{font-size:11.5px;color:var(--muted)}
+    .stat strong{font-size:19px;letter-spacing:-.5px}
 
     .summary-list{display:grid;gap:8px}
-    .summary-line{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid rgba(255,255,255,.08);padding-bottom:8px;font-size:12.5px}
+    .summary-line{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding-bottom:8px;font-size:12.5px}
     .summary-line:last-child{border-bottom:0;padding-bottom:0}
     .summary-line span{color:var(--muted)}
-    .summary-line strong{text-align:right;color:#E2E8F0}
+    .summary-line strong{text-align:right;color:var(--text)}
 
-    .week-day{
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(0,0,0,.15);
-      border-radius:20px;
-      padding:11px;
-      margin-bottom:10px;
-    }
-    .week-day h3{margin:0 0 8px;font-size:16px}
     .mini-list{display:grid;gap:7px}
-    .mini-item{
-      border:1px solid rgba(255,255,255,.08);
-      background:rgba(255,255,255,.045);
-      border-radius:14px;
-      padding:9px;
-      font-size:12px;
-      line-height:1.35;
-    }
-    .mini-item b{display:block;margin-bottom:3px;color:#F8FAFC}
+    .mini-item{border-radius:14px;padding:9px;font-size:12px;line-height:1.35}
+    .mini-item b{display:block;margin-bottom:3px;color:var(--text)}
 
     .bottom-tabs{
-      position:fixed;
-      left:50%;
-      bottom:10px;
-      transform:translateX(-50%);
-      width:calc(100% - 22px);
-      max-width:452px;
-      z-index:40;
-      display:grid;
-      grid-template-columns:repeat(5,1fr);
-      gap:4px;
-      padding:8px 8px calc(8px + env(safe-area-inset-bottom));
-      border:1px solid rgba(255,255,255,.18);
-      border-radius:30px;
-      background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.075));
-      box-shadow:0 24px 70px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.22);
-      backdrop-filter:blur(26px) saturate(190%);
+      position:fixed;left:50%;bottom:8px;transform:translateX(-50%);
+      width:calc(100% - 24px);max-width:440px;z-index:40;
+      display:grid;grid-template-columns:repeat(5,1fr);gap:2px;
+      padding:5px 6px calc(5px + env(safe-area-inset-bottom));
+      border:1px solid var(--line-strong);border-radius:25px;
+      background:var(--glass);
+      box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.14);
+      backdrop-filter:blur(32px) saturate(190%);
+      -webkit-backdrop-filter:blur(32px) saturate(190%);
     }
-    .tab{
-      border:0;
-      background:transparent;
-      color:rgba(226,232,240,.72);
-      border-radius:22px;
-      padding:9px 4px;
-      min-height:54px;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      gap:4px;
-      font-size:10.5px;
-      font-weight:950;
-      position:relative;
-      overflow:hidden;
-    }
-    .tab svg{width:20px;height:20px;stroke:currentColor}
-    .tab.active{
-      color:#06120A;
-      background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(255,255,255,.58));
-      box-shadow:0 12px 26px rgba(255,255,255,.08), inset 0 1px 0 rgba(255,255,255,.82);
-    }
+    html[data-theme="light"] .bottom-tabs{box-shadow:0 16px 42px rgba(0,0,0,.13),inset 0 1px 0 rgba(255,255,255,.92)}
+    .tab{border:1px solid transparent;background:transparent;color:var(--muted2);border-radius:18px;padding:6px 3px;min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:9.8px;font-weight:950;position:relative;overflow:hidden}
+    .tab svg{width:17px;height:17px;stroke:currentColor}
+    .tab.active{color:var(--text);background:rgba(255,255,255,.09);border-color:var(--line)}
+    html[data-theme="light"] .tab.active{background:rgba(0,0,0,.055)}
+    .tab.active svg{color:var(--green)}
 
-    .liquid-card{
-      border:1px solid rgba(255,255,255,.15);
-      background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.055));
-      backdrop-filter:blur(24px) saturate(180%);
-      box-shadow:0 24px 70px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.14);
-    }
-
-    .premium-lock{
-      border:1px solid rgba(245,158,11,.22);
-      background:radial-gradient(circle at top right,rgba(245,158,11,.15),transparent 42%),rgba(245,158,11,.07);
-      color:#FDE68A;
-      border-radius:18px;
-      padding:11px;
-      font-size:12.5px;
-      line-height:1.38;
-      margin-top:10px;
-    }
-
-    .feature-lock-card{
-      border:1px solid rgba(245,158,11,.22);
-      background:radial-gradient(circle at top right,rgba(245,158,11,.13),transparent 40%),rgba(0,0,0,.15);
-      border-radius:22px;
-      padding:13px;
-      margin-top:12px;
-    }
-    .feature-lock-card h3{margin:0;font-size:17px;letter-spacing:-.3px}
-    .feature-lock-card p{margin:6px 0 0;color:#FDE68A;font-size:12.5px;line-height:1.4}
-
-    .plan-access-card{
-      border:1px solid rgba(56,189,248,.20);
-      background:radial-gradient(circle at top right,rgba(56,189,248,.14),transparent 40%),rgba(0,0,0,.16);
-      border-radius:22px;
-      padding:13px;
-      margin-top:12px;
-    }
+    .premium-lock,.feature-lock-card,.plan-access-card{border:1px solid var(--line);background:var(--surface);border-radius:19px;padding:12px;margin-top:10px;color:var(--text)}
+    .feature-lock-card h3,.plan-access-top h3{margin:0;font-size:16px;letter-spacing:-.25px}
+    .feature-lock-card p,.plan-access-top p{margin:5px 0 0;color:var(--muted);font-size:12px;line-height:1.4}
     .plan-access-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-    .plan-access-top h3{margin:0;font-size:17px;letter-spacing:-.35px}
-    .plan-access-top p{margin:5px 0 0;color:var(--muted);font-size:12.5px;line-height:1.35}
-    .plan-chip{
-      white-space:nowrap;
-      border-radius:999px;
-      padding:7px 10px;
-      font-size:11px;
-      font-weight:1000;
-      border:1px solid rgba(34,197,94,.28);
-      background:rgba(34,197,94,.11);
-      color:#BBF7D0;
-    }
-    .plan-chip.free{border-color:rgba(255,255,255,.14);background:rgba(255,255,255,.07);color:#E2E8F0}
-    .ai-status-box{
-      margin-top:14px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.07);
-      border-radius:22px;
-      padding:14px;
-    }
-    .ai-status-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-    .ai-status-top h4{margin:0;font-size:15px;letter-spacing:-.25px}
-    .ai-status-top p{margin:4px 0 0;color:var(--muted);font-size:12.5px;line-height:1.35}
-    .ai-status-meta{display:grid;gap:8px;margin-top:12px}
-    .ai-status-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid rgba(255,255,255,.09);padding-top:8px;font-size:12.5px}
+    .plan-chip{white-space:nowrap;border-radius:999px;padding:6px 9px;font-size:11px;font-weight:1000;border:1px solid rgba(48,209,88,.25);background:var(--green-soft);color:var(--green)}
+    .plan-chip.free{border-color:var(--line);background:var(--surface2);color:var(--muted)}
+    .ai-status-box{margin-top:12px;border-radius:17px;padding:13px}
+    .ai-status-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+    .ai-status-top h4{margin:0;font-size:14.5px;letter-spacing:-.2px}
+    .ai-status-top p{margin:4px 0 0;color:var(--muted);font-size:12px;line-height:1.35}
+    .ai-status-meta{display:grid;gap:8px;margin-top:11px}
+    .ai-status-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid var(--line);padding-top:8px;font-size:12px}
     .ai-status-row span{color:var(--muted)}
-    .ai-status-row strong{font-size:12.5px;text-align:right}
+    .ai-status-row strong{font-size:12px;text-align:right}
     .feature-mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
-    .feature-mini{border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.055);border-radius:15px;padding:9px;font-size:11.5px;line-height:1.3;color:#CBD5E1}
-    .feature-mini.good{border-color:rgba(34,197,94,.20);background:rgba(34,197,94,.08);color:#BBF7D0}
-    .feature-mini.locked{border-color:rgba(245,158,11,.18);background:rgba(245,158,11,.07);color:#FDE68A}
+    .feature-mini{border:1px solid var(--line);background:var(--surface2);border-radius:13px;padding:9px;font-size:11.5px;line-height:1.3;color:var(--muted)}
+    .feature-mini.good{color:var(--green);background:var(--green-soft);border-color:rgba(48,209,88,.2)}
+    .feature-mini.locked{color:var(--amber);background:var(--amber-soft);border-color:rgba(255,159,10,.18)}
 
-    .promo-inline{margin-top:12px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.15);border-radius:18px;padding:10px}
+    .promo-inline{margin-top:12px;border:1px solid var(--line);background:var(--surface2);border-radius:17px;padding:10px}
     .promo-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
-    .promo-row .btn{min-height:48px;margin-top:0;white-space:nowrap}
+    .promo-row .btn{min-height:47px;margin-top:0;white-space:nowrap}
     .promo-msg{margin-top:8px;font-size:12px;line-height:1.35;color:var(--muted)}
-    .promo-msg.good{color:#BBF7D0}
-    .promo-msg.warn{color:#FDE68A}
-
+    .promo-msg.good{color:var(--green)}
+    .promo-msg.warn{color:var(--amber)}
     .upgrade-list{display:grid;gap:8px;margin-top:12px}
-    .upgrade-list div{border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.055);border-radius:15px;padding:9px;font-size:12.5px;color:#E2E8F0}
+    .upgrade-list div{border:1px solid var(--line);background:var(--surface2);border-radius:13px;padding:9px;font-size:12px;color:var(--text)}
 
+    .photo-upload-box{border-radius:17px;padding:11px;margin-top:10px}
+    .photo-upload-box .input[type="file"]{padding:12px;min-height:auto}
+    .photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+    .photo-card{border:1px solid var(--line);background:var(--surface2);border-radius:17px;overflow:hidden}
+    .photo-thumb{width:100%;aspect-ratio:3/4;background:var(--surface3);display:grid;place-items:center;color:var(--muted2);overflow:hidden}
+    .photo-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+    .photo-info{padding:9px;display:grid;gap:5px}
+    .photo-info strong{font-size:12px;letter-spacing:-.1px}
+    .photo-info span{color:var(--muted);font-size:11px;line-height:1.3}
+    .photo-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:0 9px 9px}
+    .tiny-btn{border:1px solid var(--line);background:var(--surface3);color:var(--text);border-radius:11px;min-height:34px;font-size:11px;font-weight:950;display:flex;align-items:center;justify-content:center;gap:5px}
+    .tiny-btn.red{color:var(--red)}
+    .empty-photos{border:1px dashed var(--line-strong);background:var(--surface2);border-radius:15px;padding:14px;margin-top:10px;text-align:center;color:var(--muted);font-size:12px;line-height:1.4}
+    .photo-limit-note{margin-top:9px;color:var(--muted);font-size:11.5px;line-height:1.35}
 
-    .photo-upload-box{
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(0,0,0,.16);
-      border-radius:20px;
-      padding:11px;
-      margin-top:10px;
-    }
-
-    .photo-upload-box .input[type="file"]{
-      padding:12px;
-      min-height:auto;
-    }
-
-    .photo-grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-      margin-top:12px;
-    }
-
-    .photo-card{
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(255,255,255,.055);
-      border-radius:19px;
-      overflow:hidden;
-    }
-
-    .photo-thumb{
-      width:100%;
-      aspect-ratio:3/4;
-      background:rgba(0,0,0,.18);
-      display:grid;
-      place-items:center;
-      color:#94A3B8;
-      overflow:hidden;
-    }
-
-    .photo-thumb img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      display:block;
-    }
-
-    .photo-info{
-      padding:10px;
-      display:grid;
-      gap:5px;
-    }
-
-    .photo-info strong{
-      font-size:12.5px;
-      letter-spacing:-.1px;
-    }
-
-    .photo-info span{
-      color:var(--muted);
-      font-size:11.5px;
-      line-height:1.3;
-    }
-
-    .photo-actions{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:7px;
-      padding:0 10px 10px;
-    }
-
-    .tiny-btn{
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.07);
-      color:#E2E8F0;
-      border-radius:13px;
-      min-height:36px;
-      font-size:11.5px;
-      font-weight:950;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:5px;
-    }
-
-    .tiny-btn.red{
-      border-color:rgba(239,68,68,.22);
-      background:rgba(239,68,68,.10);
-      color:#FECACA;
-    }
-
-    .empty-photos{
-      border:1px dashed rgba(255,255,255,.18);
-      background:rgba(255,255,255,.04);
-      border-radius:18px;
-      padding:14px;
-      margin-top:12px;
-      text-align:center;
-      color:#CBD5E1;
-      font-size:12.5px;
-      line-height:1.4;
-    }
-
-    .photo-limit-note{
-      margin-top:9px;
-      color:var(--muted);
-      font-size:11.5px;
-      line-height:1.35;
-    }
-
-    .toast{
-      position:fixed;left:50%;bottom:82px;transform:translateX(-50%) translateY(10px);
-      width:calc(100% - 28px);max-width:452px;z-index:70;background:#111827;color:#fff;
-      border:1px solid rgba(255,255,255,.10);border-radius:18px;padding:12px;box-shadow:var(--shadow);
-      opacity:0;pointer-events:none;transition:.2s;font-size:13px;line-height:1.35;
-    }
+    .toast{position:fixed;left:50%;bottom:78px;transform:translateX(-50%) translateY(10px);width:calc(100% - 28px);max-width:440px;z-index:70;background:var(--glass-strong);color:var(--text);border:1px solid var(--line-strong);border-radius:16px;padding:12px;box-shadow:var(--shadow);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);opacity:0;pointer-events:none;transition:.2s;font-size:12.5px;line-height:1.35}
     .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
     .loader-screen{min-height:70vh;display:grid;place-items:center;text-align:center;color:var(--muted);position:relative;z-index:2}
-    .spin{width:32px;height:32px;border-radius:50%;border:3px solid rgba(255,255,255,.12);border-top-color:var(--green);margin:0 auto 12px;animation:spin .75s linear infinite}
+    .spin{width:30px;height:30px;border-radius:50%;border:3px solid var(--line-strong);border-top-color:var(--green);margin:0 auto 12px;animation:spin .75s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
 
-    .modal{
-      position:fixed;
-      inset:0;
-      z-index:80;
-      display:none;
-      align-items:flex-end;
-      justify-content:center;
-      background:rgba(0,0,0,.56);
-      backdrop-filter:blur(8px);
-      padding:14px;
-    }
+    .modal{position:fixed;inset:0;z-index:80;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.58);backdrop-filter:blur(8px);padding:14px}
     .modal.show{display:flex}
-    .sheet{
-      width:100%;
-      max-width:var(--max);
-      max-height:88vh;
-      overflow:auto;
-      border:1px solid rgba(255,255,255,.13);
-      background:linear-gradient(180deg,#101827,#07111f);
-      border-radius:26px;
-      box-shadow:var(--shadow);
-      padding:14px;
-    }
-    .sheet-head{
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-      gap:10px;
-      margin-bottom:10px;
-    }
+    .sheet{width:100%;max-width:var(--max);max-height:88vh;overflow:auto;border:1px solid var(--line-strong);background:var(--glass-strong);border-radius:25px;box-shadow:var(--shadow);padding:14px;backdrop-filter:blur(30px) saturate(180%);-webkit-backdrop-filter:blur(30px) saturate(180%)}
+    .sheet-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}
     .sheet-head h3{margin:0;font-size:20px;letter-spacing:-.4px}
-    .close-btn{
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.08);
-      color:var(--text);
-      border-radius:999px;
-      width:38px;
-      height:38px;
-      font-weight:1000;
-    }
-    .media-box{
-      width:100%;
-      height:190px;
-      border-radius:22px;
-      border:1px solid rgba(255,255,255,.11);
-      background:
-        radial-gradient(circle at 30% 10%,rgba(34,197,94,.22),transparent 42%),
-        radial-gradient(circle at 70% 80%,rgba(56,189,248,.16),transparent 38%),
-        rgba(255,255,255,.055);
-      display:grid;
-      place-items:center;
-      overflow:hidden;
-      margin-bottom:12px;
-      color:#BBF7D0;
-    }
+    .close-btn{border:1px solid var(--line);background:var(--surface2);color:var(--text);border-radius:999px;width:38px;height:38px;font-weight:1000}
+    .media-box{width:100%;height:190px;border-radius:20px;border:1px solid var(--line);background:var(--surface2);display:grid;place-items:center;overflow:hidden;margin-bottom:12px;color:var(--green)}
     .media-box img,.media-box video{width:100%;height:100%;object-fit:cover}
-    .media-box svg{width:72px;height:72px;stroke:currentColor;opacity:.95}
-
+    .media-box svg{width:70px;height:70px;stroke:currentColor;opacity:.95}
     .select-chips{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:9px}
     .select-chips.four{grid-template-columns:repeat(4,1fr)}
-    .select-chip{
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.06);
-      color:#E2E8F0;
-      border-radius:14px;
-      min-height:40px;
-      padding:8px 6px;
-      font-size:12px;
-      font-weight:850;
-    }
-    .select-chip.active{background:rgba(34,197,94,.14);border-color:rgba(34,197,94,.42);color:#BBF7D0}
+    .select-chip{border:1px solid var(--line);background:var(--surface2);color:var(--text);border-radius:13px;min-height:39px;padding:8px 6px;font-size:11.5px;font-weight:850}
+    .select-chip.active{background:var(--green-soft);border-color:rgba(48,209,88,.4);color:var(--green)}
 
+    .mini-action{border:1px solid var(--line);background:var(--surface2);color:var(--text);border-radius:999px;min-height:30px;padding:6px 10px;font-size:11px;font-weight:950}
+    .compact-workout{border-radius:17px;padding:12px;display:grid;gap:8px}
+    .compact-workout strong{font-size:14px;letter-spacing:-.2px}
+    .compact-workout span{color:var(--muted);font-size:12px;line-height:1.38}
+    .compact-list{display:flex;gap:7px;flex-wrap:wrap}
+    .compact-chip{border:1px solid var(--line);background:var(--surface3);border-radius:999px;padding:6px 8px;font-size:11px;color:var(--muted);font-weight:850}
+
+    .fold-card{margin-top:10px}
+    .fold-card>summary{list-style:none;cursor:pointer;padding:13px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .fold-card>summary::-webkit-details-marker{display:none}
+    .fold-title{display:grid;gap:3px;min-width:0}
+    .fold-title b{font-size:15.5px;letter-spacing:-.3px}
+    .fold-title span{color:var(--muted);font-size:11.8px;line-height:1.32}
+    .fold-arrow{width:29px;height:29px;border-radius:999px;display:grid;place-items:center;background:var(--surface2);border:1px solid var(--line);transition:.18s}
+    .fold-card[open] .fold-arrow{transform:rotate(180deg)}
+    .fold-content{padding:0 13px 13px}
+    .fold-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+
+    .profile-card{border-radius:24px;padding:14px;margin-top:10px}
+    .profile-top{display:flex;align-items:center;gap:13px}
+    .profile-avatar{width:67px;height:67px;border-radius:21px;display:grid;place-items:center;overflow:hidden;border:1px solid var(--line-strong);background:var(--text);color:var(--page);font-size:19px;font-weight:1000}
+    .profile-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+    .profile-info{min-width:0;flex:1}
+    .profile-info h3{margin:0;font-size:20px;letter-spacing:-.6px}
+    .profile-info p{margin:4px 0 0;color:var(--muted);font-size:12px;line-height:1.35}
+    .profile-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+
+    #upgradeText{color:var(--muted)!important}
     .print-only{display:none}
 
     @media(max-width:390px){
@@ -649,161 +346,6 @@
       #printArea .print-card{border:1px solid #ddd;border-radius:10px;padding:10px;margin:8px 0;break-inside:avoid}
       #printArea .small{color:#555;font-size:11px}
     }
-  
-
-    /* Step 5A — real Liquid Glass UI cleanup */
-    :root{
-      --bg:#0C1118;
-      --bg2:#111827;
-      --glass:rgba(255,255,255,.102);
-      --glass2:rgba(255,255,255,.066);
-      --hair:rgba(255,255,255,.16);
-      --hair2:rgba(255,255,255,.09);
-      --text:#F8FAFC;
-      --muted:#A8B3C7;
-      --muted2:#7B8798;
-      --green:#34D399;
-      --blue:#7DD3FC;
-      --amber:#FBBF24;
-      --red:#FB7185;
-      --purple:#C4B5FD;
-      --shadow:0 22px 60px rgba(0,0,0,.28);
-      --radius:25px;
-    }
-    body{
-      background:
-        radial-gradient(circle at 16% -10%,rgba(255,255,255,.18),transparent 28%),
-        radial-gradient(circle at 100% 0%,rgba(125,211,252,.16),transparent 32%),
-        radial-gradient(circle at 20% 78%,rgba(52,211,153,.12),transparent 34%),
-        linear-gradient(180deg,#0b1018,#111827 42%,#0b1018);
-      padding-bottom:72px;
-    }
-    .app-shell{padding:10px 12px 24px;}
-    .topbar{
-      margin:-10px -12px 8px;
-      padding:10px 12px 8px;
-      background:linear-gradient(180deg,rgba(11,16,24,.82),rgba(11,16,24,.50),rgba(11,16,24,0));
-      backdrop-filter:blur(28px) saturate(165%);
-    }
-    .logo{
-      width:41px;height:41px;border-radius:18px;
-      background:linear-gradient(145deg,rgba(255,255,255,.72),rgba(255,255,255,.18));
-      border:1px solid rgba(255,255,255,.25);
-      color:#ECFDF5;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 16px 40px rgba(0,0,0,.20);
-      text-shadow:0 1px 10px rgba(0,0,0,.20);
-    }
-    .brand h1{font-size:17px;letter-spacing:-.55px;}
-    .top-pill,.status-pill,.tag{
-      backdrop-filter:blur(18px) saturate(160%);
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.12);
-    }
-    .hero,.card,.liquid-card,.week-day,.fold-card,.profile-card,.settings-card{
-      border:1px solid var(--hair);
-      background:
-        linear-gradient(180deg,rgba(255,255,255,.135),rgba(255,255,255,.062));
-      box-shadow:0 18px 46px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.16);
-      backdrop-filter:blur(28px) saturate(180%);
-    }
-    .hero{padding:15px;border-radius:28px;margin-bottom:10px;}
-    .hero h2{font-size:27px;letter-spacing:-1.15px;}
-    .hero p{font-size:13.2px;color:#D7DEE9;}
-    .card{padding:13px;border-radius:25px;margin-top:10px;}
-    .card-head h3{font-size:17px;}
-    .card-head p{font-size:12.4px;}
-    .meal,.exercise-card,.mini-item,.stat,.photo-upload-box,.summary-line,.ai-status-box{
-      border-color:var(--hair2);
-      background:rgba(255,255,255,.055);
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
-    }
-    .meal{border-radius:21px;grid-template-columns:64px 1fr;padding:10px;}
-    .meal-time{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.12);color:#E8FFF4;border-radius:17px;}
-    .replacement{background:rgba(125,211,252,.08);border-color:rgba(125,211,252,.16);color:#DFF6FF;}
-    .coach-note{background:rgba(251,191,36,.075);border-color:rgba(251,191,36,.16);color:#FEF3C7;}
-    .btn{min-height:43px;border-radius:17px;font-size:12.7px;box-shadow:inset 0 1px 0 rgba(255,255,255,.14);}
-    .btn.primary{background:linear-gradient(135deg,rgba(52,211,153,.94),rgba(190,242,100,.74));color:#062014;box-shadow:0 12px 28px rgba(52,211,153,.16), inset 0 1px 0 rgba(255,255,255,.32);}
-    .btn.secondary{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);}
-    .bottom-tabs{
-      bottom:8px;
-      width:calc(100% - 24px);
-      max-width:440px;
-      grid-template-columns:repeat(5,1fr);
-      gap:2px;
-      padding:5px 6px calc(5px + env(safe-area-inset-bottom));
-      border-radius:25px;
-      background:linear-gradient(180deg,rgba(255,255,255,.24),rgba(255,255,255,.10));
-      box-shadow:0 18px 46px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.28);
-      backdrop-filter:blur(30px) saturate(190%);
-    }
-    .tab{min-height:43px;border-radius:19px;font-size:9.8px;gap:2px;padding:6px 3px;}
-    .tab svg{width:17px;height:17px;}
-    .tab.active{border:1px solid rgba(255,255,255,.48);background:linear-gradient(180deg,rgba(255,255,255,.90),rgba(255,255,255,.62));}
-    .mini-action{
-      border:1px solid rgba(255,255,255,.16);
-      background:rgba(255,255,255,.10);
-      color:#EAF2FF;
-      border-radius:999px;
-      min-height:30px;
-      padding:6px 10px;
-      font-size:11.2px;
-      font-weight:950;
-      backdrop-filter:blur(18px);
-    }
-    .compact-workout{
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.058);
-      border-radius:20px;
-      padding:12px;
-      display:grid;
-      gap:8px;
-    }
-    .compact-workout strong{font-size:14px;letter-spacing:-.2px;}
-    .compact-workout span{color:var(--muted);font-size:12.5px;line-height:1.38;}
-    .compact-list{display:flex;gap:7px;flex-wrap:wrap;}
-    .compact-chip{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.08);border-radius:999px;padding:6px 8px;font-size:11.2px;color:#D8E2EF;font-weight:850;}
-    .fold-card{
-      margin-top:10px;
-      border-radius:24px;
-      overflow:hidden;
-    }
-    .fold-card > summary{
-      list-style:none;
-      cursor:pointer;
-      padding:13px 14px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-    }
-    .fold-card > summary::-webkit-details-marker{display:none;}
-    .fold-title{display:grid;gap:3px;min-width:0;}
-    .fold-title b{font-size:16px;letter-spacing:-.35px;}
-    .fold-title span{color:var(--muted);font-size:12.2px;line-height:1.32;}
-    .fold-arrow{width:30px;height:30px;border-radius:999px;display:grid;place-items:center;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.12);transition:.18s;}
-    .fold-card[open] .fold-arrow{transform:rotate(180deg);}
-    .fold-content{padding:0 13px 13px;}
-    .fold-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px;}
-    .profile-card{border-radius:28px;padding:14px;margin-top:10px;}
-    .profile-top{display:flex;align-items:center;gap:13px;}
-    .profile-avatar{
-      width:68px;height:68px;border-radius:25px;display:grid;place-items:center;overflow:hidden;
-      border:1px solid rgba(255,255,255,.22);
-      background:linear-gradient(145deg,rgba(255,255,255,.68),rgba(255,255,255,.13));
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 18px 40px rgba(0,0,0,.23);
-      color:#ECFDF5;font-size:20px;font-weight:1000;text-shadow:0 1px 10px rgba(0,0,0,.28);
-    }
-    .profile-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
-    .profile-info{min-width:0;flex:1;}
-    .profile-info h3{margin:0;font-size:21px;letter-spacing:-.65px;}
-    .profile-info p{margin:4px 0 0;color:var(--muted);font-size:12.6px;line-height:1.35;}
-    .profile-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
-    .settings-grid{display:grid;gap:10px;}
-    .settings-card{border-radius:22px;padding:12px;}
-    .settings-card h4{margin:0 0 7px;font-size:15px;letter-spacing:-.25px;}
-    .settings-card p{margin:0;color:var(--muted);font-size:12.5px;line-height:1.4;}
-    .soft-divider{height:1px;background:rgba(255,255,255,.09);margin:10px 0;}
-    .screen{padding-bottom:8px;}
-
   </style>
 </head>
 
@@ -894,15 +436,10 @@
         <div class="card">
           <div class="card-inner">
             <div class="card-head">
-              <div>
-                <h3>Today workout</h3>
-                <p>One tap Done. Report only for pain, hard/easy, or weight/reps.</p>
-              </div>
+              <div><h3>Today workout</h3><p>One tap Done. Report only for pain, hard/easy, or weight/reps.</p></div>
               <span class="status-pill blue" id="simpleWorkoutStatus">Ready</span>
             </div>
-
             <div id="workoutSections"></div>
-
             <div class="btn-row">
               <button class="btn primary" id="finishWorkoutBtn">Finish workout</button>
               <button class="btn secondary" id="resetWorkoutBtn">Reset today</button>
@@ -910,6 +447,7 @@
           </div>
         </div>
       </section>
+
       <section class="screen" id="weekScreen">
         <div class="hero">
           <h2>Meals</h2>
@@ -920,9 +458,9 @@
             <button class="mini-action" id="refreshWeekBtn" type="button">Refresh</button>
           </div>
         </div>
-
         <div id="fullWeekPlan"></div>
       </section>
+
       <section class="screen" id="progressScreen">
         <div class="hero">
           <h2>Progress</h2>
@@ -931,10 +469,7 @@
         </div>
 
         <details class="fold-card" open>
-          <summary>
-            <div class="fold-title"><b>Quick summary</b><span>Meals, water, workout, latest weight.</span></div>
-            <div class="fold-arrow">⌄</div>
-          </summary>
+          <summary><div class="fold-title"><b>Quick summary</b><span>Meals, water, workout, latest weight.</span></div><div class="fold-arrow">â</div></summary>
           <div class="fold-content">
             <div class="stats-grid">
               <div class="stat"><span>Meals</span><strong id="statMeals">-</strong></div>
@@ -951,10 +486,7 @@
         </details>
 
         <details class="fold-card" id="measureFold">
-          <summary>
-            <div class="fold-title"><b>Progress check-in</b><span>Weight weekly, full measurements every 2 weeks.</span></div>
-            <div class="fold-arrow">⌄</div>
-          </summary>
+          <summary><div class="fold-title"><b>Progress check-in</b><span>Weight weekly, full measurements every 2 weeks.</span></div><div class="fold-arrow">â</div></summary>
           <div class="fold-content" id="measureCard">
             <div class="grid2">
               <div class="field"><label>Weight</label><input class="input" id="mWeight" type="number" step="0.1"></div>
@@ -970,30 +502,17 @@
         </details>
 
         <details class="fold-card" id="progressPhotosFold">
-          <summary>
-            <div class="fold-title"><b>Progress photos</b><span>Private vault. DP/profile photo is separate.</span></div>
-            <div class="fold-arrow">⌄</div>
-          </summary>
-          <div class="fold-content">
-            <div id="progressPhotosCard">
-              <div id="progressPhotosContent"></div>
-            </div>
-          </div>
+          <summary><div class="fold-title"><b>Progress photos</b><span>Private vault. DP/profile photo is separate.</span></div><div class="fold-arrow">â</div></summary>
+          <div class="fold-content"><div id="progressPhotosCard"><div id="progressPhotosContent"></div></div></div>
         </details>
       </section>
-      <section class="screen" id="profileScreen">
-        <div class="hero">
-          <h2>Profile</h2>
-          <p>Clean profile only. Account and membership live in Settings.</p>
-        </div>
 
+      <section class="screen" id="profileScreen">
+        <div class="hero"><h2>Profile</h2><p>Clean profile only. Account and membership live in Settings.</p></div>
         <div class="profile-card">
           <div class="profile-top">
             <div class="profile-avatar" id="profileAvatar">SC</div>
-            <div class="profile-info">
-              <h3 id="profileNameTitle">Ranveer</h3>
-              <p id="profileMiniLine">Coach plan • Last AI update</p>
-            </div>
+            <div class="profile-info"><h3 id="profileNameTitle">Ranveer</h3><p id="profileMiniLine">Coach plan â¢ Last AI update</p></div>
           </div>
           <input id="profileDpFile" type="file" accept="image/jpeg,image/png,image/webp" style="display:none">
           <div class="profile-actions">
@@ -1001,15 +520,9 @@
             <button class="btn primary" id="openSettingsBtn" type="button">Settings</button>
           </div>
         </div>
-
         <details class="fold-card" open>
-          <summary>
-            <div class="fold-title"><b>Fitness profile</b><span>Goals, food style, and training setup.</span></div>
-            <div class="fold-arrow">⌄</div>
-          </summary>
-          <div class="fold-content">
-            <div class="summary-list" id="profileSummary"></div>
-          </div>
+          <summary><div class="fold-title"><b>Fitness profile</b><span>Goals, food style, and training setup.</span></div><div class="fold-arrow">â</div></summary>
+          <div class="fold-content"><div class="summary-list" id="profileSummary"></div></div>
         </details>
       </section>
 
@@ -1018,168 +531,42 @@
   </div>
 
   <nav class="bottom-tabs" aria-label="ShapeCue tabs">
-    <button class="tab active" data-tab="todayScreen" type="button">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-9.5Z"/></svg>
-      <span>Today</span>
-    </button>
-    <button class="tab" data-tab="weekScreen" type="button">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 7h14M7 4v6M17 4v6M5 7v12h14V7"/><path d="M8 12h4M8 16h7"/></svg>
-      <span>Meals</span>
-    </button>
-    <button class="tab" data-tab="workoutScreen" type="button">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg>
-      <span>Train</span>
-    </button>
-    <button class="tab" data-tab="progressScreen" type="button">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 19V5M4 19h16M8 16v-5M12 16V8M16 16v-9"/></svg>
-      <span>Progress</span>
-    </button>
-    <button class="tab" data-tab="profileScreen" type="button">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21c1.5-4 14.5-4 16 0"/></svg>
-      <span>Me</span>
-    </button>
+    <button class="tab active" data-tab="todayScreen" type="button"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-9.5Z"/></svg><span>Today</span></button>
+    <button class="tab" data-tab="weekScreen" type="button"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 7h14M7 4v6M17 4v6M5 7v12h14V7"/><path d="M8 12h4M8 16h7"/></svg><span>Meals</span></button>
+    <button class="tab" data-tab="workoutScreen" type="button"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg><span>Train</span></button>
+    <button class="tab" data-tab="progressScreen" type="button"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 19V5M4 19h16M8 16v-5M12 16V8M16 16v-9"/></svg><span>Progress</span></button>
+    <button class="tab" data-tab="profileScreen" type="button"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21c1.5-4 14.5-4 16 0"/></svg><span>Me</span></button>
   </nav>
 
-  <div class="modal" id="detailModal">
-    <div class="sheet">
-      <div class="sheet-head">
-        <div>
-          <h3 id="detailTitle">Exercise</h3>
-          <div class="tag green" id="detailTag" style="display:inline-flex;margin-top:7px">Details</div>
-        </div>
-        <button class="close-btn" data-close-modal="detailModal">×</button>
-      </div>
-      <div class="media-box" id="detailMedia"></div>
-      <div class="summary-list" id="detailInfo"></div>
-      <div class="btn-row">
-        <button class="btn primary" id="detailDoneBtn">Done</button>
-        <button class="btn amber" id="detailReportBtn">Report</button>
-      </div>
+  <div class="modal" id="detailModal"><div class="sheet">
+    <div class="sheet-head"><div><h3 id="detailTitle">Exercise</h3><div class="tag green" id="detailTag" style="display:inline-flex;margin-top:7px">Details</div></div><button class="close-btn" data-close-modal="detailModal">Ã</button></div>
+    <div class="media-box" id="detailMedia"></div>
+    <div class="summary-list" id="detailInfo"></div>
+    <div class="btn-row"><button class="btn primary" id="detailDoneBtn">Done</button><button class="btn amber" id="detailReportBtn">Report</button></div>
+  </div></div>
+
+  <div class="modal" id="reportModal"><div class="sheet">
+    <div class="sheet-head"><div><h3 id="reportTitle">Report exercise</h3><div class="tag amber" style="display:inline-flex;margin-top:7px">Optional details</div></div><button class="close-btn" data-close-modal="reportModal">Ã</button></div>
+    <div class="grid2">
+      <div class="field"><label>Weight used</label><input class="input" id="reportWeight" type="number" step="0.5" placeholder="Optional"></div>
+      <div class="field"><label>Best reps</label><input class="input" id="reportReps" type="number" step="1" placeholder="Optional"></div>
     </div>
-  </div>
+    <div class="field"><label>Effort</label><div class="select-chips" data-select="effort"><button class="select-chip" data-value="easy">Easy</button><button class="select-chip active" data-value="good">Good</button><button class="select-chip" data-value="hard">Hard</button></div></div>
+    <div class="field"><label>Pain level</label><div class="select-chips four" data-select="pain"><button class="select-chip active" data-value="0">0</button><button class="select-chip" data-value="2">Mild</button><button class="select-chip" data-value="4">Medium</button><button class="select-chip" data-value="7">High</button></div></div>
+    <div class="field"><label>Where?</label><div class="select-chips four" data-select="painArea"><button class="select-chip active" data-value="">None</button><button class="select-chip" data-value="lower_back">Back</button><button class="select-chip" data-value="knee">Knee</button><button class="select-chip" data-value="shoulder">Shoulder</button><button class="select-chip" data-value="wrist">Wrist</button><button class="select-chip" data-value="neck">Neck</button></div></div>
+    <div class="field"><label>Notes</label><textarea class="textarea" id="reportNotes" placeholder="Machine busy, pain, too easy/hard, form issue..."></textarea></div>
+    <button class="btn primary" id="saveReportBtn" style="width:100%;margin-top:12px">Save report</button>
+  </div></div>
 
-  <div class="modal" id="reportModal">
-    <div class="sheet">
-      <div class="sheet-head">
-        <div>
-          <h3 id="reportTitle">Report exercise</h3>
-          <div class="tag amber" style="display:inline-flex;margin-top:7px">Optional details</div>
-        </div>
-        <button class="close-btn" data-close-modal="reportModal">×</button>
-      </div>
-
-      <div class="grid2">
-        <div class="field">
-          <label>Weight used</label>
-          <input class="input" id="reportWeight" type="number" step="0.5" placeholder="Optional">
-        </div>
-        <div class="field">
-          <label>Best reps</label>
-          <input class="input" id="reportReps" type="number" step="1" placeholder="Optional">
-        </div>
-      </div>
-
-      <div class="field">
-        <label>Effort</label>
-        <div class="select-chips" data-select="effort">
-          <button class="select-chip" data-value="easy">Easy</button>
-          <button class="select-chip active" data-value="good">Good</button>
-          <button class="select-chip" data-value="hard">Hard</button>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>Pain level</label>
-        <div class="select-chips four" data-select="pain">
-          <button class="select-chip active" data-value="0">0</button>
-          <button class="select-chip" data-value="2">Mild</button>
-          <button class="select-chip" data-value="4">Medium</button>
-          <button class="select-chip" data-value="7">High</button>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>Where?</label>
-        <div class="select-chips four" data-select="painArea">
-          <button class="select-chip active" data-value="">None</button>
-          <button class="select-chip" data-value="lower_back">Back</button>
-          <button class="select-chip" data-value="knee">Knee</button>
-          <button class="select-chip" data-value="shoulder">Shoulder</button>
-          <button class="select-chip" data-value="wrist">Wrist</button>
-          <button class="select-chip" data-value="neck">Neck</button>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>Notes</label>
-        <textarea class="textarea" id="reportNotes" placeholder="Machine busy, pain, too easy/hard, form issue..."></textarea>
-      </div>
-
-      <button class="btn primary" id="saveReportBtn" style="width:100%;margin-top:12px">Save report</button>
+  <div class="modal" id="upgradeModal"><div class="sheet">
+    <div class="sheet-head"><div><h3 id="upgradeTitle">Unlock Premium</h3><div class="tag amber" style="display:inline-flex;margin-top:7px">Premium feature</div></div><button class="close-btn" data-close-modal="upgradeModal">Ã</button></div>
+    <p id="upgradeText" style="font-size:13px;line-height:1.45;margin:0">Use a promo code now. Payments can be connected later.</p>
+    <div class="upgrade-list"><div>â Full weekly meal + workout plan</div><div>â PDF export and grocery list</div><div>â Exercise photos/videos and smart replacements</div><div>â Progress photos for paid users only</div></div>
+    <div class="promo-inline">
+      <div class="promo-row"><div class="field" style="margin-top:0"><label>Promo code</label><input class="input" id="upgradePromoCode" placeholder="Example: PLUS30"></div><button class="btn primary" id="upgradeApplyBtn" type="button">Apply</button></div>
+      <div class="promo-msg" id="upgradeMsg">Admin can create codes from admin.html.</div>
     </div>
-  </div>
-
-  <div class="modal" id="upgradeModal">
-    <div class="sheet">
-      <div class="sheet-head">
-        <div>
-          <h3 id="upgradeTitle">Unlock Premium</h3>
-          <div class="tag amber" style="display:inline-flex;margin-top:7px">Premium feature</div>
-        </div>
-        <button class="close-btn" data-close-modal="upgradeModal">×</button>
-      </div>
-
-      <p id="upgradeText" style="color:#CBD5E1;font-size:13px;line-height:1.45;margin:0">Use a promo code now. Payments can be connected later.</p>
-      <div class="upgrade-list">
-        <div>✓ Full weekly meal + workout plan</div>
-        <div>✓ PDF export and grocery list</div>
-        <div>✓ Exercise photos/videos and smart replacements</div>
-        <div>✓ Progress photos for paid users only</div>
-      </div>
-
-      <div class="promo-inline">
-        <div class="promo-row">
-          <div class="field" style="margin-top:0">
-            <label>Promo code</label>
-            <input class="input" id="upgradePromoCode" placeholder="Example: PLUS30">
-          </div>
-          <button class="btn primary" id="upgradeApplyBtn" type="button">Apply</button>
-        </div>
-        <div class="promo-msg" id="upgradeMsg">Admin can create codes from admin.html.</div>
-      </div>
-    </div>
-  </div>
-
-
-
-  <div class="modal" id="settingsModal">
-    <div class="sheet">
-      <div class="sheet-head">
-        <div>
-          <h3>Settings</h3>
-          <div class="tag blue" style="display:inline-flex;margin-top:7px">Account & membership</div>
-        </div>
-        <button class="close-btn" data-close-modal="settingsModal">×</button>
-      </div>
-
-      <div class="settings-grid">
-        <div class="settings-card">
-          <h4>Account</h4>
-          <p id="settingsAccountLine">Signed in</p>
-          <div class="btn-row" style="margin-top:10px">
-            <button class="btn secondary" id="editOnboardingBtn">Edit setup</button>
-            <button class="btn red" id="logoutBtn">Logout</button>
-          </div>
-        </div>
-
-        <div class="settings-card">
-          <h4>Membership</h4>
-          <p>Plan access, promo code, AI updates, and locked features.</p>
-          <div id="planAccessBox"></div>
-        </div>
-      </div>
-    </div>
-  </div>
+  </div></div>
 
   <div class="toast" id="toast">Saved</div>
 
@@ -1410,7 +797,7 @@ async function applyPromoFromApp(){
 }
 
 function featureMini(label, ok){
-  return `<div class="feature-mini ${ok ? "good" : "locked"}">${ok ? "✓" : "✕"} ${esc(label)}</div>`;
+  return `<div class="feature-mini ${ok ? "good" : "locked"}">${ok ? "â" : "â"} ${esc(label)}</div>`;
 }
 
 function renderPlanAccessBox(){
@@ -1427,7 +814,7 @@ function renderPlanAccessBox(){
       <div class="plan-access-top">
         <div>
           <h3>Plan access</h3>
-          <p>${esc(source)} • ${esc(end)}</p>
+          <p>${esc(source)} â¢ ${esc(end)}</p>
         </div>
         <span class="plan-chip ${isFree ? "free" : ""}">${esc(planName(code))}</span>
       </div>
@@ -1589,7 +976,8 @@ function exerciseDoneKey(index, ex){
 function switchTab(id){
   $$(".screen").forEach(s=>s.classList.toggle("active",s.id===id));
   $$(".tab").forEach(t=>t.classList.toggle("active",t.dataset.tab===id));
-  $("#topPill").textContent = id.replace("Screen","").replace("today","Today").replace("week","Week");
+  const labels = {todayScreen:"Today", weekScreen:"Meals", workoutScreen:"Train", progressScreen:"Progress", profileScreen:"Me"};
+  $("#topPill").textContent = labels[id] || "ShapeCue";
   window.scrollTo({top:0,behavior:"smooth"});
   if(id==="workoutScreen") renderWorkout();
   if(id==="weekScreen") renderWeekPlan();
@@ -1605,6 +993,36 @@ function switchTab(id){
 async function getSingle(table){
   const { data: row } = await supabaseClient.from(table).select("*").eq("user_id", user.id).maybeSingle();
   return row || null;
+}
+
+async function loadPlan(){
+  const { data: plans, error } = await supabaseClient
+    .from("weekly_plans")
+    .select("*")
+    .eq("user_id",user.id)
+    .eq("status","active")
+    .order("created_at",{ascending:false})
+    .limit(1);
+
+  if(error) throw error;
+
+  const activeRow = plans?.[0] || null;
+  activePlanMeta = activeRow ? {
+    id: activeRow.id,
+    title: activeRow.title || activeRow.plan_json?.title || "AI coach plan",
+    week_start: activeRow.week_start || activeRow.plan_json?.start_date || null,
+    week_end: activeRow.week_end || activeRow.plan_json?.end_date || null,
+    status: activeRow.status || "active",
+    ai_summary: activeRow.ai_summary || "",
+    created_at: activeRow.created_at || null,
+    model_used: activeRow.model_used || null,
+    plan_code: activeRow.plan_code || activeRow.plan_json?.plan_code || currentPlanCode(),
+    generation_type: activeRow.generation_type || activeRow.plan_json?.generation_type || null
+  } : null;
+
+  activePlan = activeRow?.plan_json || null;
+  if(activePlan && activePlanMeta) activePlan.__meta = activePlanMeta;
+  return activePlan;
 }
 
 async function loadAll(){
@@ -1660,29 +1078,7 @@ async function loadAll(){
 
   data.exercises = exercises || [];
 
-  const { data: plans } = await supabaseClient
-    .from("weekly_plans")
-    .select("*")
-    .eq("user_id",user.id)
-    .eq("status","active")
-    .order("created_at",{ascending:false})
-    .limit(1);
-
-  const activeRow = plans?.[0] || null;
-  activePlanMeta = activeRow ? {
-    id: activeRow.id,
-    title: activeRow.title || activeRow.plan_json?.title || "AI coach plan",
-    week_start: activeRow.week_start || activeRow.plan_json?.start_date || null,
-    week_end: activeRow.week_end || activeRow.plan_json?.end_date || null,
-    status: activeRow.status || "active",
-    ai_summary: activeRow.ai_summary || "",
-    created_at: activeRow.created_at || null,
-    model_used: activeRow.model_used || null,
-    plan_code: activeRow.plan_code || activeRow.plan_json?.plan_code || currentPlanCode(),
-    generation_type: activeRow.generation_type || activeRow.plan_json?.generation_type || null
-  } : null;
-  activePlan = activeRow?.plan_json || null;
-  if(activePlan && activePlanMeta) activePlan.__meta = activePlanMeta;
+  await loadPlan();
 
   if(hasFeature("progress_photos")){
     await loadProgressPhotos();
@@ -1865,10 +1261,8 @@ function buildWorkoutPlan(){
 
 function renderAll(){
   const name = data.profile?.full_name || "User";
-  const goals = data.profile?.main_goals || [];
-  const foodStyles = data.food?.food_styles || [];
 
-  $("#topSub").textContent = `${name} • ${planName(currentPlanCode())}`;
+  $("#topSub").textContent = `${name} â¢ ${planName(currentPlanCode())}`;
   $("#todayTitle").textContent = `Today, ${name.split(" ")[0] || "friend"}`;
   const pendingAi = readPendingPlanData();
   $("#todaySubtitle").textContent = pendingAi
@@ -1940,9 +1334,9 @@ function exerciseCardHTML(ex, index){
     <div class="exercise-card ${done ? "done" : ""}" data-exercise-index="${index}">
       <div class="exercise-art">${exerciseMediaHTML(ex)}</div>
       <div class="exercise-body">
-        <b>${esc(ex.name)} ${done ? "✓" : ""}</b>
-        <span>${esc(ex.sets)} • Rest ${esc(ex.rest_seconds)} sec</span>
-        <span>${esc(ex.target_muscle || "Body")} • ${esc(ex.cue || "")}</span>
+        <b>${esc(ex.name)} ${done ? "â" : ""}</b>
+        <span>${esc(ex.sets)} â¢ Rest ${esc(ex.rest_seconds)} sec</span>
+        <span>${esc(ex.target_muscle || "Body")} â¢ ${esc(ex.cue || "")}</span>
         ${ex.coach_note ? `<div class="coach-note">${esc(ex.coach_note)}</div>` : ""}
         <div class="exercise-actions">
           <button class="btn primary exercise-done" data-done-index="${index}">Done</button>
@@ -2038,7 +1432,7 @@ function renderWater(){
   const done = Number(wl.bottles_done || 0);
   const pct = Math.min(100, Math.round(done/need*100));
   $("#waterMain").textContent = `${done} / ${need}`;
-  $("#waterSub").textContent = `${target} L goal • ${bottle} ml bottle`;
+  $("#waterSub").textContent = `${target} L goal â¢ ${bottle} ml bottle`;
   $("#waterBar").style.width = pct + "%";
   $("#waterStatusPill").textContent = wl.status==="done" ? "Done" : `${pct}%`;
 }
@@ -2047,9 +1441,9 @@ function scheduleItemMiniHTML(item){
   const reps = Array.isArray(item.replacement_options) ? item.replacement_options.slice(0,2) : [];
   return `
     <div class="mini-item">
-      <b>${esc(displayTime(item.time))} • ${esc(item.title || nice(item.type))}</b>
+      <b>${esc(displayTime(item.time))} â¢ ${esc(item.title || nice(item.type))}</b>
       <div>${esc(item.text || "")}</div>
-      ${reps.length ? `<div class="small" style="margin-top:5px;color:#BAE6FD">${reps.map(r=>"Swap: "+esc(r)).join("<br>")}</div>` : ""}
+      ${reps.length ? `<div class="small" style="margin-top:5px;color:var(--blue)">${reps.map(r=>"Swap: "+esc(r)).join("<br>")}</div>` : ""}
     </div>
   `;
 }
@@ -2061,7 +1455,7 @@ function renderWeekPlan(){
       <details class="fold-card" open>
         <summary>
           <div class="fold-title"><b>No active AI plan yet</b><span>Go to Progress and tap Update next plan.</span></div>
-          <div class="fold-arrow">⌄</div>
+          <div class="fold-arrow">â</div>
         </summary>
         <div class="fold-content">
           <button class="btn primary" onclick="switchTab('progressScreen')" type="button" style="width:100%">Go to Progress</button>
@@ -2071,15 +1465,15 @@ function renderWeekPlan(){
     return;
   }
 
-  $("#weekPlanTag").textContent = activePlan.title || "AI plan";
+  $("#weekPlanTag").textContent = activePlan.title || activePlanMeta?.title || "AI plan";
 
   let html = "";
 
   html += `
     <details class="fold-card" open>
       <summary>
-        <div class="fold-title"><b>${esc(activePlan.title || "ShapeCue Coach Plan")}</b><span>${esc(activePlan.summary || "Your active coach plan.")}</span></div>
-        <div class="fold-arrow">⌄</div>
+        <div class="fold-title"><b>${esc(activePlan.title || activePlanMeta?.title || "ShapeCue Coach Plan")}</b><span>${esc(activePlan.summary || "Your active coach plan.")}</span></div>
+        <div class="fold-arrow">â</div>
       </summary>
       <div class="fold-content">
         ${activePlan.coach_reasoning ? `<div class="coach-note">${esc(activePlan.coach_reasoning)}</div>` : ""}
@@ -2098,8 +1492,8 @@ function renderWeekPlan(){
     html += `
       <details class="fold-card" ${open}>
         <summary>
-          <div class="fold-title"><b>${esc(day)}</b><span>${items.length || 0} items • ${foodCount} meals${gymCount ? ` • ${gymCount} workout` : ""}</span></div>
-          <div class="fold-arrow">⌄</div>
+          <div class="fold-title"><b>${esc(day)}</b><span>${items.length || 0} items â¢ ${foodCount} meals${gymCount ? ` â¢ ${gymCount} workout` : ""}</span></div>
+          <div class="fold-arrow">â</div>
         </summary>
         <div class="fold-content">
           <div class="mini-list">
@@ -2138,7 +1532,7 @@ function arraySectionHTML(title, arr, open=false){
     <details class="fold-card" ${open ? "open" : ""}>
       <summary>
         <div class="fold-title"><b>${esc(title)}</b><span>${arr.length} item${arr.length === 1 ? "" : "s"}</span></div>
-        <div class="fold-arrow">⌄</div>
+        <div class="fold-arrow">â</div>
       </summary>
       <div class="fold-content">
         <div class="mini-list">
@@ -2165,7 +1559,7 @@ function infoSectionHTML(title, obj, open=false){
     <details class="fold-card" ${open ? "open" : ""}>
       <summary>
         <div class="fold-title"><b>${esc(title)}</b><span>${parts.length} section${parts.length === 1 ? "" : "s"}</span></div>
-        <div class="fold-arrow">⌄</div>
+        <div class="fold-arrow">â</div>
       </summary>
       <div class="fold-content"><div class="mini-list">${parts.join("")}</div></div>
     </details>
@@ -2372,7 +1766,7 @@ function progressPhotoCardHTML(photo){
         ${photo.signed_url ? `<img src="${esc(photo.signed_url)}" alt="${esc(photoTypeLabel(photo.photo_type))} progress photo">` : `<span>Photo</span>`}
       </div>
       <div class="photo-info">
-        <strong>${esc(photoTypeLabel(photo.photo_type))} • ${esc(dateText)}</strong>
+        <strong>${esc(photoTypeLabel(photo.photo_type))} â¢ ${esc(dateText)}</strong>
         <span>${esc(weightText)}</span>
         ${noteText}
       </div>
@@ -2537,7 +1931,6 @@ async function saveMeasurement(){
   toast("Check-in saved");
 }
 
-
 function profilePhotoKey(){
   return `shapecue.profile_photo.${user?.id || "guest"}`;
 }
@@ -2580,13 +1973,12 @@ function handleProfileDpFile(file){
 function renderProfile(){
   if($("#premiumPill")) $("#premiumPill").textContent = planName(currentPlanCode());
 
-  const first = (data.profile?.full_name || "Friend").split(" ")[0] || "Friend";
   const goals = data.profile?.main_goals || [];
   const foodStyles = data.food?.food_styles || [];
   const allergies = data.food?.allergies?.length ? data.food.allergies.map(nice).join(", ") : "None selected";
 
   if($("#profileNameTitle")) $("#profileNameTitle").textContent = data.profile?.full_name || "ShapeCue user";
-  if($("#profileMiniLine")) $("#profileMiniLine").textContent = `${planName(currentPlanCode())} • Last AI update ${activePlanMeta?.created_at ? relativeTime(activePlanMeta.created_at) : "not yet"}`;
+  if($("#profileMiniLine")) $("#profileMiniLine").textContent = `${planName(currentPlanCode())} â¢ Last AI update ${activePlanMeta?.created_at ? relativeTime(activePlanMeta.created_at) : "not yet"}`;
   if($("#settingsAccountLine")) $("#settingsAccountLine").textContent = user?.email ? `Signed in as ${user.email}` : "Signed in";
   updateProfileAvatar();
 
@@ -2596,7 +1988,7 @@ function renderProfile(){
     <div class="summary-line"><span>Age</span><strong>${calculateAge(data.profile?.date_of_birth) || "-"}</strong></div>
     <div class="summary-line"><span>Food style</span><strong>${esc(niceList(foodStyles))}</strong></div>
     <div class="summary-line"><span>Allergies / avoid</span><strong>${esc(allergies)}</strong></div>
-    <div class="summary-line"><span>Workout</span><strong>${esc(nice(data.workout?.workout_place))} • ${data.workout?.max_minutes || "-"} min</strong></div>
+    <div class="summary-line"><span>Workout</span><strong>${esc(nice(data.workout?.workout_place))} â¢ ${data.workout?.max_minutes || "-"} min</strong></div>
     <div class="summary-line"><span>Active plan</span><strong>${readPendingPlanData() ? "Generating new plan" : (activePlan ? "AI coach plan" : "Starter plan")}</strong></div>
     <div class="summary-line"><span>Last AI update</span><strong>${esc(lastAiUpdateText())}</strong></div>
   `;
@@ -2607,19 +1999,17 @@ function smallListHTML(title, items){
   const list = (Array.isArray(items) ? items : []).filter(Boolean).slice(0,8);
   if(!list.length) return "";
   return `
-    <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.14);border-radius:18px;padding:11px">
-      <div style="font-size:12px;color:#94A3B8;font-weight:900;margin-bottom:7px">${esc(title)}</div>
-      <ol style="margin:0;padding-left:18px;color:#E2E8F0;font-size:12.5px;line-height:1.45">${list.map(item => `<li>${esc(item)}</li>`).join("")}</ol>
+    <div class="mini-item" style="margin-top:10px">
+      <div style="font-size:12px;color:var(--muted);font-weight:900;margin-bottom:7px">${esc(title)}</div>
+      <ol style="margin:0;padding-left:18px;color:var(--text);font-size:12.5px;line-height:1.45">${list.map(item => `<li>${esc(item)}</li>`).join("")}</ol>
     </div>`;
 }
 
 function noteBlockHTML(title, text, tone=""){
   if(!text) return "";
-  const color = tone === "warn" ? "#FDE68A" : "#BAE6FD";
-  const border = tone === "warn" ? "rgba(245,158,11,.18)" : "rgba(56,189,248,.18)";
-  const bg = tone === "warn" ? "rgba(245,158,11,.08)" : "rgba(56,189,248,.08)";
+  const cls = tone === "warn" ? "coach-note" : "replacement";
   return `
-    <div style="margin-top:10px;border:1px solid ${border};background:${bg};border-radius:18px;padding:11px;color:${color};font-size:12.5px;line-height:1.45">
+    <div class="${cls}" style="margin-top:10px">
       <b style="display:block;margin-bottom:4px">${esc(title)}</b>${esc(text)}
     </div>`;
 }
@@ -2670,16 +2060,9 @@ function closeModal(id){
 }
 
 function resetSelectChips(){
-  $$("[data-select='effort'] .select-chip").forEach(b=>b.classList.toggle("active", b.dataset.value==="good"));
-  $$("[data-select='pain'] .select-chip").forEach(b=>b.classList.toggle("active", b.dataset.value==="0"));
-  $$("[data-select='painArea'] .select-chip").forEach(b=>b.classList.toggle("active", b.dataset.value===""));
-}
-
-function sectionLabel(section){
-  if(section === "warmup") return "Warm-up";
-  if(section === "main") return "Workout";
-  if(section === "stretch") return "Stretches";
-  return nice(section);
+  $$('[data-select="effort"] .select-chip').forEach(b=>b.classList.toggle("active", b.dataset.value==="good"));
+  $$('[data-select="pain"] .select-chip').forEach(b=>b.classList.toggle("active", b.dataset.value==="0"));
+  $$('[data-select="painArea"] .select-chip').forEach(b=>b.classList.toggle("active", b.dataset.value===""));
 }
 
 function sleep(ms){
@@ -2754,7 +2137,7 @@ function renderAiCoachStatusUI(){
       </div>
       <div class="ai-status-meta">
         <div class="ai-status-row"><span>Plan</span><strong>${esc(activePlanMeta.title || activePlan?.title || "AI coach plan")}</strong></div>
-        <div class="ai-status-row"><span>Week</span><strong>${esc((activePlanMeta.week_start || activePlan?.start_date || "") + " → " + (activePlanMeta.week_end || activePlan?.end_date || ""))}</strong></div>
+        <div class="ai-status-row"><span>Week</span><strong>${esc((activePlanMeta.week_start || activePlan?.start_date || "") + " â " + (activePlanMeta.week_end || activePlan?.end_date || ""))}</strong></div>
         <div class="ai-status-row"><span>Access</span><strong>${esc(plan)}</strong></div>
       </div>
     `;
@@ -2788,7 +2171,6 @@ async function startBackgroundPlan(requestId, token){
     body:JSON.stringify({request_id:requestId})
   });
 
-  // Netlify background functions normally answer 202 immediately.
   if(![200,202].includes(res.status)){
     const result = await res.json().catch(()=>({}));
     throw new Error(result.error || "Could not start background plan update.");
@@ -3015,7 +2397,7 @@ function buildPrintHTML(){
       html += `
         <div class="print-card">
           <strong>${esc(ex.name || "Exercise")}</strong>
-          <p>${esc(ex.section || "")} • ${esc(ex.sets || "")} • Rest ${esc(ex.rest_seconds || "")} sec</p>
+          <p>${esc(ex.section || "")} â¢ ${esc(ex.sets || "")} â¢ Rest ${esc(ex.rest_seconds || "")} sec</p>
           <p>${esc(ex.cue || "")}</p>
           ${ex.coach_note ? `<p class="small"><strong>Coach note:</strong> ${esc(ex.coach_note)}</p>` : ""}
         </div>
@@ -3024,7 +2406,7 @@ function buildPrintHTML(){
   });
 
   if(activePlan.water_goal){
-    html += `<h2>Water Goal</h2><div class="print-card"><p>${esc(activePlan.water_goal.target_liters || "")} L daily • ${esc(activePlan.water_goal.bottles_per_day || "")} bottles</p><p>${esc(activePlan.water_goal.note || "")}</p></div>`;
+    html += `<h2>Water Goal</h2><div class="print-card"><p>${esc(activePlan.water_goal.target_liters || "")} L daily â¢ ${esc(activePlan.water_goal.bottles_per_day || "")} bottles</p><p>${esc(activePlan.water_goal.note || "")}</p></div>`;
   }
 
   if(activePlan.meal_prep_plan){
@@ -3076,10 +2458,8 @@ function initSelectChips(){
 function initEvents(){
   $$(".tab").forEach(btn=>btn.addEventListener("click",()=>switchTab(btn.dataset.tab)));
 
-  $("#editOnboardingBtn").onclick=()=>location.href="onboarding.html";
-  $("#logoutBtn").onclick=logout;
   $("#startWorkoutToday").onclick=()=>switchTab("workoutScreen");
-  $("#openSettingsBtn")?.addEventListener("click",()=>$("#settingsModal").classList.add("show"));
+  $("#openSettingsBtn")?.addEventListener("click",()=>location.href="settings.html");
   $("#changeDpBtn")?.addEventListener("click",()=>$("#profileDpFile")?.click());
   $("#profileDpFile")?.addEventListener("change", e=>handleProfileDpFile(e.target.files?.[0]));
 
