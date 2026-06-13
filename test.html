@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark" data-ui-version="light-glass-v2">
+<html lang="en" data-theme="dark" data-ui-version="all-pages-v1">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="color-scheme" content="dark light">
-  <title>ShapeCue UI Test</title>
+  <title>ShapeCue UI Test - All Pages</title>
   <style>
     :root{
       --bg:#050506;--top:#09090b;--surface:#111114;--surface2:#18181c;--surface3:#222228;
@@ -129,6 +129,447 @@
     .toast{position:fixed;left:50%;bottom:calc(76px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(10px);z-index:150;width:calc(100% - 38px);max-width:390px;padding:11px 13px;border:1px solid var(--line2);border-radius:15px;background:rgba(24,24,27,.92);color:#fff;box-shadow:var(--shadow);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);text-align:center;font-size:11.5px;opacity:0;pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}html[data-theme="light"] .toast{background:rgba(255,255,255,.94);color:#111114}
     @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.bottom-nav{background:rgba(24,24,28,.96)}html[data-theme="light"] .bottom-nav{background:rgba(255,255,255,.96)}}
     @media(max-width:374px){.app{padding-left:13px;padding-right:13px}.topbar{margin-left:-13px;margin-right:-13px;padding-left:13px;padding-right:13px}.page-head h1{font-size:26px}.days{gap:4px}.bottom-nav{width:calc(100% - 20px)}}
+  
+    /* ===== APPROVED SYSTEM: TRAIN / PROGRESS / ME ===== */
+
+    .summary-strip{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:8px;
+      margin-bottom:12px;
+    }
+
+    .summary-cell{
+      min-height:58px;
+      padding:9px 10px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:var(--surface);
+    }
+
+    .summary-cell span{
+      display:block;
+      color:var(--muted2);
+      font-size:9px;
+      font-weight:850;
+    }
+
+    .summary-cell strong{
+      display:block;
+      margin-top:7px;
+      font-size:14px;
+      letter-spacing:-.28px;
+    }
+
+    .workout-list{
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:var(--surface);
+    }
+
+    .exercise{
+      border-bottom:1px solid var(--line);
+    }
+
+    .exercise:last-child{
+      border-bottom:0;
+    }
+
+    .exercise-top{
+      width:100%;
+      min-height:68px;
+      padding:10px 12px;
+      border:0;
+      background:transparent;
+      display:grid;
+      grid-template-columns:34px 1fr auto;
+      gap:10px;
+      align-items:center;
+      text-align:left;
+    }
+
+    .exercise-top:active{
+      background:var(--surface2);
+    }
+
+    .exercise-index{
+      width:34px;
+      height:34px;
+      border-radius:11px;
+      display:grid;
+      place-items:center;
+      border:1px solid var(--line);
+      background:var(--surface2);
+      color:var(--muted);
+      font-size:10px;
+      font-weight:950;
+    }
+
+    .exercise.done .exercise-index{
+      background:var(--greenSoft);
+      border-color:rgba(53,212,111,.20);
+      color:var(--green);
+    }
+
+    .exercise-copy{
+      min-width:0;
+    }
+
+    .exercise-copy strong{
+      display:block;
+      font-size:13px;
+      letter-spacing:-.18px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .exercise-copy span{
+      display:block;
+      margin-top:4px;
+      color:var(--muted);
+      font-size:10.8px;
+    }
+
+    .exercise-state{
+      min-width:47px;
+      min-height:29px;
+      padding:5px 8px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:var(--surface2);
+      color:var(--muted);
+      font-size:9px;
+      font-weight:950;
+    }
+
+    .exercise.done .exercise-state{
+      color:var(--green);
+      background:var(--greenSoft);
+      border-color:rgba(53,212,111,.20);
+    }
+
+    .exercise-detail{
+      display:none;
+      padding:0 12px 12px 56px;
+    }
+
+    .exercise.open .exercise-detail{
+      display:block;
+    }
+
+    .exercise-note{
+      padding:9px 10px;
+      border:1px solid var(--line);
+      border-radius:13px;
+      background:var(--surface2);
+      color:var(--muted);
+      font-size:10.5px;
+      line-height:1.45;
+    }
+
+    .exercise-actions{
+      display:flex;
+      gap:7px;
+      margin-top:8px;
+    }
+
+    .primary-bar{
+      position:sticky;
+      bottom:74px;
+      z-index:10;
+      margin-top:14px;
+      padding:7px;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:var(--glass);
+      backdrop-filter:blur(22px) saturate(160%);
+      -webkit-backdrop-filter:blur(22px) saturate(160%);
+      box-shadow:var(--shadow);
+    }
+
+    .primary-bar button{
+      width:100%;
+      min-height:44px;
+      border:0;
+      border-radius:13px;
+      background:var(--green);
+      color:#06170c;
+      font-size:12px;
+      font-weight:1000;
+    }
+
+    .segmented{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:4px;
+      padding:4px;
+      border:1px solid var(--line);
+      border-radius:15px;
+      background:var(--surface);
+      margin-bottom:12px;
+    }
+
+    .segmented button{
+      min-height:34px;
+      padding:6px 8px;
+      border:0;
+      border-radius:11px;
+      background:transparent;
+      color:var(--muted);
+      font-size:9.8px;
+      font-weight:900;
+    }
+
+    .segmented button.active{
+      background:var(--surface2);
+      color:var(--text);
+      box-shadow:0 2px 8px rgba(0,0,0,.08);
+    }
+
+    .metric-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+    }
+
+    .metric{
+      min-height:86px;
+      padding:11px;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:var(--surface);
+    }
+
+    .metric-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+    }
+
+    .metric-top span{
+      color:var(--muted2);
+      font-size:9.5px;
+      font-weight:850;
+    }
+
+    .metric-trend{
+      color:var(--green);
+      font-size:9px;
+      font-weight:950;
+    }
+
+    .metric strong{
+      display:block;
+      margin-top:11px;
+      font-size:20px;
+      letter-spacing:-.7px;
+    }
+
+    .metric small{
+      display:block;
+      margin-top:4px;
+      color:var(--muted);
+      font-size:9.5px;
+    }
+
+    .chart{
+      height:106px;
+      padding:14px 12px 10px;
+      display:flex;
+      align-items:flex-end;
+      gap:8px;
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:var(--surface);
+    }
+
+    .chart-bar{
+      flex:1;
+      min-width:0;
+      height:var(--h);
+      border-radius:8px 8px 3px 3px;
+      background:linear-gradient(180deg,var(--green),rgba(53,212,111,.32));
+      opacity:.88;
+    }
+
+    .chart-bar.current{
+      opacity:1;
+      box-shadow:0 0 0 1px rgba(53,212,111,.18);
+    }
+
+    .photo-strip{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:8px;
+    }
+
+    .photo-card{
+      aspect-ratio:4/5;
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:17px;
+      background:
+        radial-gradient(circle at 50% 22%,rgba(255,255,255,.12),transparent 18%),
+        linear-gradient(180deg,var(--surface3),var(--surface2));
+    }
+
+    .photo-card span{
+      position:absolute;
+      left:8px;
+      bottom:8px;
+      padding:4px 6px;
+      border-radius:999px;
+      background:rgba(0,0,0,.44);
+      color:#fff;
+      font-size:8.5px;
+      font-weight:900;
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+    }
+
+    .profile-head{
+      padding:18px 2px 14px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+
+    .avatar{
+      width:58px;
+      height:58px;
+      border-radius:19px;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(145deg,var(--surface3),var(--surface));
+      border:1px solid var(--line);
+      color:var(--text);
+      font-size:18px;
+      font-weight:1000;
+      letter-spacing:-.7px;
+    }
+
+    .profile-copy{
+      min-width:0;
+      flex:1;
+    }
+
+    .profile-copy h1{
+      margin:0;
+      font-size:23px;
+      line-height:1.05;
+      letter-spacing:-.8px;
+    }
+
+    .profile-copy p{
+      margin:5px 0 0;
+      color:var(--muted);
+      font-size:11.5px;
+    }
+
+    .profile-edit{
+      min-width:46px;
+      min-height:31px;
+      padding:6px 9px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:var(--surface);
+      color:var(--blue);
+      font-size:9.5px;
+      font-weight:950;
+    }
+
+    .menu-group{
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:var(--surface);
+    }
+
+    .menu-row{
+      width:100%;
+      min-height:58px;
+      padding:10px 12px;
+      border:0;
+      border-bottom:1px solid var(--line);
+      background:transparent;
+      display:grid;
+      grid-template-columns:34px 1fr auto;
+      gap:10px;
+      align-items:center;
+      text-align:left;
+    }
+
+    .menu-row:last-child{
+      border-bottom:0;
+    }
+
+    .menu-row:active{
+      background:var(--surface2);
+    }
+
+    .menu-icon{
+      width:34px;
+      height:34px;
+      border-radius:11px;
+      display:grid;
+      place-items:center;
+      background:var(--surface2);
+      border:1px solid var(--line);
+      color:var(--text);
+    }
+
+    .menu-icon.green{
+      color:var(--green);
+      background:var(--greenSoft);
+      border-color:rgba(53,212,111,.20);
+    }
+
+    .menu-icon.blue{
+      color:var(--blue);
+      background:rgba(88,170,255,.10);
+      border-color:rgba(88,170,255,.16);
+    }
+
+    .menu-icon svg{
+      width:17px;
+      height:17px;
+      fill:none;
+      stroke:currentColor;
+      stroke-width:1.9;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+
+    .menu-copy strong{
+      display:block;
+      font-size:12.5px;
+      letter-spacing:-.15px;
+    }
+
+    .menu-copy span{
+      display:block;
+      margin-top:4px;
+      color:var(--muted);
+      font-size:10.5px;
+    }
+
+    .value{
+      color:var(--muted2);
+      font-size:10px;
+      font-weight:850;
+      text-align:right;
+    }
+
+    .membership-row{
+      background:
+        linear-gradient(90deg,var(--greenSoft),transparent 48%),
+        var(--surface);
+    }
+
   </style>
 </head>
 <body>
@@ -179,14 +620,349 @@
       <details class="fold"><summary><div class="fold-title"><strong>Grocery list</strong><span>18 items for this week</span></div><span class="fold-arrow"></span></summary><div class="fold-content"><div class="compact-list"><div>Protein: eggs, Greek yogurt, paneer, tofu, dal, chana</div><div>Carbs: atta, oats, rice, bananas</div><div>Produce: cucumber, spinach, berries, mixed vegetables</div></div></div></details>
       <details class="fold"><summary><div class="fold-title"><strong>Meal prep</strong><span>Simple Sunday prep, about 45 minutes</span></div><span class="fold-arrow"></span></summary><div class="fold-content"><div class="compact-list"><div>Cook dal or chana for 3 lunches.</div><div>Wash and portion salad vegetables.</div><div>Prepare three overnight oats jars.</div></div></div></details>
     </section>
+
+    <section class="screen" id="trainScreen">
+      <div class="page-head">
+        <div>
+          <h1>Train</h1>
+          <p>Friday push workout, focused and back-safe.</p>
+        </div>
+        <div class="head-actions">
+          <span class="date-chip">2 of 5</span>
+        </div>
+      </div>
+
+      <section class="summary-strip">
+        <div class="summary-cell"><span>Duration</span><strong>45 min</strong></div>
+        <div class="summary-cell"><span>Exercises</span><strong>5</strong></div>
+        <div class="summary-cell"><span>Effort</span><strong>1-2 RIR</strong></div>
+      </section>
+
+      <details class="fold">
+        <summary>
+          <div class="fold-title">
+            <strong>Warm-up</strong>
+            <span>5 minutes, shoulder and upper back prep</span>
+          </div>
+          <span class="fold-arrow"></span>
+        </summary>
+        <div class="fold-content">
+          <div class="compact-list">
+            <div>Arm circles, 30 seconds each way</div>
+            <div>Band pull-aparts, 2 x 15</div>
+            <div>Wall slides, 2 x 10</div>
+          </div>
+        </div>
+      </details>
+
+      <div class="section-head">
+        <h2>Main workout</h2>
+        <span>Tap an exercise</span>
+      </div>
+
+      <section class="workout-list">
+        <article class="exercise done">
+          <button class="exercise-top" type="button">
+            <span class="exercise-index">1</span>
+            <span class="exercise-copy">
+              <strong>Machine chest press</strong>
+              <span>3 sets x 10 reps, 32.5 kg</span>
+            </span>
+            <span class="exercise-state">Done</span>
+          </button>
+          <div class="exercise-detail">
+            <div class="exercise-note">Keep your shoulder blades supported. Stop with 1-2 clean reps still available.</div>
+            <div class="exercise-actions">
+              <button class="mini-action primary" type="button" data-exercise-done>Completed</button>
+              <button class="mini-action" type="button" data-report>Report</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="exercise done">
+          <button class="exercise-top" type="button">
+            <span class="exercise-index">2</span>
+            <span class="exercise-copy">
+              <strong>Incline dumbbell press</strong>
+              <span>3 sets x 10 reps, 12.5 kg each</span>
+            </span>
+            <span class="exercise-state">Done</span>
+          </button>
+          <div class="exercise-detail">
+            <div class="exercise-note">Use a moderate incline. Keep feet planted and avoid excessive lower-back arching.</div>
+            <div class="exercise-actions">
+              <button class="mini-action primary" type="button" data-exercise-done>Completed</button>
+              <button class="mini-action" type="button" data-report>Report</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="exercise open">
+          <button class="exercise-top" type="button">
+            <span class="exercise-index">3</span>
+            <span class="exercise-copy">
+              <strong>Seated shoulder press</strong>
+              <span>3 sets x 10 reps, 10 kg each</span>
+            </span>
+            <span class="exercise-state">Next</span>
+          </button>
+          <div class="exercise-detail">
+            <div class="exercise-note">Keep the bench upright and ribs down. Use the machine version if your back feels unstable.</div>
+            <div class="exercise-actions">
+              <button class="mini-action primary" type="button" data-exercise-done>Mark done</button>
+              <button class="mini-action" type="button" data-report>Report</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="exercise">
+          <button class="exercise-top" type="button">
+            <span class="exercise-index">4</span>
+            <span class="exercise-copy">
+              <strong>Cable lateral raise</strong>
+              <span>3 sets x 12 reps, light weight</span>
+            </span>
+            <span class="exercise-state">Later</span>
+          </button>
+          <div class="exercise-detail">
+            <div class="exercise-note">Raise only to shoulder height. Keep the movement slow and controlled.</div>
+            <div class="exercise-actions">
+              <button class="mini-action primary" type="button" data-exercise-done>Mark done</button>
+              <button class="mini-action" type="button" data-report>Report</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="exercise">
+          <button class="exercise-top" type="button">
+            <span class="exercise-index">5</span>
+            <span class="exercise-copy">
+              <strong>Rope triceps pressdown</strong>
+              <span>3 sets x 12 reps</span>
+            </span>
+            <span class="exercise-state">Later</span>
+          </button>
+          <div class="exercise-detail">
+            <div class="exercise-note">Keep elbows close to your sides and avoid leaning into the cable.</div>
+            <div class="exercise-actions">
+              <button class="mini-action primary" type="button" data-exercise-done>Mark done</button>
+              <button class="mini-action" type="button" data-report>Report</button>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <details class="fold">
+        <summary>
+          <div class="fold-title">
+            <strong>Cool-down</strong>
+            <span>3 minutes, chest and shoulder release</span>
+          </div>
+          <span class="fold-arrow"></span>
+        </summary>
+        <div class="fold-content">
+          <div class="compact-list">
+            <div>Doorway chest stretch, 30 seconds per side</div>
+            <div>Slow shoulder rolls and relaxed breathing</div>
+          </div>
+        </div>
+      </details>
+
+      <div class="primary-bar">
+        <button type="button" id="finishWorkoutBtn">Finish workout</button>
+      </div>
+    </section>
+
+    <section class="screen" id="progressScreen">
+      <div class="page-head">
+        <div>
+          <h1>Progress</h1>
+          <p>See the signal, not a wall of numbers.</p>
+        </div>
+        <div class="head-actions">
+          <button class="circle-btn" id="addCheckinBtn" type="button" aria-label="Add check-in">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="segmented">
+        <button class="active" type="button" data-range="week">Week</button>
+        <button type="button" data-range="month">Month</button>
+        <button type="button" data-range="quarter">3 months</button>
+      </div>
+
+      <section class="metric-grid">
+        <div class="metric">
+          <div class="metric-top"><span>Weight</span><span class="metric-trend">-0.4 kg</span></div>
+          <strong>68.7 kg</strong>
+          <small>From 69.1 kg</small>
+        </div>
+        <div class="metric">
+          <div class="metric-top"><span>Waist</span><span class="metric-trend">-1.2 cm</span></div>
+          <strong>84.8 cm</strong>
+          <small>Best trend this month</small>
+        </div>
+        <div class="metric">
+          <div class="metric-top"><span>Meals</span><span class="metric-trend">+6%</span></div>
+          <strong>82%</strong>
+          <small>18 of 22 completed</small>
+        </div>
+        <div class="metric">
+          <div class="metric-top"><span>Workouts</span><span class="metric-trend">On plan</span></div>
+          <strong>2 / 3</strong>
+          <small>One session left</small>
+        </div>
+      </section>
+
+      <div class="section-head">
+        <h2>Weekly consistency</h2>
+        <span id="rangeLabel">Last 7 days</span>
+      </div>
+
+      <section class="chart" aria-label="Weekly consistency chart">
+        <div class="chart-bar" style="--h:42%"></div>
+        <div class="chart-bar" style="--h:61%"></div>
+        <div class="chart-bar" style="--h:54%"></div>
+        <div class="chart-bar" style="--h:76%"></div>
+        <div class="chart-bar" style="--h:70%"></div>
+        <div class="chart-bar" style="--h:87%"></div>
+        <div class="chart-bar current" style="--h:82%"></div>
+      </section>
+
+      <div class="section-head">
+        <h2>Latest check-in</h2>
+        <button class="text-btn" type="button" id="historyBtn">History</button>
+      </div>
+
+      <section class="group">
+        <button class="row" type="button" id="checkinRow">
+          <div class="row-icon green">
+            <svg viewBox="0 0 24 24"><path d="M5 12l4 4L19 6"/></svg>
+          </div>
+          <div class="row-main">
+            <div class="title-line"><strong>Week 1 completed</strong></div>
+            <div class="sub">Energy improved, hunger controlled, back pain low</div>
+          </div>
+          <span class="chevron"></span>
+        </button>
+      </section>
+
+      <div class="section-head">
+        <h2>Progress photos</h2>
+        <button class="text-btn" type="button" id="photoVaultBtn">Vault</button>
+      </div>
+
+      <section class="photo-strip">
+        <div class="photo-card"><span>Front</span></div>
+        <div class="photo-card"><span>Side</span></div>
+        <div class="photo-card"><span>Back</span></div>
+      </section>
+    </section>
+
+    <section class="screen" id="profileScreen">
+      <div class="profile-head">
+        <div class="avatar">RS</div>
+        <div class="profile-copy">
+          <h1>Ranveer Singh</h1>
+          <p>ShapeCue Coach / Week 1</p>
+        </div>
+        <button class="profile-edit" type="button" id="editProfileBtn">Edit</button>
+      </div>
+
+      <div class="section-head">
+        <h2>Membership</h2>
+        <span>Weekly AI update</span>
+      </div>
+
+      <section class="menu-group">
+        <button class="menu-row membership-row" type="button" id="membershipBtn">
+          <span class="menu-icon green">
+            <svg viewBox="0 0 24 24"><path d="M12 3l2.5 5.1L20 9l-4 3.9.9 5.6L12 16l-4.9 2.5.9-5.6L4 9l5.5-.9L12 3Z"/></svg>
+          </span>
+          <span class="menu-copy">
+            <strong>ShapeCue Coach</strong>
+            <span>Weekly coaching and advanced review</span>
+          </span>
+          <span class="chevron"></span>
+        </button>
+      </section>
+
+      <div class="section-head">
+        <h2>Fitness profile</h2>
+        <span>Used by your AI plan</span>
+      </div>
+
+      <section class="menu-group">
+        <button class="menu-row" type="button">
+          <span class="menu-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21c1.5-4 14.5-4 16 0"/></svg>
+          </span>
+          <span class="menu-copy"><strong>Body and goal</strong><span>69 kg, recomposition</span></span>
+          <span class="value">Edit</span>
+        </button>
+        <button class="menu-row" type="button">
+          <span class="menu-icon">
+            <svg viewBox="0 0 24 24"><path d="M7 4v16M17 4v16M4 7h6M14 7h6M4 17h6M14 17h6"/></svg>
+          </span>
+          <span class="menu-copy"><strong>Workout setup</strong><span>Gym, 3 days, 45 minutes</span></span>
+          <span class="value">Edit</span>
+        </button>
+        <button class="menu-row" type="button">
+          <span class="menu-icon">
+            <svg viewBox="0 0 24 24"><path d="M4 7h16M6 4v6M18 4v6M5 7v12h14V7"/></svg>
+          </span>
+          <span class="menu-copy"><strong>Schedule</strong><span>4 workdays, active warehouse shifts</span></span>
+          <span class="value">Edit</span>
+        </button>
+      </section>
+
+      <div class="section-head">
+        <h2>Preferences</h2>
+        <span>Meals and coaching</span>
+      </div>
+
+      <section class="menu-group">
+        <button class="menu-row" type="button">
+          <span class="menu-icon blue">
+            <svg viewBox="0 0 24 24"><path d="M5 7h14M7 4v6M17 4v6M5 7v12h14V7"/></svg>
+          </span>
+          <span class="menu-copy"><strong>Meal preferences</strong><span>Vegetarian-first, Indian and Punjabi options</span></span>
+          <span class="chevron"></span>
+        </button>
+        <button class="menu-row" type="button">
+          <span class="menu-icon blue">
+            <svg viewBox="0 0 24 24"><path d="M12 3v18M5 8h14M7 16h10"/></svg>
+          </span>
+          <span class="menu-copy"><strong>Coaching style</strong><span>Simple, practical, direct</span></span>
+          <span class="chevron"></span>
+        </button>
+      </section>
+
+      <div class="section-head">
+        <h2>App</h2>
+        <span></span>
+      </div>
+
+      <section class="menu-group">
+        <button class="menu-row" type="button" id="settingsBtn">
+          <span class="menu-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3A1.7 1.7 0 0 0 10 3V2.8h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9A1.7 1.7 0 0 0 21 10h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg>
+          </span>
+          <span class="menu-copy"><strong>Settings</strong><span>Theme, account, privacy, notifications</span></span>
+          <span class="chevron"></span>
+        </button>
+      </section>
+    </section>
+
   </main>
 
   <nav class="bottom-nav" aria-label="ShapeCue navigation">
     <button class="nav-btn active" type="button" data-screen="todayScreen" aria-label="Today"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-9.5Z"/></svg><span>Today</span></button>
     <button class="nav-btn" type="button" data-screen="mealsScreen" aria-label="Meals"><svg viewBox="0 0 24 24"><path d="M5 7h14M7 4v6M17 4v6M5 7v12h14V7"/><path d="M8 12h4M8 16h7"/></svg><span>Meals</span></button>
-    <button class="nav-btn" type="button" data-placeholder="Train" aria-label="Train"><svg viewBox="0 0 24 24"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg><span>Train</span></button>
-    <button class="nav-btn" type="button" data-placeholder="Progress" aria-label="Progress"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 16v-5M12 16V8M16 16v-9"/></svg><span>Progress</span></button>
-    <button class="nav-btn" type="button" data-placeholder="Me" aria-label="Me"><svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21c1.5-4 14.5-4 16 0"/></svg><span>Me</span></button>
+    <button class="nav-btn" type="button" data-screen="trainScreen" aria-label="Train"><svg viewBox="0 0 24 24"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg><span>Train</span></button>
+    <button class="nav-btn" type="button" data-screen="progressScreen" aria-label="Progress"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 16v-5M12 16V8M16 16v-9"/></svg><span>Progress</span></button>
+    <button class="nav-btn" type="button" data-screen="profileScreen" aria-label="Me"><svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21c1.5-4 14.5-4 16 0"/></svg><span>Me</span></button>
   </nav>
 
   <div class="toast" id="toast">Saved</div>
@@ -202,16 +978,55 @@
     function updateWater(){$("#waterCount").textContent=`${water} / 3`;$("#waterLabel").textContent=`${water} of 3 bottles`;$("#waterBar").style.width=`${Math.min(100,water/3*100)}%`}
     $("#themeBtn").onclick=()=>applyTheme(theme()==="dark"?"light":"dark");
     $$('[data-screen]').forEach(b=>b.onclick=()=>showScreen(b.dataset.screen));
-    $$('[data-placeholder]').forEach(b=>b.onclick=()=>toast(`${b.dataset.placeholder} will be designed after Today and Meals are approved.`));
+    
     $$('[data-go]').forEach(b=>b.onclick=()=>showScreen(b.dataset.go));
     $$('[data-complete]').forEach(b=>b.onclick=()=>{const done=b.classList.toggle('done');b.textContent=done?'Done':'Mark';toast(done?'Meal marked done':'Meal reopened')});
     $("#waterBtn").onclick=()=>{water=water>=3?0:water+1;updateWater();toast(water===3?'Water goal complete':'Water updated')};
-    $("#openWorkoutBtn").onclick=()=>toast('Train screen will use this same compact style.');
+    $("#openWorkoutBtn").onclick=()=>showScreen('trainScreen');
     $("#exportBtn").onclick=()=>toast('Small PDF action - no oversized export card.');
     $$('.day').forEach(b=>b.onclick=()=>{$$('.day').forEach(x=>x.classList.remove('active'));b.classList.add('active');$("#mealDayTitle").textContent=`${b.dataset.day} plan`});
     $$('.meal-trigger').forEach(t=>t.onclick=()=>{const item=t.closest('.meal-item');$$('.meal-item').forEach(x=>x!==item&&x.classList.remove('open'));item.classList.toggle('open')});
     $$('[data-meal-done]').forEach(b=>b.onclick=()=>{const done=b.classList.toggle('done');b.textContent=done?'Completed':'Mark done';toast(done?'Meal completed':'Meal reopened')});
     $$('[data-swap]').forEach(b=>b.onclick=()=>toast('Swap shown inside the expanded meal.'));
+
+    $$('.exercise-top').forEach(button=>button.onclick=()=>{
+      const item=button.closest('.exercise');
+      $$('.exercise').forEach(other=>other!==item&&other.classList.remove('open'));
+      item.classList.toggle('open');
+    });
+
+    $$('[data-exercise-done]').forEach(button=>button.onclick=event=>{
+      event.stopPropagation();
+      const item=button.closest('.exercise');
+      const done=item.classList.toggle('done');
+      button.textContent=done?'Completed':'Mark done';
+      const state=item.querySelector('.exercise-state');
+      state.textContent=done?'Done':'Next';
+      toast(done?'Exercise completed':'Exercise reopened');
+    });
+
+    $$('[data-report]').forEach(button=>button.onclick=event=>{
+      event.stopPropagation();
+      toast('Exercise report sheet would open here.');
+    });
+
+    $('#finishWorkoutBtn').onclick=()=>toast('Workout finished. Great job.');
+
+    $$('[data-range]').forEach(button=>button.onclick=()=>{
+      $$('[data-range]').forEach(item=>item.classList.remove('active'));
+      button.classList.add('active');
+      const labels={week:'Last 7 days',month:'Last 30 days',quarter:'Last 3 months'};
+      $('#rangeLabel').textContent=labels[button.dataset.range];
+    });
+
+    $('#addCheckinBtn').onclick=()=>toast('New check-in sheet would open here.');
+    $('#historyBtn').onclick=()=>toast('Progress history would open here.');
+    $('#checkinRow').onclick=()=>toast('Latest weekly review would open here.');
+    $('#photoVaultBtn').onclick=()=>toast('Secure progress photo vault would open here.');
+    $('#editProfileBtn').onclick=()=>toast('Profile editing would open here.');
+    $('#membershipBtn').onclick=()=>toast('Membership page would open here.');
+    $('#settingsBtn').onclick=()=>toast('Settings page would open here.');
+
     applyTheme(theme());setDate();updateWater();
   </script>
 </body>
