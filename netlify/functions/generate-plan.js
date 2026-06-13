@@ -147,6 +147,104 @@ async function ensureEntitlement(db, userId) {
   };
 }
 
+function hasValue(value) {
+  return value !== null && value !== undefined && String(value).trim() !== "";
+}
+
+function hasArray(value) {
+  return Array.isArray(value) && value.some(item => hasValue(item));
+}
+
+function validateFirstPlanSetup(setup) {
+  const profile = setup.profile || {};
+  const workout = setup.workout || {};
+  const work = setup.work || {};
+  const food = setup.food || {};
+  const water = setup.water || {};
+  const latestMeasurement = setup.latestMeasurement || {};
+  const missing = [];
+
+  const add = (section, label, ready) => {
+    if (!ready) missing.push(`${section}: ${label}`);
+  };
+
+  add("Personal information", "full name", hasValue(profile.full_name));
+  add("Personal information", "date of birth", hasValue(profile.date_of_birth));
+  add("Personal information", "gender", hasValue(profile.gender));
+  add("Personal information", "height", Number(profile.height_cm) > 0);
+  add("Personal information", "current weight", Number(profile.starting_weight || latestMeasurement.weight) > 0);
+  add("Goals and body", "main fitness goal", hasArray(profile.main_goals) || hasValue(profile.main_goal));
+  add("Goals and body", "body type", hasValue(profile.body_type));
+
+  add("Workout setup", "workout place", hasValue(workout.workout_place));
+  add("Workout setup", "workout days", hasArray(workout.workout_days));
+  add("Workout setup", "time available", Number(workout.max_minutes) > 0);
+  add("Workout setup", "training experience", hasValue(workout.experience_level));
+  add("Workout setup", "training split", hasValue(workout.preferred_split));
+  add("Workout setup", "equipment preference", hasArray(workout.equipment));
+
+  add("Pain and safety", "pain or no-pain selection", hasArray(workout.pain_areas));
+  add("Pain and safety", "pain rating", hasValue(workout.pain_rating));
+
+  const notWorking = ["not_working", "retired", "student_no_job"].includes(
+    String(work.job_activity || "").toLowerCase()
+  );
+
+  if (!notWorking) {
+    add("Work schedule", "work days", hasArray(work.work_days));
+    add("Work schedule", "work start time", hasValue(work.work_start));
+    add("Work schedule", "work end time", hasValue(work.work_end));
+    add("Work schedule", "job activity", hasValue(work.job_activity));
+    add("Work schedule", "at least one break or eating window", hasArray(work.breaks));
+  }
+
+  add("Food setup", "diet type", hasValue(food.diet_type));
+  add("Food setup", "cuisine preference", hasArray(food.food_styles) || hasValue(food.food_style));
+  add("Food setup", "protein preferences", hasArray(food.preferred_proteins));
+  add("Food setup", "carb preferences", hasArray(food.preferred_carbs));
+  add("Food setup", "allergy or no-allergy selection", hasArray(food.allergies));
+  add("Food setup", "smoothie preference", typeof food.likes_smoothies === "boolean");
+  add("Food setup", "whey preference", typeof food.uses_whey_protein === "boolean");
+  add("Food setup", "usual or favourite foods", hasValue(food.usual_foods) || hasValue(food.favourite_foods));
+  add("Food setup", "meal prep style", hasValue(food.meal_prep_style));
+
+  add("Water setup", "bottle size", Number(water.bottle_size_ml) > 0);
+  add("Water setup", "daily water target", Number(water.daily_target_liters || water.target_liters) > 0);
+
+  return { complete: missing.length === 0, missing };
+}
+
+async function readFirstPlanSetup(db, userId) {
+  const [profileRes, workoutRes, workRes, foodRes, waterRes, measurementRes] = await Promise.all([
+    db.from("profiles").select("*").eq("id", userId).maybeSingle(),
+    db.from("workout_availability").select("*").eq("user_id", userId).maybeSingle(),
+    db.from("work_schedules").select("*").eq("user_id", userId).maybeSingle(),
+    db.from("food_preferences").select("*").eq("user_id", userId).maybeSingle(),
+    db.from("water_settings").select("*").eq("user_id", userId).maybeSingle(),
+    db.from("measurements").select("weight").eq("user_id", userId).order("entry_date", { ascending: false }).limit(1)
+  ]);
+
+  const firstError = [
+    profileRes.error,
+    workoutRes.error,
+    workRes.error,
+    foodRes.error,
+    waterRes.error,
+    measurementRes.error
+  ].find(Boolean);
+
+  if (firstError) throw firstError;
+
+  return {
+    profile: profileRes.data || {},
+    workout: workoutRes.data || {},
+    work: workRes.data || {},
+    food: foodRes.data || {},
+    water: waterRes.data || {},
+    latestMeasurement: measurementRes.data?.[0] || {}
+  };
+}
+
 function rpcErrorToHttp(error) {
   const message = String(error?.message || error || "Could not authorize AI update.");
   const upper = message.toUpperCase();
@@ -156,6 +254,9 @@ function rpcErrorToHttp(error) {
   }
   if (upper.includes("ADMIN_REQUIRED")) {
     return { statusCode: 403, code: "ADMIN_REQUIRED", message: "Only an app admin can use the admin manual update." };
+  }
+  if (upper.includes("FIRST_PLAN_ALREADY_EXISTS")) {
+    return { statusCode: 409, code: "FIRST_PLAN_ALREADY_EXISTS", message: "The free first-plan action has already been used." };
   }
   if (upper.includes("INVALID_REQUEST_SOURCE")) {
     return { statusCode: 400, code: "INVALID_REQUEST_SOURCE", message: "Invalid AI update request source." };
@@ -186,11 +287,11 @@ export async function handler(event) {
     }
 
     const requestSource = String(body.request_source || "").trim().toLowerCase();
-    if (!["admin_manual", "addon_credit"].includes(requestSource)) {
+    if (!["first_plan", "admin_manual", "addon_credit"].includes(requestSource)) {
       return jsonResponse(403, {
         ok: false,
         code: "MANUAL_UPDATE_NOT_ALLOWED",
-        error: "Subscription updates run automatically. A manual update requires admin access or a purchased extra AI update."
+        error: "A plan request must be the one-time first plan, an admin update, or a purchased extra AI update."
       });
     }
 
@@ -201,7 +302,24 @@ export async function handler(event) {
     const user = await getUserFromToken(db, event);
     const entitlement = await ensureEntitlement(db, user.id);
     const tier = planTierInfo(entitlement);
-    const requestType = `weekly_plan_coach_${tier.generationType}`;
+
+    if (requestSource === "first_plan") {
+      const setup = await readFirstPlanSetup(db, user.id);
+      const setupStatus = validateFirstPlanSetup(setup);
+
+      if (!setupStatus.complete) {
+        return jsonResponse(422, {
+          ok: false,
+          code: "SETUP_INCOMPLETE",
+          error: "Complete the required setup details before generating the first AI plan.",
+          missing_setup: setupStatus.missing
+        });
+      }
+    }
+
+    const requestType = requestSource === "first_plan"
+      ? `weekly_plan_coach_first_${tier.generationType}`
+      : `weekly_plan_coach_${tier.generationType}`;
 
     const { data: started, error: startError } = await db.rpc("start_manual_ai_plan_request", {
       p_user_id: user.id,
@@ -211,7 +329,8 @@ export async function handler(event) {
       p_prompt_payload: {
         entitlement,
         created_by: "generate-plan",
-        queued_at: new Date().toISOString()
+        queued_at: new Date().toISOString(),
+        first_plan: requestSource === "first_plan"
       }
     });
 
@@ -239,9 +358,11 @@ export async function handler(event) {
       entitlement,
       message: alreadyRunning
         ? "Your AI coach is already updating your plan."
-        : requestSource === "addon_credit"
-          ? "One extra AI update was reserved. Your AI coach is now updating the plan."
-          : "Admin AI plan update started."
+        : requestSource === "first_plan"
+          ? "Your first AI plan is now being prepared. No add-on credit was used."
+          : requestSource === "addon_credit"
+            ? "One extra AI update was reserved. Your AI coach is now updating the plan."
+            : "Admin AI plan update started."
     });
   } catch (error) {
     console.error(error);
