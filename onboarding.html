@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark" data-ui-version="approved-onboarding-v1">
+<html lang="en" data-theme="dark" data-ui-version="approved-onboarding-v2-edit-modes">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -818,7 +818,7 @@
           <a href="index.html" class="brand">
             <div class="logo">SC</div>
             <div class="brand-copy">
-              <h1>ShapeCue Setup</h1>
+              <h1 id="setupTitle">ShapeCue Setup</h1>
               <span id="topSub">Fitness that fits your day</span>
             </div>
           </a>
@@ -1457,13 +1457,60 @@
     const $ = selector => document.querySelector(selector);
     const $$ = selector => Array.from(document.querySelectorAll(selector));
 
-    let currentStep = 0;
-    const totalSteps = 8;
+    const pageParams = new URLSearchParams(location.search);
+    const requestedEditMode = pageParams.get("edit");
+    const editMode = ["personal","fitness"].includes(requestedEditMode)
+      ? requestedEditMode
+      : "";
+    const requestedReturnPage = pageParams.get("return");
+    const returnPage = ["settings.html","app.html"].includes(requestedReturnPage)
+      ? requestedReturnPage
+      : "settings.html";
+    const allSteps = [0,1,2,3,4,5,6,7];
+    const modeSteps = {
+      personal:[0,1],
+      fitness:[2,3,4,5,6,7]
+    };
+    const activeSteps = editMode
+      ? modeSteps[editMode]
+      : allSteps;
+
+    let currentStep = activeSteps[0];
+    const totalSteps = activeSteps.length;
     let currentUser = null;
     let saving = false;
     let breaksData = [];
     let selectedPlanCode = "free";
     let currentEntitlement = null;
+
+    function currentStepIndex(){
+      return activeSteps.indexOf(currentStep);
+    }
+
+    function configureEditMode(){
+      if(!editMode) return;
+
+      document.title = editMode === "personal"
+        ? "ShapeCue - Personal information"
+        : "ShapeCue - Fitness and food setup";
+
+      $("#setupTitle").textContent = editMode === "personal"
+        ? "Personal information"
+        : "Fitness & food setup";
+
+      $("#topSub").textContent = editMode === "personal"
+        ? "Edit your profile and measurements"
+        : "Edit goals, training, schedule, food, and water";
+
+      if(editMode === "fitness"){
+        const planGrid = $("#planGrid");
+        const planHeading = planGrid?.previousElementSibling;
+
+        if(planHeading) planHeading.hidden = true;
+        if(planGrid) planGrid.hidden = true;
+        if($(".promo-box")) $(".promo-box").hidden = true;
+      }
+    }
 
     function calculateAge(dob){
       if(!dob) return null;
@@ -2301,21 +2348,20 @@
     }
 
     function renderStep(){
-      $$(".screen").forEach(
-        (screen, index) => {
-          screen.classList.toggle(
-            "active",
-            index === currentStep
-          );
-        }
-      );
+      $$(".screen").forEach(screen => {
+        screen.classList.toggle(
+          "active",
+          Number(screen.dataset.step) === currentStep
+        );
+      });
 
+      const stepIndex = currentStepIndex();
       const percent = Math.round(
-        ((currentStep + 1) / totalSteps) * 100
+        ((stepIndex + 1) / totalSteps) * 100
       );
 
       $("#stepText").textContent =
-        `Step ${currentStep + 1} of ${totalSteps}`;
+        `Step ${stepIndex + 1} of ${totalSteps}`;
 
       $("#progressText").textContent =
         `${percent}%`;
@@ -2324,16 +2370,16 @@
         `${percent}%`;
 
       $("#backBtn").textContent =
-        currentStep === 0
-          ? "Home"
+        stepIndex === 0
+          ? (editMode ? "Cancel" : "Home")
           : "Back";
 
       $("#nextText").textContent =
-        currentStep === totalSteps - 1
-          ? "Save setup"
+        stepIndex === totalSteps - 1
+          ? (editMode ? "Save changes" : "Save setup")
           : "Next";
 
-      if(currentStep === totalSteps - 1){
+      if(currentStep === 7){
         renderSummary();
       }
 
@@ -2440,6 +2486,159 @@
           <strong>${planText}</strong>
         </div>
       `;
+    }
+
+    async function saveEditMode(){
+      const setup = userData();
+      const userId = currentUser.id;
+      const now = new Date().toISOString();
+
+      if(editMode === "personal"){
+        const { error:profileError } =
+          await supabaseClient
+            .from("profiles")
+            .upsert(
+              {
+                id:userId,
+                email:currentUser.email,
+                full_name:setup.profile.full_name,
+                date_of_birth:setup.profile.date_of_birth,
+                age:setup.profile.age,
+                gender:setup.profile.gender,
+                height_cm:setup.profile.height_cm,
+                starting_weight:setup.profile.starting_weight,
+                weight_unit:setup.profile.weight_unit,
+                onboarding_completed:true,
+                updated_at:now
+              },
+              { onConflict:"id" }
+            );
+
+        if(profileError) throw profileError;
+
+        const measurementHasData = Object
+          .entries(setup.measurement)
+          .some(([key,value]) => (
+            !["entry_date","unit","notes"].includes(key) &&
+            value !== null &&
+            value !== ""
+          ));
+
+        if(measurementHasData){
+          const today = new Date()
+            .toISOString()
+            .slice(0,10);
+
+          const { data:existing } =
+            await supabaseClient
+              .from("measurements")
+              .select("id")
+              .eq("user_id",userId)
+              .eq("entry_date",today)
+              .order("created_at",{ascending:false})
+              .limit(1);
+
+          if(existing?.length){
+            const { error } =
+              await supabaseClient
+                .from("measurements")
+                .update({
+                  ...setup.measurement,
+                  notes:"Profile and measurement update",
+                  updated_at:now
+                })
+                .eq("id",existing[0].id);
+
+            if(error) throw error;
+          }else{
+            const { error } =
+              await supabaseClient
+                .from("measurements")
+                .insert({
+                  user_id:userId,
+                  ...setup.measurement,
+                  notes:"Profile and measurement update"
+                });
+
+            if(error) throw error;
+          }
+        }
+
+        return;
+      }
+
+      if(editMode === "fitness"){
+        const { error:profileError } =
+          await supabaseClient
+            .from("profiles")
+            .upsert(
+              {
+                id:userId,
+                email:currentUser.email,
+                main_goals:setup.profile.main_goals,
+                main_goal:setup.profile.main_goal,
+                body_type:setup.profile.body_type,
+                body_type_custom:setup.profile.body_type_custom,
+                onboarding_completed:true,
+                updated_at:now
+              },
+              { onConflict:"id" }
+            );
+
+        if(profileError) throw profileError;
+
+        const { error:workoutError } =
+          await supabaseClient
+            .from("workout_availability")
+            .upsert(
+              {
+                user_id:userId,
+                ...setup.workout
+              },
+              { onConflict:"user_id" }
+            );
+
+        if(workoutError) throw workoutError;
+
+        const { error:workError } =
+          await supabaseClient
+            .from("work_schedules")
+            .upsert(
+              {
+                user_id:userId,
+                ...setup.work
+              },
+              { onConflict:"user_id" }
+            );
+
+        if(workError) throw workError;
+
+        const { error:foodError } =
+          await supabaseClient
+            .from("food_preferences")
+            .upsert(
+              {
+                user_id:userId,
+                ...setup.food
+              },
+              { onConflict:"user_id" }
+            );
+
+        if(foodError) throw foodError;
+
+        const { error:waterError } =
+          await supabaseClient
+            .from("water_settings")
+            .upsert(
+              {
+                user_id:userId,
+                ...setup.water
+              },
+              { onConflict:"user_id" }
+            );
+
+        if(waterError) throw waterError;
+      }
     }
 
     async function saveSetup(){
@@ -2949,12 +3148,16 @@
         () => {
           if(saving) return;
 
-          if(currentStep === 0){
-            location.href = "index.html";
+          const stepIndex = currentStepIndex();
+
+          if(stepIndex === 0){
+            location.href = editMode
+              ? returnPage
+              : "index.html";
             return;
           }
 
-          currentStep--;
+          currentStep = activeSteps[stepIndex - 1];
           renderStep();
         }
       );
@@ -2975,8 +3178,10 @@
             return;
           }
 
-          if(currentStep < totalSteps - 1){
-            currentStep++;
+          const stepIndex = currentStepIndex();
+
+          if(stepIndex < totalSteps - 1){
+            currentStep = activeSteps[stepIndex + 1];
             renderStep();
             return;
           }
@@ -2984,18 +3189,28 @@
           try{
             setLoading(true);
             showStatus(
-              "Saving your setup...",
+              editMode
+                ? "Saving your changes..."
+                : "Saving your setup...",
               ""
             );
 
-            await saveSetup();
+            if(editMode){
+              await saveEditMode();
+            }else{
+              await saveSetup();
+            }
 
             showStatus(
-              "Setup saved. Opening ShapeCue...",
+              editMode
+                ? "Changes saved."
+                : "Setup saved. Opening ShapeCue...",
               "good"
             );
 
-            location.href = "app.html";
+            location.href = editMode
+              ? returnPage
+              : "app.html";
           }catch(error){
             console.error(error);
 
@@ -3032,9 +3247,13 @@
 
       currentUser = data.session.user;
 
-      $("#topSub").textContent =
-        currentUser.email ||
-        "Fitness that fits your day";
+      if(editMode){
+        configureEditMode();
+      }else{
+        $("#topSub").textContent =
+          currentUser.email ||
+          "Fitness that fits your day";
+      }
 
       breaksData = [];
       renderBreaks();
