@@ -1,0 +1,12 @@
+{
+  "id": "/",
+  "name": "ShapeCue",
+  "short_name": "ShapeCue",
+  "description": "AI fitness, meal, workout, and progress coaching.",
+  "start_url": "/app.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#050506",
+  "theme_color": "#050506",
+  "orientation": "portrait-primary"
+}
