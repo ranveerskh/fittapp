@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="color-scheme" content="dark light" />
+  <meta name="theme-color" content="#050506" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="ShapeCue" />
+  <link rel="manifest" href="/manifest.webmanifest" />
   <title>ShapeCue - Settings</title>
 
   <script>
@@ -1195,6 +1199,27 @@
       cursor:not-allowed;
     }
 
+  
+    /* ShapeCue real Web Push notifications */
+    .notification-status-card{margin:0 0 10px;padding:13px;border:1px solid var(--line);border-radius:18px;background:var(--surface)}
+    .notification-status-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+    .notification-status-copy{min-width:0;flex:1}
+    .notification-status-copy strong{display:block;font-size:13px;letter-spacing:-.15px}
+    .notification-status-copy span{display:block;margin-top:4px;color:var(--muted);font-size:10.5px;line-height:1.4}
+    .notification-state{flex:0 0 auto;min-height:26px;display:inline-flex;align-items:center;justify-content:center;padding:5px 8px;border:1px solid var(--line);border-radius:999px;background:var(--surface2);color:var(--muted);font-size:9px;font-weight:1000;white-space:nowrap}
+    .notification-state.active{color:var(--green);background:var(--green-soft);border-color:rgba(53,212,111,.20)}
+    .notification-state.warn{color:var(--amber);background:var(--amber-soft);border-color:rgba(255,179,64,.20)}
+    .notification-state.blocked{color:var(--red);background:var(--red-soft);border-color:rgba(255,98,89,.20)}
+    .notification-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:11px}
+    .notification-actions .btn{width:100%}
+    .notification-options{padding:10px 12px 12px;border-top:1px solid var(--line);background:var(--surface)}
+    .notification-options-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .notification-options .field{margin-top:0!important}
+    .notification-help{margin-top:9px;color:var(--muted);font-size:10.5px;line-height:1.42}
+    .notification-help.warn{color:var(--amber)}
+    .notification-help.blocked{color:var(--red)}
+    @media(max-width:390px){.notification-options-grid,.notification-actions{grid-template-columns:1fr}}
+
   </style>
 </head>
 
@@ -1357,49 +1382,54 @@
 
         <div class="section-label">Notifications</div>
 
+        <div class="notification-status-card">
+          <div class="notification-status-top">
+            <div class="notification-status-copy">
+              <strong id="notificationStatusTitle">Checking this device</strong>
+              <span id="notificationStatusText">ShapeCue is checking browser permission and push support.</span>
+            </div>
+            <span class="notification-state" id="notificationStatusPill">Checking</span>
+          </div>
+          <div class="notification-actions">
+            <button class="btn primary" id="enableNotificationsBtn" type="button">Enable on this device</button>
+            <button class="btn secondary" id="testNotificationBtn" type="button" disabled>Send test</button>
+          </div>
+        </div>
+
         <section class="group">
           <div class="row">
             <span class="row-icon green"><svg viewBox="0 0 24 24"><path d="M7 4v7M10 4v7M7 8h3M8.5 11v9M16 4v16M16 4c3 2 3 7 0 9"/></svg></span>
-            <span class="row-main">
-              <span class="row-title">Meal reminders</span>
-              <span class="row-sub">Remind me around planned meal times</span>
-            </span>
-            <button class="switch" type="button" data-setting-key="meal_reminders" aria-label="Meal reminders">
-              <span class="switch-dot"></span>
-            </button>
+            <span class="row-main"><span class="row-title">Meal reminders</span><span class="row-sub">Use the meal times inside the active plan</span></span>
+            <button class="switch" type="button" data-notification-key="meal_reminders" aria-label="Meal reminders"><span class="switch-dot"></span></button>
           </div>
 
           <div class="row">
             <span class="row-icon blue"><svg viewBox="0 0 24 24"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg></span>
-            <span class="row-main">
-              <span class="row-title">Workout reminders</span>
-              <span class="row-sub">Remind me on scheduled training days</span>
-            </span>
-            <button class="switch" type="button" data-setting-key="workout_reminders" aria-label="Workout reminders">
-              <span class="switch-dot"></span>
-            </button>
+            <span class="row-main"><span class="row-title">Workout reminders</span><span class="row-sub">Use scheduled gym times from the active plan</span></span>
+            <button class="switch" type="button" data-notification-key="workout_reminders" aria-label="Workout reminders"><span class="switch-dot"></span></button>
           </div>
 
           <div class="row">
             <span class="row-icon purple"><svg viewBox="0 0 24 24"><path d="M5 7h14M7 4v6M17 4v6M5 7v12h14V7"/><path d="m8 14 2 2 5-5"/></svg></span>
-            <span class="row-main">
-              <span class="row-title">Weekly check-in</span>
-              <span class="row-sub">Weight and progress reminder</span>
-            </span>
-            <button class="switch" type="button" data-setting-key="checkin_reminders" aria-label="Weekly check-in reminder">
-              <span class="switch-dot"></span>
-            </button>
+            <span class="row-main"><span class="row-title">Weekly check-in</span><span class="row-sub">Weight, measurements, pain, and progress notes</span></span>
+            <button class="switch" type="button" data-notification-key="checkin_reminders" aria-label="Weekly check-in reminder"><span class="switch-dot"></span></button>
           </div>
 
           <div class="row">
             <span class="row-icon amber"><svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><path d="m5.6 5.6 2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3"/></svg></span>
-            <span class="row-main">
-              <span class="row-title">AI plan ready</span>
-              <span class="row-sub">Notify me when a background plan finishes</span>
-            </span>
-            <button class="switch" type="button" data-setting-key="plan_ready_notifications" aria-label="AI plan ready notification">
-              <span class="switch-dot"></span>
-            </button>
+            <span class="row-main"><span class="row-title">AI plan ready</span><span class="row-sub">Notify me when background generation finishes</span></span>
+            <button class="switch" type="button" data-notification-key="plan_ready_notifications" aria-label="AI plan ready notification"><span class="switch-dot"></span></button>
+          </div>
+
+          <div class="notification-options">
+            <div class="notification-options-grid">
+              <div class="field"><label>Meal reminder</label><select class="select" id="mealLeadSelect"><option value="0">At meal time</option><option value="10">10 minutes before</option><option value="15">15 minutes before</option><option value="30">30 minutes before</option></select></div>
+              <div class="field"><label>Workout reminder</label><select class="select" id="workoutLeadSelect"><option value="0">At workout time</option><option value="15">15 minutes before</option><option value="30">30 minutes before</option><option value="60">1 hour before</option></select></div>
+              <div class="field"><label>Check-in day</label><select class="select" id="checkinDaySelect"><option value="0">Sunday</option><option value="1">Monday</option><option value="2">Tuesday</option><option value="3">Wednesday</option><option value="4">Thursday</option><option value="5">Friday</option><option value="6">Saturday</option></select></div>
+              <div class="field"><label>Check-in time</label><input class="input" id="checkinTimeInput" type="time" value="09:00"></div>
+            </div>
+            <button class="btn secondary" id="disableNotificationsBtn" type="button" style="width:100%;margin-top:10px" disabled>Disable on this device</button>
+            <div class="notification-help" id="notificationHelp">Reminders use your device timezone. On iPhone, add ShapeCue to the Home Screen before enabling notifications.</div>
           </div>
         </section>
 
@@ -1679,6 +1709,10 @@
     let isAppAdmin = false;
     let latestAiPlan = null;
     let extraAiUpdatesRemaining = 0;
+    let notificationPreferences = null;
+    let notificationRegistration = null;
+    let notificationSubscription = null;
+    let notificationDbReady = true;
 
     function toast(message){
       const box = $("#toast");
@@ -1990,6 +2024,192 @@
       toast("Setting saved");
     }
 
+    function notificationTimezone(){
+      try{return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";}catch{return "UTC";}
+    }
+
+    function isIosDevice(){return /iPhone|iPad|iPod/i.test(navigator.userAgent || "");}
+    function isStandaloneApp(){return window.matchMedia?.("(display-mode: standalone)")?.matches || window.navigator.standalone === true;}
+    function pushSupported(){return "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;}
+
+    function defaultNotificationPreferences(){
+      return {user_id:currentUser?.id || null,meal_reminders:false,workout_reminders:false,checkin_reminders:false,plan_ready_notifications:false,meal_lead_minutes:0,workout_lead_minutes:30,checkin_day:0,checkin_time:"09:00",timezone:notificationTimezone()};
+    }
+
+    function urlBase64ToUint8Array(base64String){
+      const padding = "=".repeat((4 - base64String.length % 4) % 4);
+      const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+      const rawData = window.atob(base64);
+      return Uint8Array.from([...rawData].map(character => character.charCodeAt(0)));
+    }
+
+    async function registerNotificationWorker(){
+      if(!pushSupported()) return null;
+      if(notificationRegistration) return notificationRegistration;
+      notificationRegistration = await navigator.serviceWorker.register("/service-worker.js", {scope:"/"});
+      await navigator.serviceWorker.ready;
+      return notificationRegistration;
+    }
+
+    async function getPushPublicKey(){
+      const response = await fetch("/.netlify/functions/get-push-config", {headers:{"Accept":"application/json"}});
+      const result = await response.json().catch(() => ({}));
+      if(!response.ok || !result.ok || !result.public_key) throw new Error(result.error || "Push configuration is unavailable.");
+      return result.public_key;
+    }
+
+    async function savePushSubscription(subscription){
+      const response = await fetch("/.netlify/functions/register-push-subscription", {
+        method:"POST",
+        headers:{"Content-Type":"application/json","Authorization":`Bearer ${currentSession.access_token}`},
+        body:JSON.stringify({subscription:subscription.toJSON(),timezone:notificationTimezone(),user_agent:navigator.userAgent || "",platform:navigator.userAgentData?.platform || navigator.platform || ""})
+      });
+      const result = await response.json().catch(() => ({}));
+      if(!response.ok || !result.ok) throw new Error(result.error || "Could not save this notification device.");
+      return result;
+    }
+
+    async function removePushSubscription(endpoint){
+      if(!endpoint) return;
+      const response = await fetch("/.netlify/functions/remove-push-subscription", {
+        method:"POST",
+        headers:{"Content-Type":"application/json","Authorization":`Bearer ${currentSession.access_token}`},
+        body:JSON.stringify({endpoint})
+      });
+      const result = await response.json().catch(() => ({}));
+      if(!response.ok || !result.ok) throw new Error(result.error || "Could not disable this notification device.");
+    }
+
+    async function ensurePushSubscription(){
+      if(!pushSupported()) throw new Error("This browser does not support Web Push notifications.");
+      if(isIosDevice() && !isStandaloneApp()) throw new Error("On iPhone or iPad, add ShapeCue to the Home Screen, open it from the new icon, and then enable notifications.");
+      const registration = await registerNotificationWorker();
+      let permission = Notification.permission;
+      if(permission === "default") permission = await Notification.requestPermission();
+      if(permission !== "granted") throw new Error("Notification permission is blocked. Allow ShapeCue in your browser or phone notification settings.");
+      let subscription = await registration.pushManager.getSubscription();
+      if(!subscription){
+        const publicKey = await getPushPublicKey();
+        subscription = await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlBase64ToUint8Array(publicKey)});
+      }
+      await savePushSubscription(subscription);
+      notificationSubscription = subscription;
+      return subscription;
+    }
+
+    async function loadNotificationPreferences(){
+      notificationDbReady = true;
+      try{
+        const {data,error} = await supabaseClient.from("notification_preferences").select("*").eq("user_id",currentUser.id).maybeSingle();
+        if(error) throw error;
+        if(data){notificationPreferences = data;}
+        else{
+          const {data:created,error:createError} = await supabaseClient.from("notification_preferences").insert(defaultNotificationPreferences()).select().single();
+          if(createError) throw createError;
+          notificationPreferences = created;
+        }
+      }catch(error){
+        notificationDbReady = false;
+        notificationPreferences = defaultNotificationPreferences();
+        console.warn("Notification preference table is unavailable",error);
+      }
+      renderNotificationControls();
+    }
+
+    async function saveNotificationValues(values){
+      if(!notificationDbReady) throw new Error("Run the Step 8 notification SQL first.");
+      const {data,error} = await supabaseClient.from("notification_preferences").update({...values,timezone:notificationTimezone(),updated_at:new Date().toISOString()}).eq("user_id",currentUser.id).select().single();
+      if(error) throw error;
+      notificationPreferences = data;
+      renderNotificationControls();
+      return data;
+    }
+
+    function setNotificationStatus(title,text,pill,tone=""){
+      $("#notificationStatusTitle").textContent = title;
+      $("#notificationStatusText").textContent = text;
+      $("#notificationStatusPill").textContent = pill;
+      $("#notificationStatusPill").className = `notification-state ${tone}`.trim();
+      $("#notificationHelp").className = `notification-help ${tone === "blocked" ? "blocked" : tone === "warn" ? "warn" : ""}`.trim();
+    }
+
+    function renderNotificationControls(){
+      const prefs = notificationPreferences || defaultNotificationPreferences();
+      $$('[data-notification-key]').forEach(button => {
+        const enabled = Boolean(prefs[button.dataset.notificationKey]);
+        button.classList.toggle("on",enabled);
+        button.setAttribute("aria-pressed",String(enabled));
+        button.disabled = !notificationDbReady || !pushSupported() || Notification.permission === "denied";
+      });
+      $("#mealLeadSelect").value = String(Number(prefs.meal_lead_minutes || 0));
+      $("#workoutLeadSelect").value = String(Number(prefs.workout_lead_minutes || 30));
+      $("#checkinDaySelect").value = String(Number(prefs.checkin_day || 0));
+      $("#checkinTimeInput").value = String(prefs.checkin_time || "09:00").slice(0,5);
+      const supported = pushSupported();
+      const permission = supported ? Notification.permission : "unsupported";
+      const iosNeedsInstall = supported && isIosDevice() && !isStandaloneApp();
+      const active = permission === "granted" && Boolean(notificationSubscription);
+      $("#testNotificationBtn").disabled = !active;
+      $("#disableNotificationsBtn").disabled = !notificationSubscription;
+      $("#enableNotificationsBtn").disabled = !notificationDbReady || !supported || permission === "denied";
+      $("#enableNotificationsBtn").textContent = active ? "Device enabled" : "Enable on this device";
+      if(!notificationDbReady){setNotificationStatus("Notification database is not ready","Run the Step 8 SQL before enabling reminders.","Setup needed","warn");$("#notificationHelp").textContent="The notification tables were not found in Supabase.";}
+      else if(!supported){setNotificationStatus("Notifications are unavailable","This browser does not support service-worker Web Push.","Unsupported","blocked");$("#notificationHelp").textContent="Use a current version of Safari, Chrome, Edge, or another browser with Web Push support.";}
+      else if(iosNeedsInstall){setNotificationStatus("Add ShapeCue to the Home Screen","iPhone and iPad allow Web Push from installed Home Screen web apps.","Install first","warn");$("#notificationHelp").textContent="In Safari, tap Share → Add to Home Screen. Open ShapeCue from the new icon and return here.";}
+      else if(permission === "denied"){setNotificationStatus("Notifications are blocked","Permission was denied for this site or Home Screen app.","Blocked","blocked");$("#notificationHelp").textContent="Open your browser or phone notification settings and allow ShapeCue, then reload this page.";}
+      else if(active){setNotificationStatus("Notifications are active",`This device is subscribed in ${notificationTimezone()}.`,"Active","active");$("#notificationHelp").textContent="Meal and workout reminders use times from the active AI plan. Quiet hours are 10 PM to 7 AM.";}
+      else{setNotificationStatus("Enable notifications on this device","Permission is requested only after you tap the button.","Not enabled","");$("#notificationHelp").textContent="Reminders stay off until this device is subscribed and at least one reminder switch is enabled.";}
+    }
+
+    async function refreshNotificationState(){
+      if(!pushSupported()){renderNotificationControls();return;}
+      try{
+        const registration = await registerNotificationWorker();
+        notificationSubscription = await registration.pushManager.getSubscription();
+        if(notificationSubscription && Notification.permission === "granted") await savePushSubscription(notificationSubscription);
+      }catch(error){console.warn("Could not read notification subscription",error);}
+      renderNotificationControls();
+    }
+
+    async function toggleNotificationPreference(button){
+      const key = button.dataset.notificationKey;
+      const nextValue = !Boolean(notificationPreferences?.[key]);
+      button.disabled = true;
+      try{if(nextValue) await ensurePushSubscription();await saveNotificationValues({[key]:nextValue});toast(nextValue ? "Reminder enabled" : "Reminder disabled");}
+      catch(error){toast(error.message || "Could not update reminder");}
+      finally{button.disabled=false;renderNotificationControls();}
+    }
+
+    async function setupNotifications(){
+      const button=$("#enableNotificationsBtn"),old=button.textContent;button.disabled=true;button.textContent="Enabling...";
+      try{await ensurePushSubscription();await saveNotificationValues({timezone:notificationTimezone()});toast("Notifications enabled on this device");}
+      catch(error){toast(error.message || "Could not enable notifications");}
+      finally{button.disabled=false;button.textContent=old;renderNotificationControls();}
+    }
+
+    async function sendTestNotification(){
+      const button=$("#testNotificationBtn"),old=button.textContent;button.disabled=true;button.textContent="Sending...";
+      try{
+        const response=await fetch("/.netlify/functions/send-test-notification",{method:"POST",headers:{"Content-Type":"application/json","Authorization":`Bearer ${currentSession.access_token}`},body:"{}"});
+        const result=await response.json().catch(()=>({}));
+        if(!response.ok || !result.ok) throw new Error(result.error || "Test notification failed.");
+        toast("Test notification sent");
+      }catch(error){toast(error.message || "Could not send test notification");}
+      finally{button.disabled=false;button.textContent=old;}
+    }
+
+    async function disableNotificationsOnDevice(){
+      const subscription=notificationSubscription;if(!subscription)return;const button=$("#disableNotificationsBtn");button.disabled=true;
+      try{const endpoint=subscription.endpoint;await subscription.unsubscribe();await removePushSubscription(endpoint);notificationSubscription=null;toast("Notifications disabled on this device");}
+      catch(error){toast(error.message || "Could not disable notifications");}
+      finally{renderNotificationControls();}
+    }
+
+    async function saveNotificationSchedule(){
+      try{await saveNotificationValues({meal_lead_minutes:Number($("#mealLeadSelect").value || 0),workout_lead_minutes:Number($("#workoutLeadSelect").value || 30),checkin_day:Number($("#checkinDaySelect").value || 0),checkin_time:$("#checkinTimeInput").value || "09:00"});toast("Reminder timing saved");}
+      catch(error){toast(error.message || "Could not save reminder timing");}
+    }
+
     async function fetchEntitlement(){
       if(!currentSession?.access_token){
         return null;
@@ -2091,6 +2311,8 @@
       await loadAdminStatus();
       await loadLatestAiPlan();
       await loadAiUpdateWallet();
+      await loadNotificationPreferences();
+      await refreshNotificationState();
 
       renderAccount();
       renderMembership();
@@ -2287,6 +2509,17 @@
           "click",
           () => toggleSetting(button)
         );
+      });
+
+      $$('[data-notification-key]').forEach(button => {
+        button.addEventListener("click", () => toggleNotificationPreference(button));
+      });
+
+      $("#enableNotificationsBtn").addEventListener("click", setupNotifications);
+      $("#testNotificationBtn").addEventListener("click", sendTestNotification);
+      $("#disableNotificationsBtn").addEventListener("click", disableNotificationsOnDevice);
+      ["mealLeadSelect","workoutLeadSelect","checkinDaySelect","checkinTimeInput"].forEach(id => {
+        $("#" + id).addEventListener("change", saveNotificationSchedule);
       });
 
       $("#photoPrivacyBtn").addEventListener(
