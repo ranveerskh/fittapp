@@ -1,5 +1,4 @@
 import { createClient } from "@supabase/supabase-js";
-import { sendPushToUser } from "./push-utils.js";
 
 const SUPABASE_URL = "https://qusmbveovroldkhbjudq.supabase.co";
 const MODEL = process.env.OPENAI_MODEL || "gpt-5.4-mini";
@@ -1043,27 +1042,6 @@ export async function handler(event) {
         .from("profiles")
         .update(profileUpdate)
         .eq("id", userId);
-    }
-
-    try {
-      await sendPushToUser({
-        db,
-        userId,
-        type: "plan_ready",
-        dedupeKey: `plan-ready:${userId}:${savedPlanRes.data.id}`,
-        payload: {
-          title: "Your ShapeCue plan is ready",
-          body: String(plan.summary || `${tier.label} coach plan generated.`).slice(0, 220),
-          url: "/app.html?open=progress",
-          tag: "shapecue-plan-ready",
-          data: {
-            plan_id: savedPlanRes.data.id,
-            request_source: requestSource
-          }
-        }
-      });
-    } catch (notificationError) {
-      console.warn("Plan saved, but plan-ready notification could not be sent", notificationError);
     }
 
     return jsonResponse(200, {
