@@ -1644,6 +1644,7 @@
         <div class="section-head"><h2>AI coach</h2><span>Plan status</span></div>
         <div id="aiCoachStatusBox" class="ai-status-box"></div>
         <button class="btn primary full-width" id="updatePlanBtn" type="button">Update next plan</button>
+        <p id="aiPlanActionNote" style="margin:8px 3px 0;color:var(--app-muted);font-size:10.5px;line-height:1.4"></p>
 
         <details class="fold-card" id="measureFold">
           <summary>
@@ -1766,6 +1767,8 @@ let shortWorkoutMode = false;
 let doneMap = new Set();
 let currentEntitlement = null;
 let isAppAdmin = false;
+let extraAiUpdatesRemaining = 0;
+let hasAnyAiPlanRecord = false;
 let progressPhotoLoading = false;
 
 const VISUAL_STYLE_KEY = "shapecue.visual.style";
@@ -1971,6 +1974,229 @@ function currentPlanFeatures(){
 
 function isPaidPlan(){
   return ["plus","premium","coach"].includes(currentPlanCode());
+}
+
+function hasFilledValue(value){
+  return value !== null && value !== undefined && String(value).trim() !== "";
+}
+
+function hasFilledArray(value){
+  return Array.isArray(value) && value.some(item => hasFilledValue(item));
+}
+
+function firstPlanSetupStatus(){
+  const profile = data.profile || {};
+  const structuredGoal = data.structuredGoal || {};
+  const lifeStage = data.lifeStage || {};
+  const workout = data.workout || {};
+  const work = data.work || {};
+  const food = data.food || {};
+  const water = data.water || {};
+  const missing = [];
+  let totalChecks = 0;
+
+  const add = (section, label, ready) => {
+    totalChecks += 1;
+    if(!ready) missing.push({ section, label });
+  };
+
+  add("Personal information", "Full name", hasFilledValue(profile.full_name));
+  add("Personal information", "Date of birth", hasFilledValue(profile.date_of_birth));
+  add("Personal information", "Gender", hasFilledValue(profile.gender));
+  add("Personal information", "Height", Number(profile.height_cm) > 0);
+  add("Personal information", "Current weight", Number(profile.starting_weight || data.latestMeasurement?.weight) > 0);
+  add("Profile update", "Profile version 2", Number(profile.profile_schema_version || 1) >= 2);
+
+  add("Goals and body", "Main result", hasFilledValue(structuredGoal.primary_goal));
+  add("Goals and body", "Desired physique", hasFilledValue(structuredGoal.physique_preference));
+  add("Goals and body", "Body-focus area", hasFilledArray(structuredGoal.focus_areas));
+  add("Goals and body", "Fitness ability", hasFilledArray(structuredGoal.fitness_priorities));
+  add("Goals and body", "Current starting point", hasFilledValue(profile.body_type));
+
+  const purpose = String(structuredGoal.activity_purpose || "").toLowerCase();
+  if(purpose === "sports_performance"){
+    add("Goals and body", "Sport or activity", hasFilledValue(structuredGoal.sport_or_activity));
+  }
+
+  add("Life stage and safety", "Pregnancy or postpartum selection", hasFilledValue(lifeStage.life_stage));
+  const stage = String(lifeStage.life_stage || "").toLowerCase();
+
+  if(purpose === "pregnancy_fitness"){
+    add("Life stage and safety", "Pregnancy status", ["planning_pregnancy","pregnant"].includes(stage));
+  }
+
+  if(purpose === "postpartum_recovery"){
+    add("Life stage and safety", "Postpartum status", stage === "postpartum");
+  }
+
+  if(stage === "pregnant"){
+    add("Life stage and safety", "Pregnancy week", Number(lifeStage.pregnancy_week) >= 1 && Number(lifeStage.pregnancy_week) <= 42);
+  }
+
+  if(stage === "postpartum"){
+    add("Life stage and safety", "Delivery date", hasFilledValue(lifeStage.delivery_date));
+  }
+
+  if(["pregnant","postpartum"].includes(stage)){
+    const clearance = String(lifeStage.exercise_clearance || "").toLowerCase();
+    add("Life stage and safety", "Exercise clearance", ["cleared","cleared_with_restrictions"].includes(clearance));
+
+    if(clearance === "cleared_with_restrictions"){
+      add("Life stage and safety", "Clearance restrictions", hasFilledValue(lifeStage.restrictions_or_complications));
+    }
+  }
+
+  add("Workout setup", "Workout place", hasFilledValue(workout.workout_place));
+  add("Workout setup", "Workout days", hasFilledArray(workout.workout_days));
+  add("Workout setup", "Time available", Number(workout.max_minutes) > 0);
+  add("Workout setup", "Training experience", hasFilledValue(workout.experience_level));
+  add("Workout setup", "Training split", hasFilledValue(workout.preferred_split));
+  add("Workout setup", "Equipment preference", hasFilledArray(workout.equipment));
+
+  add("Pain and safety", "Pain or no-pain selection", hasFilledArray(workout.pain_areas));
+  add("Pain and safety", "Pain rating", hasFilledValue(workout.pain_rating));
+
+  const notWorking = ["not_working", "retired", "student_no_job"].includes(
+    String(work.job_activity || "").toLowerCase()
+  );
+
+  if(!notWorking){
+    add("Work schedule", "Work days", hasFilledArray(work.work_days));
+    add("Work schedule", "Work start time", hasFilledValue(work.work_start));
+    add("Work schedule", "Work end time", hasFilledValue(work.work_end));
+    add("Work schedule", "Job activity", hasFilledValue(work.job_activity));
+    add("Work schedule", "At least one break or eating window", hasFilledArray(work.breaks));
+  }
+
+  add("Food setup", "Diet type", hasFilledValue(food.diet_type));
+  add("Food setup", "Cuisine preference", hasFilledArray(food.food_styles) || hasFilledValue(food.food_style));
+  add("Food setup", "Protein preferences", hasFilledArray(food.preferred_proteins));
+  add("Food setup", "Carb preferences", hasFilledArray(food.preferred_carbs));
+  add("Food setup", "Allergy or no-allergy selection", hasFilledArray(food.allergies));
+  add("Food setup", "Smoothie preference", typeof food.likes_smoothies === "boolean");
+  add("Food setup", "Whey preference", typeof food.uses_whey_protein === "boolean");
+  add("Food setup", "Usual or favourite foods", hasFilledValue(food.usual_foods) || hasFilledValue(food.favourite_foods));
+  add("Food setup", "Meal prep style", hasFilledValue(food.meal_prep_style));
+
+  add("Water setup", "Bottle size", Number(water.bottle_size_ml) > 0);
+  add("Water setup", "Daily water target", Number(water.daily_target_liters || water.target_liters) > 0);
+
+  const grouped = missing.reduce((result, item) => {
+    if(!result[item.section]) result[item.section] = [];
+    result[item.section].push(item.label);
+    return result;
+  }, {});
+
+  return {
+    complete: missing.length === 0,
+    missing,
+    grouped,
+    completedCount: totalChecks - missing.length,
+    totalCount: totalChecks
+  };
+}
+
+function setupRepairUrl(status = firstPlanSetupStatus()){
+  const sections = new Set(status.missing.map(item => item.section));
+
+  if(sections.has("Personal information")){
+    return "onboarding.html?edit=personal&return=app.html";
+  }
+
+  const fitnessSections = [
+    "Workout setup",
+    "Pain and safety",
+    "Work schedule",
+    "Food setup",
+    "Water setup"
+  ];
+
+  if(fitnessSections.some(section => sections.has(section))){
+    return "onboarding.html?edit=fitness&return=app.html";
+  }
+
+  return "onboarding.html?edit=profile_update&return=app.html";
+}
+
+function manualAiMode(){
+  if(readPendingPlanData()) return "busy";
+  if(!hasAnyAiPlanRecord){
+    return firstPlanSetupStatus().complete ? "first" : "setup";
+  }
+  if(isAppAdmin) return "admin";
+  if(extraAiUpdatesRemaining > 0) return "addon";
+  return "none";
+}
+
+async function loadAiUpdateWallet(){
+  extraAiUpdatesRemaining = 0;
+
+  try{
+    const { data: wallet, error } = await supabaseClient
+      .from("ai_update_wallets")
+      .select("extra_updates_remaining")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if(error){
+      const message = String(error.message || "").toLowerCase();
+      if(!message.includes("ai_update_wallets") && !message.includes("does not exist")){
+        console.warn("Could not load AI add-on balance", error);
+      }
+      return 0;
+    }
+
+    extraAiUpdatesRemaining = Math.max(0, Number(wallet?.extra_updates_remaining || 0));
+    return extraAiUpdatesRemaining;
+  }catch(error){
+    console.warn("Could not load AI add-on balance", error);
+    return 0;
+  }
+}
+
+function renderAiPlanAction(){
+  const button = $("#updatePlanBtn");
+  const note = $("#aiPlanActionNote");
+  if(!button || !note) return;
+
+  const mode = manualAiMode();
+  button.disabled = mode === "busy";
+
+  if(mode === "busy"){
+    button.textContent = "AI update in progress";
+    note.textContent = "Your current starter or active plan stays available until the new plan is ready.";
+    return;
+  }
+
+  if(mode === "setup"){
+    const status = firstPlanSetupStatus();
+    button.textContent = "Complete setup first";
+    note.textContent = `${status.missing.length} required detail${status.missing.length === 1 ? " is" : "s are"} missing before the first plan can be generated.`;
+    return;
+  }
+
+  if(mode === "first"){
+    button.textContent = "Generate my first AI plan";
+    note.textContent = "This runs only after your tap and does not use an add-on credit.";
+    return;
+  }
+
+  if(mode === "admin"){
+    button.textContent = "Admin: update plan now";
+    note.textContent = "Admin manual updates do not consume the member's automatic subscription update.";
+    return;
+  }
+
+  if(mode === "addon"){
+    button.textContent = "Use 1 extra AI update";
+    note.textContent = `${extraAiUpdatesRemaining} extra update${extraAiUpdatesRemaining === 1 ? "" : "s"} remaining. Scheduled membership updates stay protected.`;
+    return;
+  }
+
+  button.textContent = "View AI update options";
+  note.textContent = isPaidPlan()
+    ? "Your included update runs automatically. An add-on is required only for an earlier manual refresh."
+    : "Manual updates after the first plan require a separately purchased add-on.";
 }
 
 function hasFeature(key){
@@ -2317,6 +2543,20 @@ async function loadPlan(){
   if(error) throw error;
 
   const activeRow = plans?.[0] || null;
+  hasAnyAiPlanRecord = Boolean(activeRow);
+
+  if(!hasAnyAiPlanRecord){
+    const { data: anyPlans, error: anyPlanError } = await supabaseClient
+      .from("weekly_plans")
+      .select("id,status,created_at")
+      .eq("user_id",user.id)
+      .order("created_at",{ascending:false})
+      .limit(1);
+
+    if(anyPlanError) throw anyPlanError;
+    hasAnyAiPlanRecord = Boolean(anyPlans?.[0]);
+  }
+
   activePlanMeta = activeRow ? {
     id: activeRow.id,
     title: activeRow.title || activeRow.plan_json?.title || "AI coach plan",
@@ -2894,6 +3134,8 @@ async function loadAll(){
     isAppAdmin = false;
   }
 
+  data.structuredGoal = await getSingle("fitness_goal_profiles");
+  data.lifeStage = await getSingle("user_life_stage_profiles");
   data.food = await getSingle("food_preferences");
   data.work = await getSingle("work_schedules");
   data.workout = await getSingle("workout_availability");
@@ -2916,6 +3158,7 @@ async function loadAll(){
   data.exercises = exercises || [];
 
   await loadPlan();
+  await loadAiUpdateWallet();
 
   if(hasFeature("progress_photos")){
     await loadProgressPhotos();
@@ -3154,9 +3397,14 @@ function renderAll(){
   if($("#todayPlanChip")) $("#todayPlanChip").textContent = planName(currentPlanCode());
   $("#todayTitle").textContent = `Today, ${name.split(" ")[0] || "friend"}`;
   const pendingAi = readPendingPlanData();
+  const firstPlanSetup = firstPlanSetupStatus();
   $("#todaySubtitle").textContent = pendingAi
     ? "Your AI coach is updating your next plan. Your current plan stays active until the new one is ready."
-    : (activePlan ? (activePlan.summary || "Your AI coach plan is active.") : "Starter plan. Tap Update next plan for AI coach plan.");
+    : (activePlan
+        ? (activePlan.summary || "Your AI coach plan is active.")
+        : (firstPlanSetup.complete
+            ? "Your setup is ready. Generate the first AI plan from Progress when you choose."
+            : "Complete the missing setup details before generating the first AI plan."));
 
   $("#todayTags").innerHTML = `
     <span class="tag green">${pendingAi ? "AI updating" : (activePlan ? "AI plan active" : "Starter plan")}</span>
@@ -4309,9 +4557,13 @@ function sleep(ms){
 
 const PENDING_PLAN_KEY = "shapecue_pending_ai_plan_request";
 
-function savePendingPlanRequest(requestId){
+function savePendingPlanRequest(requestId, requestSource = ""){
   if(!requestId) return;
-  localStorage.setItem(PENDING_PLAN_KEY, JSON.stringify({ request_id: requestId, saved_at: Date.now() }));
+  localStorage.setItem(PENDING_PLAN_KEY, JSON.stringify({
+    request_id:requestId,
+    request_source:requestSource || "",
+    saved_at:Date.now()
+  }));
 }
 
 function clearPendingPlanRequest(){
@@ -4345,56 +4597,93 @@ function renderAiCoachStatusUI(){
   const pending = readPendingPlanData();
   const code = currentPlanCode();
   const plan = planName(code);
+  const setupStatus = firstPlanSetupStatus();
 
   if(pending){
+    const sourceLabel = pending.request_source === "first_plan"
+      ? "First plan"
+      : pending.request_source === "admin_manual"
+        ? "Admin update"
+        : pending.request_source === "addon_credit"
+          ? "Extra update"
+          : "Secure request";
+
     box.innerHTML = `
       <div class="ai-status-top">
         <div>
           <h4>Your AI coach is updating your plan</h4>
-          <p>This can take a few minutes. You can stay here or come back later.</p>
+          <p>This can take a few minutes. Your current plan remains active.</p>
         </div>
         <span class="status-pill purple">Generating</span>
       </div>
       <div class="ai-status-meta">
         <div class="ai-status-row"><span>Started</span><strong>${esc(formatDateTime(pending.saved_at))}</strong></div>
-        <div class="ai-status-row"><span>Current plan</span><strong>${esc(activePlan ? "Old plan still active" : "Starter plan showing")}</strong></div>
-        <div class="ai-status-row"><span>Plan access</span><strong>${esc(plan)}</strong></div>
+        <div class="ai-status-row"><span>Request</span><strong>${esc(sourceLabel)}</strong></div>
+        <div class="ai-status-row"><span>Current view</span><strong>${esc(activePlan ? "Existing plan active" : "Starter plan active")}</strong></div>
       </div>
     `;
+    renderAiPlanAction();
     return;
   }
 
-  if(activePlanMeta?.created_at){
+  if(activePlanMeta?.created_at || hasAnyAiPlanRecord){
     box.innerHTML = `
       <div class="ai-status-top">
         <div>
-          <h4>Your AI plan is ready</h4>
-          <p>Last AI update: ${esc(lastAiUpdateText())}</p>
+          <h4>${activePlanMeta?.created_at ? "Your AI plan is ready" : "AI plan history found"}</h4>
+          <p>${activePlanMeta?.created_at ? `Last AI update: ${esc(lastAiUpdateText())}` : "The free first-plan action has already been used."}</p>
         </div>
-        <span class="status-pill green">Ready</span>
+        <span class="status-pill green">${activePlanMeta?.created_at ? "Ready" : "Protected"}</span>
       </div>
       <div class="ai-status-meta">
-        <div class="ai-status-row"><span>Plan</span><strong>${esc(activePlanMeta.title || activePlan?.title || "AI coach plan")}</strong></div>
-        <div class="ai-status-row"><span>Week</span><strong>${esc((activePlanMeta.week_start || activePlan?.start_date || "") + " -> " + (activePlanMeta.week_end || activePlan?.end_date || ""))}</strong></div>
-        <div class="ai-status-row"><span>Access</span><strong>${esc(plan)}</strong></div>
+        <div class="ai-status-row"><span>Membership</span><strong>${esc(plan)}</strong></div>
+        <div class="ai-status-row"><span>Extra updates</span><strong>${esc(String(extraAiUpdatesRemaining))}</strong></div>
+        <div class="ai-status-row"><span>Manual access</span><strong>${esc(isAppAdmin ? "Admin" : extraAiUpdatesRemaining > 0 ? "Add-on available" : "Add-on required")}</strong></div>
       </div>
     `;
+    renderAiPlanAction();
+    return;
+  }
+
+  if(!setupStatus.complete){
+    const grouped = Object.entries(setupStatus.grouped || {})
+      .map(([section, items]) => `${section}: ${items.join(", ")}`)
+      .join(" • ");
+
+    box.innerHTML = `
+      <div class="ai-status-top">
+        <div>
+          <h4>Complete your setup first</h4>
+          <p>The first plan will not guess your goals, schedule, food, pain, or pregnancy/postpartum safety details.</p>
+        </div>
+        <span class="status-pill amber">Setup needed</span>
+      </div>
+      <div class="ai-status-meta">
+        <div class="ai-status-row"><span>Setup check</span><strong>${esc(`${setupStatus.completedCount}/${setupStatus.totalCount} ready`)}</strong></div>
+        <div class="ai-status-row"><span>Missing details</span><strong>${esc(String(setupStatus.missing.length))}</strong></div>
+        <div class="ai-status-row"><span>First-plan credit</span><strong>Protected</strong></div>
+      </div>
+      ${grouped ? `<div class="coach-note">${esc(grouped)}</div>` : ""}
+    `;
+    renderAiPlanAction();
     return;
   }
 
   box.innerHTML = `
     <div class="ai-status-top">
       <div>
-        <h4>No AI update yet</h4>
-        <p>You are seeing the starter plan. Tap Update next plan to generate your first AI coach plan.</p>
+        <h4>Ready for your first AI plan</h4>
+        <p>Your structured goals and relevant safety details are complete. Nothing starts until you tap the button.</p>
       </div>
-      <span class="status-pill blue">Starter</span>
+      <span class="status-pill green">Ready</span>
     </div>
     <div class="ai-status-meta">
-      <div class="ai-status-row"><span>Last AI update</span><strong>Not updated yet</strong></div>
-      <div class="ai-status-row"><span>Plan access</span><strong>${esc(plan)}</strong></div>
+      <div class="ai-status-row"><span>Main result</span><strong>${esc(nice(data.structuredGoal?.primary_goal))}</strong></div>
+      <div class="ai-status-row"><span>Desired physique</span><strong>${esc(nice(data.structuredGoal?.physique_preference))}</strong></div>
+      <div class="ai-status-row"><span>First-plan cost</span><strong>No add-on used</strong></div>
     </div>
   `;
+  renderAiPlanAction();
 }
 
 async function startBackgroundPlan(requestId, token){
@@ -4439,6 +4728,7 @@ async function resumePendingPlanIfAny(){
     if(status.status === "completed"){
       clearPendingPlanRequest();
       await loadPlan();
+      await loadAiUpdateWallet();
       if(status.plan && !activePlan) activePlan = status.plan;
       await ensureWaterLog();
       buildTodaySchedule();
@@ -4503,6 +4793,7 @@ async function pollPlanUntilReady(requestId, token, btn){
     if(status.status === "completed"){
       clearPendingPlanRequest();
       await loadPlan();
+      await loadAiUpdateWallet();
       if(status.plan && !activePlan){
         activePlan = status.plan;
       }
@@ -4528,17 +4819,66 @@ async function pollPlanUntilReady(requestId, token, btn){
 }
 
 async function generatePlan(){
-  const btn=$("#updatePlanBtn");
-  const old=btn.textContent;
+  const btn = $("#updatePlanBtn");
+  const old = btn?.textContent || "Update plan";
+  const mode = manualAiMode();
+
+  if(mode === "busy"){
+    toast("Your AI update is already in progress.");
+    renderAiCoachStatusUI();
+    return;
+  }
+
+  if(mode === "setup"){
+    const status = firstPlanSetupStatus();
+    const missingText = status.missing
+      .slice(0,8)
+      .map(item => `${item.section}: ${item.label}`)
+      .join("\n");
+
+    alert(`Complete setup before generating the first AI plan.\n\n${missingText}${status.missing.length > 8 ? `\n…and ${status.missing.length - 8} more.` : ""}`);
+    location.href = setupRepairUrl(status);
+    return;
+  }
+
+  if(mode === "none"){
+    toast("Your included update runs automatically. An add-on is required for an earlier manual refresh.");
+    location.href = "membership.html#addons";
+    return;
+  }
+
+  if(mode === "addon"){
+    const confirmed = confirm(`Use 1 extra AI update?\n\n${extraAiUpdatesRemaining} remaining before this request. Your scheduled membership update will not be used.`);
+    if(!confirmed) return;
+  }
+
+  if(mode === "first"){
+    const status = firstPlanSetupStatus();
+    if(!status.complete){
+      renderAiCoachStatusUI();
+      toast("Complete your setup first.");
+      return;
+    }
+
+    const confirmed = confirm(`Generate your first AI plan now?\n\nShapeCue will use your structured goals, schedule, food, workout, pain, water, and relevant life-stage safety details. No add-on credit will be used.`);
+    if(!confirmed) return;
+  }
 
   try{
-    btn.disabled=true;
-    btn.textContent="Starting...";
+    if(btn){
+      btn.disabled = true;
+      btn.textContent = "Starting...";
+    }
 
     const { data: sessionData } = await supabaseClient.auth.getSession();
     if(!sessionData?.session){ location.href="auth.html?mode=login"; return; }
 
     const token = sessionData.session.access_token;
+    const requestSource = mode === "first"
+      ? "first_plan"
+      : mode === "admin"
+        ? "admin_manual"
+        : "addon_credit";
 
     const res = await fetch("/.netlify/functions/generate-plan", {
       method:"POST",
@@ -4546,37 +4886,63 @@ async function generatePlan(){
         "Content-Type":"application/json",
         "Authorization":`Bearer ${token}`
       },
-      body:JSON.stringify({request_type:"weekly_plan"})
+      body:JSON.stringify({
+        request_type:mode === "first" ? "first_plan" : "weekly_plan",
+        request_source:requestSource
+      })
     });
 
     const result = await res.json().catch(()=>({ok:false,error:"Could not start AI plan."}));
 
     if(!res.ok || !result.ok){
+      if(Array.isArray(result.missing_setup) && result.missing_setup.length){
+        const status = firstPlanSetupStatus();
+        alert(`Complete setup before generating the first AI plan.\n\n${result.missing_setup.join("\n")}`);
+        location.href = setupRepairUrl(status);
+        return;
+      }
+
       const msg = result.error?.error?.message || result.error?.message || result.error || "AI plan failed.";
       throw new Error(msg);
     }
 
-    btn.textContent="Starting background coach...";
-    toast(result.message || "Your AI coach is updating your plan. This can take a few minutes.");
-    alert("Your AI coach is updating your plan.\n\nThis can take a few minutes. You can stay on this page or come back later.");
+    if(Number.isFinite(Number(result.extra_updates_remaining))){
+      extraAiUpdatesRemaining = Math.max(0, Number(result.extra_updates_remaining));
+    }else{
+      await loadAiUpdateWallet();
+    }
+
+    if(btn) btn.textContent = "Starting background coach...";
+    toast(result.message || "Your AI coach is updating your plan.");
 
     if(result.request_id){
-      savePendingPlanRequest(result.request_id);
+      savePendingPlanRequest(result.request_id, result.request_source || requestSource);
       renderAiCoachStatusUI();
       await startBackgroundPlan(result.request_id, token);
-      btn.textContent="Generating plan...";
+      if(btn) btn.textContent = "Generating plan...";
       await pollPlanUntilReady(result.request_id, token, btn);
     }
   }catch(e){
     console.error(e);
     const msg = e.message || "Could not generate plan.";
     toast(msg);
-    if(msg.toLowerCase().includes("limit") || msg.toLowerCase().includes("premium") || msg.toLowerCase().includes("free")){
-      showUpgrade("Upgrade AI plan updates", msg);
+
+    if(msg.toLowerCase().includes("first_plan_already_exists")){
+      hasAnyAiPlanRecord = true;
+      await loadPlan();
+      renderAll();
+    }
+
+    if(msg.toLowerCase().includes("no_extra_ai_updates") || msg.toLowerCase().includes("add-on") || msg.toLowerCase().includes("addon")){
+      extraAiUpdatesRemaining = 0;
+      renderAiCoachStatusUI();
     }
   }finally{
-    btn.disabled=false;
-    btn.textContent=old;
+    if(btn){
+      btn.disabled = false;
+      btn.textContent = old;
+    }
+    renderAiPlanAction();
   }
 }
 
