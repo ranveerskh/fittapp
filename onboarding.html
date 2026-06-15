@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark" data-ui-version="approved-onboarding-v2-edit-modes">
+<html lang="en" data-theme="dark" data-ui-version="approved-onboarding-v3-structured-goals">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -908,7 +908,7 @@
 
             <div class="grid2">
               <div class="field"><label>Waist</label><input class="input" id="waist" type="number" step="0.1" placeholder="34" /></div>
-              <div class="field"><label>Chest</label><input class="input" id="chest" type="number" step="0.1" placeholder="38" /></div>
+              <div class="field"><label>Chest / bust optional</label><input class="input" id="chest" type="number" step="0.1" placeholder="38" /></div>
               <div class="field"><label>Hips / glutes</label><input class="input" id="hips" type="number" step="0.1" placeholder="37" /></div>
               <div class="field"><label>Thigh</label><input class="input" id="thigh" type="number" step="0.1" placeholder="21" /></div>
               <div class="field"><label>Biceps</label><input class="input" id="biceps" type="number" step="0.1" placeholder="13" /></div>
@@ -920,40 +920,218 @@
 
       <section class="screen" data-step="2">
         <div class="hero">
-          <div class="kicker"><span class="pulse"></span><span>Goals</span></div>
-          <h2>Choose your goals.</h2>
-          <p>Select everything that matters. ShapeCue will prioritize the full picture.</p>
+          <div class="kicker"><span class="pulse"></span><span>Goals and life stage</span></div>
+          <h2>Tell us the result you want.</h2>
+          <p>Four compact choices help ShapeCue understand appearance, body focus, performance, and safety without a giant questionnaire.</p>
         </div>
 
         <div class="card">
           <div class="card-inner">
-            <div class="section-title"><h3>Main goals</h3><span>Pick any</span></div>
-            <div class="chips" data-multi="mainGoals">
-              <button class="chipbtn" data-value="lose_belly">Lose belly</button>
+            <div class="section-title"><h3>Main result</h3><span>Pick one</span></div>
+            <div class="chips" data-single="primaryGoal">
+              <button class="chipbtn" data-value="lose_body_fat">Lose body fat</button>
+              <button class="chipbtn" data-value="look_lean_and_fit">Look lean and fit</button>
               <button class="chipbtn" data-value="build_muscle">Build muscle</button>
-              <button class="chipbtn" data-value="look_fit">Look fit</button>
-              <button class="chipbtn" data-value="gain_weight">Gain weight</button>
-              <button class="chipbtn" data-value="improve_strength">Improve strength</button>
-              <button class="chipbtn" data-value="improve_posture">Improve posture</button>
-              <button class="chipbtn" data-value="improve_stamina">Improve stamina</button>
-              <button class="chipbtn" data-value="glutes_legs_shape">Glutes / legs shape</button>
-              <button class="chipbtn" data-value="reduce_bloating">Reduce bloating</button>
+              <button class="chipbtn" data-value="gain_size">Gain size / healthy weight</button>
+              <button class="chipbtn" data-value="improve_overall_fitness">Improve overall fitness</button>
+              <button class="chipbtn" data-value="improve_athletic_performance">Athletic performance</button>
+              <button class="chipbtn" data-value="maintain_current_shape">Maintain current shape</button>
+              <button class="chipbtn" data-value="return_to_exercise_safely">Return safely</button>
             </div>
 
-            <div class="section-title"><h3>Body type</h3><span>Pick one</span></div>
+            <div class="section-title"><h3>Desired physique</h3><span>Pick one</span></div>
+            <div class="chips" data-single="physiquePreference">
+              <button class="chipbtn" data-value="lean_defined">Lean and defined</button>
+              <button class="chipbtn" data-value="athletic">Athletic</button>
+              <button class="chipbtn" data-value="fit_not_bulky">Fit, not bulky</button>
+              <button class="chipbtn" data-value="muscular">Muscular</button>
+              <button class="chipbtn" data-value="bigger_bulkier">Bigger and bulkier</button>
+              <button class="chipbtn" data-value="no_appearance_goal">No appearance goal</button>
+            </div>
+
+            <div class="section-title"><h3>Body focus</h3><span id="focusAreaCount">Choose up to 3</span></div>
+            <div class="chips" data-multi="focusAreas" data-max="3">
+              <button class="chipbtn" data-value="full_body">Full body</button>
+              <button class="chipbtn" data-value="core_waist">Core / waist / abs</button>
+              <button class="chipbtn" data-value="chest">Chest</button>
+              <button class="chipbtn" data-value="shoulders">Shoulders</button>
+              <button class="chipbtn" data-value="back">Back</button>
+              <button class="chipbtn" data-value="arms">Arms</button>
+              <button class="chipbtn" data-value="glutes">Glutes</button>
+              <button class="chipbtn" data-value="legs_thighs">Legs / thighs</button>
+              <button class="chipbtn" data-value="posture">Posture</button>
+              <button class="chipbtn" data-value="pelvic_floor_postpartum_core">Pelvic floor / postpartum core</button>
+            </div>
+
+            <div class="section-title"><h3>Fitness abilities</h3><span id="fitnessPriorityCount">Choose up to 3</span></div>
+            <div class="chips" data-multi="fitnessPriorities" data-max="3">
+              <button class="chipbtn" data-value="strength">Strength</button>
+              <button class="chipbtn" data-value="core_strength_stability">Core strength</button>
+              <button class="chipbtn" data-value="stamina_cardio">Stamina / cardio</button>
+              <button class="chipbtn" data-value="muscular_endurance">Muscular endurance</button>
+              <button class="chipbtn" data-value="mobility_flexibility">Mobility / flexibility</button>
+              <button class="chipbtn" data-value="balance_coordination">Balance / coordination</button>
+              <button class="chipbtn" data-value="speed_agility">Speed / agility</button>
+              <button class="chipbtn" data-value="power_explosiveness">Power / explosiveness</button>
+              <button class="chipbtn" data-value="posture">Better posture</button>
+              <button class="chipbtn" data-value="everyday_energy">Everyday energy</button>
+            </div>
+
+            <div class="grid2">
+              <div class="field">
+                <label>Activity purpose optional</label>
+                <select class="select" id="activityPurpose">
+                  <option value="">No extra purpose</option>
+                  <option value="general_health">General health</option>
+                  <option value="gym_physique">Gym physique</option>
+                  <option value="sports_performance">Sports performance</option>
+                  <option value="physical_job_readiness">Physical job readiness</option>
+                  <option value="healthy_aging">Healthy aging</option>
+                  <option value="pain_safe_return">Pain-safe return</option>
+                  <option value="pregnancy_fitness">Pregnancy fitness</option>
+                  <option value="postpartum_recovery">Postpartum recovery</option>
+                </select>
+              </div>
+
+              <div class="field" id="sportActivityWrap" hidden>
+                <label>Sport or activity</label>
+                <input class="input" id="sportOrActivity" placeholder="Example: soccer, running, boxing" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Anything else you want ShapeCue to know? optional</label>
+              <textarea class="textarea" id="customGoal" placeholder="Example: visible abs without becoming bulky, stronger core for work"></textarea>
+            </div>
+
+            <div class="section-title"><h3>Current starting point</h3><span>Pick one</span></div>
             <div class="chips" data-single="bodyType">
               <button class="chipbtn" data-value="skinny">Skinny</button>
               <button class="chipbtn" data-value="skinny_fat">Skinny fat</button>
               <button class="chipbtn" data-value="average">Average</button>
               <button class="chipbtn" data-value="overweight">Overweight</button>
-              <button class="chipbtn" data-value="muscular_belly">Muscular but belly</button>
+              <button class="chipbtn" data-value="muscular_belly">Muscular with belly</button>
               <button class="chipbtn" data-value="posture_issue">Posture issue</button>
               <button class="chipbtn" data-value="custom">Other</button>
             </div>
 
             <div class="field" id="bodyCustomWrap" style="display:none">
-              <label>Describe body type</label>
-              <input class="input" id="bodyTypeCustom" placeholder="Example: skinny arms but belly, weak posture" />
+              <label>Describe your starting point</label>
+              <input class="input" id="bodyTypeCustom" placeholder="Example: slim arms, belly fat, weak posture" />
+            </div>
+
+            <div class="section-title"><h3>Pregnancy or postpartum</h3><span>One compact safety answer</span></div>
+            <div class="chips" data-single="lifeStage">
+              <button class="chipbtn" data-value="not_applicable">Not applicable</button>
+              <button class="chipbtn" data-value="planning_pregnancy">Planning pregnancy</button>
+              <button class="chipbtn" data-value="pregnant">Currently pregnant</button>
+              <button class="chipbtn" data-value="postpartum">Postpartum</button>
+              <button class="chipbtn" data-value="prefer_not_to_say">Prefer not to say</button>
+            </div>
+
+            <div id="pregnancyWeekWrap" hidden>
+              <div class="field">
+                <label>Pregnancy week</label>
+                <input class="input" id="pregnancyWeek" type="number" min="1" max="42" step="1" placeholder="Example: 18" />
+              </div>
+            </div>
+
+            <div id="postpartumDetailsWrap" hidden>
+              <div class="grid2">
+                <div class="field">
+                  <label>Delivery date</label>
+                  <input class="input" id="deliveryDate" type="date" />
+                </div>
+                <div class="field">
+                  <label>Delivery type</label>
+                  <select class="select" id="deliveryType">
+                    <option value="">Select</option>
+                    <option value="vaginal">Vaginal</option>
+                    <option value="assisted_vaginal">Assisted vaginal</option>
+                    <option value="c_section">C-section</option>
+                    <option value="other">Other</option>
+                    <option value="prefer_not_to_say">Prefer not to say</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="field">
+                <label>Breastfeeding status</label>
+                <select class="select" id="breastfeedingStatus">
+                  <option value="">Select</option>
+                  <option value="not_breastfeeding">Not breastfeeding</option>
+                  <option value="exclusive">Exclusive breastfeeding</option>
+                  <option value="mixed">Mixed feeding</option>
+                  <option value="weaning">Weaning</option>
+                  <option value="prefer_not_to_say">Prefer not to say</option>
+                </select>
+              </div>
+
+              <div class="section-title"><h3>Pelvic-floor symptoms optional</h3><span>Pick any that apply</span></div>
+              <div class="chips" data-multi="pelvicFloorSymptoms">
+                <button class="chipbtn" data-value="none">None</button>
+                <button class="chipbtn" data-value="urine_leakage">Urine leakage</button>
+                <button class="chipbtn" data-value="pelvic_pressure">Pelvic pressure</button>
+                <button class="chipbtn" data-value="pelvic_heaviness">Pelvic heaviness</button>
+                <button class="chipbtn" data-value="pelvic_pain">Pelvic pain</button>
+                <button class="chipbtn" data-value="pain_with_movement">Pain with movement</button>
+                <button class="chipbtn" data-value="prolapse_diagnosed">Diagnosed prolapse</button>
+                <button class="chipbtn" data-value="prefer_not_to_say">Prefer not to say</button>
+              </div>
+
+              <div class="grid2">
+                <div class="field">
+                  <label>Abdominal separation / diastasis</label>
+                  <select class="select" id="diastasisStatus">
+                    <option value="">Select</option>
+                    <option value="none_known">None known</option>
+                    <option value="suspected">Suspected</option>
+                    <option value="diagnosed">Diagnosed</option>
+                    <option value="unsure">Not sure</option>
+                    <option value="prefer_not_to_say">Prefer not to say</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label>Incision or pelvic pain</label>
+                  <select class="select" id="incisionOrPelvicPain">
+                    <option value="">Not sure / skip</option>
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div id="lifeSafetyWrap" hidden>
+              <div class="field">
+                <label>Exercise clearance</label>
+                <select class="select" id="exerciseClearance">
+                  <option value="">Select</option>
+                  <option value="not_asked">Not asked yet</option>
+                  <option value="pending">Waiting for clearance</option>
+                  <option value="cleared">Cleared</option>
+                  <option value="cleared_with_restrictions">Cleared with restrictions</option>
+                  <option value="not_cleared">Not cleared</option>
+                  <option value="prefer_not_to_say">Prefer not to say</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label>Restrictions or complications optional</label>
+                <textarea class="textarea" id="lifeRestrictions" placeholder="Anything your doctor or midwife told you to avoid"></textarea>
+              </div>
+
+              <div class="safe-note">
+                Pregnancy and postpartum exercise may need medical clearance and gradual progression. ShapeCue will use these answers for safety gates in the AI plan flow.
+              </div>
+            </div>
+
+            <div id="recoveryNotesWrap" hidden>
+              <div class="field">
+                <label>Life-stage or recovery note optional</label>
+                <textarea class="textarea" id="recoveryNotes" placeholder="Example: low energy, sleep disruption, returning after delivery"></textarea>
+              </div>
             </div>
           </div>
         </div>
@@ -1923,6 +2101,19 @@
         .filter(Boolean);
     }
 
+    function updateGoalCounts(){
+      const focusCount = selectedMulti("focusAreas").length;
+      const priorityCount = selectedMulti("fitnessPriorities").length;
+
+      if($("#focusAreaCount")){
+        $("#focusAreaCount").textContent = `${focusCount}/3 selected`;
+      }
+
+      if($("#fitnessPriorityCount")){
+        $("#fitnessPriorityCount").textContent = `${priorityCount}/3 selected`;
+      }
+    }
+
     function handleCustomVisibility(){
       $("#bodyCustomWrap").style.display =
         selectedSingle("bodyType") === "custom"
@@ -1933,6 +2124,38 @@
         selectedMulti("foodStyles").includes("custom")
           ? "block"
           : "none";
+
+      const activityPurpose = $("#activityPurpose")?.value || "";
+      if($("#sportActivityWrap")){
+        $("#sportActivityWrap").hidden = activityPurpose !== "sports_performance";
+      }
+
+      const lifeStage = selectedSingle("lifeStage");
+      const isPregnant = lifeStage === "pregnant";
+      const isPostpartum = lifeStage === "postpartum";
+      const hasRelevantStage = [
+        "planning_pregnancy",
+        "pregnant",
+        "postpartum"
+      ].includes(lifeStage);
+
+      if($("#pregnancyWeekWrap")){
+        $("#pregnancyWeekWrap").hidden = !isPregnant;
+      }
+
+      if($("#postpartumDetailsWrap")){
+        $("#postpartumDetailsWrap").hidden = !isPostpartum;
+      }
+
+      if($("#lifeSafetyWrap")){
+        $("#lifeSafetyWrap").hidden = !(isPregnant || isPostpartum);
+      }
+
+      if($("#recoveryNotesWrap")){
+        $("#recoveryNotesWrap").hidden = !hasRelevantStage;
+      }
+
+      updateGoalCounts();
     }
 
     function renderBreaks(){
@@ -2077,9 +2300,58 @@
       );
     }
 
+    function legacyGoalsFromStructured(){
+      const result = [];
+      const add = value => {
+        if(value && !result.includes(value)) result.push(value);
+      };
+
+      const primaryGoal = selectedSingle("primaryGoal");
+      const physique = selectedSingle("physiquePreference");
+      const focusAreas = selectedMulti("focusAreas");
+      const priorities = selectedMulti("fitnessPriorities");
+      const purpose = $("#activityPurpose")?.value || "";
+
+      const primaryMap = {
+        lose_body_fat:["lose_belly"],
+        look_lean_and_fit:["look_fit"],
+        build_muscle:["build_muscle"],
+        gain_size:["gain_weight","build_muscle"],
+        improve_overall_fitness:["look_fit","improve_stamina"],
+        improve_athletic_performance:["improve_stamina","improve_strength"],
+        maintain_current_shape:["look_fit"],
+        return_to_exercise_safely:["improve_strength","improve_posture"]
+      };
+
+      (primaryMap[primaryGoal] || []).forEach(add);
+
+      if(["lean_defined","fit_not_bulky","athletic"].includes(physique)) add("look_fit");
+      if(["muscular","bigger_bulkier"].includes(physique)) add("build_muscle");
+      if(physique === "bigger_bulkier") add("gain_weight");
+
+      if(focusAreas.some(value => ["glutes","legs_thighs"].includes(value))) add("glutes_legs_shape");
+      if(focusAreas.includes("posture")) add("improve_posture");
+
+      if(priorities.includes("strength")) add("improve_strength");
+      if(priorities.includes("core_strength_stability")) add("improve_strength");
+      if(priorities.includes("stamina_cardio")) add("improve_stamina");
+      if(priorities.includes("muscular_endurance")) add("improve_stamina");
+      if(priorities.includes("posture")) add("improve_posture");
+      if(priorities.includes("everyday_energy")) add("improve_stamina");
+
+      if(purpose === "physical_job_readiness"){
+        add("improve_strength");
+        add("improve_stamina");
+      }
+
+      if(purpose === "pain_safe_return") add("improve_posture");
+      if(["pregnancy_fitness","postpartum_recovery"].includes(purpose)) add("improve_strength");
+
+      return result.length ? result : ["look_fit"];
+    }
+
     function userData(){
       const dob = $("#dateOfBirth").value || null;
-      const mainGoals = selectedMulti("mainGoals");
       const foodStyles = selectedMulti("foodStyles");
       const preferredProteins = selectedMulti(
         "preferredProteins"
@@ -2087,6 +2359,10 @@
       const preferredCarbs = selectedMulti(
         "preferredCarbs"
       );
+      const mainGoals = legacyGoalsFromStructured();
+      const lifeStage = selectedSingle("lifeStage");
+      const incisionPainValue = $("#incisionOrPelvicPain")?.value || "";
+      const isPregnantOrPostpartum = ["pregnant","postpartum"].includes(lifeStage);
 
       return {
         profile:{
@@ -2106,6 +2382,52 @@
           body_type:selectedSingle("bodyType"),
           body_type_custom:
             $("#bodyTypeCustom").value.trim()
+        },
+
+        structuredGoal:{
+          primary_goal:selectedSingle("primaryGoal") || null,
+          physique_preference:selectedSingle("physiquePreference") || null,
+          focus_areas:selectedMulti("focusAreas"),
+          fitness_priorities:selectedMulti("fitnessPriorities"),
+          activity_purpose:$("#activityPurpose")?.value || null,
+          sport_or_activity:$("#sportOrActivity")?.value.trim() || null,
+          custom_goal:$("#customGoal")?.value.trim() || null,
+          goal_schema_version:1
+        },
+
+        lifeStage:{
+          life_stage:lifeStage || null,
+          pregnancy_week:lifeStage === "pregnant" && $("#pregnancyWeek")?.value
+            ? Number($("#pregnancyWeek").value)
+            : null,
+          delivery_date:lifeStage === "postpartum"
+            ? ($("#deliveryDate")?.value || null)
+            : null,
+          delivery_type:lifeStage === "postpartum"
+            ? ($("#deliveryType")?.value || null)
+            : null,
+          breastfeeding_status:lifeStage === "postpartum"
+            ? ($("#breastfeedingStatus")?.value || null)
+            : (lifeStage === "not_applicable" ? "not_applicable" : null),
+          exercise_clearance:isPregnantOrPostpartum
+            ? ($("#exerciseClearance")?.value || null)
+            : (["not_applicable","planning_pregnancy"].includes(lifeStage) ? "not_required" : null),
+          restrictions_or_complications:isPregnantOrPostpartum
+            ? ($("#lifeRestrictions")?.value.trim() || null)
+            : null,
+          pelvic_floor_symptoms:lifeStage === "postpartum"
+            ? selectedMulti("pelvicFloorSymptoms")
+            : [],
+          diastasis_status:lifeStage === "postpartum"
+            ? ($("#diastasisStatus")?.value || null)
+            : null,
+          incision_or_pelvic_pain:lifeStage === "postpartum"
+            ? (incisionPainValue === "true" ? true : incisionPainValue === "false" ? false : null)
+            : null,
+          recovery_notes:["planning_pregnancy","pregnant","postpartum"].includes(lifeStage)
+            ? ($("#recoveryNotes")?.value.trim() || null)
+            : null,
+          life_stage_schema_version:1
         },
 
         measurement:{
@@ -2279,6 +2601,10 @@
           return "Enter your date of birth.";
         }
 
+        if(!setup.profile.gender){
+          return "Select gender or prefer not to say.";
+        }
+
         if(!setup.profile.height_cm){
           return "Enter your height.";
         }
@@ -2289,19 +2615,85 @@
       }
 
       if(currentStep === 2){
-        if(!setup.profile.main_goals.length){
-          return "Select at least one goal.";
+        if(!setup.structuredGoal.primary_goal){
+          return "Select your main result.";
+        }
+
+        if(!setup.structuredGoal.physique_preference){
+          return "Select your desired physique.";
+        }
+
+        if(!setup.structuredGoal.focus_areas.length){
+          return "Select at least one body-focus area.";
+        }
+
+        if(setup.structuredGoal.focus_areas.length > 3){
+          return "Choose up to three body-focus areas.";
+        }
+
+        if(!setup.structuredGoal.fitness_priorities.length){
+          return "Select at least one fitness ability.";
+        }
+
+        if(setup.structuredGoal.fitness_priorities.length > 3){
+          return "Choose up to three fitness abilities.";
+        }
+
+        if(
+          setup.structuredGoal.activity_purpose === "sports_performance" &&
+          !setup.structuredGoal.sport_or_activity
+        ){
+          return "Enter your sport or activity.";
         }
 
         if(!setup.profile.body_type){
-          return "Select your body type.";
+          return "Select your current starting point.";
         }
 
         if(
           setup.profile.body_type === "custom" &&
           !setup.profile.body_type_custom
         ){
-          return "Describe your body type.";
+          return "Describe your current starting point.";
+        }
+
+        if(!setup.lifeStage.life_stage){
+          return "Select whether pregnancy or postpartum applies.";
+        }
+
+        if(
+          setup.structuredGoal.activity_purpose === "pregnancy_fitness" &&
+          !["planning_pregnancy","pregnant"].includes(setup.lifeStage.life_stage)
+        ){
+          return "Choose planning pregnancy or currently pregnant for pregnancy fitness.";
+        }
+
+        if(
+          setup.structuredGoal.activity_purpose === "postpartum_recovery" &&
+          setup.lifeStage.life_stage !== "postpartum"
+        ){
+          return "Choose postpartum for postpartum recovery.";
+        }
+
+        if(
+          setup.lifeStage.life_stage === "pregnant" &&
+          !setup.lifeStage.pregnancy_week
+        ){
+          return "Enter the current pregnancy week.";
+        }
+
+        if(
+          ["pregnant","postpartum"].includes(setup.lifeStage.life_stage) &&
+          !setup.lifeStage.exercise_clearance
+        ){
+          return "Select the exercise-clearance status.";
+        }
+
+        if(
+          setup.lifeStage.life_stage === "postpartum" &&
+          !setup.lifeStage.delivery_date
+        ){
+          return "Enter the delivery date.";
         }
       }
 
@@ -2437,8 +2829,28 @@
 
       $("#summaryBox").innerHTML = `
         <div class="summary-line">
-          <span>Goals</span>
-          <strong>${setup.profile.main_goals.length ? setup.profile.main_goals.map(nice).join(", ") : "-"}</strong>
+          <span>Main result</span>
+          <strong>${nice(setup.structuredGoal.primary_goal)}</strong>
+        </div>
+
+        <div class="summary-line">
+          <span>Desired physique</span>
+          <strong>${nice(setup.structuredGoal.physique_preference)}</strong>
+        </div>
+
+        <div class="summary-line">
+          <span>Body focus</span>
+          <strong>${setup.structuredGoal.focus_areas.length ? setup.structuredGoal.focus_areas.map(nice).join(", ") : "-"}</strong>
+        </div>
+
+        <div class="summary-line">
+          <span>Fitness abilities</span>
+          <strong>${setup.structuredGoal.fitness_priorities.length ? setup.structuredGoal.fitness_priorities.map(nice).join(", ") : "-"}</strong>
+        </div>
+
+        <div class="summary-line">
+          <span>Life stage</span>
+          <strong>${nice(setup.lifeStage.life_stage)}</strong>
         </div>
 
         <div class="summary-line">
@@ -2486,6 +2898,53 @@
           <strong>${planText}</strong>
         </div>
       `;
+    }
+
+    async function saveStructuredProfiles(setup, userId, now){
+      const { error:goalError } =
+        await supabaseClient
+          .from("fitness_goal_profiles")
+          .upsert(
+            {
+              user_id:userId,
+              ...setup.structuredGoal,
+              completed_at:now
+            },
+            { onConflict:"user_id" }
+          );
+
+      if(goalError) throw goalError;
+
+      const { error:lifeStageError } =
+        await supabaseClient
+          .from("user_life_stage_profiles")
+          .upsert(
+            {
+              user_id:userId,
+              ...setup.lifeStage,
+              completed_at:now
+            },
+            { onConflict:"user_id" }
+          );
+
+      if(lifeStageError) throw lifeStageError;
+    }
+
+    async function markProfileVersionCurrent(userId, now){
+      const { error } =
+        await supabaseClient
+          .from("profiles")
+          .update({
+            profile_schema_version:2,
+            profile_update_target_version:2,
+            profile_update_status:"current",
+            profile_update_completed_at:now,
+            profile_update_remind_at:null,
+            updated_at:now
+          })
+          .eq("id",userId);
+
+      if(error) throw error;
     }
 
     async function saveEditMode(){
@@ -2638,12 +3097,16 @@
             );
 
         if(waterError) throw waterError;
+
+        await saveStructuredProfiles(setup, userId, now);
+        await markProfileVersionCurrent(userId, now);
       }
     }
 
     async function saveSetup(){
       const setup = userData();
       const userId = currentUser.id;
+      const now = new Date().toISOString();
 
       await ensurePlanBeforeSave();
 
@@ -2666,7 +3129,7 @@
         onboarding_plan_selected:true,
         selected_plan_code:savedPlanCode,
         is_premium:savedPlanCode !== "free",
-        updated_at:new Date().toISOString()
+        updated_at:now
       };
 
       const { error:profileError } =
@@ -2711,7 +3174,7 @@
               .from("measurements")
               .update({
                 ...setup.measurement,
-                updated_at:new Date().toISOString()
+                updated_at:now
               })
               .eq("id",existing[0].id);
 
@@ -2780,6 +3243,9 @@
           );
 
       if(waterError) throw waterError;
+
+      await saveStructuredProfiles(setup, userId, now);
+      await markProfileVersionCurrent(userId, now);
     }
 
     async function loadExisting(){
@@ -2811,16 +3277,6 @@
         $("#weightUnit").value =
           profile.weight_unit || "kg";
 
-        setMulti(
-          "mainGoals",
-          profile.main_goals ||
-          (
-            profile.main_goal
-              ? [profile.main_goal]
-              : []
-          )
-        );
-
         setSingle(
           "bodyType",
           profile.body_type || ""
@@ -2836,6 +3292,100 @@
           renderPlanSelection();
         }
       }
+
+      const { data:structuredGoal } =
+        await supabaseClient
+          .from("fitness_goal_profiles")
+          .select("*")
+          .eq("user_id",userId)
+          .maybeSingle();
+
+      if(structuredGoal){
+        setSingle(
+          "primaryGoal",
+          structuredGoal.primary_goal || ""
+        );
+
+        setSingle(
+          "physiquePreference",
+          structuredGoal.physique_preference || ""
+        );
+
+        setMulti(
+          "focusAreas",
+          structuredGoal.focus_areas || []
+        );
+
+        setMulti(
+          "fitnessPriorities",
+          structuredGoal.fitness_priorities || []
+        );
+
+        $("#activityPurpose").value =
+          structuredGoal.activity_purpose || "";
+
+        $("#sportOrActivity").value =
+          structuredGoal.sport_or_activity || "";
+
+        $("#customGoal").value =
+          structuredGoal.custom_goal || "";
+      }
+
+      const { data:lifeStageProfile } =
+        await supabaseClient
+          .from("user_life_stage_profiles")
+          .select("*")
+          .eq("user_id",userId)
+          .maybeSingle();
+
+      if(lifeStageProfile){
+        setSingle(
+          "lifeStage",
+          lifeStageProfile.life_stage || ""
+        );
+
+        $("#pregnancyWeek").value =
+          lifeStageProfile.pregnancy_week || "";
+
+        $("#deliveryDate").value =
+          lifeStageProfile.delivery_date || "";
+
+        $("#deliveryType").value =
+          lifeStageProfile.delivery_type || "";
+
+        $("#breastfeedingStatus").value =
+          lifeStageProfile.breastfeeding_status === "not_applicable"
+            ? ""
+            : (lifeStageProfile.breastfeeding_status || "");
+
+        $("#exerciseClearance").value =
+          ["not_required",null,undefined].includes(lifeStageProfile.exercise_clearance)
+            ? ""
+            : lifeStageProfile.exercise_clearance;
+
+        $("#lifeRestrictions").value =
+          lifeStageProfile.restrictions_or_complications || "";
+
+        setMulti(
+          "pelvicFloorSymptoms",
+          lifeStageProfile.pelvic_floor_symptoms || []
+        );
+
+        $("#diastasisStatus").value =
+          lifeStageProfile.diastasis_status || "";
+
+        $("#incisionOrPelvicPain").value =
+          lifeStageProfile.incision_or_pelvic_pain === true
+            ? "true"
+            : lifeStageProfile.incision_or_pelvic_pain === false
+              ? "false"
+              : "";
+
+        $("#recoveryNotes").value =
+          lifeStageProfile.recovery_notes || "";
+      }
+
+      handleCustomVisibility();
 
       const { data:measurement } =
         await supabaseClient
@@ -3070,7 +3620,7 @@
     }
 
     function initChips(){
-      $$("[data-single] .chipbtn")
+      $$('[data-single] .chipbtn')
         .forEach(button => {
           button.addEventListener("click", () => {
             const group = button
@@ -3087,12 +3637,12 @@
           });
         });
 
-      $$("[data-multi] .chipbtn")
+      $$('[data-multi] .chipbtn')
         .forEach(button => {
           button.addEventListener("click", () => {
-            const group = button
-              .closest("[data-multi]")
-              .dataset.multi;
+            const container = button.closest("[data-multi]");
+            const group = container.dataset.multi;
+            const max = Number(container.dataset.max || 0);
 
             if(button.dataset.value === "none"){
               $$(`[data-multi="${group}"] .chipbtn`)
@@ -3110,10 +3660,25 @@
             );
 
             noneButton?.classList.remove("active");
+
+            if(
+              !button.classList.contains("active") &&
+              max > 0 &&
+              selectedMulti(group).length >= max
+            ){
+              alert(`Choose up to ${max} options in this section.`);
+              return;
+            }
+
             button.classList.toggle("active");
             handleCustomVisibility();
           });
         });
+
+      $("#activityPurpose")?.addEventListener(
+        "change",
+        handleCustomVisibility
+      );
     }
 
     function initNavigation(){
