@@ -157,6 +157,8 @@ function hasArray(value) {
 
 function validateFirstPlanSetup(setup) {
   const profile = setup.profile || {};
+  const structuredGoal = setup.structuredGoal || {};
+  const lifeStage = setup.lifeStage || {};
   const workout = setup.workout || {};
   const work = setup.work || {};
   const food = setup.food || {};
@@ -173,8 +175,58 @@ function validateFirstPlanSetup(setup) {
   add("Personal information", "gender", hasValue(profile.gender));
   add("Personal information", "height", Number(profile.height_cm) > 0);
   add("Personal information", "current weight", Number(profile.starting_weight || latestMeasurement.weight) > 0);
-  add("Goals and body", "main fitness goal", hasArray(profile.main_goals) || hasValue(profile.main_goal));
-  add("Goals and body", "body type", hasValue(profile.body_type));
+  add("Profile update", "profile version 2", Number(profile.profile_schema_version || 1) >= 2);
+
+  add("Goals and body", "main result", hasValue(structuredGoal.primary_goal));
+  add("Goals and body", "desired physique", hasValue(structuredGoal.physique_preference));
+  add("Goals and body", "at least one body-focus area", hasArray(structuredGoal.focus_areas));
+  add("Goals and body", "at least one fitness ability", hasArray(structuredGoal.fitness_priorities));
+  add("Goals and body", "current starting point", hasValue(profile.body_type));
+
+  const purpose = String(structuredGoal.activity_purpose || "").toLowerCase();
+  if (purpose === "sports_performance") {
+    add("Goals and body", "sport or activity", hasValue(structuredGoal.sport_or_activity));
+  }
+
+  add("Life stage and safety", "pregnancy or postpartum selection", hasValue(lifeStage.life_stage));
+  const stage = String(lifeStage.life_stage || "").toLowerCase();
+
+  if (purpose === "pregnancy_fitness") {
+    add("Life stage and safety", "pregnancy status", ["planning_pregnancy", "pregnant"].includes(stage));
+  }
+
+  if (purpose === "postpartum_recovery") {
+    add("Life stage and safety", "postpartum status", stage === "postpartum");
+  }
+
+  if (stage === "pregnant") {
+    add(
+      "Life stage and safety",
+      "pregnancy week",
+      Number(lifeStage.pregnancy_week) >= 1 && Number(lifeStage.pregnancy_week) <= 42
+    );
+  }
+
+  if (stage === "postpartum") {
+    add("Life stage and safety", "delivery date", hasValue(lifeStage.delivery_date));
+  }
+
+  if (["pregnant", "postpartum"].includes(stage)) {
+    const clearance = String(lifeStage.exercise_clearance || "").toLowerCase();
+    add(
+      "Life stage and safety",
+      "exercise clearance allowing training",
+      ["cleared", "cleared_with_restrictions"].includes(clearance)
+    );
+
+    if (clearance === "cleared_with_restrictions") {
+      add(
+        "Life stage and safety",
+        "clearance restrictions",
+        hasValue(lifeStage.restrictions_or_complications)
+      );
+    }
+  }
 
   add("Workout setup", "workout place", hasValue(workout.workout_place));
   add("Workout setup", "workout days", hasArray(workout.workout_days));
@@ -215,8 +267,10 @@ function validateFirstPlanSetup(setup) {
 }
 
 async function readFirstPlanSetup(db, userId) {
-  const [profileRes, workoutRes, workRes, foodRes, waterRes, measurementRes] = await Promise.all([
+  const [profileRes, structuredGoalRes, lifeStageRes, workoutRes, workRes, foodRes, waterRes, measurementRes] = await Promise.all([
     db.from("profiles").select("*").eq("id", userId).maybeSingle(),
+    db.from("fitness_goal_profiles").select("*").eq("user_id", userId).maybeSingle(),
+    db.from("user_life_stage_profiles").select("*").eq("user_id", userId).maybeSingle(),
     db.from("workout_availability").select("*").eq("user_id", userId).maybeSingle(),
     db.from("work_schedules").select("*").eq("user_id", userId).maybeSingle(),
     db.from("food_preferences").select("*").eq("user_id", userId).maybeSingle(),
@@ -226,6 +280,8 @@ async function readFirstPlanSetup(db, userId) {
 
   const firstError = [
     profileRes.error,
+    structuredGoalRes.error,
+    lifeStageRes.error,
     workoutRes.error,
     workRes.error,
     foodRes.error,
@@ -237,6 +293,8 @@ async function readFirstPlanSetup(db, userId) {
 
   return {
     profile: profileRes.data || {},
+    structuredGoal: structuredGoalRes.data || {},
+    lifeStage: lifeStageRes.data || {},
     workout: workoutRes.data || {},
     work: workRes.data || {},
     food: foodRes.data || {},
@@ -302,10 +360,11 @@ export async function handler(event) {
     const user = await getUserFromToken(db, event);
     const entitlement = await ensureEntitlement(db, user.id);
     const tier = planTierInfo(entitlement);
+    let firstPlanSetup = null;
 
     if (requestSource === "first_plan") {
-      const setup = await readFirstPlanSetup(db, user.id);
-      const setupStatus = validateFirstPlanSetup(setup);
+      firstPlanSetup = await readFirstPlanSetup(db, user.id);
+      const setupStatus = validateFirstPlanSetup(firstPlanSetup);
 
       if (!setupStatus.complete) {
         return jsonResponse(422, {
@@ -330,7 +389,30 @@ export async function handler(event) {
         entitlement,
         created_by: "generate-plan",
         queued_at: new Date().toISOString(),
-        first_plan: requestSource === "first_plan"
+        first_plan: requestSource === "first_plan",
+        profile_schema_version: firstPlanSetup?.profile?.profile_schema_version || null,
+        structured_goal: firstPlanSetup ? {
+          primary_goal: firstPlanSetup.structuredGoal?.primary_goal || null,
+          physique_preference: firstPlanSetup.structuredGoal?.physique_preference || null,
+          focus_areas: firstPlanSetup.structuredGoal?.focus_areas || [],
+          fitness_priorities: firstPlanSetup.structuredGoal?.fitness_priorities || [],
+          activity_purpose: firstPlanSetup.structuredGoal?.activity_purpose || null,
+          sport_or_activity: firstPlanSetup.structuredGoal?.sport_or_activity || null,
+          custom_goal: firstPlanSetup.structuredGoal?.custom_goal || null
+        } : null,
+        life_stage: firstPlanSetup ? {
+          life_stage: firstPlanSetup.lifeStage?.life_stage || null,
+          pregnancy_week: firstPlanSetup.lifeStage?.pregnancy_week || null,
+          delivery_date: firstPlanSetup.lifeStage?.delivery_date || null,
+          delivery_type: firstPlanSetup.lifeStage?.delivery_type || null,
+          breastfeeding_status: firstPlanSetup.lifeStage?.breastfeeding_status || null,
+          exercise_clearance: firstPlanSetup.lifeStage?.exercise_clearance || null,
+          restrictions_or_complications: firstPlanSetup.lifeStage?.restrictions_or_complications || null,
+          pelvic_floor_symptoms: firstPlanSetup.lifeStage?.pelvic_floor_symptoms || [],
+          diastasis_status: firstPlanSetup.lifeStage?.diastasis_status || null,
+          incision_or_pelvic_pain: firstPlanSetup.lifeStage?.incision_or_pelvic_pain ?? null,
+          recovery_notes: firstPlanSetup.lifeStage?.recovery_notes || null
+        } : null
       }
     });
 
