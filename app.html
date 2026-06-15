@@ -1443,6 +1443,81 @@
       }
     }
 
+
+    /* =========================================================
+       SHAPECUE STEP 11B — PROGRESS PHOTO CHECK-INS
+       Dated Front + Side + Back sets with draft/complete states.
+    ========================================================= */
+    .photo-checkin-toolbar{
+      display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:end;
+      margin-top:11px;padding:10px;border:1px solid var(--app-line);border-radius:16px;background:var(--app-surface-2)
+    }
+    .photo-checkin-toolbar .field{margin:0 !important}
+    .photo-checkin-toolbar .btn{min-height:43px !important;white-space:nowrap}
+    .photo-checkin-editor{
+      margin-top:11px;padding:11px;border:1px solid var(--app-line);border-radius:18px;background:var(--app-surface-2)
+    }
+    .photo-checkin-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+    .photo-checkin-head h4{margin:0;font-size:13px;letter-spacing:-.2px}
+    .photo-checkin-head p{margin:4px 0 0;color:var(--app-muted);font-size:10.5px;line-height:1.38}
+    .photo-checkin-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
+    .photo-checkin-meta .field{margin-top:0 !important}
+    .photo-checkin-meta .field.full{grid-column:1/-1}
+    .photo-angle-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:11px}
+    .photo-angle-slot{
+      min-width:0;overflow:hidden;border:1px solid var(--app-line);border-radius:15px;background:var(--app-surface)
+    }
+    .photo-angle-thumb{
+      position:relative;width:100%;aspect-ratio:3/4;overflow:hidden;display:grid;place-items:center;
+      background:linear-gradient(145deg,var(--app-surface-3),var(--app-surface-2));color:var(--app-muted-2)
+    }
+    .photo-angle-thumb img{width:100%;height:100%;display:block;object-fit:cover}
+    .photo-angle-empty{display:grid;place-items:center;gap:5px;padding:8px;text-align:center}
+    .photo-angle-empty strong{font-size:18px;line-height:1;color:var(--app-blue)}
+    .photo-angle-empty span{font-size:8.5px;font-weight:900;text-transform:uppercase;letter-spacing:.35px}
+    .photo-angle-label{
+      position:absolute;left:5px;top:5px;max-width:calc(100% - 10px);padding:4px 6px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.16);background:rgba(5,6,8,.52);color:#fff;font-size:7.5px;font-weight:1000;
+      backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)
+    }
+    .photo-angle-actions{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:6px}
+    .photo-angle-actions.single{grid-template-columns:1fr}
+    .photo-angle-actions .tiny-btn{min-width:0 !important;padding:5px 4px !important;font-size:8.5px !important}
+    .photo-checkin-progress{margin-top:10px;padding:8px 9px;border-radius:12px;background:var(--app-surface);border:1px solid var(--app-line);font-size:9.8px;line-height:1.4;color:var(--app-muted)}
+    .photo-checkin-progress.complete{color:var(--app-green);background:var(--app-green-soft);border-color:rgba(53,212,111,.18)}
+    .photo-checkin-progress.draft{color:var(--app-amber);background:var(--app-amber-soft);border-color:rgba(255,179,64,.18)}
+    .checkin-list{display:grid;gap:7px;margin-top:9px}
+    .checkin-list-row{
+      display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:9px 10px;border:1px solid var(--app-line);
+      border-radius:14px;background:var(--app-surface-2)
+    }
+    .checkin-list-row strong{display:block;font-size:10.8px}
+    .checkin-list-row span{display:block;margin-top:3px;color:var(--app-muted);font-size:9.6px;line-height:1.32}
+    .checkin-history-card{margin-top:9px;border:1px solid var(--app-line);border-radius:17px;background:var(--app-surface-2);overflow:hidden}
+    .checkin-history-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:10px}
+    .checkin-history-head strong{display:block;font-size:11.5px}
+    .checkin-history-head span{display:block;margin-top:4px;color:var(--app-muted);font-size:9.6px}
+    .checkin-history-photos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--app-line)}
+    .checkin-history-photo{position:relative;aspect-ratio:3/4;overflow:hidden;background:var(--app-surface-3)}
+    .checkin-history-photo img{width:100%;height:100%;display:block;object-fit:cover}
+    .checkin-history-photo span{position:absolute;left:4px;bottom:4px;padding:3px 5px;border-radius:999px;background:rgba(5,6,8,.55);color:#fff;font-size:7px;font-weight:950}
+    .checkin-history-actions{display:grid;grid-template-columns:1fr;gap:6px;padding:8px}
+    .photo-comparison-grid{display:grid;gap:8px}
+    .photo-comparison-row{display:grid;grid-template-columns:44px 1fr 1fr;gap:6px;align-items:center}
+    .photo-comparison-row>strong{font-size:9px;color:var(--app-muted);text-transform:uppercase;letter-spacing:.3px}
+    .photo-comparison-cell{overflow:hidden;border:1px solid var(--app-line);border-radius:12px;background:var(--app-surface-3)}
+    .photo-comparison-cell img{width:100%;aspect-ratio:3/4;display:block;object-fit:cover}
+    .photo-comparison-cell span{display:block;padding:5px;text-align:center;color:var(--app-muted);font-size:7.8px;font-weight:850}
+    .photo-hidden-input{display:none !important}
+    @media(max-width:390px){
+      .photo-checkin-toolbar{grid-template-columns:1fr}
+      .photo-checkin-meta{grid-template-columns:1fr}
+      .photo-checkin-meta .field.full{grid-column:auto}
+      .photo-angle-grid{gap:5px}
+      .photo-angle-actions{grid-template-columns:1fr}
+      .photo-comparison-row{grid-template-columns:36px 1fr 1fr}
+    }
+
   </style>
 </head>
 
@@ -1770,6 +1845,8 @@ let isAppAdmin = false;
 let extraAiUpdatesRemaining = 0;
 let hasAnyAiPlanRecord = false;
 let progressPhotoLoading = false;
+let activeProgressCheckinId = null;
+let progressPhotoActionBusy = false;
 
 const VISUAL_STYLE_KEY = "shapecue.visual.style";
 const VISUAL_CACHE_PREFIX = "shapecue.visual.weekly.v6.";
@@ -2373,15 +2450,131 @@ function progressPhotoLimit(){
 function photosThisMonth(){
   const photos = data.progressPhotos || [];
   const now = new Date();
-  return photos.filter(p => {
-    const d = new Date(p.created_at || p.taken_date || "");
-    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+  return photos.filter(photo => {
+    const d = new Date(photo.created_at || `${photo.taken_date || todayISO()}T00:00:00`);
+    return !Number.isNaN(d.getTime()) && d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
   }).length;
 }
 
 function photoTypeLabel(type){
-  const map = {front:"Front", side:"Side", back:"Back", workout:"Workout", other:"Other"};
+  const map = {front:"Front", side:"Side", back:"Back"};
   return map[type] || nice(type);
+}
+
+function progressCheckinDateText(value){
+  if(!value) return "No date";
+  const parsed = new Date(`${value}T00:00:00`);
+  return Number.isNaN(parsed.getTime()) ? String(value) : parsed.toLocaleDateString([], { year:"numeric", month:"short", day:"numeric" });
+}
+
+function progressCheckinById(checkinId){
+  return (data.progressPhotoCheckins || []).find(item => item.id === checkinId) || null;
+}
+
+function progressCheckinPhotos(checkin){
+  const map = { front:null, side:null, back:null };
+  (checkin?.photos || []).forEach(photo => {
+    if(Object.prototype.hasOwnProperty.call(map, photo.photo_type)) map[photo.photo_type] = photo;
+  });
+  return map;
+}
+
+function progressCheckinMissingAngles(checkin){
+  const photos = progressCheckinPhotos(checkin);
+  return ["front","side","back"].filter(type => !photos[type]);
+}
+
+function progressAngleSlotHTML(checkin, type){
+  const photo = progressCheckinPhotos(checkin)[type];
+  const label = photoTypeLabel(type);
+  const inputId = `checkinPhoto_${checkin.id}_${type}`.replace(/[^a-zA-Z0-9_-]/g,"_");
+  return `
+    <div class="photo-angle-slot">
+      <div class="photo-angle-thumb">
+        ${photo?.signed_url
+          ? `<img src="${esc(photo.signed_url)}" alt="${esc(label)} progress photo"><span class="photo-angle-label">${esc(label)}</span>`
+          : `<div class="photo-angle-empty"><strong>+</strong><span>${esc(label)} missing</span></div>`}
+      </div>
+      <div class="photo-angle-actions ${photo ? "" : "single"}">
+        <button class="tiny-btn" type="button" data-pick-checkin-photo="${esc(inputId)}">${photo ? "Replace" : `Add ${esc(label)}`}</button>
+        ${photo ? `<button class="tiny-btn red" type="button" data-delete-checkin-photo="${esc(photo.id)}" data-checkin-id="${esc(checkin.id)}">Delete</button>` : ""}
+      </div>
+      <input class="photo-hidden-input" id="${esc(inputId)}" type="file" accept="image/jpeg,image/png,image/webp" data-checkin-photo-file="${esc(type)}" data-checkin-id="${esc(checkin.id)}">
+    </div>
+  `;
+}
+
+function draftCheckinRowHTML(checkin){
+  const missing = progressCheckinMissingAngles(checkin);
+  return `
+    <div class="checkin-list-row">
+      <div>
+        <strong>${esc(progressCheckinDateText(checkin.checkin_date))}</strong>
+        <span>${missing.length ? `Missing ${missing.map(photoTypeLabel).join(", ")}` : "Ready to complete"}</span>
+      </div>
+      <button class="mini-action" type="button" data-edit-checkin="${esc(checkin.id)}">Continue</button>
+    </div>
+  `;
+}
+
+function completeCheckinCardHTML(checkin){
+  const photos = progressCheckinPhotos(checkin);
+  const meta = [
+    checkin.weight_value ? `${checkin.weight_value} ${checkin.weight_unit || data.profile?.weight_unit || "kg"}` : "",
+    checkin.waist_value ? `Waist ${checkin.waist_value} ${checkin.measurement_unit || "inch"}` : ""
+  ].filter(Boolean).join(" / ") || "Three-angle set complete";
+
+  return `
+    <div class="checkin-history-card">
+      <div class="checkin-history-head">
+        <div><strong>${esc(progressCheckinDateText(checkin.checkin_date))}</strong><span>${esc(meta)}</span></div>
+        <span class="status-pill green">Complete</span>
+      </div>
+      <div class="checkin-history-photos">
+        ${["front","side","back"].map(type => `
+          <a class="checkin-history-photo" href="${esc(photos[type]?.signed_url || "#")}" ${photos[type]?.signed_url ? 'target="_blank" rel="noopener"' : ""}>
+            ${photos[type]?.signed_url ? `<img src="${esc(photos[type].signed_url)}" alt="${esc(photoTypeLabel(type))} progress photo">` : ""}
+            <span>${esc(photoTypeLabel(type))}</span>
+          </a>
+        `).join("")}
+      </div>
+      <div class="checkin-history-actions"><button class="tiny-btn" type="button" data-edit-checkin="${esc(checkin.id)}">Edit or replace an angle</button></div>
+    </div>
+  `;
+}
+
+function progressComparisonHTML(completeCheckins){
+  if(completeCheckins.length < 2) return "";
+  const latest = completeCheckins[0];
+  const previous = completeCheckins[1];
+  const latestPhotos = progressCheckinPhotos(latest);
+  const previousPhotos = progressCheckinPhotos(previous);
+
+  return `
+    <details class="fold-card">
+      <summary>
+        <div class="fold-title"><b>Latest comparison</b><span>${esc(progressCheckinDateText(previous.checkin_date))} vs ${esc(progressCheckinDateText(latest.checkin_date))}</span></div>
+        <div class="fold-arrow"></div>
+      </summary>
+      <div class="fold-content">
+        <div class="photo-comparison-grid">
+          ${["front","side","back"].map(type => `
+            <div class="photo-comparison-row">
+              <strong>${esc(photoTypeLabel(type))}</strong>
+              <a class="photo-comparison-cell" href="${esc(previousPhotos[type]?.signed_url || "#")}" target="_blank" rel="noopener">
+                <img src="${esc(previousPhotos[type]?.signed_url || "")}" alt="Older ${esc(photoTypeLabel(type))} progress photo">
+                <span>${esc(progressCheckinDateText(previous.checkin_date))}</span>
+              </a>
+              <a class="photo-comparison-cell" href="${esc(latestPhotos[type]?.signed_url || "#")}" target="_blank" rel="noopener">
+                <img src="${esc(latestPhotos[type]?.signed_url || "")}" alt="Latest ${esc(photoTypeLabel(type))} progress photo">
+                <span>${esc(progressCheckinDateText(latest.checkin_date))}</span>
+              </a>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    </details>
+  `;
 }
 
 function renderProgressPhotosBox(){
@@ -2391,66 +2584,91 @@ function renderProgressPhotosBox(){
   if(!hasFeature("progress_photos")){
     box.innerHTML = `
       <div class="card-head">
-        <div><h3>Progress photos</h3><p>Private photo tracking is paid only.</p></div>
+        <div><h3>Progress photos</h3><p>Private three-angle check-ins are paid only.</p></div>
         <span class="status-pill amber">Locked</span>
       </div>
-      <div class="premium-lock">Free users cannot upload progress photos. This protects storage costs and keeps Premium valuable.</div>
+      <div class="premium-lock">Free and Plus users cannot upload progress photos. Premium and Coach unlock private Front, Side, and Back check-ins.</div>
       <button class="btn amber" type="button" style="width:100%;margin-top:10px" data-upgrade-feature="progress_photos">Unlock progress photos</button>
     `;
     return;
   }
 
-  const photos = data.progressPhotos || [];
+  const checkins = data.progressPhotoCheckins || [];
+  const completeCheckins = checkins.filter(item => item.status === "complete");
+  const draftCheckins = checkins.filter(item => item.status !== "complete");
+  const active = progressCheckinById(activeProgressCheckinId) || draftCheckins[0] || completeCheckins[0] || null;
+  if(active && activeProgressCheckinId !== active.id) activeProgressCheckinId = active.id;
+
   const code = currentPlanCode();
   const limit = progressPhotoLimit();
-  const thisMonth = photosThisMonth();
-  const limitText = Number.isFinite(limit) ? `${thisMonth}/${limit} this month` : `${photos.length} saved`;
-  const canUpload = !Number.isFinite(limit) || thisMonth < limit;
+  const used = photosThisMonth();
+  const limitText = Number.isFinite(limit) ? `${used}/${limit} photo uploads this month` : `${(data.progressPhotos || []).length} photos saved`;
 
   box.innerHTML = `
     <div class="card-head">
-      <div><h3>Progress photos</h3><p>Private front / side / back comparison.</p></div>
+      <div><h3>Progress photo check-ins</h3><p>Use the same date, lighting, distance, and relaxed posture for Front, Side, and Back.</p></div>
       <span class="status-pill green">${code === "coach" ? "Included" : "Limited"}</span>
     </div>
 
     <div class="summary-list">
       <div class="summary-line"><span>Access</span><strong>${esc(planName(code))}</strong></div>
-      <div class="summary-line"><span>Photo usage</span><strong>${esc(limitText)}</strong></div>
+      <div class="summary-line"><span>Usage</span><strong>${esc(limitText)}</strong></div>
+      <div class="summary-line"><span>Completed sets</span><strong>${completeCheckins.length}</strong></div>
     </div>
 
-    <div class="photo-upload-box">
-      <div class="grid2">
-        <div class="field"><label>Photo type</label>
-          <select class="select" id="photoType">
-            <option value="front">Front</option>
-            <option value="side">Side</option>
-            <option value="back">Back</option>
-            <option value="workout">Workout</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-        <div class="field"><label>Date</label><input class="input" id="photoDate" type="date" value="${todayISO()}"></div>
-        <div class="field"><label>Weight optional</label><input class="input" id="photoWeight" type="number" step="0.1" placeholder="${esc(data.latestMeasurement?.weight || "")}"></div>
-        <div class="field"><label>Unit</label>
-          <select class="select" id="photoWeightUnit">
-            <option value="kg" ${data.profile?.weight_unit !== "lb" ? "selected" : ""}>kg</option>
-            <option value="lb" ${data.profile?.weight_unit === "lb" ? "selected" : ""}>lb</option>
-          </select>
-        </div>
-      </div>
-      <div class="field"><label>Choose photo</label><input class="input" id="progressPhotoFile" type="file" accept="image/jpeg,image/png,image/webp"></div>
-      <div class="field"><label>Notes optional</label><textarea class="textarea" id="photoNotes" placeholder="Example: morning photo, same lighting, relaxed posture"></textarea></div>
-      <button class="btn primary" id="uploadProgressPhotoBtn" type="button" style="width:100%;margin-top:10px" ${canUpload ? "" : "disabled"}>${canUpload ? "Upload private photo" : "Monthly limit reached"}</button>
-      <div class="photo-limit-note">${code === "coach" ? "Coach: highest photo tracking is enabled." : "Premium: limited progress-photo tracking. Coach unlocks heavier photo history."}</div>
+    <div class="photo-checkin-toolbar">
+      <div class="field"><label>Check-in date</label><input class="input" id="newPhotoCheckinDate" type="date" value="${todayISO()}"></div>
+      <button class="btn primary" id="openPhotoCheckinBtn" type="button">Start or open</button>
     </div>
 
-    ${progressPhotoLoading ? `<div class="empty-photos">Loading photos...</div>` : ""}
-    ${!progressPhotoLoading && photos.length === 0 ? `<div class="empty-photos">No progress photos yet. Upload front, side, and back photos with same lighting for better comparison.</div>` : ""}
-    ${!progressPhotoLoading && photos.length ? `
-      <div class="photo-grid">
-        ${photos.map(photo => progressPhotoCardHTML(photo)).join("")}
+    ${progressPhotoLoading ? `<div class="empty-photos">Loading private check-ins...</div>` : ""}
+
+    ${!progressPhotoLoading && active ? `
+      <div class="photo-checkin-editor" data-active-checkin="${esc(active.id)}">
+        <div class="photo-checkin-head">
+          <div><h4>${active.status === "complete" ? "Completed check-in" : "Finish this check-in"}</h4><p>${esc(progressCheckinDateText(active.checkin_date))} / ${progressCheckinMissingAngles(active).length ? `${progressCheckinMissingAngles(active).length} angle${progressCheckinMissingAngles(active).length === 1 ? "" : "s"} missing` : "all three angles saved"}</p></div>
+          <span class="status-pill ${active.status === "complete" ? "green" : "amber"}">${active.status === "complete" ? "Complete" : "Draft"}</span>
+        </div>
+
+        <div class="photo-checkin-meta">
+          <div class="field"><label>Date</label><input class="input" id="photoCheckinDate" type="date" value="${esc(active.checkin_date || todayISO())}"></div>
+          <div class="field"><label>Weight optional</label><input class="input" id="photoCheckinWeight" type="number" step="0.1" value="${esc(active.weight_value ?? "")}"></div>
+          <div class="field"><label>Weight unit</label><select class="select" id="photoCheckinWeightUnit"><option value="kg" ${active.weight_unit !== "lb" ? "selected" : ""}>kg</option><option value="lb" ${active.weight_unit === "lb" ? "selected" : ""}>lb</option></select></div>
+          <div class="field"><label>Waist optional</label><input class="input" id="photoCheckinWaist" type="number" step="0.1" value="${esc(active.waist_value ?? "")}"></div>
+          <div class="field"><label>Waist unit</label><select class="select" id="photoCheckinMeasureUnit"><option value="inch" ${active.measurement_unit !== "cm" ? "selected" : ""}>inch</option><option value="cm" ${active.measurement_unit === "cm" ? "selected" : ""}>cm</option></select></div>
+          <div class="field full"><label>Notes optional</label><textarea class="textarea" id="photoCheckinNotes" placeholder="Same lighting, relaxed posture, morning photo...">${esc(active.notes || "")}</textarea></div>
+        </div>
+        <button class="btn secondary full-width" id="savePhotoCheckinDetailsBtn" type="button" data-checkin-id="${esc(active.id)}">Save check-in details</button>
+
+        <div class="photo-angle-grid">
+          ${["front","side","back"].map(type => progressAngleSlotHTML(active, type)).join("")}
+        </div>
+
+        <div class="photo-checkin-progress ${active.status === "complete" ? "complete" : "draft"}">
+          ${active.status === "complete"
+            ? "Complete set saved. It is now included in completed history and comparisons."
+            : `Draft saved. Add ${progressCheckinMissingAngles(active).map(photoTypeLabel).join(", ")} to complete this set.`}
+        </div>
       </div>
     ` : ""}
+
+    ${!progressPhotoLoading && !active ? `<div class="empty-photos">No check-in yet. Choose a date above to start a private Front, Side, and Back set.</div>` : ""}
+
+    ${!progressPhotoLoading && draftCheckins.filter(item => item.id !== active?.id).length ? `
+      <div class="section-head"><h2>Drafts to finish</h2><span>${draftCheckins.filter(item => item.id !== active?.id).length}</span></div>
+      <div class="checkin-list">${draftCheckins.filter(item => item.id !== active?.id).map(draftCheckinRowHTML).join("")}</div>
+    ` : ""}
+
+    ${!progressPhotoLoading ? progressComparisonHTML(completeCheckins) : ""}
+
+    ${!progressPhotoLoading ? `
+      <div class="section-head"><h2>Completed history</h2><span>${completeCheckins.length}</span></div>
+      ${completeCheckins.length
+        ? completeCheckins.map(completeCheckinCardHTML).join("")
+        : `<div class="empty-photos">Completed history appears only after a check-in has Front, Side, and Back.</div>`}
+    ` : ""}
+
+    <div class="photo-limit-note">${code === "coach" ? "Coach includes unlimited check-in photo uploads." : "Premium currently allows four photo uploads per month. Replacing an existing angle does not increase the saved-photo count."}</div>
   `;
 
   wireProgressPhotoEvents();
@@ -3164,6 +3382,7 @@ async function loadAll(){
     await loadProgressPhotos();
   }else{
     data.progressPhotos = [];
+    data.progressPhotoCheckins = [];
   }
 
   await ensureDailyLog();
@@ -4114,6 +4333,8 @@ async function finishWorkout(){
 async function loadProgressPhotos(){
   if(!user || !hasFeature("progress_photos")){
     data.progressPhotos = [];
+    data.progressPhotoCheckins = [];
+    activeProgressCheckinId = null;
     return [];
   }
 
@@ -4121,29 +4342,61 @@ async function loadProgressPhotos(){
   renderProgressPhotosBox();
 
   try{
-    const { data: rows, error } = await supabaseClient
-      .from("progress_photos")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("taken_date", { ascending:false })
-      .order("created_at", { ascending:false })
-      .limit(36);
+    const [checkinRes, photoRes] = await Promise.all([
+      supabaseClient
+        .from("progress_photo_checkins")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("checkin_date", { ascending:false })
+        .order("created_at", { ascending:false })
+        .limit(24),
+      supabaseClient
+        .from("progress_photos")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("taken_date", { ascending:false })
+        .order("created_at", { ascending:false })
+        .limit(96)
+    ]);
 
-    if(error) throw error;
+    if(checkinRes.error) throw checkinRes.error;
+    if(photoRes.error) throw photoRes.error;
 
-    const withUrls = await Promise.all((rows || []).map(async row => {
-      const { data: signed } = await supabaseClient.storage
+    const withUrls = await Promise.all((photoRes.data || []).map(async photo => {
+      const { data: signed, error: signedError } = await supabaseClient.storage
         .from("progress-photos")
-        .createSignedUrl(row.image_path, 60 * 60);
-      return { ...row, signed_url: signed?.signedUrl || "" };
+        .createSignedUrl(photo.image_path, 60 * 60);
+      if(signedError) console.warn("Could not sign progress photo", signedError);
+      return { ...photo, signed_url: signed?.signedUrl || "" };
     }));
 
+    const photosByCheckin = withUrls.reduce((map, photo) => {
+      if(!photo.checkin_id) return map;
+      if(!map[photo.checkin_id]) map[photo.checkin_id] = [];
+      map[photo.checkin_id].push(photo);
+      return map;
+    }, {});
+
     data.progressPhotos = withUrls;
-    return withUrls;
-  }catch(e){
-    console.warn("Could not load progress photos", e);
+    data.progressPhotoCheckins = (checkinRes.data || []).map(checkin => ({
+      ...checkin,
+      photos: photosByCheckin[checkin.id] || []
+    }));
+
+    const selectedStillExists = data.progressPhotoCheckins.some(item => item.id === activeProgressCheckinId);
+    if(!selectedStillExists){
+      activeProgressCheckinId = data.progressPhotoCheckins.find(item => item.status !== "complete")?.id
+        || data.progressPhotoCheckins[0]?.id
+        || null;
+    }
+
+    return data.progressPhotoCheckins;
+  }catch(error){
+    console.warn("Could not load progress photo check-ins", error);
     data.progressPhotos = [];
-    toast(e.message || "Could not load progress photos");
+    data.progressPhotoCheckins = [];
+    activeProgressCheckinId = null;
+    toast(error.message || "Could not load progress photo check-ins");
     return [];
   }finally{
     progressPhotoLoading = false;
@@ -4152,26 +4405,9 @@ async function loadProgressPhotos(){
 }
 
 function progressPhotoCardHTML(photo){
-  const dateText = photo.taken_date ? new Date(photo.taken_date + "T00:00:00").toLocaleDateString() : "No date";
-  const weightText = photo.weight_value ? `${photo.weight_value} ${photo.weight_unit || data.profile?.weight_unit || "kg"}` : "No weight";
-  const noteText = photo.notes ? `<span>${esc(photo.notes)}</span>` : "";
-
-  return `
-    <div class="photo-card" data-photo-id="${esc(photo.id)}">
-      <div class="photo-thumb">
-        ${photo.signed_url ? `<img src="${esc(photo.signed_url)}" alt="${esc(photoTypeLabel(photo.photo_type))} progress photo">` : `<span>Photo</span>`}
-      </div>
-      <div class="photo-info">
-        <strong>${esc(photoTypeLabel(photo.photo_type))} / ${esc(dateText)}</strong>
-        <span>${esc(weightText)}</span>
-        ${noteText}
-      </div>
-      <div class="photo-actions">
-        ${photo.signed_url ? `<a class="tiny-btn" href="${esc(photo.signed_url)}" target="_blank" rel="noopener">Open</a>` : `<button class="tiny-btn" type="button" disabled>Open</button>`}
-        <button class="tiny-btn red" type="button" data-delete-photo="${esc(photo.id)}">Delete</button>
-      </div>
-    </div>
-  `;
+  if(!photo) return "";
+  const label = photoTypeLabel(photo.photo_type);
+  return `<div class="photo-card"><div class="photo-thumb">${photo.signed_url ? `<img src="${esc(photo.signed_url)}" alt="${esc(label)} progress photo">` : ""}</div><div class="photo-info"><strong>${esc(label)}</strong><span>${esc(progressCheckinDateText(photo.taken_date))}</span></div></div>`;
 }
 
 function safeFileExt(file){
@@ -4182,20 +4418,15 @@ function safeFileExt(file){
   return "jpg";
 }
 
-async function uploadProgressPhoto(){
+async function uploadProgressPhoto(checkinId, photoType, file){
   if(!hasFeature("progress_photos")){
-    showUpgrade("Unlock progress photos", "Private progress photos are included in Premium and Coach.");
+    showUpgrade("Unlock progress photos", "Private three-angle check-ins are included in Premium and Coach.");
     return;
   }
 
-  const limit = progressPhotoLimit();
-  if(Number.isFinite(limit) && photosThisMonth() >= limit){
-    toast("Monthly photo limit reached");
-    return;
-  }
-
-  const input = $("#progressPhotoFile");
-  const file = input?.files?.[0];
+  const checkin = progressCheckinById(checkinId);
+  if(!checkin){ toast("Check-in was not found"); return; }
+  if(!["front","side","back"].includes(photoType)){ toast("Choose Front, Side, or Back"); return; }
   if(!file){ toast("Choose a photo first"); return; }
 
   const allowed = ["image/jpeg","image/png","image/webp"];
@@ -4203,93 +4434,239 @@ async function uploadProgressPhoto(){
     toast("Use JPG, PNG, or WEBP only");
     return;
   }
-
   if(file.size > 10 * 1024 * 1024){
     toast("Photo must be under 10 MB");
     return;
   }
 
-  const btn = $("#uploadProgressPhotoBtn");
-  const old = btn?.textContent || "Upload private photo";
-  if(btn){ btn.disabled = true; btn.textContent = "Uploading..."; }
+  const existingPhoto = progressCheckinPhotos(checkin)[photoType];
+  const limit = progressPhotoLimit();
+  if(!existingPhoto && Number.isFinite(limit) && photosThisMonth() >= limit){
+    toast("Monthly photo limit reached");
+    return;
+  }
+  if(progressPhotoActionBusy) return;
+  progressPhotoActionBusy = true;
 
   try{
     const ext = safeFileExt(file);
-    const date = $("#photoDate")?.value || todayISO();
     const random = Math.random().toString(36).slice(2, 10);
-    const imagePath = `${user.id}/${date}/${Date.now()}-${random}.${ext}`;
+    const imagePath = `${user.id}/${checkin.checkin_date}/${checkin.id}/${photoType}-${Date.now()}-${random}.${ext}`;
 
     const upload = await supabaseClient.storage
       .from("progress-photos")
       .upload(imagePath, file, {
-        cacheControl: "3600",
-        upsert: false,
-        contentType: file.type
+        cacheControl:"3600",
+        upsert:false,
+        contentType:file.type
       });
-
     if(upload.error) throw upload.error;
 
-    const payload = {
-      user_id: user.id,
-      photo_type: $("#photoType")?.value || "front",
-      image_path: imagePath,
-      taken_date: date,
-      weight_value: $("#photoWeight")?.value ? Number($("#photoWeight").value) : null,
-      weight_unit: $("#photoWeightUnit")?.value || data.profile?.weight_unit || "kg",
-      notes: ($("#photoNotes")?.value || "").trim() || null,
-      plan_code_at_upload: currentPlanCode()
-    };
+    if(existingPhoto){
+      const { error: updateError } = await supabaseClient
+        .from("progress_photos")
+        .update({
+          image_path:imagePath,
+          taken_date:checkin.checkin_date,
+          weight_value:checkin.weight_value || null,
+          weight_unit:checkin.weight_unit || data.profile?.weight_unit || "kg",
+          notes:checkin.notes || null,
+          plan_code_at_upload:currentPlanCode(),
+          updated_at:new Date().toISOString()
+        })
+        .eq("id", existingPhoto.id)
+        .eq("user_id", user.id);
 
-    const { error: insertError } = await supabaseClient
-      .from("progress_photos")
-      .insert(payload);
+      if(updateError){
+        await supabaseClient.storage.from("progress-photos").remove([imagePath]);
+        throw updateError;
+      }
 
-    if(insertError){
-      await supabaseClient.storage.from("progress-photos").remove([imagePath]);
-      throw insertError;
+      if(existingPhoto.image_path && existingPhoto.image_path !== imagePath){
+        const removal = await supabaseClient.storage.from("progress-photos").remove([existingPhoto.image_path]);
+        if(removal.error) console.warn("Old progress photo could not be removed", removal.error);
+      }
+      toast(`${photoTypeLabel(photoType)} photo replaced`);
+    }else{
+      const { error: insertError } = await supabaseClient
+        .from("progress_photos")
+        .insert({
+          user_id:user.id,
+          checkin_id:checkin.id,
+          photo_type:photoType,
+          image_path:imagePath,
+          taken_date:checkin.checkin_date,
+          weight_value:checkin.weight_value || null,
+          weight_unit:checkin.weight_unit || data.profile?.weight_unit || "kg",
+          notes:checkin.notes || null,
+          plan_code_at_upload:currentPlanCode()
+        });
+
+      if(insertError){
+        await supabaseClient.storage.from("progress-photos").remove([imagePath]);
+        throw insertError;
+      }
+      toast(`${photoTypeLabel(photoType)} photo added`);
     }
 
-    toast("Progress photo uploaded");
+    activeProgressCheckinId = checkin.id;
     await loadProgressPhotos();
-  }catch(e){
-    toast(e.message || "Could not upload photo");
+  }catch(error){
+    toast(error.message || "Could not upload progress photo");
   }finally{
-    if(btn){ btn.disabled = false; btn.textContent = old; }
+    progressPhotoActionBusy = false;
   }
 }
 
-async function deleteProgressPhoto(photoId){
-  const photo = (data.progressPhotos || []).find(p => p.id === photoId);
+async function deleteProgressPhoto(photoId, checkinId = null){
+  const photo = (data.progressPhotos || []).find(item => item.id === photoId);
   if(!photo) return;
 
-  const ok = confirm("Delete this progress photo? This cannot be undone.");
-  if(!ok) return;
+  const ok = confirm(`Delete the ${photoTypeLabel(photo.photo_type)} photo? The check-in will stay saved as a Draft until all three angles exist.`);
+  if(!ok || progressPhotoActionBusy) return;
+  progressPhotoActionBusy = true;
 
   try{
-    if(photo.image_path){
-      await supabaseClient.storage.from("progress-photos").remove([photo.image_path]);
-    }
-
     const { error } = await supabaseClient
       .from("progress_photos")
       .delete()
       .eq("id", photoId)
       .eq("user_id", user.id);
-
     if(error) throw error;
 
-    data.progressPhotos = (data.progressPhotos || []).filter(p => p.id !== photoId);
+    if(photo.image_path){
+      const removal = await supabaseClient.storage.from("progress-photos").remove([photo.image_path]);
+      if(removal.error) console.warn("Deleted photo file could not be removed", removal.error);
+    }
+
+    activeProgressCheckinId = checkinId || photo.checkin_id || activeProgressCheckinId;
+    toast("Photo deleted. Check-in is now a Draft.");
+    await loadProgressPhotos();
+  }catch(error){
+    toast(error.message || "Could not delete photo");
+  }finally{
+    progressPhotoActionBusy = false;
+  }
+}
+
+async function createOrOpenProgressCheckin(){
+  if(progressPhotoActionBusy) return;
+  const date = $("#newPhotoCheckinDate")?.value || todayISO();
+  const existing = (data.progressPhotoCheckins || []).find(item => item.checkin_date === date);
+
+  if(existing){
+    activeProgressCheckinId = existing.id;
     renderProgressPhotosBox();
-    toast("Photo deleted");
-  }catch(e){
-    toast(e.message || "Could not delete photo");
+    toast(existing.status === "complete" ? "Completed check-in opened" : "Draft check-in opened");
+    return;
+  }
+
+  progressPhotoActionBusy = true;
+  try{
+    const { data: row, error } = await supabaseClient
+      .from("progress_photo_checkins")
+      .insert({
+        user_id:user.id,
+        checkin_date:date,
+        weight_unit:data.profile?.weight_unit || "kg",
+        measurement_unit:"inch"
+      })
+      .select()
+      .single();
+
+    if(error){
+      const message = String(error.message || "").toLowerCase();
+      if(message.includes("duplicate") || message.includes("unique")){
+        await loadProgressPhotos();
+        const duplicate = (data.progressPhotoCheckins || []).find(item => item.checkin_date === date);
+        if(duplicate){
+          activeProgressCheckinId = duplicate.id;
+          renderProgressPhotosBox();
+          toast("Existing check-in opened");
+          return;
+        }
+      }
+      throw error;
+    }
+
+    activeProgressCheckinId = row.id;
+    toast("New progress check-in started");
+    await loadProgressPhotos();
+  }catch(error){
+    toast(error.message || "Could not start check-in");
+  }finally{
+    progressPhotoActionBusy = false;
+  }
+}
+
+async function saveProgressCheckinDetails(checkinId){
+  if(!checkinId || progressPhotoActionBusy) return;
+  progressPhotoActionBusy = true;
+  const button = $("#savePhotoCheckinDetailsBtn");
+  const oldText = button?.textContent || "Save check-in details";
+  if(button){ button.disabled = true; button.textContent = "Saving..."; }
+
+  try{
+    const payload = {
+      checkin_date:$("#photoCheckinDate")?.value || todayISO(),
+      weight_value:$("#photoCheckinWeight")?.value ? Number($("#photoCheckinWeight").value) : null,
+      weight_unit:$("#photoCheckinWeightUnit")?.value || data.profile?.weight_unit || "kg",
+      waist_value:$("#photoCheckinWaist")?.value ? Number($("#photoCheckinWaist").value) : null,
+      measurement_unit:$("#photoCheckinMeasureUnit")?.value || "inch",
+      notes:($("#photoCheckinNotes")?.value || "").trim() || null
+    };
+
+    const { data: row, error } = await supabaseClient
+      .from("progress_photo_checkins")
+      .update(payload)
+      .eq("id", checkinId)
+      .eq("user_id", user.id)
+      .select()
+      .single();
+    if(error) throw error;
+
+    activeProgressCheckinId = row.id;
+    toast("Check-in details saved");
+    await loadProgressPhotos();
+  }catch(error){
+    const message = String(error.message || "");
+    toast(message.toLowerCase().includes("duplicate") ? "A check-in already exists for that date" : (message || "Could not save check-in"));
+  }finally{
+    progressPhotoActionBusy = false;
+    if(button){ button.disabled = false; button.textContent = oldText; }
   }
 }
 
 function wireProgressPhotoEvents(){
-  $("#uploadProgressPhotoBtn")?.addEventListener("click", uploadProgressPhoto);
-  $$('[data-delete-photo]').forEach(btn => {
-    btn.addEventListener("click", () => deleteProgressPhoto(btn.dataset.deletePhoto));
+  $("#openPhotoCheckinBtn")?.addEventListener("click", createOrOpenProgressCheckin);
+  $("#savePhotoCheckinDetailsBtn")?.addEventListener("click", event => saveProgressCheckinDetails(event.currentTarget.dataset.checkinId));
+
+  $$('[data-pick-checkin-photo]').forEach(button => {
+    button.addEventListener("click", () => {
+      const input = document.getElementById(button.dataset.pickCheckinPhoto);
+      input?.click();
+    });
+  });
+
+  $$('[data-checkin-photo-file]').forEach(input => {
+    input.addEventListener("change", async event => {
+      const file = event.target.files?.[0];
+      if(!file) return;
+      await uploadProgressPhoto(input.dataset.checkinId, input.dataset.checkinPhotoFile, file);
+      event.target.value = "";
+    });
+  });
+
+  $$('[data-delete-checkin-photo]').forEach(button => {
+    button.addEventListener("click", () => deleteProgressPhoto(button.dataset.deleteCheckinPhoto, button.dataset.checkinId));
+  });
+
+  $$('[data-edit-checkin]').forEach(button => {
+    button.addEventListener("click", () => {
+      activeProgressCheckinId = button.dataset.editCheckin;
+      renderProgressPhotosBox();
+      $("#progressPhotosContent")?.scrollIntoView({ behavior:"smooth", block:"start" });
+    });
   });
 }
 
