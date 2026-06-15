@@ -254,8 +254,135 @@ function hasArray(value) {
   return Array.isArray(value) && value.some(item => hasValue(item));
 }
 
+function cleanTextArray(value, limit = 12) {
+  return safeArray(value)
+    .map(item => text(item))
+    .filter(Boolean)
+    .slice(0, limit);
+}
+
+function compactStructuredGoalProfile(data) {
+  const profile = safeObject(data?.profile);
+  const structured = safeObject(data?.structured_goal_profile);
+  const legacyGoals = cleanTextArray(profile.main_goals, 12);
+  const structuredFocus = cleanTextArray(structured.focus_areas, 3);
+  const structuredPriorities = cleanTextArray(structured.fitness_priorities, 3);
+  const hasStructuredAnswers = Boolean(
+    text(structured.primary_goal) ||
+    text(structured.physique_preference) ||
+    structuredFocus.length ||
+    structuredPriorities.length
+  );
+
+  return {
+    source: hasStructuredAnswers ? "structured_profile_v2" : "legacy_profile_fallback",
+    primary_goal:
+      text(structured.primary_goal) ||
+      text(profile.main_goal) ||
+      legacyGoals[0] ||
+      null,
+    physique_preference: text(structured.physique_preference) || null,
+    focus_areas: structuredFocus,
+    fitness_priorities: structuredPriorities,
+    activity_purpose: text(structured.activity_purpose) || null,
+    sport_or_activity: text(structured.sport_or_activity) || null,
+    custom_goal: text(structured.custom_goal) || null,
+    goal_schema_version: number(structured.goal_schema_version, 1),
+    completed_at: structured.completed_at || null,
+    legacy_main_goals: legacyGoals,
+    legacy_body_type: text(profile.body_type) || null,
+    legacy_body_type_custom: text(profile.body_type_custom) || null
+  };
+}
+
+function compactLifeStageProfile(data) {
+  const life = safeObject(data?.life_stage_profile);
+  const stage = text(life.life_stage);
+  const base = {
+    life_stage: stage || "not_answered",
+    life_stage_schema_version: number(life.life_stage_schema_version, 1),
+    completed_at: life.completed_at || null
+  };
+
+  if (!stage || ["not_applicable", "prefer_not_to_say"].includes(stage)) {
+    return base;
+  }
+
+  if (stage === "planning_pregnancy") {
+    return {
+      ...base,
+      exercise_clearance: text(life.exercise_clearance) || null,
+      restrictions_or_complications: text(life.restrictions_or_complications) || null,
+      recovery_notes: text(life.recovery_notes) || null
+    };
+  }
+
+  if (stage === "pregnant") {
+    return {
+      ...base,
+      pregnancy_week: number(life.pregnancy_week, 0) || null,
+      exercise_clearance: text(life.exercise_clearance) || null,
+      restrictions_or_complications: text(life.restrictions_or_complications) || null,
+      pelvic_floor_symptoms: cleanTextArray(life.pelvic_floor_symptoms, 10),
+      recovery_notes: text(life.recovery_notes) || null
+    };
+  }
+
+  if (stage === "postpartum") {
+    return {
+      ...base,
+      delivery_date: life.delivery_date || null,
+      delivery_type: text(life.delivery_type) || null,
+      breastfeeding_status: text(life.breastfeeding_status) || null,
+      exercise_clearance: text(life.exercise_clearance) || null,
+      restrictions_or_complications: text(life.restrictions_or_complications) || null,
+      pelvic_floor_symptoms: cleanTextArray(life.pelvic_floor_symptoms, 10),
+      diastasis_status: text(life.diastasis_status) || null,
+      incision_or_pelvic_pain:
+        typeof life.incision_or_pelvic_pain === "boolean"
+          ? life.incision_or_pelvic_pain
+          : null,
+      recovery_notes: text(life.recovery_notes) || null
+    };
+  }
+
+  return base;
+}
+
+function validateLifeStageSafety(data) {
+  const life = safeObject(data?.life_stage_profile);
+  const stage = text(life.life_stage).toLowerCase();
+  const missing = [];
+
+  if (!['pregnant', 'postpartum'].includes(stage)) {
+    return { safe: true, missing };
+  }
+
+  const clearance = text(life.exercise_clearance).toLowerCase();
+  if (!['cleared', 'cleared_with_restrictions'].includes(clearance)) {
+    missing.push('exercise clearance allowing training');
+  }
+
+  if (clearance === 'cleared_with_restrictions' && !hasValue(life.restrictions_or_complications)) {
+    missing.push('clearance restrictions');
+  }
+
+  if (stage === 'pregnant') {
+    const week = Number(life.pregnancy_week);
+    if (!(week >= 1 && week <= 42)) missing.push('pregnancy week');
+  }
+
+  if (stage === 'postpartum' && !hasValue(life.delivery_date)) {
+    missing.push('delivery date');
+  }
+
+  return { safe: missing.length === 0, missing };
+}
+
 function validateFirstPlanSetup(data) {
   const profile = data.profile || {};
+  const structuredGoal = data.structured_goal_profile || {};
+  const lifeStage = data.life_stage_profile || {};
   const workout = data.workout_availability || {};
   const work = data.work_schedule || {};
   const food = data.food_preferences || {};
@@ -272,8 +399,58 @@ function validateFirstPlanSetup(data) {
   add("Personal information", "gender", hasValue(profile.gender));
   add("Personal information", "height", Number(profile.height_cm) > 0);
   add("Personal information", "current weight", Number(profile.starting_weight || latestMeasurement.weight) > 0);
-  add("Goals and body", "main fitness goal", hasArray(profile.main_goals) || hasValue(profile.main_goal));
-  add("Goals and body", "body type", hasValue(profile.body_type));
+  add("Profile update", "profile version 2", Number(profile.profile_schema_version || 1) >= 2);
+
+  add("Goals and body", "main result", hasValue(structuredGoal.primary_goal));
+  add("Goals and body", "desired physique", hasValue(structuredGoal.physique_preference));
+  add("Goals and body", "at least one body-focus area", hasArray(structuredGoal.focus_areas));
+  add("Goals and body", "at least one fitness ability", hasArray(structuredGoal.fitness_priorities));
+  add("Goals and body", "current starting point", hasValue(profile.body_type));
+
+  const purpose = String(structuredGoal.activity_purpose || "").toLowerCase();
+  if (purpose === "sports_performance") {
+    add("Goals and body", "sport or activity", hasValue(structuredGoal.sport_or_activity));
+  }
+
+  add("Life stage and safety", "pregnancy or postpartum selection", hasValue(lifeStage.life_stage));
+  const stage = String(lifeStage.life_stage || "").toLowerCase();
+
+  if (purpose === "pregnancy_fitness") {
+    add("Life stage and safety", "pregnancy status", ["planning_pregnancy", "pregnant"].includes(stage));
+  }
+
+  if (purpose === "postpartum_recovery") {
+    add("Life stage and safety", "postpartum status", stage === "postpartum");
+  }
+
+  if (stage === "pregnant") {
+    add(
+      "Life stage and safety",
+      "pregnancy week",
+      Number(lifeStage.pregnancy_week) >= 1 && Number(lifeStage.pregnancy_week) <= 42
+    );
+  }
+
+  if (stage === "postpartum") {
+    add("Life stage and safety", "delivery date", hasValue(lifeStage.delivery_date));
+  }
+
+  if (["pregnant", "postpartum"].includes(stage)) {
+    const clearance = String(lifeStage.exercise_clearance || "").toLowerCase();
+    add(
+      "Life stage and safety",
+      "exercise clearance allowing training",
+      ["cleared", "cleared_with_restrictions"].includes(clearance)
+    );
+
+    if (clearance === "cleared_with_restrictions") {
+      add(
+        "Life stage and safety",
+        "clearance restrictions",
+        hasValue(lifeStage.restrictions_or_complications)
+      );
+    }
+  }
 
   add("Workout setup", "workout place", hasValue(workout.workout_place));
   add("Workout setup", "workout days", hasArray(workout.workout_days));
@@ -436,6 +613,8 @@ async function ensureEntitlement(db, userId) {
 async function readUserData(db, userId) {
   const results = await Promise.all([
     db.from("profiles").select("*").eq("id", userId).maybeSingle(),
+    db.from("fitness_goal_profiles").select("*").eq("user_id", userId).maybeSingle(),
+    db.from("user_life_stage_profiles").select("*").eq("user_id", userId).maybeSingle(),
     db.from("food_preferences").select("*").eq("user_id", userId).maybeSingle(),
     db.from("work_schedules").select("*").eq("user_id", userId).maybeSingle(),
     db.from("workout_availability").select("*").eq("user_id", userId).maybeSingle(),
@@ -455,18 +634,39 @@ async function readUserData(db, userId) {
   const firstError = results.map(result => result.error).find(Boolean);
   if (firstError) throw new Error(firstError.message || "Could not read user data.");
 
-  const [profile, food, work, workout, water, measurements, daily, meals, waterLogs, sessions, exercises, sets, pain, library, previous] = results;
+  const [
+    profile,
+    structuredGoal,
+    lifeStage,
+    food,
+    work,
+    workout,
+    water,
+    measurements,
+    daily,
+    meals,
+    waterLogs,
+    sessions,
+    exercises,
+    sets,
+    pain,
+    library,
+    previous
+  ] = results;
+
   const allExercises = library.data || [];
   const approved = allExercises.filter(item => item.approved !== false);
   const planReady = approved.filter(item => item.plan_ready === true);
   const usable = planReady.length >= 8 ? planReady : (approved.length ? approved : allExercises);
 
   return {
-    profile: profile.data,
-    food_preferences: food.data,
-    work_schedule: work.data,
-    workout_availability: workout.data,
-    water_settings: water.data,
+    profile: profile.data || {},
+    structured_goal_profile: structuredGoal.data || {},
+    life_stage_profile: lifeStage.data || {},
+    food_preferences: food.data || {},
+    work_schedule: work.data || {},
+    workout_availability: workout.data || {},
+    water_settings: water.data || {},
     measurements: measurements.data || [],
     daily_logs: daily.data || [],
     meal_logs: meals.data || [],
@@ -490,6 +690,8 @@ async function readUserData(db, userId) {
 function buildAiUserData(data) {
   const profile = data.profile || {};
   const food = data.food_preferences || {};
+  const structuredGoals = compactStructuredGoalProfile(data);
+  const lifeStageContext = compactLifeStageProfile(data);
   const exerciseFields = [
     "id", "name", "category", "section", "target_muscle", "equipment", "difficulty",
     "short_cue", "safe_alternative", "back_safe", "knee_safe", "shoulder_safe",
@@ -505,10 +707,12 @@ function buildAiUserData(data) {
       weight_unit: profile.weight_unit || null,
       body_type: profile.body_type || null,
       body_type_custom: profile.body_type_custom || null,
-      main_goal: profile.main_goal || null,
-      main_goals: profile.main_goals || null,
+      profile_schema_version: number(profile.profile_schema_version, 1),
+      profile_update_status: profile.profile_update_status || null,
       preferred_language: profile.preferred_language || "en"
     },
+    structured_goals: structuredGoals,
+    life_stage_context: lifeStageContext,
     food_preferences: food,
     work_schedule: data.work_schedule || {},
     workout_availability: data.workout_availability || {},
@@ -539,12 +743,32 @@ ${tier.instruction}
 PRODUCT GOAL:
 Create a realistic daily coach plan for a busy person. It must clearly answer what to eat, what to train, and what to report.
 
+STRUCTURED GOAL PRIORITY:
+- USER DATA.structured_goals is the primary goal source.
+- Use primary_goal as the main outcome, physique_preference as the preferred look, focus_areas as training emphasis, and fitness_priorities as functional priorities.
+- Use activity_purpose, sport_or_activity, and custom_goal to refine the plan when present.
+- Use legacy_main_goals and legacy_body_type only as fallback context. Never let a legacy label override a completed structured answer.
+- Focus areas do not mean spot-fat reduction. Do not promise fat loss from one body part, guaranteed body-shape changes, or breast-size changes from exercise.
+- "fit_not_bulky" means balanced strength, posture, conditioning, and moderate hypertrophy volume without avoiding useful resistance training.
+- "bigger_bulkier" should influence training volume and food only when it agrees with primary_goal and the member's current safety, schedule, and food preferences.
+- "no_appearance_goal" means prioritize health, performance, function, consistency, and comfort rather than visual claims.
+- When primary_goal is return_to_exercise_safely or activity_purpose is pain_safe_return, progression must be conservative and symptom-led.
+
+LIFE-STAGE AND RECOVERY SAFETY:
+- Use USER DATA.life_stage_context only when the member explicitly selected it. Never infer pregnancy, postpartum status, breastfeeding, pelvic-floor symptoms, or recovery needs from gender.
+- If life_stage is not_applicable, not_answered, or prefer_not_to_say, do not make pregnancy or postpartum assumptions.
+- Planning pregnancy does not justify fertility claims or unnecessary exercise restrictions.
+- For pregnant or postpartum members, exercise_clearance and restrictions_or_complications are hard safety limits. Never override clinician restrictions.
+- If pelvic-floor symptoms, diastasis, incision pain, or pelvic pain are present, choose controlled low-impact options from the approved exercise library and avoid movements that worsen symptoms.
+- Do not prescribe aggressive fat loss during pregnancy. During postpartum recovery, avoid aggressive deficits and prioritise recovery, adequate food, hydration, and gradual progression, especially when breastfeeding is selected.
+- ShapeCue provides general guidance only; do not diagnose, treat, or claim to fix pelvic-floor symptoms, diastasis, pregnancy complications, or postpartum conditions.
+
 NON-NEGOTIABLE PERSONALIZATION:
-- Use the user's actual schedule, work breaks, workout days, maximum workout time, goals, food preferences, allergies, avoid foods, usual foods, measurements, pain logs, exercise logs, and previous plans.
+- Use the user's actual schedule, work breaks, workout days, maximum workout time, structured goals, food preferences, allergies, avoid foods, usual foods, measurements, pain logs, exercise logs, and previous plans.
 - Only explicit allergies, avoid foods, and diet-type restrictions are hard food blocks.
 - Missing or false food toggles do not mean the user refuses that food.
 - Use practical home and work meals. Never write vague advice such as "eat balanced food".
-- Include protein in main meals when muscle or body-shape goals are present.
+- Include protein in main meals when muscle, strength, recovery, or body-shape goals are present.
 - Use realistic amounts such as roti count, milk volume, oats grams, yogurt amount, eggs, paneer, tofu, chicken, dal, or whey when permitted.
 - Give 1-2 practical replacements for every food item.
 - Match short work breaks with fast snacks and longer breaks with full packed meals.
@@ -564,6 +788,7 @@ WORKOUT SAFETY:
 - If pain was high, sharp, or worsening, replace the movement with a safer library option.
 - For lower-back concerns, avoid ego deadlifts, risky loaded bending, and heavy back-loaded squats.
 - Most working sets should finish with about 1-2 reps remaining.
+- Align exercise selection and weekly emphasis with structured_goals.focus_areas and structured_goals.fitness_priorities without ignoring whole-body balance.
 
 EVERY EXERCISE MUST INCLUDE:
 name, section, planned_sets, sets, target_weight, target_reps, weight_step, rest_seconds, cue, target_muscle, coach_note.
@@ -582,7 +807,7 @@ Use this exact top-level shape:
     "start_date": "${dateISO(0)}",
     "end_date": "${dateISO(6)}",
     "summary": "short summary",
-    "coach_reasoning": "why this plan fits",
+    "coach_reasoning": "why this plan fits the structured goals, schedule, and recent feedback",
     "safety_note": "short safety note",
     "weekly_structure": [],
     "targets": [],
@@ -615,6 +840,7 @@ DAILY REQUIREMENTS:
 - Workdays should include breakfast, break food based on actual break times, an after-work option, dinner, and recovery/mobility where useful.
 - Gym days should include pre-workout, a gym item with workout key, post-workout food, and regular meals.
 - Every day should usually contain at least five useful items.
+- Weekly focus and targets must visibly reflect the structured primary goal, focus areas, and fitness priorities.
 
 WORKOUT REQUIREMENTS:
 - Push: warmup, chest/shoulders/triceps, optional safe core, stretch.
@@ -734,17 +960,49 @@ function sanitizeWorkouts(workouts, library) {
 
 function safetyFlags(plan, data) {
   const flags = [];
-  const source = JSON.stringify({ profile: data.profile, pain: data.pain_logs }).toLowerCase();
+  const lifeStage = compactLifeStageProfile(data);
+  const source = JSON.stringify({
+    profile: data.profile,
+    structured_goals: data.structured_goal_profile,
+    life_stage: data.life_stage_profile,
+    pain: data.pain_logs
+  }).toLowerCase();
+
   if (source.includes("back")) {
     flags.push({ type: "back_safe", message: "Use back-safe loading and controlled range." });
   }
+
   if (safeArray(data.pain_logs).some(item => number(item.pain_level ?? item.pain_score ?? item.pain_rating, 0) >= 5)) {
     flags.push({ type: "pain_5_plus", message: "Recent pain at 5+ requires safer substitutions and stopping painful movements." });
   }
+
+  if (lifeStage.life_stage === "pregnant") {
+    flags.push({ type: "pregnancy", message: "Respect pregnancy week, exercise clearance, symptoms, and clinician restrictions." });
+  }
+
+  if (lifeStage.life_stage === "postpartum") {
+    flags.push({ type: "postpartum", message: "Use gradual postpartum progression and respect recovery symptoms and clearance." });
+  }
+
+  if (lifeStage.exercise_clearance === "cleared_with_restrictions") {
+    flags.push({ type: "clearance_restrictions", message: "Exercise clearance includes restrictions that must remain hard limits." });
+  }
+
+  const pelvicSymptoms = safeArray(lifeStage.pelvic_floor_symptoms)
+    .filter(value => !["none", "prefer_not_to_say"].includes(String(value).toLowerCase()));
+  if (pelvicSymptoms.length) {
+    flags.push({ type: "pelvic_floor_symptoms", message: "Avoid movements that worsen reported pelvic-floor symptoms." });
+  }
+
+  if (["suspected", "diagnosed"].includes(String(lifeStage.diastasis_status || "").toLowerCase())) {
+    flags.push({ type: "diastasis", message: "Use symptom-aware core progressions and avoid claiming to treat diastasis." });
+  }
+
   const planText = JSON.stringify(plan).toLowerCase();
   if (planText.includes("deadlift") || planText.includes("back squat")) {
-    flags.push({ type: "loading_review", message: "Review heavy loading against current pain and experience." });
+    flags.push({ type: "loading_review", message: "Review heavy loading against current pain, clearance, and experience." });
   }
+
   return flags;
 }
 
@@ -968,6 +1226,17 @@ export async function handler(event) {
 
     if (!userData.profile?.onboarding_completed) throw new Error("Onboarding is not completed.");
 
+    const lifeStageSafety = validateLifeStageSafety(userData);
+    if (!lifeStageSafety.safe) {
+      const err = new Error(`LIFE_STAGE_SAFETY_INCOMPLETE: ${lifeStageSafety.missing.join(", ")}`);
+      err.statusCode = 422;
+      err.responsePayload = {
+        code: "LIFE_STAGE_SAFETY_INCOMPLETE",
+        missing_life_stage_safety: lifeStageSafety.missing
+      };
+      throw err;
+    }
+
     if (requestSource === "first_plan") {
       const setupStatus = validateFirstPlanSetup(userData);
       if (!setupStatus.complete) {
@@ -982,6 +1251,9 @@ export async function handler(event) {
       throw new Error("Exercise library is empty. Add approved exercises before generating a workout plan.");
     }
 
+    const structuredGoals = compactStructuredGoalProfile(userData);
+    const lifeStageContext = compactLifeStageProfile(userData);
+
     const requestInfo = {
       request_source: requestSource,
       plan_code: tier.code,
@@ -991,6 +1263,9 @@ export async function handler(event) {
       admin_manual: requestSource === "admin_manual",
       extra_addon_used: requestSource === "addon_credit",
       scheduled_membership_update: requestSource === "scheduled_auto",
+      structured_goal_source: structuredGoals.source,
+      primary_goal: structuredGoals.primary_goal,
+      life_stage: lifeStageContext.life_stage,
       exercise_library_mode: userData.exercise_library_status.mode,
       exercises_available: userData.exercise_library_status.used_for_ai
     };
@@ -1001,8 +1276,18 @@ export async function handler(event) {
       profile: {
         gender: userData.profile.gender || null,
         date_of_birth: userData.profile.date_of_birth || null,
-        goals: userData.profile.main_goals || userData.profile.main_goal || null,
-        body_type: userData.profile.body_type || null
+        profile_schema_version: number(userData.profile.profile_schema_version, 1),
+        profile_update_status: userData.profile.profile_update_status || null,
+        primary_goal: structuredGoals.primary_goal,
+        physique_preference: structuredGoals.physique_preference,
+        focus_areas: structuredGoals.focus_areas,
+        fitness_priorities: structuredGoals.fitness_priorities,
+        activity_purpose: structuredGoals.activity_purpose,
+        sport_or_activity: structuredGoals.sport_or_activity,
+        legacy_goals: structuredGoals.legacy_main_goals,
+        body_type: userData.profile.body_type || null,
+        life_stage: lifeStageContext.life_stage,
+        exercise_clearance: lifeStageContext.exercise_clearance || null
       },
       data_counts: {
         measurements: userData.measurements.length,
