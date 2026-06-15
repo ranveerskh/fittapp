@@ -1801,6 +1801,124 @@ function formatTime(t){
 
 function displayTime(t){ return formatTime(t)||t||"-"; }
 
+function timeToMinutes(value){
+  const match = String(value || "").match(/^(\d{1,2}):(\d{2})/);
+  if(!match) return null;
+  const hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  if(!Number.isFinite(hours) || !Number.isFinite(minutes) || hours < 0 || hours > 23 || minutes < 0 || minutes > 59) return null;
+  return hours * 60 + minutes;
+}
+
+function minutesToTime(value){
+  if(!Number.isFinite(value)) return "";
+  const normalized = ((Math.round(value) % 1440) + 1440) % 1440;
+  return `${String(Math.floor(normalized / 60)).padStart(2,"0")}:${String(normalized % 60).padStart(2,"0")}`;
+}
+
+function addMinutesToTime(value, delta, fallback=""){
+  const minutes = timeToMinutes(value);
+  return minutes === null ? fallback : minutesToTime(minutes + delta);
+}
+
+function normalizedDay(value){
+  return String(value || "").trim().toLowerCase();
+}
+
+function isConfiguredWorkDay(day){
+  const days = Array.isArray(data.work?.work_days) ? data.work.work_days : [];
+  return days.some(value => normalizedDay(value) === normalizedDay(day));
+}
+
+function configuredWorkBreaks(){
+  return (Array.isArray(data.work?.breaks) ? data.work.breaks : [])
+    .filter(item => timeToMinutes(item?.time) !== null)
+    .map(item => ({ ...item, time:String(item.time).slice(0,5) }))
+    .sort((a,b) => timeToMinutes(a.time) - timeToMinutes(b.time));
+}
+
+function circularMinuteDistance(a,b){
+  const diff = Math.abs(a-b);
+  return Math.min(diff, 1440-diff);
+}
+
+function minuteInsideShift(minute,start,end){
+  if(minute === null || start === null || end === null || start === end) return false;
+  return start < end
+    ? minute >= start && minute <= end
+    : minute >= start || minute <= end;
+}
+
+function nearestBreakTime(minute,breaks){
+  if(minute === null || !breaks.length) return "";
+  return breaks.reduce((best,item) => {
+    const current = timeToMinutes(item.time);
+    if(current === null) return best;
+    const distance = circularMinuteDistance(minute,current);
+    return !best || distance < best.distance ? { time:item.time, distance } : best;
+  }, null)?.time || "";
+}
+
+function scheduleSortValue(day,item){
+  const minute = timeToMinutes(item?.time);
+  if(minute === null) return 99999;
+  const start = timeToMinutes(data.work?.work_start);
+  const end = timeToMinutes(data.work?.work_end);
+  if(!isConfiguredWorkDay(day) || start === null || end === null || start < end) return minute;
+  const anchor = ((start - 120) % 1440 + 1440) % 1440;
+  return minute < anchor ? minute + 1440 : minute;
+}
+
+function normalizeScheduleTimingForDay(day,items){
+  const list = Array.isArray(items) ? items.map(item => ({ ...item })) : [];
+  if(!isConfiguredWorkDay(day)) return list.sort((a,b) => scheduleSortValue(day,a)-scheduleSortValue(day,b));
+
+  const start = timeToMinutes(data.work?.work_start);
+  const end = timeToMinutes(data.work?.work_end);
+  if(start === null || end === null || start === end) return list.sort((a,b) => scheduleSortValue(day,a)-scheduleSortValue(day,b));
+
+  const breaks = configuredWorkBreaks();
+  const breakMinutes = breaks.map(item => timeToMinutes(item.time)).filter(value => value !== null);
+  const preWorkTime = minutesToTime(start - 60);
+  const afterWorkTime = minutesToTime(end + 30);
+
+  list.forEach(item => {
+    if(String(item?.type || "").toLowerCase() !== "food") return;
+    const minute = timeToMinutes(item.time);
+    if(minute === null || !minuteInsideShift(minute,start,end)) return;
+
+    const closestBreak = breaks.reduce((best,breakItem) => {
+      const value = timeToMinutes(breakItem.time);
+      if(value === null) return best;
+      const distance = circularMinuteDistance(minute,value);
+      return !best || distance < best.distance ? { time:breakItem.time, distance } : best;
+    }, null);
+
+    if(closestBreak && closestBreak.distance <= 20){
+      item.time = closestBreak.time;
+      return;
+    }
+
+    const label = `${item.title || ""} ${item.text || ""}`.toLowerCase();
+    const looksLikeBreakfast = /breakfast|pre[- ]?work|morning meal|morning smoothie/.test(label);
+
+    if(looksLikeBreakfast){
+      item.time = preWorkTime;
+      item.title = item.title || "Breakfast before work";
+      return;
+    }
+
+    const snappedBreak = nearestBreakTime(minute,breaks);
+    item.time = snappedBreak || afterWorkTime;
+  });
+
+  return list.sort((a,b) => scheduleSortValue(day,a)-scheduleSortValue(day,b));
+}
+
+function scheduleForDay(day){
+  return normalizeScheduleTimingForDay(day, activePlan?.daily_schedule?.[day] || []);
+}
+
 function normalizePlanCode(code){
   const c = String(code || "free").toLowerCase();
   if(["premium_plus", "coach", "premium_plus_weekly"].includes(c)) return "coach";
@@ -2865,46 +2983,97 @@ function todayWorkoutType(){
 }
 
 function fallbackMeals(){
-  const breaks = Array.isArray(data.work?.breaks) ? data.work.breaks : [];
+  const currentDay = dayName();
+  const isWorkday = isConfiguredWorkDay(currentDay);
+  const breaks = configuredWorkBreaks();
+
+  if(!isWorkday){
+    return [
+      {
+        time:"08:00",
+        title:"Breakfast",
+        text:"Smoothie or roti/oats meal with protein",
+        type:"food",
+        replacement_options:["Whey/curd/oats bowl if allowed","Eggs/tofu/paneer wrap with fruit"],
+        coach_note:"A practical protein breakfast for an off day."
+      },
+      {
+        time:"12:30",
+        title:"Lunch",
+        text:"Roti/rice + protein + vegetables",
+        type:"food",
+        replacement_options:["Dal/chana + roti + salad","Tofu/paneer/chicken bowl + vegetables"],
+        coach_note:"Use a normal full meal when there is no work-break restriction."
+      },
+      {
+        time:"16:30",
+        title:"Snack",
+        text:"Fruit with yogurt/curd, eggs, roasted chana, or a protein shake",
+        type:"food",
+        replacement_options:["Banana + whey","Greek yogurt/curd + fruit"],
+        coach_note:"Keep the snack simple and useful."
+      },
+      {
+        time:"20:00",
+        title:"Dinner",
+        text:"Protein + vegetables + moderate carbs",
+        type:"food",
+        replacement_options:["Dal/chana + roti + salad","Tofu/paneer/chicken bowl + vegetables"],
+        coach_note:"Dinner stays practical and not unnecessarily heavy."
+      }
+    ];
+  }
+
+  const workStart = data.work?.work_start || "07:00";
+  const workEnd = data.work?.work_end || "17:00";
   const meals = [
     {
-      time:"08:00",
-      title:"Breakfast",
+      time:addMinutesToTime(workStart,-60,"06:00"),
+      title:"Breakfast before work",
       text:"Smoothie or roti/oats meal with protein",
       type:"food",
       replacement_options:["Whey/curd/oats bowl if allowed","Eggs/tofu/paneer wrap with fruit"],
-      coach_note:"Morning protein keeps energy stable."
+      coach_note:"Scheduled before the saved work start time."
     }
   ];
 
   breaks.forEach(b=>{
+    const fullMeal = b.full_meal === true || ["meal","lunch","dinner"].includes(String(b.type || "").toLowerCase()) || Number(b.duration || 0) >= 25;
     meals.push({
       time:b.time,
-      title:b.full_meal ? "Work meal" : "Quick snack",
-      text:b.full_meal ? "Roti/rice + protein + vegetables" : "Banana + protein snack",
+      title:fullMeal ? "Work meal" : (String(b.type || "").toLowerCase() === "coffee" ? "Coffee break snack" : "Quick work snack"),
+      text:fullMeal ? "Roti/rice + protein + vegetables" : "Banana, yogurt/curd, eggs, roasted chana, or a protein shake",
       type:"food",
       replacement_options:["Yogurt/curd or dairy-free bowl + fruit","Protein shake + banana"],
-      coach_note:b.full_meal ? "Full break can handle a packed meal." : "Short break needs quick food."
+      coach_note:b.note || (fullMeal ? "Placed at your saved full-meal break." : "Placed at your saved short break.")
     });
   });
 
   meals.push({
-    time:"20:30",
+    time:addMinutesToTime(workEnd,30,"18:00"),
+    title:"After-work recovery",
+    text:"A small protein option if hungry after the shift",
+    type:"food",
+    replacement_options:["Whey or milk with fruit","2 eggs or yogurt/curd with fruit"],
+    coach_note:"This is after the saved work end time, not during the shift."
+  });
+
+  meals.push({
+    time:addMinutesToTime(workEnd,120,"20:00"),
     title:"Dinner",
     text:"Protein + vegetables + moderate carbs",
     type:"food",
     replacement_options:["Dal/chana + roti + salad","Tofu/paneer/chicken bowl + vegetables"],
-    coach_note:"Dinner stays lighter for belly and digestion."
+    coach_note:"Dinner follows the shift and stays practical for digestion."
   });
 
-  return meals;
+  return normalizeScheduleTimingForDay(currentDay,meals);
 }
 
 function buildTodaySchedule(){
-  todaySchedule = activePlan?.daily_schedule?.[dayName()] || [];
+  todaySchedule = scheduleForDay(dayName());
   if(!todaySchedule.length) todaySchedule = fallbackMeals();
   todayMeals = todaySchedule.filter(x=>x.type==="food");
-  todayMeals.sort((a,b)=>String(a.time).localeCompare(String(b.time)));
 }
 
 function exBy(cat, sec){
@@ -3247,7 +3416,7 @@ function renderWeekPlan(){
     window.shapeCueSelectedMealDay = visibleDays.includes(dayName()) ? dayName() : visibleDays[0];
   }
   const selectedDay = window.shapeCueSelectedMealDay;
-  const selectedItems = activePlan.daily_schedule?.[selectedDay] || [];
+  const selectedItems = scheduleForDay(selectedDay);
   const selectedFoodCount = selectedItems.filter(x => x.type === "food").length;
   const selectedGymCount = selectedItems.filter(x => x.type === "gym").length;
 
@@ -4480,7 +4649,7 @@ function buildPrintHTML(){
 
   html += `<h2>7-Day Meal and Activity Plan</h2>`;
   DAYS.forEach(day=>{
-    const items = activePlan.daily_schedule?.[day] || [];
+    const items = scheduleForDay(day);
     html += `<h3>${day}</h3>`;
     if(!items.length){
       html += `<p>No items.</p>`;
