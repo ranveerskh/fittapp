@@ -1637,7 +1637,7 @@
 
     const pageParams = new URLSearchParams(location.search);
     const requestedEditMode = pageParams.get("edit");
-    const editMode = ["personal","fitness"].includes(requestedEditMode)
+    const editMode = ["personal","fitness","profile_update"].includes(requestedEditMode)
       ? requestedEditMode
       : "";
     const requestedReturnPage = pageParams.get("return");
@@ -1647,7 +1647,8 @@
     const allSteps = [0,1,2,3,4,5,6,7];
     const modeSteps = {
       personal:[0,1],
-      fitness:[2,3,4,5,6,7]
+      fitness:[2,3,4,5,6,7],
+      profile_update:[2]
     };
     const activeSteps = editMode
       ? modeSteps[editMode]
@@ -1670,17 +1671,23 @@
 
       document.title = editMode === "personal"
         ? "ShapeCue - Personal information"
-        : "ShapeCue - Fitness and food setup";
+        : editMode === "profile_update"
+          ? "ShapeCue - Profile update"
+          : "ShapeCue - Fitness and food setup";
 
       $("#setupTitle").textContent = editMode === "personal"
         ? "Personal information"
-        : "Fitness & food setup";
+        : editMode === "profile_update"
+          ? "Profile update"
+          : "Fitness & food setup";
 
       $("#topSub").textContent = editMode === "personal"
         ? "Edit your profile and measurements"
-        : "Edit goals, training, schedule, food, and water";
+        : editMode === "profile_update"
+          ? "Complete the new goal and life-stage questions"
+          : "Edit goals, training, schedule, food, and water";
 
-      if(editMode === "fitness"){
+      if(editMode === "fitness" || editMode === "profile_update"){
         const planGrid = $("#planGrid");
         const planHeading = planGrid?.previousElementSibling;
 
@@ -2768,7 +2775,7 @@
 
       $("#nextText").textContent =
         stepIndex === totalSteps - 1
-          ? (editMode ? "Save changes" : "Save setup")
+          ? (editMode === "profile_update" ? "Save profile update" : (editMode ? "Save changes" : "Save setup"))
           : "Next";
 
       if(currentStep === 7){
@@ -3023,6 +3030,31 @@
           }
         }
 
+        return;
+      }
+
+      if(editMode === "profile_update"){
+        const { error:profileError } =
+          await supabaseClient
+            .from("profiles")
+            .upsert(
+              {
+                id:userId,
+                email:currentUser.email,
+                main_goals:setup.profile.main_goals,
+                main_goal:setup.profile.main_goal,
+                body_type:setup.profile.body_type,
+                body_type_custom:setup.profile.body_type_custom,
+                onboarding_completed:true,
+                updated_at:now
+              },
+              { onConflict:"id" }
+            );
+
+        if(profileError) throw profileError;
+
+        await saveStructuredProfiles(setup, userId, now);
+        await markProfileVersionCurrent(userId, now);
         return;
       }
 
