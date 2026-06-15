@@ -1,149 +1,276 @@
-import { createClient } from "@supabase/supabase-js";
+-- ShapeCue Step 9: profile gate for automatic membership AI updates
+-- Run this once in Supabase SQL Editor.
+--
+-- Important:
+-- - auto-plan-scheduler.js does NOT need to be replaced.
+-- - The scheduler calls this database RPC, so the safe gate belongs here.
+-- - A blocked profile keeps its current plan and due date.
+-- - No ai_requests row is created while waiting.
+-- - No add-on credit or included membership update is consumed.
+-- - The next scheduler run resumes automatically after the profile becomes current.
 
-const SUPABASE_URL = "https://qusmbveovroldkhbjudq.supabase.co";
-const MODEL = process.env.OPENAI_MODEL || "gpt-5.4-mini";
+begin;
 
-function siteOrigin() {
-  return String(
-    process.env.URL ||
-    process.env.DEPLOY_URL ||
-    process.env.DEPLOY_PRIME_URL ||
-    ""
-  ).replace(/\/$/, "");
-}
+create or replace function public.queue_due_auto_plan_requests(
+  p_limit integer default 3,
+  p_model text default 'gpt-5.4-mini'
+)
+returns table (
+  request_id uuid,
+  user_id uuid,
+  plan_code text,
+  scheduled_for timestamptz,
+  reused_existing boolean
+)
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_profile record;
+  v_entitlement record;
+  v_plan_code text;
+  v_generation_type text;
+  v_existing public.ai_requests%rowtype;
+  v_existing_source text;
+  v_request_id uuid;
+  v_limit integer := greatest(1, least(coalesce(p_limit, 3), 20));
+begin
+  for v_profile in
+    select
+      p.id,
+      p.next_plan_update_at,
+      coalesce(p.profile_schema_version, 1) as profile_schema_version,
+      coalesce(p.profile_update_target_version, 1) as profile_update_target_version,
+      lower(coalesce(p.profile_update_status, 'current')) as profile_update_status
+    from public.profiles p
+    where p.onboarding_completed = true
+      and p.next_plan_update_at is not null
+      and p.next_plan_update_at <= now()
+    order by p.next_plan_update_at asc
+    for update skip locked
+    limit v_limit
+  loop
+    -- One scheduling decision at a time for this member.
+    perform pg_advisory_xact_lock(hashtextextended(v_profile.id::text, 0));
 
-function batchSize() {
-  const parsed = Number(process.env.AUTO_PLAN_BATCH_SIZE || 3);
-  if (!Number.isFinite(parsed)) return 3;
-  return Math.max(1, Math.min(Math.floor(parsed), 10));
-}
+    -- ---------------------------------------------------------
+    -- PROFILE UPDATE GATE
+    -- ---------------------------------------------------------
+    -- Explicit required/safety/in-progress states always pause a
+    -- new scheduled plan. A future schema version can also turn on
+    -- blocks_plan_generation without another scheduler deployment.
+    --
+    -- update_recommended remains non-blocking while its schema row
+    -- has blocks_plan_generation = false.
+    if
+      v_profile.profile_update_status in (
+        'update_required',
+        'safety_update_required',
+        'waiting_for_profile_update',
+        'in_progress'
+      )
+      or (
+        v_profile.profile_schema_version < v_profile.profile_update_target_version
+        and exists (
+          select 1
+          from public.profile_schema_versions psv
+          where psv.version = v_profile.profile_update_target_version
+            and psv.is_active = true
+            and psv.blocks_plan_generation = true
+        )
+      )
+    then
+      update public.profiles
+      set
+        auto_plan_update_status = 'waiting_for_profile_update',
+        auto_plan_queued_at = null,
+        auto_plan_last_error = null
+      where id = v_profile.id;
 
-async function dispatchBackground(origin, secret, row) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 12000);
-
-  try {
-    const response = await fetch(
-      `${origin}/.netlify/functions/generate-plan-background`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-ShapeCue-Scheduler-Secret": secret
-        },
-        body: JSON.stringify({ request_id: row.request_id }),
-        signal: controller.signal
-      }
-    );
-
-    const body = await response.text().catch(() => "");
-
-    if (![200, 202].includes(response.status)) {
-      throw new Error(
-        body || `Background dispatch failed with HTTP ${response.status}.`
-      );
-    }
-
-    return {
-      request_id: row.request_id,
-      user_id: row.user_id,
-      ok: true,
-      status: response.status,
-      reused_existing: Boolean(row.reused_existing)
-    };
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-export async function handler() {
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const schedulerSecret = process.env.SHAPECUE_SCHEDULER_SECRET;
-  const origin = siteOrigin();
-
-  if (!serviceRoleKey) {
-    console.error("SUPABASE_SERVICE_ROLE_KEY missing in Netlify.");
-    return { statusCode: 500, body: "Missing service role key." };
-  }
-
-  if (!schedulerSecret || schedulerSecret.length < 24) {
-    console.error("SHAPECUE_SCHEDULER_SECRET missing or too short.");
-    return { statusCode: 500, body: "Missing scheduler secret." };
-  }
-
-  if (!origin) {
-    console.error("Netlify site URL is unavailable.");
-    return { statusCode: 500, body: "Missing site origin." };
-  }
-
-  const db = createClient(SUPABASE_URL, serviceRoleKey, {
-    auth: { persistSession: false, autoRefreshToken: false }
-  });
-
-  const { data: queued, error: queueError } = await db.rpc(
-    "queue_due_auto_plan_requests",
-    {
-      p_limit: batchSize(),
-      p_model: MODEL
-    }
-  );
-
-  if (queueError) {
-    console.error("Could not queue due automatic AI updates:", queueError);
-    return { statusCode: 500, body: queueError.message || "Queue failed." };
-  }
-
-  const rows = Array.isArray(queued) ? queued : [];
-
-  if (!rows.length) {
-    console.log("ShapeCue scheduler: no automatic AI updates are due.");
-    return { statusCode: 200, body: "No updates due." };
-  }
-
-  const settled = await Promise.allSettled(
-    rows.map(row => dispatchBackground(origin, schedulerSecret, row))
-  );
-
-  const results = [];
-
-  for (let index = 0; index < settled.length; index += 1) {
-    const item = settled[index];
-    const row = rows[index];
-
-    if (item.status === "fulfilled") {
-      results.push(item.value);
+      -- Keep next_plan_update_at unchanged. Once the profile is
+      -- completed, this same due update is picked up automatically.
       continue;
-    }
+    end if;
 
-    const message = item.reason?.message || "Background dispatch failed.";
-    results.push({
-      request_id: row.request_id,
-      user_id: row.user_id,
-      ok: false,
-      error: message
-    });
+    select *
+    into v_entitlement
+    from public.current_user_entitlements cue
+    where cue.user_id = v_profile.id
+    order by cue.created_at desc
+    limit 1;
 
-    await db
-      .from("profiles")
-      .update({
-        auto_plan_update_status: "dispatch_retry",
-        auto_plan_last_error: String(message).slice(0, 2000)
-      })
-      .eq("id", row.user_id);
-  }
+    if v_entitlement.user_id is null then
+      update public.profiles
+      set auto_plan_update_status = 'not_included',
+          next_plan_update_at = null,
+          auto_plan_queued_at = null,
+          auto_plan_last_error = null
+      where id = v_profile.id;
+      continue;
+    end if;
 
-  const successful = results.filter(result => result.ok).length;
-  const failed = results.length - successful;
+    if lower(coalesce(v_entitlement.status, 'active')) not in ('active', 'trialing')
+       or (v_entitlement.ends_at is not null and v_entitlement.ends_at <= now()) then
+      update public.profiles
+      set auto_plan_update_status = 'not_included',
+          next_plan_update_at = null,
+          auto_plan_queued_at = null,
+          auto_plan_last_error = null
+      where id = v_profile.id;
+      continue;
+    end if;
 
-  console.log("ShapeCue automatic AI scheduler result:", {
-    queued: rows.length,
-    successful,
-    failed,
-    results
-  });
+    v_plan_code := case
+      when lower(coalesce(v_entitlement.plan_code, 'free')) in ('coach', 'premium_plus', 'premium_plus_weekly') then 'coach'
+      when lower(coalesce(v_entitlement.plan_code, 'free')) in ('premium', 'premium_biweekly', 'premium_every_14_days') then 'premium'
+      when lower(coalesce(v_entitlement.plan_code, 'free')) in ('plus', 'premium_monthly', 'plus_monthly') then 'plus'
+      else 'free'
+    end;
 
-  return {
-    statusCode: failed ? 207 : 200,
-    body: JSON.stringify({ queued: rows.length, successful, failed })
-  };
-}
+    if v_plan_code = 'free' then
+      update public.profiles
+      set auto_plan_update_status = 'not_included',
+          next_plan_update_at = null,
+          auto_plan_queued_at = null,
+          auto_plan_last_error = null
+      where id = v_profile.id;
+      continue;
+    end if;
+
+    -- Automatic updates begin only after the member generated a first AI plan.
+    if not exists (
+      select 1
+      from public.weekly_plans wp
+      where wp.user_id = v_profile.id
+        and lower(coalesce(wp.generated_by, '')) = 'ai'
+    ) then
+      update public.profiles
+      set auto_plan_update_status = 'waiting_for_first_plan',
+          next_plan_update_at = null,
+          auto_plan_queued_at = null,
+          auto_plan_last_error = null
+      where id = v_profile.id;
+      continue;
+    end if;
+
+    -- Re-dispatch an existing scheduled request instead of inserting another.
+    select *
+    into v_existing
+    from public.ai_requests ar
+    where ar.user_id = v_profile.id
+      and ar.status in ('pending', 'processing')
+      and ar.request_type ilike 'weekly_plan_coach%'
+    order by ar.created_at desc
+    limit 1;
+
+    if v_existing.id is not null then
+      v_existing_source := coalesce(v_existing.prompt_payload #>> '{access,request_source}', '');
+
+      if v_existing_source = 'scheduled_auto' then
+        update public.profiles
+        set auto_plan_update_status = case when v_existing.status = 'processing' then 'processing' else 'queued' end,
+            auto_plan_queued_at = coalesce(auto_plan_queued_at, v_existing.created_at),
+            auto_plan_last_error = null
+        where id = v_profile.id;
+
+        request_id := v_existing.id;
+        user_id := v_profile.id;
+        plan_code := v_plan_code;
+        scheduled_for := v_profile.next_plan_update_at;
+        reused_existing := true;
+        return next;
+      end if;
+
+      -- A first-plan, admin, or add-on request is already running.
+      -- Keep the membership update due and try again on the next scheduler run.
+      update public.profiles
+      set auto_plan_update_status = 'waiting_for_current_update'
+      where id = v_profile.id;
+      continue;
+    end if;
+
+    v_generation_type := case
+      when v_plan_code = 'coach' then 'coach_weekly'
+      when v_plan_code = 'premium' then 'premium_every_14_days'
+      else 'plus_monthly'
+    end;
+
+    insert into public.ai_requests (
+      user_id,
+      request_type,
+      status,
+      model,
+      prompt_payload
+    )
+    values (
+      v_profile.id,
+      'weekly_plan_coach_scheduled_' || v_generation_type,
+      'pending',
+      coalesce(nullif(trim(p_model), ''), 'gpt-5.4-mini'),
+      jsonb_build_object(
+        'access', jsonb_build_object(
+          'request_source', 'scheduled_auto',
+          'authorized_by', 'membership_schedule',
+          'credit_consumed', false,
+          'credit_refunded', false,
+          'authorized_at', now()
+        ),
+        'schedule', jsonb_build_object(
+          'scheduled_for', v_profile.next_plan_update_at,
+          'queued_at', now(),
+          'plan_code', v_plan_code
+        ),
+        'profile_gate', jsonb_build_object(
+          'profile_schema_version', v_profile.profile_schema_version,
+          'profile_update_target_version', v_profile.profile_update_target_version,
+          'profile_update_status', v_profile.profile_update_status,
+          'passed_at', now()
+        ),
+        'created_by', 'auto-plan-scheduler'
+      )
+    )
+    returning id into v_request_id;
+
+    update public.profiles
+    set auto_plan_update_status = 'queued',
+        auto_plan_queued_at = now(),
+        auto_plan_last_error = null
+    where id = v_profile.id;
+
+    request_id := v_request_id;
+    user_id := v_profile.id;
+    plan_code := v_plan_code;
+    scheduled_for := v_profile.next_plan_update_at;
+    reused_existing := false;
+    return next;
+  end loop;
+end;
+$$;
+
+revoke all on function public.queue_due_auto_plan_requests(integer, text) from public;
+revoke all on function public.queue_due_auto_plan_requests(integer, text) from anon;
+revoke all on function public.queue_due_auto_plan_requests(integer, text) from authenticated;
+grant execute on function public.queue_due_auto_plan_requests(integer, text) to service_role;
+
+commit;
+
+-- Verification: this does not trigger or consume an update.
+select
+  count(*) as profiles_tracked,
+  count(*) filter (
+    where profile_update_status in (
+      'update_required',
+      'safety_update_required',
+      'waiting_for_profile_update',
+      'in_progress'
+    )
+  ) as profiles_that_would_wait,
+  count(*) filter (
+    where profile_update_status = 'current'
+      and profile_schema_version >= profile_update_target_version
+  ) as profiles_current,
+  count(*) filter (
+    where auto_plan_update_status = 'waiting_for_profile_update'
+  ) as currently_waiting_for_profile
+from public.profiles;
