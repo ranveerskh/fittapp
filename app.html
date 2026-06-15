@@ -4,10 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="color-scheme" content="dark light" />
-  <meta name="theme-color" content="#050506" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-title" content="ShapeCue" />
-  <link rel="manifest" href="/manifest.webmanifest" />
   <title>ShapeCue - AI Fitness and Diet Coach</title>
 
   <script>
@@ -1647,12 +1643,7 @@
 
         <div class="section-head"><h2>AI coach</h2><span>Plan status</span></div>
         <div id="aiCoachStatusBox" class="ai-status-box"></div>
-        <div id="aiManualActionBox" style="margin-top:10px">
-          <button class="btn primary full-width" id="updatePlanBtn" type="button" hidden>Update plan</button>
-          <a class="btn secondary full-width" id="completeSetupBtn" href="settings.html" hidden>Complete setup</a>
-          <a class="btn secondary full-width" id="buyExtraAiBtn" href="membership.html#addons" hidden>View AI update add-ons</a>
-          <p id="aiManualNote" style="margin:8px 3px 0;color:var(--app-muted);font-size:10.5px;line-height:1.4"></p>
-        </div>
+        <button class="btn primary full-width" id="updatePlanBtn" type="button">Update next plan</button>
 
         <details class="fold-card" id="measureFold">
           <summary>
@@ -1756,7 +1747,7 @@
 const SUPABASE_URL = "https://qusmbveovroldkhbjudq.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_6zVS1VCVok16WmVWNPvTrw_vTiQvgX4";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-document.documentElement.dataset.shapeCueUi = "approved-ios-visual-v1-first-plan-gated";
+document.documentElement.dataset.shapeCueUi = "approved-ios-visual-v1";
 
 const $ = q => document.querySelector(q);
 const $$ = q => Array.from(document.querySelectorAll(q));
@@ -1775,10 +1766,7 @@ let shortWorkoutMode = false;
 let doneMap = new Set();
 let currentEntitlement = null;
 let isAppAdmin = false;
-let extraAiUpdatesRemaining = 0;
-let aiUpdateWalletLoaded = false;
 let progressPhotoLoading = false;
-let autoPlanStateRefreshBusy = false;
 
 const VISUAL_STYLE_KEY = "shapecue.visual.style";
 const VISUAL_CACHE_PREFIX = "shapecue.visual.weekly.v6.";
@@ -1865,172 +1853,6 @@ function currentPlanFeatures(){
 
 function isPaidPlan(){
   return ["plus","premium","coach"].includes(currentPlanCode());
-}
-
-function aiCadenceConfig(code = currentPlanCode()){
-  const normalized = normalizePlanCode(code);
-  if(normalized === "coach") return { included:true, label:"Every 7 days", short:"Weekly", kind:"days", amount:7 };
-  if(normalized === "premium") return { included:true, label:"Every 14 days", short:"Every 14 days", kind:"days", amount:14 };
-  if(normalized === "plus") return { included:true, label:"Monthly", short:"Monthly", kind:"months", amount:1 };
-  return { included:false, label:"Starter plan only", short:"Not included", kind:null, amount:0 };
-}
-
-function calculatedNextAiUpdate(){
-  const stored = data.profile?.next_plan_update_at;
-  if(stored){
-    const parsed = new Date(stored);
-    if(!Number.isNaN(parsed.getTime())) return parsed;
-  }
-
-  const config = aiCadenceConfig();
-  if(!config.included) return null;
-
-  const base = activePlanMeta?.created_at ? new Date(activePlanMeta.created_at) : new Date();
-  if(Number.isNaN(base.getTime())) return null;
-
-  if(config.kind === "months") base.setMonth(base.getMonth() + config.amount);
-  else base.setDate(base.getDate() + config.amount);
-  return base;
-}
-
-function automaticPlanState(){
-  return String(data.profile?.auto_plan_update_status || "").toLowerCase();
-}
-
-function automaticPlanIsBusy(){
-  return ["queued", "processing", "dispatch_retry", "waiting_for_current_update"].includes(automaticPlanState());
-}
-
-function automaticPlanIsRetrying(){
-  return automaticPlanState() === "retry_pending";
-}
-
-function hasFilledValue(value){
-  return value !== null && value !== undefined && String(value).trim() !== "";
-}
-
-function hasFilledArray(value){
-  return Array.isArray(value) && value.some(item => hasFilledValue(item));
-}
-
-function firstPlanSetupStatus(){
-  const profile = data.profile || {};
-  const workout = data.workout || {};
-  const work = data.work || {};
-  const food = data.food || {};
-  const water = data.water || {};
-  const missing = [];
-  let totalChecks = 0;
-
-  const add = (section, label, ready) => {
-    totalChecks += 1;
-    if(!ready) missing.push({ section, label });
-  };
-
-  add("Personal information", "Full name", hasFilledValue(profile.full_name));
-  add("Personal information", "Date of birth", hasFilledValue(profile.date_of_birth));
-  add("Personal information", "Gender", hasFilledValue(profile.gender));
-  add("Personal information", "Height", Number(profile.height_cm) > 0);
-  add("Personal information", "Current weight", Number(profile.starting_weight || data.latestMeasurement?.weight) > 0);
-  add("Goals and body", "Main fitness goal", hasFilledArray(profile.main_goals) || hasFilledValue(profile.main_goal));
-  add("Goals and body", "Body type", hasFilledValue(profile.body_type));
-
-  add("Workout setup", "Workout place", hasFilledValue(workout.workout_place));
-  add("Workout setup", "Workout days", hasFilledArray(workout.workout_days));
-  add("Workout setup", "Time available", Number(workout.max_minutes) > 0);
-  add("Workout setup", "Training experience", hasFilledValue(workout.experience_level));
-  add("Workout setup", "Training split", hasFilledValue(workout.preferred_split));
-  add("Workout setup", "Equipment preference", hasFilledArray(workout.equipment));
-
-  add("Pain and safety", "Pain or no-pain selection", hasFilledArray(workout.pain_areas));
-  add("Pain and safety", "Pain rating", hasFilledValue(workout.pain_rating));
-
-  const notWorking = ["not_working", "retired", "student_no_job"].includes(String(work.job_activity || "").toLowerCase());
-  if(!notWorking){
-    add("Work schedule", "Work days", hasFilledArray(work.work_days));
-    add("Work schedule", "Work start time", hasFilledValue(work.work_start));
-    add("Work schedule", "Work end time", hasFilledValue(work.work_end));
-    add("Work schedule", "Job activity", hasFilledValue(work.job_activity));
-    add("Work schedule", "At least one break or eating window", hasFilledArray(work.breaks));
-  }
-
-  add("Food setup", "Diet type", hasFilledValue(food.diet_type));
-  add("Food setup", "Cuisine preference", hasFilledArray(food.food_styles) || hasFilledValue(food.food_style));
-  add("Food setup", "Protein preferences", hasFilledArray(food.preferred_proteins));
-  add("Food setup", "Carb preferences", hasFilledArray(food.preferred_carbs));
-  add("Food setup", "Allergy or no-allergy selection", hasFilledArray(food.allergies));
-  add("Food setup", "Smoothie preference", typeof food.likes_smoothies === "boolean");
-  add("Food setup", "Whey preference", typeof food.uses_whey_protein === "boolean");
-  add("Food setup", "Usual or favourite foods", hasFilledValue(food.usual_foods) || hasFilledValue(food.favourite_foods));
-  add("Food setup", "Meal prep style", hasFilledValue(food.meal_prep_style));
-
-  add("Water setup", "Bottle size", Number(water.bottle_size_ml) > 0);
-  add("Water setup", "Daily water target", Number(water.daily_target_liters || water.target_liters) > 0);
-
-  const grouped = missing.reduce((out, item) => {
-    if(!out[item.section]) out[item.section] = [];
-    out[item.section].push(item.label);
-    return out;
-  }, {});
-
-  return {
-    complete: missing.length === 0,
-    missing,
-    grouped,
-    completedCount: totalChecks - missing.length,
-    totalCount: totalChecks
-  };
-}
-
-function firstPlanMissingHTML(status = firstPlanSetupStatus()){
-  const groups = Object.entries(status.grouped || {});
-  if(!groups.length) return "";
-  return `
-    <div class="mini-list" style="margin-top:10px">
-      ${groups.map(([section, items]) => `
-        <div class="mini-item">
-          <b>${esc(section)}</b>
-          <div>${items.map(esc).join(" / ")}</div>
-        </div>
-      `).join("")}
-    </div>
-  `;
-}
-
-function manualAiMode(){
-  if(automaticPlanIsBusy()) return "busy";
-  if(!activePlanMeta?.created_at && !activePlan){
-    return firstPlanSetupStatus().complete ? "first" : "setup";
-  }
-  if(isAppAdmin) return "admin";
-  if(extraAiUpdatesRemaining > 0) return "addon";
-  return "none";
-}
-
-async function loadAiUpdateWallet(){
-  aiUpdateWalletLoaded = false;
-  extraAiUpdatesRemaining = 0;
-
-  try{
-    const { data: wallet, error } = await supabaseClient
-      .from("ai_update_wallets")
-      .select("extra_updates_remaining")
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    if(error){
-      const message = String(error.message || "").toLowerCase();
-      if(!message.includes("ai_update_wallets") && !message.includes("does not exist")){
-        console.warn("Could not load AI add-on balance", error);
-      }
-      return 0;
-    }
-
-    extraAiUpdatesRemaining = Math.max(0, Number(wallet?.extra_updates_remaining || 0));
-    return extraAiUpdatesRemaining;
-  }finally{
-    aiUpdateWalletLoaded = true;
-  }
 }
 
 function hasFeature(key){
@@ -2353,49 +2175,10 @@ function switchTab(id){
   if(id==="weekScreen") renderWeekPlan();
   if(id==="progressScreen") {
     renderProgress();
-    refreshAutomaticPlanState();
     if(hasFeature("progress_photos") && !data.progressPhotosLoadedOnce){
       data.progressPhotosLoadedOnce = true;
       loadProgressPhotos();
     }
-  }
-}
-
-async function refreshAutomaticPlanState(){
-  if(!user || autoPlanStateRefreshBusy) return;
-  autoPlanStateRefreshBusy = true;
-
-  try{
-    const previousPlanId = activePlanMeta?.id || null;
-
-    const { data: profileState, error } = await supabaseClient
-      .from("profiles")
-      .select("next_plan_update_at,last_auto_plan_update_at,auto_plan_update_status,auto_plan_queued_at,auto_plan_retry_count,auto_plan_last_error")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    if(error) throw error;
-    if(profileState) Object.assign(data.profile, profileState);
-
-    if(automaticPlanIsBusy() || automaticPlanState() === "scheduled"){
-      await loadPlan();
-
-      if((activePlanMeta?.id || null) !== previousPlanId){
-        await ensureWaterLog();
-        buildTodaySchedule();
-        buildWorkoutPlan();
-        renderAll();
-        toast("Your scheduled AI plan is ready.");
-        return;
-      }
-    }
-
-    renderAiCoachStatusUI();
-    renderProfile();
-  }catch(error){
-    console.warn("Could not refresh automatic AI plan state", error);
-  }finally{
-    autoPlanStateRefreshBusy = false;
   }
 }
 
@@ -3015,7 +2798,6 @@ async function loadAll(){
   data.exercises = exercises || [];
 
   await loadPlan();
-  await loadAiUpdateWallet();
 
   if(hasFeature("progress_photos")){
     await loadProgressPhotos();
@@ -3203,14 +2985,9 @@ function renderAll(){
   if($("#todayPlanChip")) $("#todayPlanChip").textContent = planName(currentPlanCode());
   $("#todayTitle").textContent = `Today, ${name.split(" ")[0] || "friend"}`;
   const pendingAi = readPendingPlanData();
-  const firstPlanSetup = firstPlanSetupStatus();
   $("#todaySubtitle").textContent = pendingAi
-    ? "Your AI coach is updating your plan. Your current starter or active plan stays available until it is ready."
-    : (activePlan
-        ? (activePlan.summary || "Your AI coach plan is active.")
-        : (firstPlanSetup.complete
-            ? "Your setup is ready. Open Progress when you are ready to generate your first AI plan."
-            : "Complete your setup before generating the first AI plan so ShapeCue does not guess important details."));
+    ? "Your AI coach is updating your next plan. Your current plan stays active until the new one is ready."
+    : (activePlan ? (activePlan.summary || "Your AI coach plan is active.") : "Starter plan. Tap Update next plan for AI coach plan.");
 
   $("#todayTags").innerHTML = `
     <span class="tag green">${pendingAi ? "AI updating" : (activePlan ? "AI plan active" : "Starter plan")}</span>
@@ -3446,23 +3223,15 @@ function renderWeekPlan(){
   if(!activePlan){
     $("#weekPlanTag").textContent = "No AI plan";
     if($("#weekDateLine")) $("#weekDateLine").textContent = "Generate your plan from Progress";
-    const mode = manualAiMode();
-    const emptyMessage = isPaidPlan()
-      ? `Your ${planName(currentPlanCode())} plan is prepared automatically on its membership schedule.`
-      : "Your starter plan is active. Paid plans receive automatic AI updates.";
-    const emptyAction = mode === "admin"
-      ? `<button class="btn primary full-width" onclick="switchTab('progressScreen')" type="button">Open admin AI update</button>`
-      : mode === "addon"
-        ? `<button class="btn primary full-width" onclick="switchTab('progressScreen')" type="button">Use an extra AI update</button>`
-        : `<a class="btn secondary full-width" href="membership.html">View membership</a>`;
-
     $("#fullWeekPlan").innerHTML = `
       <details class="fold-card" open>
         <summary>
-          <div class="fold-title"><b>No active AI plan yet</b><span>${esc(emptyMessage)}</span></div>
+          <div class="fold-title"><b>No active AI plan yet</b><span>Go to Progress and tap Update next plan.</span></div>
           <div class="fold-arrow"></div>
         </summary>
-        <div class="fold-content">${emptyAction}</div>
+        <div class="fold-content">
+          <button class="btn primary full-width" onclick="switchTab('progressScreen')" type="button">Go to Progress</button>
+        </div>
       </details>
     `;
     return;
@@ -3546,35 +3315,225 @@ function renderWeekPlan(){
   });
 }
 
+function isStructuredEmpty(value){
+  if(value === null || value === undefined) return true;
+  if(typeof value === "string") return value.trim() === "";
+  if(Array.isArray(value)) return value.length === 0;
+  if(typeof value === "object") return Object.keys(value).length === 0;
+  return false;
+}
+
+function structuredLabel(key){
+  const label = nice(key);
+  return label ? label.charAt(0).toUpperCase() + label.slice(1) : "Details";
+}
+
+function structuredScalar(value){
+  if(value === null || value === undefined) return "";
+  if(typeof value === "boolean") return value ? "Yes" : "No";
+  return String(value).trim();
+}
+
+function structuredTitleEntry(obj){
+  const preferredKeys = [
+    "item",
+    "name",
+    "title",
+    "food",
+    "ingredient",
+    "task",
+    "focus",
+    "action",
+    "label"
+  ];
+
+  for(const key of preferredKeys){
+    if(!isStructuredEmpty(obj?.[key]) && typeof obj[key] !== "object"){
+      return [key, structuredScalar(obj[key])];
+    }
+  }
+
+  return [null, ""];
+}
+
+function structuredObjectBodyHTML(obj, depth = 0){
+  if(!obj || typeof obj !== "object" || Array.isArray(obj)) return "";
+
+  const [titleKey, title] = structuredTitleEntry(obj);
+  const entries = Object.entries(obj).filter(([key, value]) =>
+    key !== titleKey && !isStructuredEmpty(value)
+  );
+
+  const titleHTML = title
+    ? `<b>${esc(title)}</b>`
+    : "";
+
+  const rowsHTML = entries.map(([key, value]) => {
+    const label = structuredLabel(key);
+
+    if(Array.isArray(value)){
+      const cleanItems = value.filter(item => !isStructuredEmpty(item));
+      if(!cleanItems.length) return "";
+
+      const allSimple = cleanItems.every(item =>
+        item === null ||
+        ["string","number","boolean"].includes(typeof item)
+      );
+
+      if(allSimple){
+        return `
+          <div style="margin-top:${titleHTML ? "6px" : "0"}">
+            <span style="color:var(--app-muted);font-weight:850">${esc(label)}:</span>
+            <span>${cleanItems.map(item => esc(structuredScalar(item))).join(" / ")}</span>
+          </div>
+        `;
+      }
+
+      return `
+        <div style="margin-top:${titleHTML ? "7px" : "0"}">
+          <div style="color:var(--app-muted);font-weight:850;margin-bottom:6px">${esc(label)}</div>
+          <div style="display:grid;gap:6px">
+            ${cleanItems.map(item => {
+              if(item && typeof item === "object"){
+                return `
+                  <div style="padding:7px 8px;border:1px solid var(--app-line);border-radius:11px;background:var(--app-surface-3)">
+                    ${structuredObjectBodyHTML(item, depth + 1)}
+                  </div>
+                `;
+              }
+              return `<div>${esc(structuredScalar(item))}</div>`;
+            }).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    if(value && typeof value === "object"){
+      if(depth >= 4) return "";
+
+      return `
+        <div style="margin-top:${titleHTML ? "7px" : "0"}">
+          <div style="color:var(--app-muted);font-weight:850;margin-bottom:6px">${esc(label)}</div>
+          <div style="padding:7px 8px;border:1px solid var(--app-line);border-radius:11px;background:var(--app-surface-3)">
+            ${structuredObjectBodyHTML(value, depth + 1)}
+          </div>
+        </div>
+      `;
+    }
+
+    return `
+      <div style="margin-top:${titleHTML ? "6px" : "0"}">
+        <span style="color:var(--app-muted);font-weight:850">${esc(label)}:</span>
+        <span>${esc(structuredScalar(value))}</span>
+      </div>
+    `;
+  }).join("");
+
+  return titleHTML || rowsHTML
+    ? `${titleHTML}${rowsHTML}`
+    : `<div>${esc(structuredScalar(obj))}</div>`;
+}
+
+function structuredItemHTML(item){
+  if(isStructuredEmpty(item)) return "";
+
+  if(item && typeof item === "object" && !Array.isArray(item)){
+    return `<div class="mini-item">${structuredObjectBodyHTML(item)}</div>`;
+  }
+
+  if(Array.isArray(item)){
+    const children = item
+      .filter(value => !isStructuredEmpty(value))
+      .map(value => structuredItemHTML(value))
+      .join("");
+
+    return children;
+  }
+
+  return `<div class="mini-item">${esc(structuredScalar(item))}</div>`;
+}
+
 function arraySectionHTML(title, arr, open=false){
-  if(!Array.isArray(arr) || !arr.length) return "";
+  const items = Array.isArray(arr)
+    ? arr.filter(item => !isStructuredEmpty(item))
+    : [];
+
+  if(!items.length) return "";
+
   return `
     <details class="fold-card" ${open ? "open" : ""}>
       <summary>
-        <div class="fold-title"><b>${esc(title)}</b><span>${arr.length} item${arr.length === 1 ? "" : "s"}</span></div>
+        <div class="fold-title"><b>${esc(title)}</b><span>${items.length} item${items.length === 1 ? "" : "s"}</span></div>
         <div class="fold-arrow"></div>
       </summary>
       <div class="fold-content">
         <div class="mini-list">
-          ${arr.map(x=>`<div class="mini-item">${esc(typeof x === "string" ? x : JSON.stringify(x))}</div>`).join("")}
+          ${items.map(structuredItemHTML).join("")}
         </div>
       </div>
     </details>
   `;
 }
 
-function infoSectionHTML(title, obj, open=false){
-  if(!obj || typeof obj !== "object") return "";
-  let parts = [];
-  Object.keys(obj).forEach(k => {
-    const v = obj[k];
-    if(Array.isArray(v) && v.length){
-      parts.push(`<div class="mini-item"><b>${esc(nice(k))}</b>${v.map(x=>`<div>${esc(String(x))}</div>`).join("")}</div>`);
-    }else if(typeof v === "string" && v){
-      parts.push(`<div class="mini-item"><b>${esc(nice(k))}</b><div>${esc(v)}</div></div>`);
+function infoSectionHTML(title, value, open=false){
+  if(isStructuredEmpty(value)) return "";
+
+  if(Array.isArray(value)){
+    return arraySectionHTML(title, value, open);
+  }
+
+  if(typeof value !== "object"){
+    return arraySectionHTML(title, [value], open);
+  }
+
+  const sections = Object.entries(value)
+    .filter(([, sectionValue]) => !isStructuredEmpty(sectionValue));
+
+  if(!sections.length) return "";
+
+  const parts = sections.map(([key, sectionValue]) => {
+    if(Array.isArray(sectionValue)){
+      const cleanItems = sectionValue.filter(item => !isStructuredEmpty(item));
+      if(!cleanItems.length) return "";
+
+      return `
+        <div class="mini-item">
+          <b>${esc(structuredLabel(key))}</b>
+          <div style="display:grid;gap:6px;margin-top:7px">
+            ${cleanItems.map(item => {
+              if(item && typeof item === "object"){
+                return `
+                  <div style="padding:7px 8px;border:1px solid var(--app-line);border-radius:11px;background:var(--app-surface-3)">
+                    ${structuredObjectBodyHTML(item)}
+                  </div>
+                `;
+              }
+              return `<div>${esc(structuredScalar(item))}</div>`;
+            }).join("")}
+          </div>
+        </div>
+      `;
     }
-  });
+
+    if(sectionValue && typeof sectionValue === "object"){
+      return `
+        <div class="mini-item">
+          <b>${esc(structuredLabel(key))}</b>
+          <div style="margin-top:7px">${structuredObjectBodyHTML(sectionValue)}</div>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="mini-item">
+        <b>${esc(structuredLabel(key))}</b>
+        <div>${esc(structuredScalar(sectionValue))}</div>
+      </div>
+    `;
+  }).filter(Boolean);
+
   if(!parts.length) return "";
+
   return `
     <details class="fold-card" ${open ? "open" : ""}>
       <summary>
@@ -4181,13 +4140,9 @@ function sleep(ms){
 
 const PENDING_PLAN_KEY = "shapecue_pending_ai_plan_request";
 
-function savePendingPlanRequest(requestId, requestSource = ""){
+function savePendingPlanRequest(requestId){
   if(!requestId) return;
-  localStorage.setItem(PENDING_PLAN_KEY, JSON.stringify({
-    request_id: requestId,
-    request_source: requestSource || "",
-    saved_at: Date.now()
-  }));
+  localStorage.setItem(PENDING_PLAN_KEY, JSON.stringify({ request_id: requestId, saved_at: Date.now() }));
 }
 
 function clearPendingPlanRequest(){
@@ -4214,63 +4169,6 @@ function readPendingPlanRequest(){
   return readPendingPlanData()?.request_id || null;
 }
 
-function renderManualAiControls(){
-  const button = $("#updatePlanBtn");
-  const setupLink = $("#completeSetupBtn");
-  const addOnLink = $("#buyExtraAiBtn");
-  const note = $("#aiManualNote");
-  if(!button || !setupLink || !addOnLink || !note) return;
-
-  const pending = Boolean(readPendingPlanData());
-  const mode = manualAiMode();
-  const automaticBusy = automaticPlanIsBusy();
-
-  button.hidden = true;
-  setupLink.hidden = true;
-  addOnLink.hidden = true;
-  button.disabled = pending || automaticBusy;
-
-  if(pending || automaticBusy || mode === "busy"){
-    button.hidden = false;
-    button.textContent = automaticBusy ? "Membership update in progress" : "AI update in progress";
-    note.textContent = "Your current plan stays active until the new plan is ready.";
-    return;
-  }
-
-  if(mode === "setup"){
-    setupLink.hidden = false;
-    setupLink.textContent = "Complete setup";
-    note.textContent = "Finish the missing profile, food, schedule, workout, and safety details before generating the first plan.";
-    return;
-  }
-
-  if(mode === "first"){
-    button.hidden = false;
-    button.textContent = "Generate my first plan";
-    note.textContent = "Your first plan is created only after you review your setup. It does not use an add-on credit.";
-    return;
-  }
-
-  if(mode === "admin"){
-    button.hidden = false;
-    button.textContent = "Admin: update plan now";
-    note.textContent = "Admin manual updates do not use the member's scheduled subscription update.";
-    return;
-  }
-
-  if(mode === "addon"){
-    button.hidden = false;
-    button.textContent = "Use 1 extra AI update";
-    note.textContent = `${extraAiUpdatesRemaining} extra AI update${extraAiUpdatesRemaining === 1 ? "" : "s"} remaining. Your scheduled membership updates are protected.`;
-    return;
-  }
-
-  addOnLink.hidden = false;
-  note.textContent = isPaidPlan()
-    ? `Your ${aiCadenceConfig().label.toLowerCase()} membership update runs automatically. Buy an add-on only when you need an earlier refresh.`
-    : "Your first plan has already been used. Manual AI updates require an add-on; paid memberships include scheduled updates.";
-}
-
 function renderAiCoachStatusUI(){
   const box = $("#aiCoachStatusBox");
   if(!box) return;
@@ -4278,75 +4176,22 @@ function renderAiCoachStatusUI(){
   const pending = readPendingPlanData();
   const code = currentPlanCode();
   const plan = planName(code);
-  const cadence = aiCadenceConfig(code);
-  const nextUpdate = calculatedNextAiUpdate();
-  const setupStatus = firstPlanSetupStatus();
 
   if(pending){
-    const sourceLabel = pending.request_source === "first_plan"
-      ? "First plan"
-      : pending.request_source === "admin_manual"
-        ? "Admin"
-        : pending.request_source === "addon_credit"
-          ? "Extra add-on"
-          : "Secure request";
-
     box.innerHTML = `
       <div class="ai-status-top">
         <div>
           <h4>Your AI coach is updating your plan</h4>
-          <p>This can take a few minutes. Your current plan remains active.</p>
+          <p>This can take a few minutes. You can stay here or come back later.</p>
         </div>
         <span class="status-pill purple">Generating</span>
       </div>
       <div class="ai-status-meta">
         <div class="ai-status-row"><span>Started</span><strong>${esc(formatDateTime(pending.saved_at))}</strong></div>
-        <div class="ai-status-row"><span>Current plan</span><strong>${esc(activePlan ? "Still active" : "Starter plan showing")}</strong></div>
-        <div class="ai-status-row"><span>Request access</span><strong>${esc(sourceLabel)}</strong></div>
+        <div class="ai-status-row"><span>Current plan</span><strong>${esc(activePlan ? "Old plan still active" : "Starter plan showing")}</strong></div>
+        <div class="ai-status-row"><span>Plan access</span><strong>${esc(plan)}</strong></div>
       </div>
     `;
-    renderManualAiControls();
-    return;
-  }
-
-  if(activePlanMeta?.created_at && automaticPlanIsBusy()){
-    const state = automaticPlanState();
-    const queuedAt = data.profile?.auto_plan_queued_at;
-    box.innerHTML = `
-      <div class="ai-status-top">
-        <div>
-          <h4>Your membership update is in progress</h4>
-          <p>Your current plan stays active while ShapeCue prepares the next one automatically.</p>
-        </div>
-        <span class="status-pill purple">${esc(state === "processing" ? "Generating" : "Queued")}</span>
-      </div>
-      <div class="ai-status-meta">
-        <div class="ai-status-row"><span>Membership</span><strong>${esc(plan)}</strong></div>
-        <div class="ai-status-row"><span>Automatic schedule</span><strong>${esc(cadence.label)}</strong></div>
-        <div class="ai-status-row"><span>Queued</span><strong>${esc(queuedAt ? formatDateTime(queuedAt) : "Recently")}</strong></div>
-        <div class="ai-status-row"><span>Current plan</span><strong>Still active</strong></div>
-      </div>
-    `;
-    renderManualAiControls();
-    return;
-  }
-
-  if(activePlanMeta?.created_at && automaticPlanIsRetrying()){
-    box.innerHTML = `
-      <div class="ai-status-top">
-        <div>
-          <h4>Automatic update will retry</h4>
-          <p>The last scheduled attempt did not finish. ShapeCue kept your current plan and scheduled a safe retry.</p>
-        </div>
-        <span class="status-pill amber">Retrying</span>
-      </div>
-      <div class="ai-status-meta">
-        <div class="ai-status-row"><span>Next retry</span><strong>${esc(nextUpdate ? formatDateTime(nextUpdate) : "Scheduled")}</strong></div>
-        <div class="ai-status-row"><span>Retry count</span><strong>${esc(String(data.profile?.auto_plan_retry_count || 1))}</strong></div>
-        <div class="ai-status-row"><span>Current plan</span><strong>Still active</strong></div>
-      </div>
-    `;
-    renderManualAiControls();
     return;
   }
 
@@ -4360,52 +4205,27 @@ function renderAiCoachStatusUI(){
         <span class="status-pill green">Ready</span>
       </div>
       <div class="ai-status-meta">
-        <div class="ai-status-row"><span>Membership</span><strong>${esc(plan)}</strong></div>
-        <div class="ai-status-row"><span>Automatic schedule</span><strong>${esc(cadence.label)}</strong></div>
-        <div class="ai-status-row"><span>Next scheduled update</span><strong>${esc(nextUpdate ? formatDateTime(nextUpdate) : "Not included")}</strong></div>
-        <div class="ai-status-row"><span>Extra updates</span><strong>${esc(String(extraAiUpdatesRemaining))}</strong></div>
+        <div class="ai-status-row"><span>Plan</span><strong>${esc(activePlanMeta.title || activePlan?.title || "AI coach plan")}</strong></div>
+        <div class="ai-status-row"><span>Week</span><strong>${esc((activePlanMeta.week_start || activePlan?.start_date || "") + " -> " + (activePlanMeta.week_end || activePlan?.end_date || ""))}</strong></div>
+        <div class="ai-status-row"><span>Access</span><strong>${esc(plan)}</strong></div>
       </div>
     `;
-    renderManualAiControls();
-    return;
-  }
-
-  if(!setupStatus.complete){
-    box.innerHTML = `
-      <div class="ai-status-top">
-        <div>
-          <h4>Complete your setup first</h4>
-          <p>Your first AI plan should use complete food, schedule, workout, body, and safety details—not guesses.</p>
-        </div>
-        <span class="status-pill amber">Setup needed</span>
-      </div>
-      <div class="ai-status-meta">
-        <div class="ai-status-row"><span>Setup check</span><strong>${esc(`${setupStatus.completedCount}/${setupStatus.totalCount} ready`)}</strong></div>
-        <div class="ai-status-row"><span>Missing details</span><strong>${esc(String(setupStatus.missing.length))}</strong></div>
-        <div class="ai-status-row"><span>First plan credit</span><strong>Protected</strong></div>
-      </div>
-      ${firstPlanMissingHTML(setupStatus)}
-    `;
-    renderManualAiControls();
     return;
   }
 
   box.innerHTML = `
     <div class="ai-status-top">
       <div>
-        <h4>Ready for your first AI plan</h4>
-        <p>Review your details, then generate it when you are ready. Nothing runs automatically before your first click.</p>
+        <h4>No AI update yet</h4>
+        <p>You are seeing the starter plan. Tap Update next plan to generate your first AI coach plan.</p>
       </div>
-      <span class="status-pill green">Ready</span>
+      <span class="status-pill blue">Starter</span>
     </div>
     <div class="ai-status-meta">
-      <div class="ai-status-row"><span>Setup check</span><strong>Complete</strong></div>
-      <div class="ai-status-row"><span>Membership</span><strong>${esc(plan)}</strong></div>
-      <div class="ai-status-row"><span>First plan cost</span><strong>No add-on used</strong></div>
-      <div class="ai-status-row"><span>Future schedule</span><strong>${esc(cadence.included ? `Starts after first plan / ${cadence.label}` : "No automatic updates")}</strong></div>
+      <div class="ai-status-row"><span>Last AI update</span><strong>Not updated yet</strong></div>
+      <div class="ai-status-row"><span>Plan access</span><strong>${esc(plan)}</strong></div>
     </div>
   `;
-  renderManualAiControls();
 }
 
 async function startBackgroundPlan(requestId, token){
@@ -4450,7 +4270,6 @@ async function resumePendingPlanIfAny(){
     if(status.status === "completed"){
       clearPendingPlanRequest();
       await loadPlan();
-      await loadAiUpdateWallet();
       if(status.plan && !activePlan) activePlan = status.plan;
       await ensureWaterLog();
       buildTodaySchedule();
@@ -4515,7 +4334,6 @@ async function pollPlanUntilReady(requestId, token, btn){
     if(status.status === "completed"){
       clearPendingPlanRequest();
       await loadPlan();
-      await loadAiUpdateWallet();
       if(status.plan && !activePlan){
         activePlan = status.plan;
       }
@@ -4541,64 +4359,17 @@ async function pollPlanUntilReady(requestId, token, btn){
 }
 
 async function generatePlan(){
-  const btn = $("#updatePlanBtn");
-  const old = btn?.textContent || "Update plan";
-  const mode = manualAiMode();
-
-  if(mode === "busy"){
-    toast("Your scheduled membership update is already in progress.");
-    renderAiCoachStatusUI();
-    return;
-  }
-
-  if(mode === "setup"){
-    toast("Complete the missing setup details before generating your first plan.");
-    location.href = "settings.html";
-    return;
-  }
-
-  if(mode === "none"){
-    toast("Your membership update runs automatically. An extra AI update add-on is required for an early refresh.");
-    renderManualAiControls();
-    return;
-  }
-
-  if(mode === "addon"){
-    const confirmed = confirm(`Use 1 extra AI update?
-
-${extraAiUpdatesRemaining} remaining before this request. Your scheduled membership update will not be used.`);
-    if(!confirmed) return;
-  }
-
-  if(mode === "first"){
-    const setupStatus = firstPlanSetupStatus();
-    if(!setupStatus.complete){
-      renderAiCoachStatusUI();
-      toast("Complete your setup first.");
-      return;
-    }
-
-    const confirmed = confirm(`Generate your first AI plan now?
-
-ShapeCue will use your saved profile, food, work, workout, pain, and water details. This does not use an add-on credit.`);
-    if(!confirmed) return;
-  }
+  const btn=$("#updatePlanBtn");
+  const old=btn.textContent;
 
   try{
-    if(btn){
-      btn.disabled = true;
-      btn.textContent = "Starting...";
-    }
+    btn.disabled=true;
+    btn.textContent="Starting...";
 
     const { data: sessionData } = await supabaseClient.auth.getSession();
     if(!sessionData?.session){ location.href="auth.html?mode=login"; return; }
 
     const token = sessionData.session.access_token;
-    const requestSource = mode === "first"
-      ? "first_plan"
-      : mode === "admin"
-        ? "admin_manual"
-        : "addon_credit";
 
     const res = await fetch("/.netlify/functions/generate-plan", {
       method:"POST",
@@ -4606,64 +4377,85 @@ ShapeCue will use your saved profile, food, work, workout, pain, and water detai
         "Content-Type":"application/json",
         "Authorization":`Bearer ${token}`
       },
-      body:JSON.stringify({
-        request_type: mode === "first" ? "first_plan" : "weekly_plan",
-        request_source:requestSource
-      })
+      body:JSON.stringify({request_type:"weekly_plan"})
     });
 
     const result = await res.json().catch(()=>({ok:false,error:"Could not start AI plan."}));
 
     if(!res.ok || !result.ok){
       const msg = result.error?.error?.message || result.error?.message || result.error || "AI plan failed.";
-      if(Array.isArray(result.missing_setup) && result.missing_setup.length){
-        throw new Error(`Complete setup first: ${result.missing_setup.join(", ")}`);
-      }
       throw new Error(msg);
     }
 
-    if(Number.isFinite(Number(result.extra_updates_remaining))){
-      extraAiUpdatesRemaining = Math.max(0, Number(result.extra_updates_remaining));
-    }else{
-      await loadAiUpdateWallet();
-    }
-
-    if(btn) btn.textContent = "Starting background coach...";
-    toast(result.message || "Your AI coach is updating your plan.");
+    btn.textContent="Starting background coach...";
+    toast(result.message || "Your AI coach is updating your plan. This can take a few minutes.");
+    alert("Your AI coach is updating your plan.\n\nThis can take a few minutes. You can stay on this page or come back later.");
 
     if(result.request_id){
-      savePendingPlanRequest(result.request_id, result.request_source || requestSource);
+      savePendingPlanRequest(result.request_id);
       renderAiCoachStatusUI();
       await startBackgroundPlan(result.request_id, token);
-      if(btn) btn.textContent = "Generating plan...";
+      btn.textContent="Generating plan...";
       await pollPlanUntilReady(result.request_id, token, btn);
     }
   }catch(e){
     console.error(e);
     const msg = e.message || "Could not generate plan.";
     toast(msg);
-
-    if(msg.toLowerCase().includes("first_plan_already_exists")){
-      await loadPlan();
-      renderAll();
-    }
-
-    if(msg.toLowerCase().includes("no_extra_ai_updates") || msg.toLowerCase().includes("add-on") || msg.toLowerCase().includes("addon")){
-      extraAiUpdatesRemaining = 0;
-      renderAiCoachStatusUI();
+    if(msg.toLowerCase().includes("limit") || msg.toLowerCase().includes("premium") || msg.toLowerCase().includes("free")){
+      showUpgrade("Upgrade AI plan updates", msg);
     }
   }finally{
-    if(btn){
-      btn.disabled = false;
-      btn.textContent = old;
-    }
-    renderManualAiControls();
+    btn.disabled=false;
+    btn.textContent=old;
   }
 }
 
 function printLine(title, value){
   if(!value) return "";
   return `<p><strong>${esc(title)}:</strong> ${esc(value)}</p>`;
+}
+
+function printStructuredValueHTML(value, depth = 0){
+  if(isStructuredEmpty(value)) return "";
+
+  if(Array.isArray(value)){
+    const items = value
+      .filter(item => !isStructuredEmpty(item))
+      .map(item => `<li>${printStructuredValueHTML(item, depth + 1)}</li>`)
+      .join("");
+
+    return items ? `<ul>${items}</ul>` : "";
+  }
+
+  if(value && typeof value === "object"){
+    if(depth >= 4) return "";
+
+    const [titleKey, title] = structuredTitleEntry(value);
+    const rows = Object.entries(value)
+      .filter(([key, itemValue]) => key !== titleKey && !isStructuredEmpty(itemValue))
+      .map(([key, itemValue]) => `
+        <div style="margin-top:4px">
+          <strong>${esc(structuredLabel(key))}:</strong>
+          ${printStructuredValueHTML(itemValue, depth + 1)}
+        </div>
+      `)
+      .join("");
+
+    return `${title ? `<strong>${esc(title)}</strong>` : ""}${rows}`;
+  }
+
+  return esc(structuredScalar(value));
+}
+
+function printStructuredListHTML(items){
+  const cleanItems = Array.isArray(items)
+    ? items.filter(item => !isStructuredEmpty(item))
+    : [];
+
+  if(!cleanItems.length) return "";
+
+  return `<ul>${cleanItems.map(item => `<li>${printStructuredValueHTML(item)}</li>`).join("")}</ul>`;
 }
 
 function buildPrintHTML(){
@@ -4728,16 +4520,24 @@ function buildPrintHTML(){
     html += `<h2>Water Goal</h2><div class="print-card"><p>${esc(activePlan.water_goal.target_liters || "")} L daily / ${esc(activePlan.water_goal.bottles_per_day || "")} bottles</p><p>${esc(activePlan.water_goal.note || "")}</p></div>`;
   }
 
-  if(activePlan.meal_prep_plan){
+  if(activePlan.meal_prep_plan && !isStructuredEmpty(activePlan.meal_prep_plan)){
     html += `<h2>Meal Prep Plan</h2>`;
-    Object.keys(activePlan.meal_prep_plan).forEach(k=>{
-      const v = activePlan.meal_prep_plan[k];
-      if(Array.isArray(v)){
-        html += `<div class="print-card"><strong>${esc(nice(k))}</strong><ul>${v.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`;
-      }else if(v){
-        html += `<div class="print-card"><strong>${esc(nice(k))}</strong><p>${esc(v)}</p></div>`;
-      }
-    });
+
+    if(Array.isArray(activePlan.meal_prep_plan)){
+      html += `<div class="print-card">${printStructuredListHTML(activePlan.meal_prep_plan)}</div>`;
+    }else if(typeof activePlan.meal_prep_plan === "object"){
+      Object.entries(activePlan.meal_prep_plan).forEach(([key, value])=>{
+        if(isStructuredEmpty(value)) return;
+        html += `
+          <div class="print-card">
+            <strong>${esc(structuredLabel(key))}</strong>
+            ${printStructuredValueHTML(value)}
+          </div>
+        `;
+      });
+    }else{
+      html += `<div class="print-card"><p>${esc(structuredScalar(activePlan.meal_prep_plan))}</p></div>`;
+    }
   }
 
   [
@@ -4746,9 +4546,13 @@ function buildPrintHTML(){
     ["Daily Checklist", activePlan.daily_checklist],
     ["Weekly Focus", activePlan.weekly_focus],
     ["AI Adjustments", activePlan.ai_adjustments]
-  ].forEach(([title, arr])=>{
-    if(Array.isArray(arr) && arr.length){
-      html += `<h2>${esc(title)}</h2><ul>${arr.map(x=>`<li>${esc(typeof x === "string" ? x : JSON.stringify(x))}</li>`).join("")}</ul>`;
+  ].forEach(([title, items])=>{
+    const cleanItems = Array.isArray(items)
+      ? items.filter(item => !isStructuredEmpty(item))
+      : [];
+
+    if(cleanItems.length){
+      html += `<h2>${esc(title)}</h2>${printStructuredListHTML(cleanItems)}`;
     }
   });
 
@@ -4777,16 +4581,8 @@ function initSelectChips(){
 function initEvents(){
   window.addEventListener("load", () => restartPulseStrip(true));
   window.addEventListener("resize", () => restartPulseStrip(true), {passive:true});
-  window.setInterval(() => {
-    if(!document.hidden && $("#progressScreen")?.classList.contains("active") && (automaticPlanIsBusy() || automaticPlanIsRetrying())){
-      refreshAutomaticPlanState();
-    }
-  }, 45000);
   document.addEventListener("visibilitychange", () => {
-    if(!document.hidden){
-      restartPulseStrip(true);
-      if($("#progressScreen")?.classList.contains("active")) refreshAutomaticPlanState();
-    }
+    if(!document.hidden) restartPulseStrip(true);
   });
   document.fonts?.ready?.then(() => restartPulseStrip(true));
 
@@ -4961,15 +4757,6 @@ async function logout(){
 initSelectChips();
 initEvents();
 initSheetGestures();
-
-if("serviceWorker" in navigator){
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/service-worker.js", {scope:"/"}).catch(error => {
-      console.warn("ShapeCue service worker could not register", error);
-    });
-  });
-}
-
 loadAll();
 </script>
 </body>
