@@ -429,6 +429,10 @@
           <svg viewBox="0 0 24 24"><path d="M20 12v8H4v-8M2 7h20v5H2zM12 7v13M12 7H7.5a2.5 2.5 0 1 1 2.45-3c.45 1.25 2.05 3 2.05 3ZM12 7h4.5a2.5 2.5 0 1 0-2.45-3C13.6 5.25 12 7 12 7Z"/></svg>
           Promo Codes
         </button>
+        <button class="nav-item" data-route="releases" type="button">
+          <svg viewBox="0 0 24 24"><path d="M4 13h3l9 5V6l-9 5H4zM16 9c2 1 2 5 0 6M7 13v5a2 2 0 0 0 2 2h1"/></svg>
+          App Releases
+        </button>
         <button class="nav-item" data-route="exercises" type="button">
           <svg viewBox="0 0 24 24"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg>
           Exercises
@@ -575,6 +579,30 @@
           <div class="status-box" id="promoStatus"></div>
         </section>
 
+        <section class="route-screen hidden" id="routeReleases" data-screen="releases">
+          <div class="page-head">
+            <div><h2>App Releases</h2><p>Create in-app announcements, recommended updates, and required notices. Drafts stay private until you publish them.</p></div>
+            <div class="page-actions"><button class="btn primary" id="createReleaseBtn" type="button">+ New release</button></div>
+          </div>
+
+          <div class="stats-grid" id="releaseStats"></div>
+
+          <div class="toolbar" style="margin-top:10px">
+            <div class="search-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input class="input search-input" id="releaseSearch" placeholder="Search version, title, message, or notes" /></div>
+            <div class="filter-row" id="releaseFilters">
+              <button class="filter-btn active" data-release-filter="all" type="button">All</button>
+              <button class="filter-btn" data-release-filter="draft" type="button">Draft</button>
+              <button class="filter-btn" data-release-filter="published" type="button">Published</button>
+              <button class="filter-btn" data-release-filter="required" type="button">Required</button>
+              <button class="filter-btn" data-release-filter="archived" type="button">Archived</button>
+            </div>
+          </div>
+
+          <div class="card-list" id="releaseList"></div>
+          <div class="empty hidden" id="releaseEmpty">No releases match these filters.</div>
+          <div class="status-box" id="releaseStatus"></div>
+        </section>
+
         <section class="route-screen hidden" id="routeExercises" data-screen="exercises">
           <div class="page-head">
             <div><h2>Exercise Library</h2><p>Browse first. Open the editor only when you select an exercise or create a new one.</p></div>
@@ -612,6 +640,7 @@
 
     <div class="more-sheet" id="moreSheet">
       <button class="more-item" data-route="promos" type="button">Promo Codes</button>
+      <button class="more-item" data-route="releases" type="button">App Releases</button>
       <button class="more-item" data-route="exercises" type="button">Exercise Library</button>
       <button class="more-item" data-route="system" type="button">System</button>
       <a class="more-item" href="app.html">Open ShapeCue</a>
@@ -655,6 +684,31 @@
       <div class="status-box" id="promoModalStatus"></div>
     </div>
     <div class="modal-footer"><button class="btn secondary" data-close-modal="promoModal" type="button">Cancel</button><button class="btn primary" id="savePromoBtn" type="button">Create promo</button></div>
+  </section>
+
+  <section class="modal" id="releaseModal" aria-hidden="true">
+    <div class="modal-head"><div><h3 id="releaseModalTitle">New app release</h3><p>The same composer is used for creating and editing.</p></div><button class="icon-btn" data-close-modal="releaseModal" type="button"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="releaseId" />
+      <div class="form-grid">
+        <div class="field"><label>Version</label><input class="input" id="releaseVersion" maxlength="40" placeholder="Example: 1.2.0" /></div>
+        <div class="field"><label>Type</label><select class="select" id="releaseType"><option value="info">Information</option><option value="recommended">Recommended</option><option value="required">Required</option></select></div>
+        <div class="field span-2"><label>Title</label><input class="input" id="releaseTitle" maxlength="120" placeholder="What changed?" /></div>
+        <div class="field"><label>Audience</label><select class="select" id="releaseAudience"><option value="all">Everyone</option><option value="free">Free only</option><option value="paid">All paid plans</option><option value="plus">Plus only</option><option value="premium">Premium only</option><option value="coach">Coach only</option><option value="admin">Admins only</option></select></div>
+        <div class="field"><label>Status</label><select class="select" id="releasePublishStatus"><option value="draft">Draft</option><option value="published">Published</option><option value="archived">Archived</option></select></div>
+        <div class="field span-2"><label>Short message</label><textarea class="textarea" id="releaseShortMessage" maxlength="320" placeholder="A short announcement shown before the full notes."></textarea></div>
+        <div class="field span-2"><label>Release notes — one item per line</label><textarea class="textarea" id="releaseNotes" placeholder="Improved progress photos
+Added in-app updates
+Fixed meal timing"></textarea></div>
+        <div class="field"><label>Minimum app version optional</label><input class="input" id="releaseMinimumVersion" maxlength="40" placeholder="Example: 1.1.0" /></div>
+        <div class="field"><label>Action label</label><input class="input" id="releaseActionLabel" maxlength="60" value="View update" /></div>
+        <div class="field span-2"><label>Action URL optional</label><input class="input" id="releaseActionUrl" maxlength="500" placeholder="Example: settings.html#whats-new" /></div>
+        <div class="field"><label>Publish time optional</label><input class="input" id="releasePublishedAt" type="datetime-local" /></div>
+        <div class="field"><label>Expiry optional</label><input class="input" id="releaseExpiresAt" type="datetime-local" /></div>
+      </div>
+      <div class="status-box" id="releaseModalStatus"></div>
+    </div>
+    <div class="modal-footer"><button class="btn secondary" data-close-modal="releaseModal" type="button">Cancel</button><button class="btn primary" id="saveReleaseBtn" type="button">Save release</button></div>
   </section>
 
   <aside class="drawer" id="exerciseDrawer" aria-hidden="true">
@@ -744,21 +798,22 @@
 
     const $ = selector => document.querySelector(selector);
     const $$ = selector => Array.from(document.querySelectorAll(selector));
-    const ROUTES = ["overview","users","ai","promos","exercises","system"];
+    const ROUTES = ["overview","users","ai","promos","releases","exercises","system"];
     const routeMeta = {
       overview:["Overview","ShapeCue operations at a glance"],
       users:["Users","Memberships, plans, add-ons, and AI health"],
       ai:["AI Operations","Plan generation queue and history"],
       promos:["Promo Codes","Access codes and redemptions"],
+      releases:["App Releases","In-app announcements and update requirements"],
       exercises:["Exercise Library","Guides, media, safety, and AI readiness"],
       system:["System","Scheduler and backend configuration health"]
     };
 
     const state = {
       session:null,admin:null,route:"overview",
-      overview:null,users:[],aiRequests:[],promos:[],exercises:[],system:null,
-      usersLoaded:false,aiLoaded:false,promosLoaded:false,exercisesLoaded:false,systemLoaded:false,
-      userPlanFilter:"all",aiStatusFilter:"all",promoFilter:"all"
+      overview:null,users:[],aiRequests:[],promos:[],releases:[],releaseStates:[],exercises:[],system:null,
+      usersLoaded:false,aiLoaded:false,promosLoaded:false,releasesLoaded:false,exercisesLoaded:false,systemLoaded:false,
+      userPlanFilter:"all",aiStatusFilter:"all",promoFilter:"all",releaseFilter:"all"
     };
 
     function esc(value){return String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
@@ -804,6 +859,7 @@
         if(route==="users"&&(!state.usersLoaded||force))await loadUsers();
         if(route==="ai"&&(!state.aiLoaded||force))await loadAi();
         if(route==="promos"&&(!state.promosLoaded||force))await loadPromos();
+        if(route==="releases"&&(!state.releasesLoaded||force))await loadReleases();
         if(route==="exercises"&&(!state.exercisesLoaded||force))await loadExercises();
         if(route==="system"&&(!state.systemLoaded||force))await loadSystem();
       }catch(error){console.error(error);toast(error.message||"Could not load this section.");}
@@ -873,6 +929,113 @@
     async function savePromo(){const btn=$("#savePromoBtn"),old=btn.textContent,id=$("#promoId").value;try{btn.disabled=true;btn.textContent="Saving…";const payload={plan_code:$("#planCode").value,duration_days:$("#durationDays").value?Number($("#durationDays").value):null,max_redemptions:$("#maxRedemptions").value?Number($("#maxRedemptions").value):null,expires_at:$("#expiresAt").value?new Date($("#expiresAt").value).toISOString():null,notes:$("#promoNotes").value.trim()||null};if(id){await api("/.netlify/functions/admin-update-promo",{method:"POST",body:JSON.stringify({id,...payload})});toast("Promo updated");}else{const code=$("#customCode").value.trim().toUpperCase().replace(/\s+/g,"");await api("/.netlify/functions/admin-create-promo",{method:"POST",body:JSON.stringify({...payload,code:code||undefined})});toast("Promo created");}closeModal("promoModal");state.promosLoaded=false;await loadPromos();}catch(error){showStatus("#promoModalStatus",error.message||"Could not save promo.","bad");}finally{btn.disabled=false;btn.textContent=old;}}
     async function togglePromo(id,active){await api("/.netlify/functions/admin-update-promo",{method:"POST",body:JSON.stringify({id,is_active:active})});state.promosLoaded=false;await loadPromos();toast(active?"Promo reactivated":"Promo deactivated");}
 
+    function localDateTimeInput(value){
+      if(!value)return"";
+      const date=new Date(value);
+      if(Number.isNaN(date.getTime()))return"";
+      return new Date(date.getTime()-date.getTimezoneOffset()*60000).toISOString().slice(0,16);
+    }
+    function releaseTypeLabel(value){const v=String(value||"info").toLowerCase();return v==="required"?"Required":v==="recommended"?"Recommended":"Information";}
+    function releaseTypePill(value){const v=String(value||"info").toLowerCase();const tone=v==="required"?"red":v==="recommended"?"amber":"blue";return `<span class="pill ${tone}">${esc(releaseTypeLabel(v))}</span>`;}
+    function releaseStatusPill(value){const v=String(value||"draft").toLowerCase();const tone=v==="published"?"green":v==="archived"?"":"amber";return `<span class="pill ${tone}">${esc(v.charAt(0).toUpperCase()+v.slice(1))}</span>`;}
+    function audienceLabel(value){const labels={all:"Everyone",free:"Free only",paid:"All paid plans",plus:"Plus only",premium:"Premium only",coach:"Coach only",admin:"Admins only"};return labels[value]||value||"Everyone";}
+    function releaseNotesArray(value){if(Array.isArray(value))return value.map(item=>String(item||"").trim()).filter(Boolean);if(typeof value==="string")return lines(value);if(value&&typeof value==="object")return Object.values(value).map(item=>String(item||"").trim()).filter(Boolean);return[];}
+    function releaseStateCounts(){const counts=new Map();(state.releaseStates||[]).forEach(row=>{const key=String(row.release_id||"");if(!counts.has(key))counts.set(key,{seen:0,dismissed:0,acknowledged:0});const item=counts.get(key);if(row.seen_at)item.seen+=1;if(row.dismissed_at)item.dismissed+=1;if(row.acknowledged_at)item.acknowledged+=1;});return counts;}
+    function isReleaseLive(row){if(row.status!=="published")return false;const now=Date.now();const published=row.published_at?new Date(row.published_at).getTime():0;const expires=row.expires_at?new Date(row.expires_at).getTime():Infinity;return (!published||published<=now)&&expires>now;}
+    async function loadReleases(){
+      showStatus("#releaseStatus","Loading app releases…","info");
+      const [releaseResult,stateResult]=await Promise.all([
+        supabaseClient.from("app_releases").select("*").order("created_at",{ascending:false}),
+        supabaseClient.from("user_release_states").select("release_id,seen_at,dismissed_at,acknowledged_at")
+      ]);
+      if(releaseResult.error)throw releaseResult.error;
+      if(stateResult.error)throw stateResult.error;
+      state.releases=releaseResult.data||[];
+      state.releaseStates=stateResult.data||[];
+      state.releasesLoaded=true;
+      showStatus("#releaseStatus","");
+      renderReleases();
+    }
+    function filteredReleases(){
+      const q=$("#releaseSearch").value.trim().toLowerCase();
+      return state.releases.filter(row=>{
+        if(state.releaseFilter==="required"&&row.release_type!=="required")return false;
+        if(["draft","published","archived"].includes(state.releaseFilter)&&row.status!==state.releaseFilter)return false;
+        const hay=[row.version,row.title,row.short_message,audienceLabel(row.target_audience),...releaseNotesArray(row.release_notes)].filter(Boolean).join(" ").toLowerCase();
+        return !q||hay.includes(q);
+      });
+    }
+    function renderReleaseStats(){
+      const total=state.releases.length;
+      const live=state.releases.filter(isReleaseLive).length;
+      const required=state.releases.filter(row=>isReleaseLive(row)&&row.release_type==="required").length;
+      const acknowledged=(state.releaseStates||[]).filter(row=>row.acknowledged_at).length;
+      $("#releaseStats").innerHTML=[
+        statCard("Total releases",total,"Draft, published, and archived"),
+        statCard("Live now",live,"Currently visible to matching users",live?"green":""),
+        statCard("Required live",required,"Blocking notices currently published",required?"red":"green"),
+        statCard("Acknowledgements",acknowledged,"All user acknowledgements","blue")
+      ].join("");
+    }
+    function renderReleases(){
+      renderReleaseStats();
+      const counts=releaseStateCounts();
+      const rows=filteredReleases();
+      $("#releaseEmpty").classList.toggle("hidden",rows.length>0);
+      $("#releaseList").innerHTML=rows.map(row=>{
+        const c=counts.get(String(row.id))||{seen:0,dismissed:0,acknowledged:0};
+        const notes=releaseNotesArray(row.release_notes);
+        const live=isReleaseLive(row);
+        const nextStatus=row.status==="published"?"archived":row.status==="archived"?"draft":"published";
+        const nextLabel=row.status==="published"?"Archive":row.status==="archived"?"Move to draft":"Publish";
+        const nextTone=row.status==="published"?"red":row.status==="archived"?"blue":"green";
+        return `<article class="resource-card">
+          <div class="resource-top"><div><div class="resource-title">${esc(row.version)} · ${esc(row.title)}</div><div class="resource-meta">${esc(audienceLabel(row.target_audience))} · Created ${esc(prettyDate(row.created_at))}${row.published_at?`<br>Published: ${esc(prettyDate(row.published_at))}`:""}${row.expires_at?` · Expires: ${esc(prettyDate(row.expires_at))}`:""}</div></div><div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end">${releaseTypePill(row.release_type)}${releaseStatusPill(row.status)}${live?`<span class="pill green">Live</span>`:""}</div></div>
+          ${row.short_message?`<div class="resource-meta" style="margin-top:9px;color:var(--text)">${esc(row.short_message)}</div>`:""}
+          ${notes.length?`<div class="resource-meta" style="margin-top:8px">${notes.slice(0,3).map(note=>`• ${esc(note)}`).join("<br>")}${notes.length>3?`<br>+ ${notes.length-3} more`:""}</div>`:""}
+          <div class="resource-meta" style="margin-top:8px">Seen: ${c.seen} · Dismissed: ${c.dismissed} · Acknowledged: ${c.acknowledged}${row.minimum_app_version?` · Minimum app: ${esc(row.minimum_app_version)}`:""}</div>
+          <div class="resource-actions"><button class="mini-btn blue" data-edit-release="${esc(row.id)}" type="button">Edit</button><button class="mini-btn ${nextTone}" data-release-status="${esc(nextStatus)}" data-release-id="${esc(row.id)}" type="button">${esc(nextLabel)}</button></div>
+        </article>`;
+      }).join("");
+    }
+    function resetReleaseForm(){
+      $("#releaseId").value="";$("#releaseModalTitle").textContent="New app release";$("#releaseVersion").value="";$("#releaseType").value="info";$("#releaseTitle").value="";$("#releaseAudience").value="all";$("#releasePublishStatus").value="draft";$("#releaseShortMessage").value="";$("#releaseNotes").value="";$("#releaseMinimumVersion").value="";$("#releaseActionLabel").value="View update";$("#releaseActionUrl").value="";$("#releasePublishedAt").value="";$("#releaseExpiresAt").value="";$("#saveReleaseBtn").textContent="Save release";showStatus("#releaseModalStatus","");
+    }
+    function openReleaseCreate(){resetReleaseForm();openModal("releaseModal");}
+    function openReleaseEdit(id){
+      const row=state.releases.find(item=>String(item.id)===String(id));if(!row)return;
+      resetReleaseForm();$("#releaseId").value=row.id;$("#releaseModalTitle").textContent=`Edit ${row.version}`;$("#releaseVersion").value=row.version||"";$("#releaseType").value=row.release_type||"info";$("#releaseTitle").value=row.title||"";$("#releaseAudience").value=row.target_audience||"all";$("#releasePublishStatus").value=row.status||"draft";$("#releaseShortMessage").value=row.short_message||"";$("#releaseNotes").value=releaseNotesArray(row.release_notes).join("\n");$("#releaseMinimumVersion").value=row.minimum_app_version||"";$("#releaseActionLabel").value=row.action_label||"View update";$("#releaseActionUrl").value=row.action_url||"";$("#releasePublishedAt").value=localDateTimeInput(row.published_at);$("#releaseExpiresAt").value=localDateTimeInput(row.expires_at);$("#saveReleaseBtn").textContent="Save changes";openModal("releaseModal");
+    }
+    function releasePayload(existing=null){
+      const status=$("#releasePublishStatus").value;
+      let publishedAt=$("#releasePublishedAt").value?new Date($("#releasePublishedAt").value).toISOString():existing?.published_at||null;
+      if(status==="published"&&!publishedAt)publishedAt=new Date().toISOString();
+      return {version:$("#releaseVersion").value.trim(),title:$("#releaseTitle").value.trim(),short_message:$("#releaseShortMessage").value.trim()||null,release_notes:lines($("#releaseNotes").value),release_type:$("#releaseType").value,target_audience:$("#releaseAudience").value,minimum_app_version:$("#releaseMinimumVersion").value.trim()||null,action_label:$("#releaseActionLabel").value.trim()||"View update",action_url:$("#releaseActionUrl").value.trim()||null,status,published_at:publishedAt,expires_at:$("#releaseExpiresAt").value?new Date($("#releaseExpiresAt").value).toISOString():null};
+    }
+    async function saveRelease(){
+      const btn=$("#saveReleaseBtn"),old=btn.textContent,id=$("#releaseId").value;
+      try{
+        btn.disabled=true;btn.textContent="Saving…";
+        const existing=state.releases.find(item=>String(item.id)===String(id))||null;
+        const payload=releasePayload(existing);
+        if(!payload.version)throw new Error("Version is required.");
+        if(!payload.title)throw new Error("Title is required.");
+        if(payload.expires_at&&new Date(payload.expires_at)<=new Date())throw new Error("Expiry must be in the future.");
+        let query;
+        if(id){query=supabaseClient.from("app_releases").update(payload).eq("id",id).select().single();}
+        else{query=supabaseClient.from("app_releases").insert({...payload,created_by:state.session.user.id}).select().single();}
+        const {error}=await query;if(error)throw error;
+        closeModal("releaseModal");state.releasesLoaded=false;await loadReleases();toast(id?"Release updated":"Release created");
+      }catch(error){showStatus("#releaseModalStatus",error.message||"Could not save release.","bad");}
+      finally{btn.disabled=false;btn.textContent=old;}
+    }
+    async function changeReleaseStatus(id,status){
+      const row=state.releases.find(item=>String(item.id)===String(id));if(!row)return;
+      const update={status};if(status==="published"&&!row.published_at)update.published_at=new Date().toISOString();
+      const {error}=await supabaseClient.from("app_releases").update(update).eq("id",id);if(error)throw error;
+      state.releasesLoaded=false;await loadReleases();toast(status==="published"?"Release published":status==="archived"?"Release archived":"Release moved to draft");
+    }
+
     async function loadExercises(){showStatus("#exerciseListStatus","Loading exercises…","info");const result=await api("/.netlify/functions/admin-list-exercises",{method:"GET"});state.exercises=result.exercises||[];state.exercisesLoaded=true;showStatus("#exerciseListStatus","");renderExercises();}
     function filteredExercises(){const q=$("#exerciseSearch").value.trim().toLowerCase(),filter=$("#exerciseFilter").value;return state.exercises.filter(ex=>{const hay=[ex.name,ex.category,ex.section,ex.target_muscle,ex.equipment,ex.difficulty,ex.usage_priority].filter(Boolean).join(" ").toLowerCase();if(q&&!hay.includes(q))return false;if(filter==="plan_ready")return ex.plan_ready&&ex.approved!==false;if(filter==="not_ready")return !ex.plan_ready||ex.approved===false;if(filter==="missing_media")return (ex.media_status||"missing")==="missing";if(filter==="missing_guide")return (ex.guide_status||"missing")==="missing";if(filter==="high_priority")return (ex.usage_priority||"medium")==="high";return true;});}
     function exerciseStatus(ex){if(ex.plan_ready&&ex.approved!==false)return["green","Plan ready"];if((ex.media_status||"missing")==="missing")return["amber","No media"];if((ex.guide_status||"missing")==="missing")return["amber","No guide"];return["blue","Draft"];}
@@ -897,11 +1060,11 @@
       <article class="system-card"><h3>Deployment reminder</h3><p>Netlify scheduled functions run from published production deploys. This screen does not expose or edit secrets.</p><div class="system-lines"><div class="system-line"><span>Schedule</span><span class="pill blue">Hourly</span></div><div class="system-line"><span>Function</span><span class="pill">auto-plan-scheduler</span></div></div></article>`;}
 
     function openDrawer(title,subtitle,body){$("#drawerTitle").textContent=title;$("#drawerSubtitle").textContent=subtitle||"";$("#drawerBody").innerHTML=body||"";$("#detailDrawer").classList.add("show");$("#detailDrawer").setAttribute("aria-hidden","false");$("#overlay").classList.add("show");}
-    function closeDrawer(){$("#detailDrawer").classList.remove("show");$("#detailDrawer").setAttribute("aria-hidden","true");if(!$("#promoModal").classList.contains("show")&&!$("#exerciseDrawer").classList.contains("show"))$("#overlay").classList.remove("show");}
+    function closeDrawer(){$("#detailDrawer").classList.remove("show");$("#detailDrawer").setAttribute("aria-hidden","true");if(!$("#promoModal").classList.contains("show")&&!$("#releaseModal").classList.contains("show")&&!$("#exerciseDrawer").classList.contains("show"))$("#overlay").classList.remove("show");}
     function openModal(id){$("#"+id).classList.add("show");$("#"+id).setAttribute("aria-hidden","false");$("#overlay").classList.add("show");}
     function closeModal(id){$("#"+id).classList.remove("show");$("#"+id).setAttribute("aria-hidden","true");if(!$("#detailDrawer").classList.contains("show")&&!$("#exerciseDrawer").classList.contains("show"))$("#overlay").classList.remove("show");}
     function openExerciseDrawer(ex=null){fillExerciseForm(ex);$("#exerciseDrawer").classList.add("show");$("#exerciseDrawer").setAttribute("aria-hidden","false");$("#overlay").classList.add("show");}
-    function closeExerciseDrawer(){$("#exerciseDrawer").classList.remove("show");$("#exerciseDrawer").setAttribute("aria-hidden","true");if(!$("#detailDrawer").classList.contains("show")&&!$("#promoModal").classList.contains("show"))$("#overlay").classList.remove("show");}
+    function closeExerciseDrawer(){$("#exerciseDrawer").classList.remove("show");$("#exerciseDrawer").setAttribute("aria-hidden","true");if(!$("#detailDrawer").classList.contains("show")&&!$("#promoModal").classList.contains("show")&&!$("#releaseModal").classList.contains("show"))$("#overlay").classList.remove("show");}
     async function logout(){await supabaseClient.auth.signOut();location.href="auth.html?mode=login";}
 
     async function boot(){
@@ -920,6 +1083,8 @@
       const userRow=event.target.closest("[data-user-id]");if(userRow){openUser(userRow.dataset.userId);return;}
       const aiRow=event.target.closest("[data-ai-id]");if(aiRow){openAiRequest(aiRow.dataset.aiId);return;}
       const exerciseCard=event.target.closest("[data-exercise-id]");if(exerciseCard){const ex=state.exercises.find(item=>String(item.id)===String(exerciseCard.dataset.exerciseId));openExerciseDrawer(ex);return;}
+      const editRelease=event.target.closest("[data-edit-release]");if(editRelease){openReleaseEdit(editRelease.dataset.editRelease);return;}
+      const releaseAction=event.target.closest("[data-release-status]");if(releaseAction){releaseAction.disabled=true;try{await changeReleaseStatus(releaseAction.dataset.releaseId,releaseAction.dataset.releaseStatus);}catch(error){toast(error.message||"Could not update release.");}finally{releaseAction.disabled=false;}return;}
       const copyPromo=event.target.closest("[data-copy-promo]");if(copyPromo){try{await navigator.clipboard.writeText(copyPromo.dataset.copyPromo);toast(`Copied ${copyPromo.dataset.copyPromo}`);}catch{toast(`Copy manually: ${copyPromo.dataset.copyPromo}`);}return;}
       const editPromo=event.target.closest("[data-edit-promo]");if(editPromo){openPromoEdit(editPromo.dataset.editPromo);return;}
       const toggle=event.target.closest("[data-toggle-promo]");if(toggle){toggle.disabled=true;try{await togglePromo(toggle.dataset.togglePromo,toggle.dataset.active==="true");}catch(error){toast(error.message);}finally{toggle.disabled=false;}return;}
@@ -929,11 +1094,13 @@
     $$("[data-user-plan]").forEach(btn=>btn.addEventListener("click",()=>{$$("[data-user-plan]").forEach(x=>x.classList.remove("active"));btn.classList.add("active");state.userPlanFilter=btn.dataset.userPlan;renderUsers();}));
     $$("[data-ai-status]").forEach(btn=>btn.addEventListener("click",()=>{$$("[data-ai-status]").forEach(x=>x.classList.remove("active"));btn.classList.add("active");state.aiStatusFilter=btn.dataset.aiStatus;renderAi();}));
     $$("[data-promo-filter]").forEach(btn=>btn.addEventListener("click",()=>{$$("[data-promo-filter]").forEach(x=>x.classList.remove("active"));btn.classList.add("active");state.promoFilter=btn.dataset.promoFilter;renderPromos();}));
-    $("#userSearch").addEventListener("input",renderUsers);$("#aiSearch").addEventListener("input",renderAi);$("#aiSourceFilter").addEventListener("change",renderAi);$("#promoSearch").addEventListener("input",renderPromos);$("#exerciseSearch").addEventListener("input",renderExercises);$("#exerciseFilter").addEventListener("change",renderExercises);
+    $$("[data-release-filter]").forEach(btn=>btn.addEventListener("click",()=>{$$("[data-release-filter]").forEach(x=>x.classList.remove("active"));btn.classList.add("active");state.releaseFilter=btn.dataset.releaseFilter;renderReleases();}));
+    $("#userSearch").addEventListener("input",renderUsers);$("#aiSearch").addEventListener("input",renderAi);$("#aiSourceFilter").addEventListener("change",renderAi);$("#promoSearch").addEventListener("input",renderPromos);$("#releaseSearch").addEventListener("input",renderReleases);$("#exerciseSearch").addEventListener("input",renderExercises);$("#exerciseFilter").addEventListener("change",renderExercises);
     $("#refreshPageBtn").addEventListener("click",()=>loadRoute(state.route,true));
     $("#overviewCreatePromoBtn").addEventListener("click",()=>{setRoute("promos");setTimeout(openPromoCreate,80);});$("#createPromoBtn").addEventListener("click",openPromoCreate);$("#savePromoBtn").addEventListener("click",savePromo);
+    $("#createReleaseBtn").addEventListener("click",openReleaseCreate);$("#saveReleaseBtn").addEventListener("click",saveRelease);
     $("#newExerciseBtn").addEventListener("click",()=>openExerciseDrawer(null));$("#saveExerciseBtn").addEventListener("click",saveExercise);$("#uploadExerciseMediaBtn").addEventListener("click",uploadExerciseMedia);$("#cancelExerciseBtn").addEventListener("click",closeExerciseDrawer);$("#closeExerciseDrawerBtn").addEventListener("click",closeExerciseDrawer);$("#closeDrawerBtn").addEventListener("click",closeDrawer);
-    $("#overlay").addEventListener("click",()=>{closeDrawer();closeExerciseDrawer();closeModal("promoModal");$("#moreSheet").classList.remove("show");});
+    $("#overlay").addEventListener("click",()=>{closeDrawer();closeExerciseDrawer();closeModal("promoModal");closeModal("releaseModal");$("#moreSheet").classList.remove("show");});
     $("#moreTabBtn").addEventListener("click",()=>$("#moreSheet").classList.toggle("show"));
     ["sidebarLogoutBtn","mobileLogoutBtn","moreLogoutBtn"].forEach(id=>$("#"+id).addEventListener("click",logout));
     $("#exName").addEventListener("input",()=>{if(!$("#exSlug").value.trim())$("#exSlug").value=slugify($("#exName").value);});
