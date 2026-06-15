@@ -130,6 +130,122 @@ function number(value, fallback = 0) {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
+function timeToMinutes(value) {
+  const match = String(value || "").match(/^(\d{1,2}):(\d{2})/);
+  if (!match) return null;
+  const hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  if (!Number.isFinite(hours) || !Number.isFinite(minutes) || hours < 0 || hours > 23 || minutes < 0 || minutes > 59) return null;
+  return hours * 60 + minutes;
+}
+
+function minutesToTime(value) {
+  if (!Number.isFinite(value)) return "";
+  const normalized = ((Math.round(value) % 1440) + 1440) % 1440;
+  return `${String(Math.floor(normalized / 60)).padStart(2, "0")}:${String(normalized % 60).padStart(2, "0")}`;
+}
+
+function normalizedDay(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function isWorkDay(day, work) {
+  return safeArray(work?.work_days).some(value => normalizedDay(value) === normalizedDay(day));
+}
+
+function normalizedBreaks(work) {
+  return safeArray(work?.breaks)
+    .filter(item => timeToMinutes(item?.time) !== null)
+    .map(item => ({ ...item, time: String(item.time).slice(0, 5) }))
+    .sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
+}
+
+function circularMinuteDistance(a, b) {
+  const diff = Math.abs(a - b);
+  return Math.min(diff, 1440 - diff);
+}
+
+function minuteInsideShift(minute, start, end) {
+  if (minute === null || start === null || end === null || start === end) return false;
+  return start < end
+    ? minute >= start && minute <= end
+    : minute >= start || minute <= end;
+}
+
+function nearestBreakTime(minute, breaks) {
+  if (minute === null || !breaks.length) return "";
+  return breaks.reduce((best, item) => {
+    const current = timeToMinutes(item.time);
+    if (current === null) return best;
+    const distance = circularMinuteDistance(minute, current);
+    return !best || distance < best.distance ? { time: item.time, distance } : best;
+  }, null)?.time || "";
+}
+
+function scheduleSortValue(day, item, work) {
+  const minute = timeToMinutes(item?.time);
+  if (minute === null) return 99999;
+  const start = timeToMinutes(work?.work_start);
+  const end = timeToMinutes(work?.work_end);
+  if (!isWorkDay(day, work) || start === null || end === null || start < end) return minute;
+  const anchor = ((start - 120) % 1440 + 1440) % 1440;
+  return minute < anchor ? minute + 1440 : minute;
+}
+
+function normalizeScheduleTiming(schedule, work) {
+  const result = {};
+  const breaks = normalizedBreaks(work);
+  const breakMinutes = breaks.map(item => timeToMinutes(item.time)).filter(value => value !== null);
+  const start = timeToMinutes(work?.work_start);
+  const end = timeToMinutes(work?.work_end);
+
+  for (const day of DAYS) {
+    const items = safeArray(schedule?.[day]).map(item => ({ ...item }));
+
+    if (isWorkDay(day, work) && start !== null && end !== null && start !== end) {
+      const preWorkTime = minutesToTime(start - 60);
+      const afterWorkTime = minutesToTime(end + 30);
+
+      items.forEach(item => {
+        if (String(item?.type || "").toLowerCase() !== "food") return;
+        const minute = timeToMinutes(item.time);
+        if (minute === null || !minuteInsideShift(minute, start, end)) return;
+
+        const closestBreak = breaks.reduce((best, breakItem) => {
+          const value = timeToMinutes(breakItem.time);
+          if (value === null) return best;
+          const distance = circularMinuteDistance(minute, value);
+          return !best || distance < best.distance ? { time: breakItem.time, distance } : best;
+        }, null);
+
+        if (closestBreak && closestBreak.distance <= 20) {
+          item.time = closestBreak.time;
+          return;
+        }
+
+        const label = `${item.title || ""} ${item.text || ""}`.toLowerCase();
+        const looksLikeBreakfast = /breakfast|pre[- ]?work|morning meal|morning smoothie/.test(label);
+
+        if (looksLikeBreakfast) {
+          item.time = preWorkTime;
+          item.title = item.title || "Breakfast before work";
+        } else {
+          item.time = nearestBreakTime(minute, breaks) || afterWorkTime;
+        }
+
+        const timingNote = "Timing aligned with the saved work start, end, and break schedule.";
+        item.coach_note = text(item.coach_note)
+          ? `${text(item.coach_note)} ${timingNote}`
+          : timingNote;
+      });
+    }
+
+    result[day] = items.sort((a, b) => scheduleSortValue(day, a, work) - scheduleSortValue(day, b, work));
+  }
+
+  return result;
+}
+
 function hasValue(value) {
   return value !== null && value !== undefined && String(value).trim() !== "";
 }
@@ -432,6 +548,12 @@ NON-NEGOTIABLE PERSONALIZATION:
 - Use realistic amounts such as roti count, milk volume, oats grams, yogurt amount, eggs, paneer, tofu, chicken, dal, or whey when permitted.
 - Give 1-2 practical replacements for every food item.
 - Match short work breaks with fast snacks and longer breaks with full packed meals.
+- Treat work_schedule.work_days, work_start, work_end, and breaks as strict timing constraints for every membership tier, including Free.
+- On a workday, breakfast or a pre-shift meal must be 45-90 minutes before work_start. Never place breakfast after the shift has started unless it is explicitly one of the user's saved break times.
+- During the work shift, place food only at the user's saved break times. Do not invent an 08:00, 12:00, or other generic meal time inside the shift.
+- Use the exact saved break time whenever possible. A short break gets a fast snack; a 25+ minute/full-meal break can get a packed meal.
+- Place after-work food after work_end. Handle overnight shifts by treating work_end as the following day.
+- Schedule accuracy is mandatory and must not be reduced on the Free plan.
 - If work is already physically demanding or step-heavy, do not add unnecessary cardio.
 
 WORKOUT SAFETY:
@@ -649,7 +771,7 @@ function sanitizePlan(rawPlan, data, entitlement) {
       bottles_per_day: number(raw.water_goal?.bottles_per_day, 2),
       note: text(raw.water_goal?.note, "Sip consistently through the day.")
     },
-    daily_schedule: sanitizeDailySchedule(raw.daily_schedule),
+    daily_schedule: normalizeScheduleTiming(sanitizeDailySchedule(raw.daily_schedule), data.work_schedule || {}),
     workouts: sanitizeWorkouts(raw.workouts, data.approved_exercise_library),
     meal_prep_plan: {
       prep_day: text(raw.meal_prep_plan?.prep_day, "Saturday"),
