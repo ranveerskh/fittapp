@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark" data-ui-version="approved-settings-v6-scheduled-ai">
+<html lang="en" data-theme="dark" data-ui-version="approved-settings-v7-profile-update">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -1220,6 +1220,155 @@
     .notification-help.blocked{color:var(--red)}
     @media(max-width:390px){.notification-options-grid,.notification-actions{grid-template-columns:1fr}}
 
+
+    /* ShapeCue Step 7: existing-member profile update flow */
+    .profile-update-card{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:21px;
+      padding:13px;
+      background:var(--surface);
+    }
+
+    .profile-update-card::before{
+      content:"";
+      position:absolute;
+      inset:0 auto auto 0;
+      width:100%;
+      height:3px;
+      background:linear-gradient(90deg,var(--green),var(--blue),var(--purple));
+      opacity:.9;
+    }
+
+    .profile-update-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .profile-update-copy{
+      min-width:0;
+      flex:1;
+    }
+
+    .profile-update-copy h2{
+      margin:0;
+      font-size:18px;
+      letter-spacing:-.45px;
+    }
+
+    .profile-update-copy p{
+      margin:5px 0 0;
+      color:var(--text-2);
+      font-size:10.8px;
+      line-height:1.42;
+    }
+
+    .profile-status-pill{
+      flex:0 0 auto;
+      min-height:27px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:5px 8px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:var(--surface-2);
+      color:var(--text-2);
+      font-size:9px;
+      font-weight:1000;
+      white-space:nowrap;
+    }
+
+    .profile-status-pill.good{
+      color:var(--green);
+      background:color-mix(in srgb,var(--green) 11%,var(--surface));
+      border-color:color-mix(in srgb,var(--green) 23%,var(--line));
+    }
+
+    .profile-status-pill.warn{
+      color:var(--amber);
+      background:color-mix(in srgb,var(--amber) 11%,var(--surface));
+      border-color:color-mix(in srgb,var(--amber) 23%,var(--line));
+    }
+
+    .profile-status-pill.required{
+      color:var(--red);
+      background:color-mix(in srgb,var(--red) 10%,var(--surface));
+      border-color:color-mix(in srgb,var(--red) 23%,var(--line));
+    }
+
+    .profile-completeness{
+      margin-top:12px;
+    }
+
+    .profile-completeness-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:6px;
+      color:var(--text-2);
+      font-size:10px;
+      font-weight:850;
+    }
+
+    .profile-completeness-bar{
+      height:7px;
+      overflow:hidden;
+      border-radius:999px;
+      background:var(--surface-3);
+    }
+
+    .profile-completeness-bar div{
+      width:0;
+      height:100%;
+      border-radius:inherit;
+      background:linear-gradient(90deg,var(--green),var(--blue));
+      transition:width .24s ease;
+    }
+
+    .profile-missing-list{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin-top:11px;
+    }
+
+    .profile-missing-chip{
+      min-height:25px;
+      display:inline-flex;
+      align-items:center;
+      padding:5px 8px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:var(--surface-2);
+      color:var(--text-2);
+      font-size:9px;
+      font-weight:850;
+    }
+
+    .profile-missing-chip.required{
+      color:var(--amber);
+      background:color-mix(in srgb,var(--amber) 10%,var(--surface));
+      border-color:color-mix(in srgb,var(--amber) 20%,var(--line));
+    }
+
+    .profile-update-note{
+      margin:10px 1px 0;
+      color:var(--text-3);
+      font-size:9.8px;
+      line-height:1.44;
+    }
+
+    @media(max-width:390px){
+      .profile-update-card .membership-actions{
+        grid-template-columns:1fr !important;
+      }
+    }
+
   </style>
 </head>
 
@@ -1317,6 +1466,53 @@
 
           <p class="ai-coach-note" id="autoAiNote">
             Only admins or members with a purchased extra AI update can request an early refresh.
+          </p>
+        </section>
+
+
+        <div class="section-label">Profile update</div>
+
+        <section class="profile-update-card" id="profileUpdateCard">
+          <div class="profile-update-head">
+            <div class="profile-update-copy">
+              <h2 id="profileUpdateTitle">Checking profile completeness</h2>
+              <p id="profileUpdateDescription">ShapeCue is checking the new goal and life-stage questions.</p>
+            </div>
+            <span class="profile-status-pill" id="profileUpdateStatusPill">Checking</span>
+          </div>
+
+          <div class="profile-completeness">
+            <div class="profile-completeness-top">
+              <span>Profile completeness</span>
+              <strong id="profileCompletenessText">0%</strong>
+            </div>
+            <div class="profile-completeness-bar"><div id="profileCompletenessBar"></div></div>
+          </div>
+
+          <div class="membership-meta">
+            <div class="meta-row">
+              <span>Profile version</span>
+              <strong id="profileVersionText">Checking…</strong>
+            </div>
+            <div class="meta-row">
+              <span>Required details</span>
+              <strong id="profileRequiredText">Checking…</strong>
+            </div>
+            <div class="meta-row">
+              <span>Recommended details</span>
+              <strong id="profileRecommendedText">Checking…</strong>
+            </div>
+          </div>
+
+          <div class="profile-missing-list" id="profileMissingList"></div>
+
+          <div class="membership-actions">
+            <button class="btn primary" id="updateProfileVersionBtn" type="button">Update profile</button>
+            <button class="btn secondary" id="remindProfileLaterBtn" type="button">Remind me later</button>
+          </div>
+
+          <p class="profile-update-note" id="profileUpdateNote">
+            Your current plan stays active. Completing these questions does not use an AI update or add-on credit.
           </p>
         </section>
 
@@ -1713,6 +1909,9 @@
     let notificationRegistration = null;
     let notificationSubscription = null;
     let notificationDbReady = true;
+    let structuredGoalProfile = null;
+    let lifeStageProfile = null;
+    let profileSchemaMetadata = null;
 
     function toast(message){
       const box = $("#toast");
@@ -1796,6 +1995,258 @@
       }
 
       return "Starter access with Today, a basic exercise guide, and limited plan previews.";
+    }
+
+
+    function filledText(value){
+      return value !== null && value !== undefined && String(value).trim() !== "";
+    }
+
+    function filledArray(value){
+      return Array.isArray(value) && value.some(item => filledText(item));
+    }
+
+    function profileUpdateAssessment(){
+      const goal = structuredGoalProfile || {};
+      const life = lifeStageProfile || {};
+      const targetVersion = Number(
+        currentProfile?.profile_update_target_version ||
+        profileSchemaMetadata?.version ||
+        2
+      );
+      const currentVersion = Number(currentProfile?.profile_schema_version || 1);
+
+      const requiredChecks = [
+        { key:"primary_goal", label:"Main result", ready:filledText(goal.primary_goal) },
+        { key:"physique_preference", label:"Desired physique", ready:filledText(goal.physique_preference) },
+        { key:"focus_areas", label:"Body focus", ready:filledArray(goal.focus_areas) },
+        { key:"fitness_priorities", label:"Fitness abilities", ready:filledArray(goal.fitness_priorities) }
+      ];
+
+      const recommendedChecks = [
+        { key:"life_stage", label:"Pregnancy / postpartum answer", ready:filledText(life.life_stage) },
+        { key:"activity_purpose", label:"Activity purpose", ready:filledText(goal.activity_purpose) }
+      ];
+
+      if(goal.activity_purpose === "sports_performance"){
+        recommendedChecks.push({
+          key:"sport_or_activity",
+          label:"Sport or activity",
+          ready:filledText(goal.sport_or_activity)
+        });
+      }
+
+      if(life.life_stage === "pregnant"){
+        requiredChecks.push({
+          key:"pregnancy_week",
+          label:"Pregnancy week",
+          ready:Number(life.pregnancy_week) > 0
+        });
+        requiredChecks.push({
+          key:"exercise_clearance",
+          label:"Exercise clearance",
+          ready:filledText(life.exercise_clearance)
+        });
+      }
+
+      if(life.life_stage === "postpartum"){
+        requiredChecks.push({
+          key:"delivery_date",
+          label:"Delivery date",
+          ready:filledText(life.delivery_date)
+        });
+        requiredChecks.push({
+          key:"exercise_clearance",
+          label:"Exercise clearance",
+          ready:filledText(life.exercise_clearance)
+        });
+      }
+
+      const requiredMissing = requiredChecks.filter(item => !item.ready);
+      const recommendedMissing = recommendedChecks.filter(item => !item.ready);
+      const allChecks = [...requiredChecks, ...recommendedChecks];
+      const completed = allChecks.filter(item => item.ready).length;
+      const percent = allChecks.length
+        ? Math.round((completed / allChecks.length) * 100)
+        : 100;
+      const versionCurrent = currentVersion >= targetVersion;
+      const requiredComplete = requiredMissing.length === 0;
+      const status = String(currentProfile?.profile_update_status || "update_recommended");
+      const current = versionCurrent && requiredComplete && status === "current";
+
+      return {
+        targetVersion,
+        currentVersion,
+        status,
+        current,
+        requiredComplete,
+        requiredChecks,
+        recommendedChecks,
+        requiredMissing,
+        recommendedMissing,
+        percent
+      };
+    }
+
+    async function loadProfileUpdateData(){
+      const targetVersion = Number(currentProfile?.profile_update_target_version || 2);
+
+      const [goalResult, lifeResult, schemaResult] = await Promise.all([
+        supabaseClient
+          .from("fitness_goal_profiles")
+          .select("primary_goal,physique_preference,focus_areas,fitness_priorities,activity_purpose,sport_or_activity,custom_goal,completed_at")
+          .eq("user_id", currentUser.id)
+          .maybeSingle(),
+        supabaseClient
+          .from("user_life_stage_profiles")
+          .select("life_stage,pregnancy_week,delivery_date,delivery_type,breastfeeding_status,exercise_clearance,pelvic_floor_symptoms,diastasis_status,incision_or_pelvic_pain,completed_at")
+          .eq("user_id", currentUser.id)
+          .maybeSingle(),
+        supabaseClient
+          .from("profile_schema_versions")
+          .select("version,title,summary,required_fields,recommended_fields,blocks_plan_generation,complimentary_refresh")
+          .eq("version", targetVersion)
+          .maybeSingle()
+      ]);
+
+      if(goalResult.error) throw goalResult.error;
+      if(lifeResult.error) throw lifeResult.error;
+      if(schemaResult.error) throw schemaResult.error;
+
+      structuredGoalProfile = goalResult.data || null;
+      lifeStageProfile = lifeResult.data || null;
+      profileSchemaMetadata = schemaResult.data || null;
+    }
+
+    function profileStatusLabel(status){
+      const map = {
+        current:"Current",
+        update_recommended:"Update available",
+        update_required:"Update required",
+        in_progress:"In progress",
+        waiting_for_profile_update:"Update needed",
+        safety_update_required:"Safety update"
+      };
+      return map[status] || "Update available";
+    }
+
+    function renderProfileUpdate(){
+      const assessment = profileUpdateAssessment();
+      const title = profileSchemaMetadata?.title || "Better goals and safer personalisation";
+      const summary = profileSchemaMetadata?.summary || "Add your physique, body-focus, fitness-ability, and optional life-stage details.";
+      const pill = $("#profileUpdateStatusPill");
+      const updateButton = $("#updateProfileVersionBtn");
+      const remindButton = $("#remindProfileLaterBtn");
+
+      $("#profileCompletenessText").textContent = `${assessment.percent}%`;
+      $("#profileCompletenessBar").style.width = `${assessment.percent}%`;
+      $("#profileVersionText").textContent = `Version ${assessment.currentVersion} of ${assessment.targetVersion}`;
+      $("#profileRequiredText").textContent = assessment.requiredMissing.length
+        ? `${assessment.requiredMissing.length} missing`
+        : "Complete";
+      $("#profileRecommendedText").textContent = assessment.recommendedMissing.length
+        ? `${assessment.recommendedMissing.length} optional`
+        : "Complete";
+
+      pill.className = "profile-status-pill";
+
+      if(assessment.current){
+        $("#profileUpdateTitle").textContent = "Your profile is current";
+        $("#profileUpdateDescription").textContent = "The new goal and personalisation questions are complete.";
+        pill.textContent = "Current";
+        pill.classList.add("good");
+        updateButton.textContent = "Review answers";
+        remindButton.hidden = true;
+        $("#profileUpdateNote").textContent = "You can review these answers at any time. Your next scheduled plan update will use them after the AI connection step is completed.";
+      }else{
+        $("#profileUpdateTitle").textContent = title;
+        $("#profileUpdateDescription").textContent = summary;
+        pill.textContent = profileStatusLabel(assessment.status);
+        pill.classList.add(
+          ["update_required","waiting_for_profile_update","safety_update_required"].includes(assessment.status)
+            ? "required"
+            : "warn"
+        );
+        updateButton.textContent = assessment.status === "in_progress"
+          ? "Continue profile update"
+          : "Update profile";
+        remindButton.hidden = false;
+        $("#profileUpdateNote").textContent = "Only the new goals and life-stage page will open. Your current plan stays active, and no AI update or add-on credit is used.";
+      }
+
+      const missingItems = [
+        ...assessment.requiredMissing.map(item => ({...item, required:true})),
+        ...assessment.recommendedMissing.map(item => ({...item, required:false}))
+      ];
+
+      $("#profileMissingList").innerHTML = missingItems.length
+        ? missingItems.map(item => `
+            <span class="profile-missing-chip ${item.required ? "required" : ""}">
+              ${item.required ? "Required: " : "Optional: "}${item.label}
+            </span>
+          `).join("")
+        : `<span class="profile-missing-chip">All new details completed</span>`;
+    }
+
+    async function openProfileUpdate(){
+      const assessment = profileUpdateAssessment();
+      const now = new Date().toISOString();
+
+      if(!assessment.current){
+        try{
+          const { data, error } = await supabaseClient
+            .from("profiles")
+            .update({
+              profile_update_status:"in_progress",
+              profile_update_last_prompted_at:now,
+              profile_update_remind_at:null,
+              updated_at:now
+            })
+            .eq("id", currentUser.id)
+            .select("*")
+            .single();
+
+          if(error) throw error;
+          currentProfile = data;
+        }catch(error){
+          console.warn("Could not mark profile update in progress", error);
+        }
+      }
+
+      location.href = "onboarding.html?edit=profile_update&return=settings.html";
+    }
+
+    async function remindProfileUpdateLater(){
+      const button = $("#remindProfileLaterBtn");
+      const oldText = button.textContent;
+      const now = new Date();
+      const remindAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+      button.disabled = true;
+      button.textContent = "Saving…";
+
+      try{
+        const { data, error } = await supabaseClient
+          .from("profiles")
+          .update({
+            profile_update_remind_at:remindAt.toISOString(),
+            profile_update_last_prompted_at:now.toISOString(),
+            updated_at:now.toISOString()
+          })
+          .eq("id", currentUser.id)
+          .select("*")
+          .single();
+
+        if(error) throw error;
+        currentProfile = data;
+        toast("We’ll remind you in 7 days");
+        $("#profileUpdateNote").textContent = `Reminder set for ${remindAt.toLocaleDateString([], {month:"short", day:"numeric"})}. Your current plan remains active.`;
+      }catch(error){
+        toast(error.message || "Could not save reminder");
+      }finally{
+        button.disabled = false;
+        button.textContent = oldText;
+      }
     }
 
 
@@ -2311,12 +2762,23 @@
       await loadAdminStatus();
       await loadLatestAiPlan();
       await loadAiUpdateWallet();
+
+      try{
+        await loadProfileUpdateData();
+      }catch(error){
+        console.warn("Could not load profile update details", error);
+        structuredGoalProfile = null;
+        lifeStageProfile = null;
+        profileSchemaMetadata = null;
+      }
+
       await loadNotificationPreferences();
       await refreshNotificationState();
 
       renderAccount();
       renderMembership();
       renderAutoAi();
+      renderProfileUpdate();
 
       const loader = $("#pageLoader");
       const content = $("#settingsContent");
@@ -2472,6 +2934,16 @@
       $("#editSetupBtn").addEventListener(
         "click",
         () => location.href = "onboarding.html?edit=fitness&return=settings.html"
+      );
+
+      $("#updateProfileVersionBtn").addEventListener(
+        "click",
+        openProfileUpdate
+      );
+
+      $("#remindProfileLaterBtn").addEventListener(
+        "click",
+        remindProfileUpdateLater
       );
 
       $("#accountSecurityBtn").addEventListener(
